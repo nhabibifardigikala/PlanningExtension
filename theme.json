@@ -1,0 +1,30 @@
+{
+  "default": "light",
+  "light": {
+    "background": "#f3f4f6",
+    "panel": "#ffffff",
+    "card": "#ffffff",
+    "text": "#102030",
+    "muted": "#667085",
+    "accent": "#c79710",
+    "border": "#d9a514",
+    "danger": "#d92d20",
+    "success": "#079455"
+  },
+  "dark": {
+    "background": "#07172c",
+    "panel": "#071a33",
+    "card": "#0d2b56",
+    "text": "#ffffff",
+    "muted": "#b6c1d2",
+    "accent": "#d9a514",
+    "border": "#d9a514",
+    "danger": "#ff5b52",
+    "success": "#22c55e"
+  },
+  "layout": {
+    "columns": 2,
+    "cardRadius": 16,
+    "gap": 16
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "home": {
+    "title": "Choose an operation",
+    "subtitle": "Run your daily operations from one place."
+  },
+  "access": {
+    "setEmail": "Set your email in Settings to load available operations.",
+    "none": "No operations are assigned to this email."
+  }
+}

@@ -1,4 +1,62 @@
 {
-  "app": "Digiexpress",
-  "configVersion": 1
+  "configVersion": 1,
+  "minEngineVersion": "5.0",
+  "app": {
+    "name": "Digiexpress",
+    "subtitle": "Operations Toolkit",
+    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png"
+  },
+  "theme": "theme.json",
+  "settings": "settings.json",
+  "messages": "messages.json",
+  "operations": [
+    {
+      "id": "sync-iata",
+      "title": "Sync IATA Code",
+      "subtitle": "Sync codes",
+      "iconSvgPath": "M10 17h21l-5-5 3-3 10 10-10 10-3-3 5-5H10v-4Zm28 14H17l5 5-3 3L9 29l10-10 3 3-5 5h21v4Z",
+      "accessHeaders": ["Sync IATA Code"],
+      "config": "operations/sync-iata.json"
+    },
+    {
+      "id": "extract-dc",
+      "title": "Extract Distribution Centers",
+      "subtitle": "Export to Excel",
+      "iconSvgPath": "M24 6c-9.4 0-17 3.1-17 7v22c0 3.9 7.6 7 17 7s17-3.1 17-7V13c0-3.9-7.6-7-17-7Zm0 4c8.1 0 13 2.4 13 3s-4.9 3-13 3-13-2.4-13-3 4.9-3 13-3Zm13 25c0 .6-4.9 3-13 3s-13-2.4-13-3v-5c3.1 1.8 7.8 2.8 13 2.8s9.9-1 13-2.8v5Zm0-11c0 .6-4.9 3-13 3s-13-2.4-13-3v-5c3.1 1.8 7.8 2.8 13 2.8s9.9-1 13-2.8v5Z",
+      "accessHeaders": ["Extract Distribution Centers", "Extract DC Data"],
+      "config": "operations/extract-distribution-centers.json"
+    },
+    {
+      "id": "capacity-report",
+      "title": "Capacity Report",
+      "subtitle": "Capacity overview",
+      "iconSvgPath": "M7 39h34v4H3V7h4v32Zm7-5H9V22h5v12Zm9 0h-5V14h5v20Zm9 0h-5V19h5v15Zm9 0h-5V9h5v25Z",
+      "accessHeaders": ["Capacity Report"],
+      "config": "operations/capacity-report.json"
+    },
+    {
+      "id": "parcel-log",
+      "title": "Parcel Log",
+      "subtitle": "Parcel tracking log",
+      "iconText": "📦",
+      "accessHeaders": ["Parcel Log"],
+      "config": "operations/parcel-log.json"
+    },
+    {
+      "id": "role-assignment",
+      "title": "Role Assignment",
+      "subtitle": "Create role access",
+      "iconText": "🛡️",
+      "accessHeaders": ["Role Assignment"],
+      "config": "operations/role-assignment.json"
+    },
+    {
+      "id": "dc-user-assignment",
+      "title": "DC User Assignment",
+      "subtitle": "Assign DCs to users",
+      "iconText": "👤",
+      "accessHeaders": ["DC User Assignment", "DC USER ASSIGNMENT"],
+      "config": "operations/dc-user-assignment.json"
+    }
+  ]
 }

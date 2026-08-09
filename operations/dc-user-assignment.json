@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "This operation is visible and access-controlled remotely. Add a declarative workflow here when the workflow is ready.",
+  "inputs": [],
+  "workflow": []
+}

@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "handler": "capacity-report",
+  "requiresCredentials": true,
+  "url": "https://lg.digikala.com/dc-capacity/",
+  "initialWaitMs": 500,
+  "searchTimeoutMs": 60000,
+  "clearCheckIntervalMs": 250,
+  "runLabel": "Run capacity report",
+  "description": "Enter a Distribution Center ID and a Jalali date range.",
+  "inputs": [
+    { "name": "dcId", "label": "Distribution Center ID", "type": "number", "required": true, "placeholder": "e.g. 123" },
+    { "name": "fromDate", "label": "From date (Jalali)", "type": "jalali-date", "required": true, "placeholder": "14050501", "maxLength": 8, "pattern": "^\\d{8}$", "validationMessage": "From date must contain exactly 8 digits." },
+    { "name": "toDate", "label": "To date (Jalali)", "type": "jalali-date", "required": true, "placeholder": "14050531", "maxLength": 8, "pattern": "^\\d{8}$", "validationMessage": "To date must contain exactly 8 digits." }
+  ]
+}

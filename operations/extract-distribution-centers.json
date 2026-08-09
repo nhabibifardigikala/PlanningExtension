@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "handler": "extract-dc",
+  "requiresCredentials": true,
+  "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+  "tableTimeoutMs": 30000,
+  "tableStableMs": 2500,
+  "inputs": [],
+  "description": "Extract all visible Distribution Center rows and export them to Excel."
+}

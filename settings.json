@@ -1,0 +1,24 @@
+{
+  "title": "Settings",
+  "description": "Theme, credentials and remote configuration.",
+  "appearance": {
+    "title": "Appearance",
+    "themes": [
+      { "id": "light", "label": "Day" },
+      { "id": "dark", "label": "Night" }
+    ]
+  },
+  "credentials": {
+    "title": "Credentials & Access",
+    "help": "Credentials remain only on this device. The email is also used for access control.",
+    "usernameLabel": "Username / Access Email",
+    "usernamePlaceholder": "name@digikala.com",
+    "passwordLabel": "Password",
+    "saveLabel": "Save & validate",
+    "clearLabel": "Clear username & password"
+  },
+  "validation": {
+    "title": "Validating username and password",
+    "message": "Please wait. Settings are locked during validation."
+  }
+}
