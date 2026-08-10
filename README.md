@@ -17,3 +17,8 @@ Other remote files:
 You can redesign/reorder/re-style the UI freely from GitHub, but keep the element IDs used by the runtime (for example `menu`, `settingsBtn`, `operationInputs`, `runOperation`, `username`, `password`, etc.). Removing a required contract ID can make that feature unavailable.
 
 No remote JavaScript is used. This keeps privileged Chrome APIs and credentials inside the installed extension while allowing the visual application and operational behavior to be remotely maintained.
+
+
+Remote config v9:
+- DC User Assignment now submits large DC selections in bounded batches to avoid HTTP 414 Request-URI Too Large.
+- `0 - User and DC relation already exists` is treated as a successful no-op outcome.

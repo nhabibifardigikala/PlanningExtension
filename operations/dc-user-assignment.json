@@ -50,7 +50,7 @@
     "retryDelayMs": 400,
     "completeTimeoutMs": 30000
   },
-  "successMessage": "DC assignment submitted for {{email}}.",
+  "successMessage": "DC assignment completed successfully for {{email}}.",
   "workflow": [
     {
       "action": "open",
@@ -64,74 +64,58 @@
       "progress": "Checking authentication…"
     },
     {
-      "action": "waitFor",
-      "selector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
-      "timeoutMs": 20000,
-      "intervalMs": 250,
-      "progress": "Waiting for DC selector…",
-      "error": "DC chooser was not found."
-    },
-    {
-      "action": "click",
-      "selector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
-      "afterMs": 1000,
-      "progress": "Opening DC list…"
-    },
-    {
-      "action": "selectPagedCheckboxes",
+      "action": "pagedBatchSubmit",
       "count": "{{dcCount}}",
       "itemsPerPage": 20,
+      "pagesPerBatch": 3,
+      "resetUrl": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
+      "openerSelector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
+      "openerTimeoutMs": 20000,
+      "afterOpenMs": 1000,
       "selectAllSelector": "#admin-dynamic-clear-all",
       "nextSelector": "a[aria-label=\"Next page\"]",
       "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
       "frameTimeoutMs": 20000,
-      "nextTimeoutMs": 5000,
+      "nextTimeoutMs": 7000,
       "chooseTimeoutMs": 15000,
-      "afterSelectMs": 600,
+      "afterSelectMs": 700,
       "afterNextMs": 1400,
       "afterChooseMs": 1000,
+      "batchProgress": "Assigning batch {{batch}} of {{batches}}…",
+      "skipProgress": "Moving to DC page {{page}}…",
       "pageProgress": "Selecting DC page {{page}} of {{pages}}…",
-      "progress": "Selecting Distribution Centers…",
-      "error": "Could not select Distribution Centers.",
-      "chooseError": "Choose button was not found."
-    },
-    {
-      "action": "waitFor",
-      "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
-      "timeoutMs": 15000,
-      "intervalMs": 250,
-      "progress": "Waiting for user field…",
-      "error": "User email field was not found."
-    },
-    {
-      "action": "autocomplete",
-      "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
-      "value": "{{email}}",
-      "attempts": 5,
-      "verifyNonEmpty": true,
-      "retryDelayMs": 600,
-      "progress": "Setting user email…",
-      "options": {
-        "typingDelayMs": 110,
-        "autocompleteWaitMs": 1800,
-        "pressEnter": true,
-        "commitWaitMs": 1200,
-        "outsideSelector": "button.form-save-button.admin-submit-button",
-        "outsideWaitMs": 700,
-        "selectorIndex": -1
-      }
-    },
-    {
-      "action": "wait",
-      "ms": 700,
-      "progress": "Preparing to save…"
-    },
-    {
-      "action": "click",
-      "selector": "button.form-save-button.admin-submit-button",
-      "textContains": "save",
-      "afterMs": 1500,
-      "progress": "Saving assignment…"
+      "autocomplete": {
+        "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
+        "value": "{{email}}",
+        "attempts": 5,
+        "verifyNonEmpty": true,
+        "retryDelayMs": 600,
+        "error": "Could not set the user email.",
+        "options": {
+          "typingDelayMs": 110,
+          "autocompleteWaitMs": 1800,
+          "pressEnter": true,
+          "commitWaitMs": 1200,
+          "outsideSelector": "button.form-save-button.admin-submit-button",
+          "outsideWaitMs": 700,
+          "selectorIndex": -1
+        }
+      },
+      "beforeSubmitMs": 700,
+      "submit": {
+        "selector": "button.form-save-button.admin-submit-button",
+        "textContains": "save",
+        "error": "Save button was not found."
+      },
+      "outcomeTimeoutMs": 5000,
+      "outcomeIntervalMs": 300,
+      "terminalSuccessTexts": [
+        "0 - User and DC relation already exists",
+        "User and DC relation already exists"
+      ],
+      "terminalSuccessMessage": "The user and DC relation already exists. No changes were required.",
+      "afterSubmitMs": 1200,
+      "progress": "Assigning Distribution Centers…"
     }
   ]
 }

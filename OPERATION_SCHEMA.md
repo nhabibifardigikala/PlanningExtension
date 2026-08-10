@@ -27,3 +27,9 @@ Engine 6.2 additions:
 - `selectPagedCheckboxes`: frame-aware selection of a select-all checkbox across enough paginated pages to satisfy a requested item count, then clicks a Choose button.
 - Remote input type `checkbox` with `defaultChecked` and `hideFields`.
 - `inputRules` can copy the locally stored credential username/email into an operation input when a checkbox is enabled.
+
+
+Engine 7.1 additions:
+- `pagedBatchSubmit`: performs a paginated chooser + autocomplete + submit flow in bounded batches so selected IDs do not create oversized pagination URLs.
+- `pagesPerBatch` controls the maximum selected pages carried in one request and is fully remote-configurable.
+- `terminalSuccessTexts` can classify known server messages as a successful terminal outcome instead of an error.
