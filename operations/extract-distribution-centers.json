@@ -1,10 +1,52 @@
 {
   "enabled": true,
-  "handler": "extract-dc",
+  "handler": "generic",
   "requiresCredentials": true,
-  "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
-  "tableTimeoutMs": 30000,
-  "tableStableMs": 2500,
+  "description": "Extract all Distribution Center rows and export them to Excel.",
   "inputs": [],
-  "description": "Extract all visible Distribution Center rows and export them to Excel."
+  "navigation": {
+    "retryCount": 10,
+    "retryDelayMs": 400,
+    "completeTimeoutMs": 30000
+  },
+  "successMessage": "Done. {{rowCount}} rows exported.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "progress": "Opening Distribution Centers…",
+      "active": true
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 5000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 30000,
+      "intervalMs": 300,
+      "progress": "Waiting for Distribution Center table…",
+      "error": "Distribution Center table was not found."
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "timeoutMs": 30000,
+      "stableMs": 2500,
+      "pollMs": 500,
+      "afterPageMs": 700,
+      "dedupe": true,
+      "maxPages": 1000,
+      "pageProgress": "Extracting Distribution Center page {{page}}…",
+      "progress": "Extracting Distribution Centers…"
+    },
+    {
+      "action": "exportExcel",
+      "sheetName": "Distribution Centers",
+      "filename": "distribution_centers_{{today}}.xlsx",
+      "progress": "Creating Excel file…"
+    }
+  ]
 }

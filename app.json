@@ -1,6 +1,6 @@
 {
-  "configVersion": 3,
-  "minEngineVersion": "5.1",
+  "configVersion": 4,
+  "minEngineVersion": "6.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -73,9 +73,10 @@
       "iconSvgPath": "M18 7a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm0 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 15c8 0 14 4.1 14 9v5H4v-5c0-4.9 6-9 14-9Zm0 4c-5.8 0-10 2.6-10 5v1h20v-1c0-2.4-4.2-5-10-5Zm20-12h6v4h-6v6h-4v-6h-6v-4h6v-6h4Z"
     }
   ],
-  "publishedAt": "2026-08-09T23:46:00+03:30",
+  "publishedAt": "2026-08-10T16:30:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
-  }
+  },
+  "engineArchitecture": "generic-remote-workflow-v1"
 }
