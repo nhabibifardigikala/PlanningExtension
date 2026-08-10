@@ -117,7 +117,8 @@
         "pressEnter": true,
         "commitWaitMs": 1200,
         "outsideSelector": "button.form-save-button.admin-submit-button",
-        "outsideWaitMs": 700
+        "outsideWaitMs": 700,
+        "selectorIndex": -1
       }
     },
     {

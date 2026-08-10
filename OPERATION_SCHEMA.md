@@ -27,3 +27,7 @@ Engine 6.2 additions:
 - `selectPagedCheckboxes`: frame-aware selection of a select-all checkbox across enough paginated pages to satisfy a requested item count, then clicks a Choose button.
 - Remote input type `checkbox` with `defaultChecked` and `hideFields`.
 - `inputRules` can copy the locally stored credential username/email into an operation input when a checkbox is enabled.
+
+
+### Duplicate selectors
+For autocomplete actions, `options.selectorIndex` selects among all matching elements. `0` is first and `-1` is last.
