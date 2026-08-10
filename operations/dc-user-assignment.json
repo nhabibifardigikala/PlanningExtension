@@ -2,7 +2,135 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "This operation is visible and access-controlled remotely. Add a declarative workflow here when the workflow is ready.",
-  "inputs": [],
-  "workflow": []
+  "description": "Assign Distribution Centers to a user. Choose the saved access email or enter another email, then enter the desired DC count.",
+  "runLabel": "Assign DCs",
+  "inputs": [
+    {
+      "name": "useConfiguredEmail",
+      "label": "Use configured email",
+      "type": "checkbox",
+      "defaultChecked": true,
+      "hideFields": [
+        "email"
+      ],
+      "help": "Use the email saved in Settings."
+    },
+    {
+      "name": "email",
+      "label": "User email",
+      "type": "email",
+      "requiredUnless": "useConfiguredEmail",
+      "placeholder": "name@digikala.com",
+      "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+      "validationMessage": "Enter a valid email address."
+    },
+    {
+      "name": "dcCount",
+      "label": "Number of DCs",
+      "type": "number",
+      "required": true,
+      "min": 1,
+      "placeholder": "e.g. 40",
+      "pattern": "^\\d+$",
+      "validationMessage": "Number of DCs must be a positive whole number."
+    }
+  ],
+  "inputRules": [
+    {
+      "when": {
+        "field": "useConfiguredEmail",
+        "equals": true
+      },
+      "target": "email",
+      "source": "credentialUsername"
+    }
+  ],
+  "navigation": {
+    "retryCount": 10,
+    "retryDelayMs": 400,
+    "completeTimeoutMs": 30000
+  },
+  "successMessage": "DC assignment submitted for {{email}}.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
+      "progress": "Opening DC User Assignment…",
+      "active": true
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 5000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for DC selector…",
+      "error": "DC chooser was not found."
+    },
+    {
+      "action": "click",
+      "selector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
+      "afterMs": 1000,
+      "progress": "Opening DC list…"
+    },
+    {
+      "action": "selectPagedCheckboxes",
+      "count": "{{dcCount}}",
+      "itemsPerPage": 20,
+      "selectAllSelector": "#admin-dynamic-clear-all",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+      "frameTimeoutMs": 20000,
+      "nextTimeoutMs": 5000,
+      "chooseTimeoutMs": 15000,
+      "afterSelectMs": 600,
+      "afterNextMs": 1400,
+      "afterChooseMs": 1000,
+      "pageProgress": "Selecting DC page {{page}} of {{pages}}…",
+      "progress": "Selecting Distribution Centers…",
+      "error": "Could not select Distribution Centers.",
+      "chooseError": "Choose button was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
+      "timeoutMs": 15000,
+      "intervalMs": 250,
+      "progress": "Waiting for user field…",
+      "error": "User email field was not found."
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
+      "value": "{{email}}",
+      "attempts": 5,
+      "verifyNonEmpty": true,
+      "retryDelayMs": 600,
+      "progress": "Setting user email…",
+      "options": {
+        "typingDelayMs": 110,
+        "autocompleteWaitMs": 1800,
+        "pressEnter": true,
+        "commitWaitMs": 1200,
+        "outsideSelector": "button.form-save-button.admin-submit-button",
+        "outsideWaitMs": 700
+      }
+    },
+    {
+      "action": "wait",
+      "ms": 700,
+      "progress": "Preparing to save…"
+    },
+    {
+      "action": "click",
+      "selector": "button.form-save-button.admin-submit-button",
+      "textContains": "save",
+      "afterMs": 1500,
+      "progress": "Saving assignment…"
+    }
+  ]
 }

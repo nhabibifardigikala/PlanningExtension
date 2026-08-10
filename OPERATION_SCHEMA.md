@@ -21,3 +21,9 @@ Supported actions:
 Navigation retry behavior is controlled remotely with `navigation.retryCount`, `navigation.retryDelayMs`, and `navigation.completeTimeoutMs`.
 
 If a future operation requires a capability not listed here, only then is a Core Engine update needed.
+
+
+Engine 6.2 additions:
+- `selectPagedCheckboxes`: frame-aware selection of a select-all checkbox across enough paginated pages to satisfy a requested item count, then clicks a Choose button.
+- Remote input type `checkbox` with `defaultChecked` and `hideFields`.
+- `inputRules` can copy the locally stored credential username/email into an operation input when a checkbox is enabled.
