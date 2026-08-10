@@ -107,8 +107,8 @@
         "textContains": "save",
         "error": "Save button was not found."
       },
-      "outcomeTimeoutMs": 5000,
-      "outcomeIntervalMs": 300,
+      "outcomeTimeoutMs": 20000,
+      "outcomeIntervalMs": 250,
       "terminalSuccessTexts": [
         "0 - User and DC relation already exists",
         "User and DC relation already exists"
