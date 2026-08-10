@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Flex Capacity Definition is available from the home screen. Its workflow will be configured remotely when the operation steps are defined.",
+  "inputs": [],
+  "workflow": []
+}

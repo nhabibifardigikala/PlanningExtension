@@ -1,6 +1,6 @@
 {
-  "configVersion": 10,
-  "minEngineVersion": "7.1",
+  "configVersion": 11,
+  "minEngineVersion": "7.2",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -105,9 +105,19 @@
         }
       ],
       "uiMode": "form"
+    },
+    {
+      "id": "flex-capacity-definition",
+      "title": "Flex Capacity Definition",
+      "subtitle": "Define flex capacity",
+      "accessHeaders": [
+        "Flex Capacity Definition"
+      ],
+      "config": "operations/flex-capacity-definition.json",
+      "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z"
     }
   ],
-  "publishedAt": "2026-08-10T22:20:00+03:30",
+  "publishedAt": "2026-08-10T22:30:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true

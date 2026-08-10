@@ -33,3 +33,7 @@ Engine 7.1 additions:
 - `pagedBatchSubmit`: performs a paginated chooser + autocomplete + submit flow in bounded batches so selected IDs do not create oversized pagination URLs.
 - `pagesPerBatch` controls the maximum selected pages carried in one request and is fully remote-configurable.
 - `terminalSuccessTexts` can classify known server messages as a successful terminal outcome instead of an error.
+
+
+### Terminal success after submit
+For batch submit operations, use `terminalSuccessSelector` plus `terminalSuccessTextContains` to detect a terminal success message in any frame. Example: `p[error-path="0"]` with text `User and DC relation already exists`.

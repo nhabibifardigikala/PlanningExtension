@@ -107,7 +107,7 @@
         "textContains": "save",
         "error": "Save button was not found."
       },
-      "outcomeTimeoutMs": 20000,
+      "outcomeTimeoutMs": 30000,
       "outcomeIntervalMs": 250,
       "terminalSuccessTexts": [
         "0 - User and DC relation already exists",
@@ -115,7 +115,11 @@
       ],
       "terminalSuccessMessage": "The user and DC relation already exists. No changes were required.",
       "afterSubmitMs": 1200,
-      "progress": "Assigning Distribution Centers…"
+      "progress": "Assigning Distribution Centers…",
+      "terminalSuccessSelector": "p[error-path=\"0\"]",
+      "terminalSuccessTextContains": [
+        "User and DC relation already exists"
+      ]
     }
   ]
 }
