@@ -1,5 +1,5 @@
 {
-  "configVersion": 5,
+  "configVersion": 6,
   "minEngineVersion": "6.2",
   "app": {
     "name": "Digiexpress",
@@ -70,10 +70,44 @@
         "DC USER ASSIGNMENT"
       ],
       "config": "operations/dc-user-assignment.json",
-      "iconSvgPath": "M18 7a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm0 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 15c8 0 14 4.1 14 9v5H4v-5c0-4.9 6-9 14-9Zm0 4c-5.8 0-10 2.6-10 5v1h20v-1c0-2.4-4.2-5-10-5Zm20-12h6v4h-6v6h-4v-6h-6v-4h6v-6h4Z"
+      "iconSvgPath": "M18 7a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm0 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 15c8 0 14 4.1 14 9v5H4v-5c0-4.9 6-9 14-9Zm0 4c-5.8 0-10 2.6-10 5v1h20v-1c0-2.4-4.2-5-10-5Zm20-12h6v4h-6v6h-4v-6h-6v-4h6v-6h4Z",
+      "description": "Assign Distribution Centers to a user. Choose the saved access email or enter another email, then enter the desired DC count.",
+      "runLabel": "Assign DCs",
+      "inputs": [
+        {
+          "name": "useConfiguredEmail",
+          "label": "Use configured email",
+          "type": "checkbox",
+          "defaultChecked": true,
+          "hideFields": [
+            "email"
+          ],
+          "help": "Use the email saved in Settings."
+        },
+        {
+          "name": "email",
+          "label": "User email",
+          "type": "email",
+          "requiredUnless": "useConfiguredEmail",
+          "placeholder": "name@digikala.com",
+          "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+          "validationMessage": "Enter a valid email address."
+        },
+        {
+          "name": "dcCount",
+          "label": "Number of DCs",
+          "type": "number",
+          "required": true,
+          "min": 1,
+          "placeholder": "e.g. 40",
+          "pattern": "^\\d+$",
+          "validationMessage": "Number of DCs must be a positive whole number."
+        }
+      ],
+      "uiMode": "form"
     }
   ],
-  "publishedAt": "2026-08-10T17:53:00+03:30",
+  "publishedAt": "2026-08-10T21:20:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true

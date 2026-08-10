@@ -7,3 +7,7 @@ The workflows for Extract Distribution Centers and Capacity Report now live in `
 Core extension updates should only be needed when a genuinely new browser capability/action is required.
 
 Upload the contents of this folder to the root of the PlanningExtension GitHub Pages repository.
+
+
+## Config v6
+DC User Assignment form metadata is duplicated in app.json so the card always opens the input form before execution, even if the operation config file is temporarily stale.
