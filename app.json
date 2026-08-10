@@ -1,6 +1,6 @@
 {
-  "configVersion": 7,
-  "minEngineVersion": "6.2",
+  "configVersion": 8,
+  "minEngineVersion": "7.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -107,10 +107,15 @@
       "uiMode": "form"
     }
   ],
-  "publishedAt": "2026-08-10T21:20:00+03:30",
+  "publishedAt": "2026-08-10T21:45:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
-  "engineArchitecture": "generic-remote-workflow-v2-frame-aware"
+  "engineArchitecture": "bootstrap-secure-runtime-remote-ui-v1",
+  "ui": {
+    "html": "ui/app.html",
+    "css": "ui/app.css",
+    "contractVersion": 1
+  }
 }

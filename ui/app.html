@@ -1,0 +1,44 @@
+<main class="app-shell">
+    <div id="accessToast" class="toast" aria-live="polite"></div>
+    <header class="topbar">
+      <div class="brand">
+        <img id="brandLogo" class="brand-logo" src="icons/icon48.png" alt="" />
+        <div><div id="brandTitle" class="brand-title">Digiexpress</div><div id="brandSubtitle" class="brand-subtitle">Operations Toolkit</div></div>
+      </div>
+      <button class="icon-button settings-gear" id="settingsBtn" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.16 7.16 0 0 0-1.62-.94L14.38 2.8a.5.5 0 0 0-.5-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.55-1.62.94L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.31-.08.64-.08.94s.03.63.08.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .5-.4l.36-2.52c.58-.24 1.12-.55 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.02-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
+      </button>
+    </header>
+
+    <section id="homeView" class="view active">
+      <div class="section-heading"><h1 id="homeHeading">Choose an operation</h1><p id="homeSubheading">Run your daily operations from one place.</p></div>
+      <section class="operation-grid" id="menu"></section>
+      <section class="status-card"><div class="status-dot"></div><div><div class="status-title">Status</div><div id="status" class="status" aria-live="polite">Loading remote configuration…</div></div></section>
+    </section>
+
+    <section id="operationView" class="view">
+      <button id="operationBackBtn" class="back-button">← Back to operations</button>
+      <div class="section-heading settings-heading"><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div>
+      <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><button id="cancelOperation" class="secondary-button danger hidden">Cancel operation</button><div id="operationStatus" class="settings-status" aria-live="polite"></div></section>
+      <section id="capacityStats" class="stats-card hidden" aria-live="polite">
+        <div class="stats-heading">Report summary</div>
+        <div class="stat-row"><span>Reporting days</span><strong id="statDays">—</strong></div>
+        <div class="stat-group"><div class="stat-name">Capacity</div><div class="stat-grid"><div class="stat-min"><span>Min</span><strong id="statCapacityMin">—</strong></div><div><span>Average</span><strong id="statCapacityAvg">—</strong></div><div class="stat-max"><span>Max</span><strong id="statCapacityMax">—</strong></div></div></div>
+        <div class="stat-group"><div class="stat-name">Capacity Reserved</div><div class="stat-grid"><div class="stat-min"><span>Min</span><strong id="statReservedMin">—</strong></div><div><span>Average</span><strong id="statReservedAvg">—</strong></div><div class="stat-max"><span>Max</span><strong id="statReservedMax">—</strong></div></div></div>
+      </section>
+    </section>
+
+    <section id="settingsView" class="view">
+      <button id="backBtn" class="back-button">← Back to operations</button>
+      <div class="section-heading settings-heading"><h1 id="settingsTitle">Settings</h1><p id="settingsDescription">Theme, credentials and remote configuration.</p></div>
+      <section class="settings-card"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
+      <section class="settings-card"><h2 id="appearanceTitle">Appearance</h2><div class="theme-selector" id="themeSelector" role="group" aria-label="Theme"></div></section>
+      <section class="settings-card"><h2>Connection</h2><button id="refreshRemote" class="secondary-button">Refresh remote configuration</button><button id="rollbackRemote" class="secondary-button">Rollback configuration</button><div id="remoteMeta" class="settings-help remote-meta">—</div></section>
+      <section class="settings-card"><div class="log-header"><h2>Activity Log</h2><button id="clearActivityLog" class="mini-button">Clear</button></div><div id="activityLog" class="activity-log"><div class="settings-help">No activity yet.</div></div></section>
+      <section class="settings-card about-card"><h2>About</h2><div id="versionInfo" class="settings-help">—</div><div class="developer-credit">Developed by Naser Habibifar</div></section>
+    </section>
+
+    <div id="validationOverlay" class="validation-overlay" aria-hidden="true">
+      <div class="validation-modal"><div class="spinner" aria-hidden="true"></div><div id="validationTitle" class="validation-title">Validating credentials</div><div id="validationMessage" class="validation-message">Please wait. Settings are locked during validation.</div></div>
+    </div>
+  </main>

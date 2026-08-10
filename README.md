@@ -1,13 +1,19 @@
-# Digiexpress Remote Configuration v4
+# PlanningExtension Remote App v8
 
-This package targets Digiexpress Generic Remote Engine 6.0+.
+Upload the contents of this folder to the root of the GitHub Pages repository.
 
-The workflows for Extract Distribution Centers and Capacity Report now live in `operations/*.json`. Normal changes to selectors, URLs, waits, retries, pagination, form inputs, progress text, statistics, and Excel filenames should be made in GitHub only.
+The application UI is now remote:
+- `ui/app.html` = complete Side Panel markup
+- `ui/app.css` = complete application appearance
 
-Core extension updates should only be needed when a genuinely new browser capability/action is required.
+Other remote files:
+- `app.json` = app/version/operation registry
+- `theme.json` = theme tokens
+- `settings.json` = settings labels/options
+- `messages.json` = user-facing messages
+- `operations/*.json` = forms and workflows
 
-Upload the contents of this folder to the root of the PlanningExtension GitHub Pages repository.
+## UI contract
+You can redesign/reorder/re-style the UI freely from GitHub, but keep the element IDs used by the runtime (for example `menu`, `settingsBtn`, `operationInputs`, `runOperation`, `username`, `password`, etc.). Removing a required contract ID can make that feature unavailable.
 
-
-## Config v6
-DC User Assignment form metadata is duplicated in app.json so the card always opens the input form before execution, even if the operation config file is temporarily stale.
+No remote JavaScript is used. This keeps privileged Chrome APIs and credentials inside the installed extension while allowing the visual application and operational behavior to be remotely maintained.
