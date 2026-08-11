@@ -119,3 +119,45 @@
   .capacity-summary.generic-metrics > :nth-child(2),
   .capacity-summary.generic-metrics > :nth-child(3){order:initial}
 }
+
+/* Remote dashboard v44: balanced Capacity cards + compact Report days */
+.capacity-summary.generic-metrics{
+  grid-template-columns:minmax(0,1fr) 110px minmax(0,1fr);
+  gap:12px;
+  align-items:stretch;
+}
+.capacity-summary.generic-metrics > .capacity-metric-block{
+  min-width:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days{
+  width:110px;
+  min-width:110px;
+  max-width:110px;
+  padding:10px 6px;
+}
+.capacity-metric-block>span,
+.capacity-summary-days>span{
+  font-size:16px;
+  line-height:1.25;
+  font-weight:900;
+  color:var(--text,#102030);
+  letter-spacing:-0.01em;
+}
+.capacity-summary-days>span{
+  font-size:14px;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days strong{
+  font-size:34px;
+  line-height:1;
+  font-weight:900;
+}
+@media(max-width:900px){
+  .capacity-summary.generic-metrics{grid-template-columns:1fr}
+  .capacity-summary.generic-metrics > .capacity-summary-days{
+    width:100%;min-width:0;max-width:none;
+  }
+}

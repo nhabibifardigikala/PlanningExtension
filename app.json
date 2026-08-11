@@ -1,5 +1,5 @@
 {
-  "configVersion": 43,
+  "configVersion": 44,
   "minEngineVersion": "9.3.2",
   "app": {
     "name": "Digiexpress",
@@ -236,7 +236,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-11T23:58:00+03:30",
+  "publishedAt": "2026-08-12T00:00:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -246,7 +246,7 @@
     "html": "ui/app.html?v=40",
     "css": "ui/app.css?v=40",
     "contractVersion": 5,
-    "dashboardCss": "ui/dashboard.css?v=43"
+    "dashboardCss": "ui/dashboard.css?v=44"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,
