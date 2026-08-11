@@ -1,5 +1,5 @@
 {
-  "configVersion": 14,
+  "configVersion": 15,
   "minEngineVersion": "7.4",
   "app": {
     "name": "Digiexpress",
@@ -203,8 +203,8 @@
   },
   "engineArchitecture": "bootstrap-secure-runtime-remote-ui-v1",
   "ui": {
-    "html": "ui/app.html",
-    "css": "ui/app.css",
+    "html": "ui/app.html?v=15",
+    "css": "ui/app.css?v=15",
     "contractVersion": 1
   }
 }

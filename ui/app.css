@@ -8,3 +8,70 @@
 .op-checkbox-wrap{margin:10px 0 14px}.op-checkbox-label{display:flex!important;align-items:center;gap:10px;cursor:pointer;font-weight:600}.op-checkbox-label input{width:18px!important;height:18px!important;margin:0!important;accent-color:#d5a418}.op-field-wrap.hidden{display:none!important}
 
 .operation-result{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel);overflow:auto}.operation-result.hidden{display:none}.result-table{width:100%;border-collapse:collapse;font-size:13px}.result-table th,.result-table td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)}.result-table th{color:var(--muted);font-weight:700}.choice-group{display:grid;gap:8px}.choice-option{display:flex;align-items:center;gap:8px}.file-input{width:100%}.file-meta{font-size:12px;color:var(--muted);margin-top:5px}
+
+/* Parent Determination - segmented choice controls (remote UI v15) */
+[data-field-wrap="inputMode"] .choice-group{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+[data-field-wrap="parentTypes"] .choice-group{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+[data-field-wrap="inputMode"] .choice-option,
+[data-field-wrap="parentTypes"] .choice-option{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  margin:0;
+  padding:10px 8px;
+  border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+  border-radius:12px;
+  background:var(--panel);
+  color:var(--text);
+  font-size:12px;
+  font-weight:700;
+  line-height:1.2;
+  text-align:center;
+  cursor:pointer;
+  user-select:none;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease,color .18s ease;
+}
+[data-field-wrap="inputMode"] .choice-option:hover,
+[data-field-wrap="parentTypes"] .choice-option:hover{
+  transform:translateY(-1px);
+  border-color:var(--accent);
+}
+[data-field-wrap="inputMode"] .choice-option input,
+[data-field-wrap="parentTypes"] .choice-option input{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  margin:0!important;
+}
+[data-field-wrap="inputMode"] .choice-option:has(input:checked),
+[data-field-wrap="parentTypes"] .choice-option:has(input:checked){
+  background:#f79009;
+  border-color:#f79009;
+  color:#071a33;
+  box-shadow:0 0 0 2px color-mix(in srgb,#f79009 28%,transparent);
+}
+[data-field-wrap="inputMode"] .choice-option:has(input:focus-visible),
+[data-field-wrap="parentTypes"] .choice-option:has(input:focus-visible){
+  outline:2px solid var(--accent-2);
+  outline-offset:2px;
+}
+/* Keep All as a master toggle, then arrange the six concrete types in two rows of three. */
+[data-field-wrap="parentTypes"] .choice-option:first-child{
+  grid-column:1 / -1;
+  min-height:38px;
+}
+/* Parent result table header text is controlled remotely without changing runtime. */
+#operationResult .result-table thead th:nth-child(1),
+#operationResult .result-table thead th:nth-child(3){font-size:0}
+#operationResult .result-table thead th:nth-child(1)::after{content:"Type";font-size:13px}
+#operationResult .result-table thead th:nth-child(3)::after{content:"ID";font-size:13px}
