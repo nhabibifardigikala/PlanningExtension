@@ -54,3 +54,7 @@ Distribution Centers are extracted without opening Columns. Shipping Points and 
 ## v29
 - Capacity Report DC autocomplete uses Google Visualization with headers=3 and only id/name columns to correctly preserve each center ID.
 - Sync IATA update flow uses exact Details links and code/save selectors with shorter waits; platform retries remain enabled.
+
+
+## v30 Sync IATA update flow
+Shipping Point and Shipping Polygon corrections now use the exact list -> ID search -> Enter -> Details -> input[name="code"] -> button.admin-submit-button -> return-to-list flow, with ~1s waits matching the reference Playwright scripts.
