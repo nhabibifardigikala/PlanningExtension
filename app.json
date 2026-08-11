@@ -1,5 +1,5 @@
 {
-  "configVersion": 37,
+  "configVersion": 41,
   "minEngineVersion": "9.3.2",
   "app": {
     "name": "Digiexpress",
@@ -246,7 +246,7 @@
     "html": "ui/app.html?v=40",
     "css": "ui/app.css?v=40",
     "contractVersion": 5,
-    "dashboardCss": "ui/dashboard.css?v=40"
+    "dashboardCss": "ui/dashboard.css?v=41"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,
