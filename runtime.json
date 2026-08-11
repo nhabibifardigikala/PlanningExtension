@@ -17,6 +17,6 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v26: global step retry policy, state-aware code column selection, 30s polling, and strict Capacity Report ID mapping.",
-  "configVersion": 26,
+  "configVersion": 31,
   "minimumRuntimeVersion": "9.0.0"
 }
