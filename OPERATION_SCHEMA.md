@@ -47,3 +47,15 @@ For batch submit operations, use `terminalSuccessSelector` plus `terminalSuccess
 
 ## Client point-in-polygon processor
 `clientProcessor.type = "point-in-polygon"` loads a remote JSON polygon dataset and supports single coordinate lookup or two-column XLSX input. The dataset path, nature mapping, field names, and output behavior are remote-configured.
+
+
+## remote-autocomplete input
+Use `type: remote-autocomplete` for searchable public CSV data sources. The runtime filters rows whose name contains the typed phrase, ranks closest matches first, and returns the selected row ID as the field value. Configure `source.url`, `source.nameColumns`, `source.idColumns`, and optional cache/debounce settings.
+
+
+## Cross-dataset synchronization actions (Engine 7.6+)
+- `enableColumns`: opens a Columns menu and enables named checkbox columns.
+- `extractPaginatedTable.storeAs`: stores a table as a named in-memory dataset without downloading it.
+- `extractSearchVariants`: repeats a search for configured values and combines all paginated results into one named dataset.
+- `reconcileCodeByName`: joins one master dataset to one or more source datasets by normalized name and creates code corrections when source code differs from the master code.
+- `applyFieldCorrections`: searches each mismatched record by ID, opens Details, fills a configured field, and saves. All URLs, selectors, aliases and waits are remote-configured.

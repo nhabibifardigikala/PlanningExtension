@@ -32,3 +32,10 @@ Remote config v9:
 
 ## Parent Determination
 Remote operation uses `data/DX_Polygons.json` generated from `data/DX_Polygons.xlsx`. The XLSX remains the source dataset in the repository. Update both files together when polygon data changes.
+
+
+### Capacity Report center search (v16)
+Capacity Report no longer asks users to type a Distribution Center ID. The `dcId` field is now a remote autocomplete backed by the public Google Sheet `Distribution Centers (LG)`. The selected center ID is passed to the existing workflow automatically.
+
+
+Config 17 adds the complete remote workflow for Sync IATA Code. Intermediate datasets are kept in memory and are not downloaded to the user.

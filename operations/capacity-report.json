@@ -2,15 +2,40 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Enter a Distribution Center ID and a Jalali date range.",
+  "description": "Search for a Distribution Center by name and select it, then enter a Jalali date range.",
   "runLabel": "Run capacity report",
   "inputs": [
     {
       "name": "dcId",
-      "label": "Distribution Center ID",
-      "type": "number",
+      "label": "Distribution Center",
+      "type": "remote-autocomplete",
       "required": true,
-      "placeholder": "e.g. 123"
+      "placeholder": "Type a distribution center name…",
+      "minChars": 1,
+      "debounceMs": 180,
+      "maxResults": 500,
+      "showId": true,
+      "selectionMessage": "Please select a Distribution Center from the search results.",
+      "help": "Type part of the center name. Matching centers are ranked by similarity.",
+      "source": {
+        "format": "csv",
+        "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/gviz/tq?tqx=out:csv&sheet=Distribution%20Centers%20(LG)",
+        "cacheMs": 300000,
+        "nameColumns": [
+          "Name",
+          "Distribution Center Name",
+          "DC Name",
+          "distribution center name",
+          "name"
+        ],
+        "idColumns": [
+          "ID",
+          "Distribution Center ID",
+          "DC ID",
+          "distribution center id",
+          "id"
+        ]
+      }
     },
     {
       "name": "fromDate",

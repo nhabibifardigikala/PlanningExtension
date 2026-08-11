@@ -1,6 +1,6 @@
 {
-  "configVersion": 15,
-  "minEngineVersion": "7.4",
+  "configVersion": 17,
+  "minEngineVersion": "7.6",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -196,7 +196,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-11T13:00:00+03:30",
+  "publishedAt": "2026-08-11T15:30:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
