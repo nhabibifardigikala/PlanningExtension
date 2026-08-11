@@ -356,3 +356,192 @@ body{
   }
   .dash-card-head strong{font-size:26px}
 }
+
+/* Remote dashboard v46: final balanced KPI layout + theme-aware dashboard */
+html, body {
+  background: var(--bg, #f3f4f6) !important;
+  color: var(--text, #102030) !important;
+}
+body {
+  font-family: Calibri, Arial, sans-serif !important;
+}
+#dashboard {
+  color: var(--text, #102030) !important;
+}
+.dash-title h1,
+.dash-card-head strong,
+.dash-timescope-title strong,
+.capacity-summary-days > span,
+.capacity-metric-block > span,
+.capacity-metric-values strong,
+.capacity-metric-values small,
+.chart-legend {
+  color: var(--text, #102030);
+}
+.dash-title p,
+.dash-card-head small,
+.chart-y,
+.chart-x {
+  color: var(--muted, #667085);
+  fill: var(--muted, #667085);
+}
+
+/* Center title appears once above its Time Scope sections. */
+.dash-card-head {
+  margin-bottom: 16px !important;
+}
+
+/* Time Scope container follows the active light/dark theme. */
+.dash-timescope-card {
+  background: var(--card, #ffffff) !important;
+  border: 1px solid var(--accent, #F79009) !important;
+  border-radius: 18px !important;
+  padding: 20px !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,.05) !important;
+}
+.dash-timescope-title {
+  margin: 0 0 18px !important;
+}
+.dash-timescope-title strong {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+}
+
+/* Three equal cards. Observed runtime order is Capacity, Report days, Capacity Reserved;
+   visually render Report days first, then Capacity, then Capacity Reserved. */
+.capacity-summary.generic-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  align-items: stretch !important;
+  margin: 0 0 22px !important;
+}
+.capacity-summary.generic-metrics > * {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 176px !important;
+  height: 176px !important;
+  padding: 22px 24px !important;
+  border: 1px solid var(--accent, #F79009) !important;
+  border-radius: 15px !important;
+  background: var(--panel, var(--card, #ffffff)) !important;
+  box-shadow: none !important;
+}
+.capacity-summary.generic-metrics > :nth-child(1) { order: 2 !important; }
+.capacity-summary.generic-metrics > :nth-child(2) { order: 1 !important; }
+.capacity-summary.generic-metrics > :nth-child(3) { order: 3 !important; }
+
+.capacity-summary.generic-metrics > .capacity-summary-days {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+.capacity-summary-days > span,
+.capacity-metric-block > span {
+  display: block !important;
+  margin: 0 0 18px !important;
+  font-size: 21px !important;
+  line-height: 1.2 !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days strong {
+  margin: 0 !important;
+  font-size: 52px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  color: var(--accent, #F79009) !important;
+}
+.capacity-summary.generic-metrics > .capacity-metric-block {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+.capacity-metric-values {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  align-items: end !important;
+}
+.capacity-metric-values > div {
+  text-align: center !important;
+  padding: 0 !important;
+}
+.capacity-metric-values small {
+  display: block !important;
+  margin: 0 0 10px !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  color: var(--muted, #667085) !important;
+}
+.capacity-metric-values strong {
+  font-size: 29px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+.capacity-metric-values .stat-min strong { color: #1877f2 !important; }
+.capacity-metric-values .stat-max strong { color: #e53935 !important; }
+
+/* Chart is a separate full-width card; no center name is repeated here. */
+.chart-head {
+  justify-content: flex-end !important;
+  margin: 0 4px 12px !important;
+}
+.chart-head > strong { display: none !important; }
+.chart-legend {
+  gap: 20px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+.chart-scroll {
+  width: 100% !important;
+  overflow-x: auto !important;
+  background: var(--panel, var(--card, #ffffff)) !important;
+  border: 1px solid var(--accent, #F79009) !important;
+  border-radius: 15px !important;
+}
+.chart-canvas { min-height: 380px !important; }
+.chart-grid {
+  stroke: var(--border, #d0d5dd) !important;
+  stroke-opacity: .45 !important;
+}
+.chart-point {
+  stroke: var(--panel, var(--card, #ffffff)) !important;
+}
+.chart-tooltip {
+  background: var(--text, #101828) !important;
+  color: var(--card, #ffffff) !important;
+}
+
+/* Buttons also inherit the active theme while keeping the shared orange accent. */
+.dash-download {
+  background: var(--accent, #F79009) !important;
+  color: #07172c !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]),
+  html:not([data-theme="light"]) body {
+    background: var(--bg, #07172c) !important;
+    color: var(--text, #ffffff) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .capacity-summary.generic-metrics {
+    grid-template-columns: 1fr !important;
+  }
+  .capacity-summary.generic-metrics > :nth-child(1),
+  .capacity-summary.generic-metrics > :nth-child(2),
+  .capacity-summary.generic-metrics > :nth-child(3) {
+    order: initial !important;
+  }
+  .capacity-summary.generic-metrics > * {
+    height: auto !important;
+    min-height: 150px !important;
+  }
+}
