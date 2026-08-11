@@ -18,5 +18,10 @@
   },
   "notes": "Remote app v38: Capacity reports are split by Distribution Center and Time Scope; each Time Scope has independent KPIs and trend chart.",
   "configVersion": 37,
-  "minimumRuntimeVersion": "9.3.2"
+  "minimumRuntimeVersion": "9.3.2",
+  "minimumRuntime": "10.0.0",
+  "workflowLanguageVersion": 2,
+  "dataPipelineVersion": 1,
+  "recommendedRuntime": "10.0.0",
+  "runtimeUpdatePolicy": "security-or-new-browser-primitive-only"
 }

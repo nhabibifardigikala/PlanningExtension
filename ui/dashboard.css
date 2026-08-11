@@ -17,3 +17,12 @@
 
 /* Remote UI v38: dashboard per-Time-Scope sections */
 .dash-timescopes{display:grid;gap:16px;margin-top:14px}.dash-timescope-card{border:1px solid var(--border,#e5e7eb);border-radius:13px;padding:14px;background:var(--panel,#f8fafc)}.dash-timescope-title{margin-bottom:8px}.dash-timescope-title strong{font-size:15px}
+
+/* Generic data-pipeline chart series */
+.generic-series-0{stroke:var(--accent);fill:none;stroke-width:2.4}
+.generic-series-1{stroke:#22314d;fill:none;stroke-width:2.4}
+.generic-point-0{fill:var(--accent);stroke:var(--card);stroke-width:2}
+.generic-point-1{fill:#22314d;stroke:var(--card);stroke-width:2}
+.generic-legend-0,.generic-legend-1{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.generic-legend-0{background:var(--accent)}
+.generic-legend-1{background:#22314d}

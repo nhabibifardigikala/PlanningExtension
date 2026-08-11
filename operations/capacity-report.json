@@ -204,65 +204,176 @@
     "delayMs": 1500
   },
   "clientProcessor": {
-    "type": "multi-capacity-report",
-    "centerField": "dcIds",
-    "fromField": "fromDate",
-    "toField": "toDate",
-    "resultView": {
-      "dateAliases": [
-        "date",
-        "day",
-        "capacity date",
-        "تاریخ"
-      ],
-      "capacityAliases": [
-        "capacity"
-      ],
-      "reservedAliases": [
-        "capacity reserved",
-        "reserved capacity",
-        "capacity_reserved"
-      ],
-      "chartPointSpacing": 29,
-      "statsLayout": "grouped",
-      "chartFillAvailable": true,
-      "dashboardButtonLabel": "Open dashboard",
-      "timeScopeAliases": [
-        "time scope",
-        "time_scope",
-        "timescope",
-        "time slot",
-        "time_slot"
-      ]
+    "type": "data-pipeline",
+    "source": {
+      "type": "remote-operation",
+      "operationId": "capacity-report",
+      "inputs": {
+        "dcId": {
+          "from": "dcIds",
+          "transform": "joinSelectionIds",
+          "separator": " "
+        },
+        "dcName": {
+          "from": "dcIds",
+          "transform": "joinSelectionNames",
+          "separator": " | "
+        },
+        "fromDate": {
+          "from": "fromDate"
+        },
+        "toDate": {
+          "from": "toDate"
+        }
+      },
+      "status": "Running one capacity query for {{count:dcIds}} Distribution Centers…"
     },
-    "excel": {
+    "partition": {
+      "byInput": "dcIds",
+      "itemId": "id",
+      "itemLabel": "name",
+      "rowIdAliases": [
+        "distribution center id",
+        "dc id",
+        "distribution_center_id",
+        "distribution center"
+      ],
+      "rowLabelAliases": [
+        "distribution center",
+        "distribution center name",
+        "dc name",
+        "dc"
+      ],
+      "allowRowScanFallback": true,
+      "unmatchedPolicy": "exclude"
+    },
+    "groups": [
+      {
+        "fieldAliases": [
+          "time scope",
+          "time_scope",
+          "timescope",
+          "time slot",
+          "time_slot"
+        ],
+        "label": "Time Scope",
+        "fallbackLabel": "All"
+      }
+    ],
+    "metrics": [
+      {
+        "id": "days",
+        "label": "Report days",
+        "type": "distinctCount",
+        "fieldAliases": [
+          "date",
+          "day",
+          "capacity date",
+          "تاریخ"
+        ]
+      },
+      {
+        "id": "capacity",
+        "label": "Capacity",
+        "type": "numberSummary",
+        "fieldAliases": [
+          "capacity"
+        ],
+        "stats": [
+          "min",
+          "avg",
+          "max"
+        ]
+      },
+      {
+        "id": "reserved",
+        "label": "Capacity Reserved",
+        "type": "numberSummary",
+        "fieldAliases": [
+          "capacity reserved",
+          "reserved capacity",
+          "capacity_reserved"
+        ],
+        "stats": [
+          "min",
+          "avg",
+          "max"
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "type": "line",
+        "title": "{{partition.label}} • {{group.label}}",
+        "x": {
+          "fieldAliases": [
+            "date",
+            "day",
+            "capacity date",
+            "تاریخ"
+          ],
+          "label": "Date",
+          "verticalLabels": true
+        },
+        "series": [
+          {
+            "id": "capacity",
+            "label": "Capacity",
+            "fieldAliases": [
+              "capacity"
+            ]
+          },
+          {
+            "id": "reserved",
+            "label": "Capacity Reserved",
+            "fieldAliases": [
+              "capacity reserved",
+              "reserved capacity",
+              "capacity_reserved"
+            ]
+          }
+        ],
+        "pointSpacing": 29,
+        "fillAvailable": true,
+        "horizontalScroll": true,
+        "tooltip": true
+      }
+    ],
+    "presentation": {
+      "partitionTitle": "{{partition.label}}",
+      "partitionSubtitle": "ID {{partition.id}} • {{groupCount}} Time Scope{{groupCountPlural}}",
+      "groupTitle": "Time Scope: {{group.label}}",
+      "dashboardButtonLabel": "Open dashboard",
+      "dashboardTitle": "Capacity Dashboard",
+      "downloadButtonLabel": "Download Excel",
+      "metricLayout": "blocks"
+    },
+    "export": {
       "enabled": true,
+      "type": "xlsx",
       "buttonLabel": "Download Excel",
       "filename": "capacity_report_{{fromDate}}_{{toDate}}.xlsx",
       "sheetName": "Capacity Report",
       "saveAs": false,
-      "includeCenterName": true,
-      "includeCenterId": true
-    },
-    "batchCenters": {
-      "enabled": true,
-      "separator": " ",
-      "grouping": {
-        "idAliases": [
-          "distribution center id",
-          "dc id",
-          "distribution_center_id",
-          "distribution center"
-        ],
-        "nameAliases": [
-          "distribution center",
-          "distribution center name",
-          "dc name",
-          "dc",
-          "name"
-        ],
-        "allowRowScanFallback": true
-      }
+      "prependColumns": [
+        {
+          "header": "Distribution Center",
+          "value": "{{partition.label}}"
+        },
+        {
+          "header": "Distribution Center ID",
+          "value": "{{partition.id}}"
+        },
+        {
+          "header": "From Date",
+          "value": "{{input.fromDate}}"
+        },
+        {
+          "header": "To Date",
+          "value": "{{input.toDate}}"
+        }
+      ]
     }
-  }
+  },
+  "remoteBehaviorVersion": 1
 }

@@ -243,10 +243,10 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=34",
-    "css": "ui/app.css?v=34",
-    "contractVersion": 4,
-    "dashboardCss": "ui/dashboard.css?v=34"
+    "html": "ui/app.html?v=40",
+    "css": "ui/app.css?v=40",
+    "contractVersion": 5,
+    "dashboardCss": "ui/dashboard.css?v=40"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,
@@ -285,5 +285,13 @@
   "remoteUI": {
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
+  },
+  "version": "40.0.0",
+  "remoteArchitecture": "generic-data-pipeline-v1",
+  "architecture": {
+    "mode": "remote-application",
+    "workflowLanguage": 2,
+    "dataPipeline": 1,
+    "runtimeContract": "10.x"
   }
 }
