@@ -82,3 +82,40 @@
 
 /* Remote dashboard v42: Calibri and one center heading per partition */
 #dashboard,.dash-card,.dash-timescope-card,.chart-tooltip{font-family:Calibri,Arial,sans-serif}
+
+/* Remote dashboard v43: KPI card order and compact report-days card */
+.capacity-summary.generic-metrics{
+  grid-template-columns:minmax(220px,1fr) minmax(96px,.38fr) minmax(220px,1fr);
+  align-items:stretch;
+}
+.capacity-summary.generic-metrics > :nth-child(1){order:2}
+.capacity-summary.generic-metrics > :nth-child(2){order:1}
+.capacity-summary.generic-metrics > :nth-child(3){order:3}
+.capacity-summary.generic-metrics > .capacity-summary-days{
+  min-width:96px;
+  padding:10px 8px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days span{
+  margin:0 0 6px;
+  text-align:center;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days strong{
+  display:block;
+  width:100%;
+  margin:0;
+  text-align:center;
+  font-size:30px;
+  line-height:1;
+  font-weight:900;
+}
+@media(max-width:900px){
+  .capacity-summary.generic-metrics{grid-template-columns:1fr}
+  .capacity-summary.generic-metrics > :nth-child(1),
+  .capacity-summary.generic-metrics > :nth-child(2),
+  .capacity-summary.generic-metrics > :nth-child(3){order:initial}
+}
