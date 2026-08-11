@@ -1,5 +1,5 @@
 {
-  "configVersion": 45,
+  "configVersion": 47,
   "minEngineVersion": "9.3.2",
   "app": {
     "name": "Digiexpress",
@@ -68,7 +68,9 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=36"
+      "config": "operations/extract-distribution-centers.json?v=47",
+      "description": "Open the extraction page, run the Distribution Center extraction, then download the prepared Excel file.",
+      "runLabel": "Run Extraction"
     },
     {
       "id": "capacity-report",
@@ -244,7 +246,7 @@
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
     "html": "ui/app.html?v=40",
-    "css": "ui/app.css?v=40",
+    "css": "ui/app.css?v=47",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=46"
   },

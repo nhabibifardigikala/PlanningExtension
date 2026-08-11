@@ -16,8 +16,8 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v38: Capacity reports are split by Distribution Center and Time Scope; each Time Scope has independent KPIs and trend chart.",
-  "configVersion": 37,
+  "notes": "Remote app v47: Extract Distribution Centers opens a dedicated Run page and exposes Download Excel only after successful extraction.",
+  "configVersion": 47,
   "minimumRuntimeVersion": "9.3.2",
   "minimumRuntime": "10.0.0",
   "workflowLanguageVersion": 2,

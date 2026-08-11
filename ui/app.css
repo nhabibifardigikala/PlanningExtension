@@ -189,3 +189,29 @@ html[data-theme="dark"] .generic-point-1{fill:#d3d9e3}
 .generic-legend-0{background:var(--accent)}
 .generic-legend-1{background:#22314d}
 html[data-theme="dark"] .generic-legend-1{background:#d3d9e3}
+
+/* v47 — Extract Distribution Centers dedicated operation page */
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationInputs {
+  display: none !important;
+}
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #runOperation {
+  min-width: 180px;
+  margin-top: 4px;
+}
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult #gpCards,
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult #gpDashboard,
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult .capacity-result-toolbar > div:first-child {
+  display: none !important;
+}
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult .capacity-result-toolbar {
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 4px;
+  margin-top: 8px;
+}
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult .capacity-result-actions {
+  width: auto;
+}
+#operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult #gpDownload {
+  min-width: 180px;
+}

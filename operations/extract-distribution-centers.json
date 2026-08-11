@@ -2,8 +2,16 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract all Distribution Center rows. The Excel file is prepared after the operation and downloaded only when you click Download Excel.",
-  "inputs": [],
+  "description": "Extract all Distribution Center rows and prepare a single Excel file for download.",
+  "inputs": [
+    {
+      "name": "__extractPage",
+      "label": "Extraction",
+      "type": "checkbox",
+      "defaultChecked": false,
+      "help": ""
+    }
+  ],
   "navigation": {
     "retryCount": 10,
     "retryDelayMs": 400,
@@ -49,12 +57,32 @@
   },
   "uiMode": "form",
   "runLabel": "Run Extraction",
-  "resultDownload": {
-    "enabled": true,
-    "title": "Distribution Centers ready",
-    "buttonLabel": "Download Excel",
-    "sheetName": "Distribution Centers",
-    "filename": "distribution_centers_{{today}}.xlsx",
-    "successMessage": "Distribution Centers Excel downloaded."
-  }
+  "clientProcessor": {
+    "type": "data-pipeline",
+    "source": {
+      "type": "remote-operation",
+      "operationId": "extract-dc",
+      "inputs": {},
+      "status": "Extracting Distribution Centers…"
+    },
+    "groups": [],
+    "metrics": [],
+    "charts": [],
+    "presentation": {
+      "partitionTitle": "Distribution Centers",
+      "partitionSubtitle": "",
+      "dashboardButtonLabel": "Open dashboard",
+      "downloadButtonLabel": "Download Excel"
+    },
+    "export": {
+      "enabled": true,
+      "type": "xlsx",
+      "buttonLabel": "Download Excel",
+      "filename": "distribution_centers.xlsx",
+      "sheetName": "Distribution Centers",
+      "saveAs": false,
+      "prependColumns": []
+    }
+  },
+  "remoteBehaviorVersion": 2
 }
