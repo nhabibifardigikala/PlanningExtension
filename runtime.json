@@ -1,5 +1,5 @@
 {
-  "contractVersion": 2,
+  "contractVersion": 3,
   "loading": {
     "title": "Loading Digiexpress…",
     "message": "Loading the latest application configuration."
@@ -16,5 +16,5 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "This file contains non-secret runtime defaults. Security enforcement remains local."
+  "notes": "Remote app v19. Workflow supports conditional steps and reconciliation exception IDs when used with stable runtime 8.1+."
 }

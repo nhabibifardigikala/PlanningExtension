@@ -2,14 +2,52 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Compare Distribution Center IATA values with Shipping Point and Shipping Polygon codes and automatically correct mismatches.",
-  "inputs": [],
+  "uiMode": "form",
+  "runLabel": "Start IATA Sync",
+  "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
+  "inputs": [
+    {
+      "name": "syncTargets",
+      "label": "Sync targets",
+      "type": "checkbox-group",
+      "required": true,
+      "default": [
+        "shipping-points",
+        "shipping-polygons"
+      ],
+      "options": [
+        {
+          "value": "shipping-points",
+          "label": "Sync shipping points"
+        },
+        {
+          "value": "shipping-polygons",
+          "label": "Sync Shipping Polygons"
+        }
+      ],
+      "help": "Select one or both datasets to check and correct."
+    },
+    {
+      "name": "pointExceptions",
+      "label": "Shipping Point exception IDs",
+      "type": "text",
+      "placeholder": "e.g. 10, 25, 44",
+      "help": "Comma-separated IDs. These Shipping Points will not be checked or modified."
+    },
+    {
+      "name": "polygonExceptions",
+      "label": "Shipping Polygon exception IDs",
+      "type": "text",
+      "placeholder": "e.g. 101, 205, 390",
+      "help": "Comma-separated IDs. These Shipping Polygons will not be checked or modified."
+    }
+  ],
   "navigation": {
     "retryCount": 10,
     "retryDelayMs": 450,
     "completeTimeoutMs": 40000
   },
-  "successMessage": "IATA synchronization completed. {{mismatchCount}} mismatches found, {{updatedCount}} updated, {{failedCount}} failed.",
+  "successMessage": "IATA synchronization completed successfully.",
   "workflow": [
     {
       "action": "open",
@@ -30,15 +68,28 @@
     },
     {
       "action": "enableColumns",
-      "columns": ["iata"],
+      "columns": [
+        "iata"
+      ],
       "required": false,
       "afterEachMs": 1200,
-      "afterMs": 1800,
+      "afterMs": 1600,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
       "progress": "Preparing Distribution Center columns…"
+    },
+    {
+      "action": "clickOutside",
+      "x": 60,
+      "y": 80,
+      "progress": "Closing Distribution Center columns…"
+    },
+    {
+      "action": "wait",
+      "ms": 1800,
+      "progress": "Waiting for Distribution Center table…"
     },
     {
       "action": "extractPaginatedTable",
@@ -56,82 +107,254 @@
     },
     {
       "action": "navigate",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
       "url": "https://drop-shipping.digikala.com/shipping-points/?id=&title=&from_created_at=&to_created_at=&created_by_id=0&type=&active=&cash_on_delivery=&per_page=1000&crud_tab_id=",
       "progress": "Opening Shipping Points…"
     },
     {
       "action": "ensureLogin",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
       "detectTimeoutMs": 7000,
       "progress": "Checking Drop Shipping authentication…"
     },
     {
       "action": "waitFor",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
       "selector": "table",
       "timeoutMs": 30000,
       "progress": "Waiting for Shipping Points…"
     },
     {
       "action": "enableColumns",
-      "columns": ["code"],
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "columns": [
+        "code"
+      ],
       "required": true,
-      "afterEachMs": 1800,
-      "afterMs": 3000,
+      "afterEachMs": 1000,
+      "afterMs": 600,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
-      "progress": "Enabling Shipping Point code column…"
+      "progress": "Selecting Shipping Point code column…"
+    },
+    {
+      "action": "clickOutside",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "x": 70,
+      "y": 90,
+      "progress": "Closing Shipping Point columns…"
+    },
+    {
+      "action": "wait",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "ms": 4000,
+      "progress": "Waiting for Shipping Point code data to load…"
     },
     {
       "action": "extractPaginatedTable",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
       "storeAs": "shippingPoints",
       "makeCurrent": false,
       "nextSelector": "a[aria-label=\"Next page\"]",
       "timeoutMs": 30000,
-      "stableMs": 1800,
+      "stableMs": 2200,
       "pollMs": 450,
-      "afterPageMs": 900,
+      "afterPageMs": 1000,
       "dedupe": true,
       "maxPages": 1000,
       "pageProgress": "Reading Shipping Points page {{page}}…",
       "progress": "Extracting Shipping Points…"
     },
     {
+      "action": "reconcileCodeByName",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "masterDataset": "distributionCenters",
+      "masterNameAliases": [
+        "name",
+        "distribution center name",
+        "dc name"
+      ],
+      "masterCodeAliases": [
+        "iata",
+        "iata code"
+      ],
+      "sources": [
+        {
+          "dataset": "shippingPoints",
+          "type": "shipping-point",
+          "nameAliases": [
+            "name",
+            "title",
+            "shipping point",
+            "shipping point name"
+          ],
+          "idAliases": [
+            "id"
+          ],
+          "codeAliases": [
+            "code"
+          ],
+          "excludeIds": "{{pointExceptions}}"
+        }
+      ],
+      "storeAs": "shippingPointCorrections",
+      "makeCurrent": false,
+      "resultMessage": "Shipping Points: found {{mismatchCount}} IATA mismatches.",
+      "progress": "Comparing Shipping Point IATA codes…"
+    },
+    {
+      "action": "applyFieldCorrections",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "continueOnError": true,
+      "itemProgress": "Updating Shipping Point {{id}} ({{index}}/{{count}})…",
+      "sources": {
+        "shipping-point": {
+          "listUrl": "https://drop-shipping.digikala.com/shipping-points/",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "tableSelector": "table tbody tr",
+          "rowSelector": "table tbody tr",
+          "detailsSelector": "a,button",
+          "detailsText": "details",
+          "codeSelector": "#form-field-code, input[name=\"code\"]",
+          "saveSelector": "button.form-save-button.admin-submit-button",
+          "saveText": "save",
+          "afterOpenMs": 500,
+          "afterSearchMs": 1000,
+          "beforeSaveMs": 300,
+          "afterSaveMs": 500,
+          "saveNavigationTimeoutMs": 12000
+        }
+      },
+      "progress": "Applying Shipping Point IATA corrections…"
+    },
+    {
       "action": "navigate",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
       "url": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/?per_page=1000",
       "progress": "Opening Shipping Polygons…"
     },
     {
       "action": "ensureLogin",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
       "detectTimeoutMs": 5000,
       "progress": "Checking Shipping Polygon authentication…"
     },
     {
       "action": "waitFor",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
       "selector": "table",
       "timeoutMs": 30000,
       "progress": "Waiting for Shipping Polygons…"
     },
     {
       "action": "enableColumns",
-      "columns": ["code", "coordinates", "hash_id"],
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "columns": [
+        "code",
+        "coordinates",
+        "hash_id"
+      ],
       "required": true,
-      "afterEachMs": 1600,
-      "afterMs": 3000,
+      "afterEachMs": 900,
+      "afterMs": 500,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
-      "progress": "Enabling Shipping Polygon columns…"
+      "progress": "Selecting Shipping Polygon columns…"
+    },
+    {
+      "action": "clickOutside",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "x": 70,
+      "y": 90,
+      "progress": "Closing Shipping Polygon columns…"
+    },
+    {
+      "action": "wait",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "ms": 4000,
+      "progress": "Waiting for Shipping Polygon data to load…"
     },
     {
       "action": "extractSearchVariants",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
       "storeAs": "shippingPolygons",
       "makeCurrent": false,
-      "values": [1, 2, 3],
+      "values": [
+        1,
+        2,
+        3
+      ],
       "valueColumn": "Shipping Size",
       "resetUrl": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/?per_page=1000",
-      "afterResetMs": 1000,
+      "afterResetMs": 1200,
       "waitForSelector": "input[placeholder=\"Shipping Size\"]",
       "waitTimeoutMs": 20000,
       "searchSelector": "input[placeholder=\"Shipping Size\"]",
@@ -165,51 +388,57 @@
     },
     {
       "action": "reconcileCodeByName",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
       "masterDataset": "distributionCenters",
-      "masterNameAliases": ["name", "distribution center name", "dc name"],
-      "masterCodeAliases": ["iata", "iata code"],
+      "masterNameAliases": [
+        "name",
+        "distribution center name",
+        "dc name"
+      ],
+      "masterCodeAliases": [
+        "iata",
+        "iata code"
+      ],
       "sources": [
-        {
-          "dataset": "shippingPoints",
-          "type": "shipping-point",
-          "nameAliases": ["name", "title", "shipping point", "shipping point name"],
-          "idAliases": ["id"],
-          "codeAliases": ["code"]
-        },
         {
           "dataset": "shippingPolygons",
           "type": "shipping-polygon",
-          "nameAliases": ["name", "title", "shipping point", "shipping point name"],
-          "idAliases": ["id", "hash_id", "hash id"],
-          "codeAliases": ["code"]
+          "nameAliases": [
+            "name",
+            "title",
+            "shipping point",
+            "shipping point name"
+          ],
+          "idAliases": [
+            "id",
+            "hash_id",
+            "hash id"
+          ],
+          "codeAliases": [
+            "code"
+          ],
+          "excludeIds": "{{polygonExceptions}}"
         }
       ],
-      "storeAs": "iataCorrections",
+      "storeAs": "shippingPolygonCorrections",
       "makeCurrent": false,
-      "resultMessage": "Found {{mismatchCount}} IATA mismatches.",
-      "progress": "Comparing IATA codes by center name…"
+      "resultMessage": "Shipping Polygons: found {{mismatchCount}} IATA mismatches.",
+      "progress": "Comparing Shipping Polygon IATA codes…"
     },
     {
       "action": "applyFieldCorrections",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
       "continueOnError": true,
-      "itemProgress": "Updating {{source}} {{id}} ({{index}}/{{count}})…",
+      "itemProgress": "Updating Shipping Polygon {{id}} ({{index}}/{{count}})…",
       "sources": {
-        "shipping-point": {
-          "listUrl": "https://drop-shipping.digikala.com/shipping-points/",
-          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-          "tableSelector": "table tbody tr",
-          "rowSelector": "table tbody tr",
-          "detailsSelector": "a,button",
-          "detailsText": "details",
-          "codeSelector": "#form-field-code, input[name=\"code\"]",
-          "saveSelector": "button.form-save-button.admin-submit-button",
-          "saveText": "save",
-          "afterOpenMs": 500,
-          "afterSearchMs": 1000,
-          "beforeSaveMs": 300,
-          "afterSaveMs": 500,
-          "saveNavigationTimeoutMs": 12000
-        },
         "shipping-polygon": {
           "listUrl": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/",
           "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
@@ -227,7 +456,7 @@
           "saveNavigationTimeoutMs": 12000
         }
       },
-      "progress": "Applying IATA corrections…"
+      "progress": "Applying Shipping Polygon IATA corrections…"
     },
     {
       "action": "closeTab",

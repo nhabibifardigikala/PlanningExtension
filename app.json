@@ -1,10 +1,10 @@
 {
-  "configVersion": 18,
-  "minEngineVersion": "8.0",
+  "configVersion": 19,
+  "minEngineVersion": "8.1",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
-    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=18"
+    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=19"
   },
   "theme": "theme.json",
   "settings": "settings.json",
@@ -18,7 +18,46 @@
       "accessHeaders": [
         "Sync IATA Code"
       ],
-      "config": "operations/sync-iata.json"
+      "config": "operations/sync-iata.json",
+      "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
+      "runLabel": "Start IATA Sync",
+      "inputs": [
+        {
+          "name": "syncTargets",
+          "label": "Sync targets",
+          "type": "checkbox-group",
+          "required": true,
+          "default": [
+            "shipping-points",
+            "shipping-polygons"
+          ],
+          "options": [
+            {
+              "value": "shipping-points",
+              "label": "Sync shipping points"
+            },
+            {
+              "value": "shipping-polygons",
+              "label": "Sync Shipping Polygons"
+            }
+          ],
+          "help": "Select one or both datasets to check and correct."
+        },
+        {
+          "name": "pointExceptions",
+          "label": "Shipping Point exception IDs",
+          "type": "text",
+          "placeholder": "e.g. 10, 25, 44",
+          "help": "Comma-separated IDs. These Shipping Points will not be checked or modified."
+        },
+        {
+          "name": "polygonExceptions",
+          "label": "Shipping Polygon exception IDs",
+          "type": "text",
+          "placeholder": "e.g. 101, 205, 390",
+          "help": "Comma-separated IDs. These Shipping Polygons will not be checked or modified."
+        }
+      ]
     },
     {
       "id": "extract-dc",

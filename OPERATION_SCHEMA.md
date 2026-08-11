@@ -68,3 +68,10 @@ Operation files must be declarative. Supported generic interaction primitives in
 All selectors, selector indexes, timeouts, retry policies, URLs and user-facing progress text belong in remote operation JSON.
 
 For a future external HTTPS host, add `requiredHosts` to the operation metadata. Runtime v8 can request that host permission at execution time without an extension update.
+
+
+### Conditional workflow steps
+Any workflow step may include `when` with `left`, `operator`, and `right`. Supported operators use the runtime condition matcher (for example `contains`, `equals`, `truthy`).
+
+### Reconciliation exclusions
+Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-separated string (including a template such as `{{pointExceptions}}`). Matching IDs are skipped entirely.
