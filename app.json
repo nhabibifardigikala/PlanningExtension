@@ -1,5 +1,5 @@
 {
-  "configVersion": 19,
+  "configVersion": 20,
   "minEngineVersion": "8.1",
   "app": {
     "name": "Digiexpress",
@@ -278,5 +278,6 @@
       "feature-flags"
     ]
   },
-  "runtime": "runtime.json"
+  "runtime": "runtime.json",
+  "runtimeVersion": "8.2.0"
 }

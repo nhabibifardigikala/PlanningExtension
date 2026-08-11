@@ -82,8 +82,6 @@
     },
     {
       "action": "clickOutside",
-      "x": 60,
-      "y": 80,
       "progress": "Closing Distribution Center columns…"
     },
     {
@@ -148,12 +146,20 @@
       ],
       "required": true,
       "afterEachMs": 1000,
-      "afterMs": 600,
+      "afterMs": 2800,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
-      "progress": "Selecting Shipping Point code column…"
+      "progress": "Selecting Shipping Point code column…",
+      "closeOutside": true,
+      "afterCloseMs": 1200,
+      "verifyHeaders": [
+        "code"
+      ],
+      "verifyTimeoutMs": 20000,
+      "verifyIntervalMs": 350,
+      "verifyRequired": true
     },
     {
       "action": "clickOutside",
@@ -162,8 +168,6 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "x": 70,
-      "y": 90,
       "progress": "Closing Shipping Point columns…"
     },
     {
@@ -310,12 +314,22 @@
       ],
       "required": true,
       "afterEachMs": 900,
-      "afterMs": 500,
+      "afterMs": 2800,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
-      "progress": "Selecting Shipping Polygon columns…"
+      "progress": "Selecting Shipping Polygon columns…",
+      "closeOutside": true,
+      "afterCloseMs": 1200,
+      "verifyHeaders": [
+        "code",
+        "coordinates",
+        "hash_id"
+      ],
+      "verifyTimeoutMs": 20000,
+      "verifyIntervalMs": 350,
+      "verifyRequired": true
     },
     {
       "action": "clickOutside",
@@ -324,8 +338,6 @@
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "x": 70,
-      "y": 90,
       "progress": "Closing Shipping Polygon columns…"
     },
     {
