@@ -150,3 +150,20 @@
 @media(max-width:430px){.capacity-result-toolbar,.capacity-report-title,.chart-head{align-items:stretch;flex-direction:column}.capacity-kpis{grid-template-columns:repeat(2,1fr)}.save-button.compact{width:100%}}
 
 .jalali-day-pad{display:block;min-height:28px}
+
+
+/* Remote UI v33: grouped capacity KPI blocks, larger Jalali month arrows */
+.jalali-cal-head{grid-template-columns:48px 1fr 48px}
+.jalali-cal-head button{font-size:28px!important;line-height:1!important;font-weight:900!important;padding:6px 8px!important;min-height:40px}
+.capacity-result-toolbar{flex-wrap:wrap}
+.capacity-result-actions{display:flex;gap:8px;flex-wrap:wrap}
+.capacity-summary{display:grid;grid-template-columns:minmax(90px,.55fr) repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.capacity-summary-days,.capacity-metric-block{padding:10px;border:1px solid color-mix(in srgb,var(--border) 45%,transparent);border-radius:11px;background:var(--panel)}
+.capacity-summary-days span,.capacity-metric-block>span{display:block;font-size:9px;color:var(--muted);font-weight:700;margin-bottom:7px}
+.capacity-summary-days strong{font-size:15px}
+.capacity-metric-values{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.capacity-metric-values>div{padding:6px;border-radius:8px;background:color-mix(in srgb,var(--card) 70%,transparent);text-align:center}
+.capacity-metric-values small{display:block;color:var(--muted);font-size:8px;margin-bottom:3px}
+.capacity-metric-values strong{font-size:11px}
+.capacity-metric-values .stat-min strong{color:#1877f2}.capacity-metric-values .stat-max strong{color:#e53935}
+@media(max-width:520px){.capacity-summary{grid-template-columns:1fr}.capacity-result-actions{width:100%}.capacity-result-actions .save-button{flex:1}}

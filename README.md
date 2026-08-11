@@ -65,3 +65,12 @@ Shipping Point and Shipping Polygon corrections now use the exact list -> ID sea
 - Capacity Report multi-center selector, Persian date picker, per-center trend charts, and interactive dashboard tab.
 - Unified orange accent controlled from theme.json.
 - Keyboard support: arrows/Enter in autocomplete, Tab navigation, Esc close/back, Ctrl/Cmd+Enter run.
+
+
+## v33 Capacity refinements
+- One combined Excel for all selected centers, downloaded only on user click.
+- No per-center automatic Excel export.
+- Capacity and Capacity Reserved statistics shown in separate blocks.
+- Selected center chips show names only.
+- Larger Persian date picker month navigation controls.
+- Capacity chart point spacing reduced to 29px and configurable from Remote Config.

@@ -29,7 +29,8 @@
         ],
         "idColumn": "id",
         "nameColumn": "name"
-      }
+      },
+      "showSelectedId": false
     },
     {
       "name": "fromDate",
@@ -184,12 +185,6 @@
       }
     },
     {
-      "action": "exportExcel",
-      "sheetName": "Capacity Report",
-      "filename": "Capacity_DC{{dcId}}_{{fromDate}}_{{toDate}}.xlsx",
-      "progress": "Creating Excel file…"
-    },
-    {
       "action": "closeTab",
       "progress": "Closing report tab…"
     }
@@ -217,7 +212,18 @@
         "capacity reserved",
         "reserved capacity",
         "capacity_reserved"
-      ]
+      ],
+      "chartPointSpacing": 29,
+      "statsLayout": "grouped"
+    },
+    "excel": {
+      "enabled": true,
+      "buttonLabel": "Download Excel",
+      "filename": "capacity_report_{{fromDate}}_{{toDate}}.xlsx",
+      "sheetName": "Capacity Report",
+      "saveAs": false,
+      "includeCenterName": true,
+      "includeCenterId": true
     }
   }
 }
