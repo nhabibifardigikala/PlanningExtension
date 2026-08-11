@@ -2,14 +2,14 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract all Distribution Center rows and export them to Excel.",
+  "description": "Extract all Distribution Center rows. The Excel file is prepared after the operation and downloaded only when you click Download Excel.",
   "inputs": [],
   "navigation": {
     "retryCount": 10,
     "retryDelayMs": 400,
     "completeTimeoutMs": 30000
   },
-  "successMessage": "Done. {{rowCount}} rows exported.",
+  "successMessage": "Extraction completed. {{rowCount}} rows are ready.",
   "workflow": [
     {
       "action": "open",
@@ -41,16 +41,20 @@
       "maxPages": 1000,
       "pageProgress": "Extracting Distribution Center page {{page}}…",
       "progress": "Extracting Distribution Centers…"
-    },
-    {
-      "action": "exportExcel",
-      "sheetName": "Distribution Centers",
-      "filename": "distribution_centers_{{today}}.xlsx",
-      "progress": "Creating Excel file…"
     }
   ],
   "retryPolicy": {
     "attempts": 3,
     "delayMs": 1500
+  },
+  "uiMode": "form",
+  "runLabel": "Run Extraction",
+  "resultDownload": {
+    "enabled": true,
+    "title": "Distribution Centers ready",
+    "buttonLabel": "Download Excel",
+    "sheetName": "Distribution Centers",
+    "filename": "distribution_centers_{{today}}.xlsx",
+    "successMessage": "Distribution Centers Excel downloaded."
   }
 }

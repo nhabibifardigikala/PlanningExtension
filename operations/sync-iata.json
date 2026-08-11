@@ -22,7 +22,7 @@
         },
         {
           "value": "shipping-polygons",
-          "label": "Sync Shipping Polygons"
+          "label": "Sync Polygons"
         }
       ],
       "help": "Select one or both datasets to check and correct."
