@@ -19,19 +19,16 @@
       "help": "Type at least 2 characters. Matching centers are ranked by similarity. The center list is cached to reduce Google Sheet requests.",
       "source": {
         "format": "csv",
-        "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/gviz/tq?tqx=out:csv&sheet=Distribution%20Centers%20(LG)",
+        "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/gviz/tq?sheet=Distribution%20Centers%20(LG)&headers=3&tqx=out:csv&tq=select%20A%2CB%20label%20A%20%27id%27%2CB%20%27name%27",
         "cacheMs": 3600000,
         "nameColumns": [
-          "Name",
-          "Distribution Center Name",
-          "DC Name",
-          "distribution center name",
           "name"
         ],
         "idColumns": [
           "id"
         ],
-        "idColumn": "id"
+        "idColumn": "id",
+        "nameColumn": "name"
       }
     },
     {

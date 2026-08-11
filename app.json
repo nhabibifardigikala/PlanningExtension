@@ -1,14 +1,14 @@
 {
-  "configVersion": 27,
+  "configVersion": 29,
   "minEngineVersion": "8.1",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=19"
   },
-  "theme": "theme.json?v=27",
-  "settings": "settings.json?v=27",
-  "messages": "messages.json?v=27",
+  "theme": "theme.json?v=29",
+  "settings": "settings.json?v=29",
+  "messages": "messages.json?v=29",
   "operations": [
     {
       "id": "sync-iata",
@@ -18,7 +18,7 @@
       "accessHeaders": [
         "Sync IATA Code"
       ],
-      "config": "operations/sync-iata.json?v=27",
+      "config": "operations/sync-iata.json?v=29",
       "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
       "runLabel": "Start IATA Sync",
       "inputs": [
@@ -68,7 +68,7 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=27"
+      "config": "operations/extract-distribution-centers.json?v=29"
     },
     {
       "id": "capacity-report",
@@ -78,7 +78,7 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=27"
+      "config": "operations/capacity-report.json?v=29"
     },
     {
       "id": "parcel-log",
@@ -87,7 +87,7 @@
       "accessHeaders": [
         "Parcel Log"
       ],
-      "config": "operations/parcel-log.json?v=27",
+      "config": "operations/parcel-log.json?v=29",
       "iconSvgPath": "M24 4 5 13v22l19 9 19-9V13L24 4Zm0 4.4L37.4 15 24 21.6 10.6 15 24 8.4ZM9 18.2l13 6.4v14.1L9 32.5V18.2Zm17 20.5V24.6l13-6.4v14.3l-13 6.2Z"
     },
     {
@@ -97,7 +97,7 @@
       "accessHeaders": [
         "Role Assignment"
       ],
-      "config": "operations/role-assignment.json?v=27",
+      "config": "operations/role-assignment.json?v=29",
       "iconSvgPath": "M24 4 8 10v12c0 10.2 6.8 18.8 16 22 9.2-3.2 16-11.8 16-22V10L24 4Zm0 5 11 4.1V22c0 7.4-4.6 14-11 17-6.4-3-11-9.6-11-17v-8.9L24 9Zm-2 8v5h-5v4h5v5h4v-5h5v-4h-5v-5h-4Z"
     },
     {
@@ -108,7 +108,7 @@
         "DC User Assignment",
         "DC USER ASSIGNMENT"
       ],
-      "config": "operations/dc-user-assignment.json?v=27",
+      "config": "operations/dc-user-assignment.json?v=29",
       "iconSvgPath": "M18 7a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm0 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 15c8 0 14 4.1 14 9v5H4v-5c0-4.9 6-9 14-9Zm0 4c-5.8 0-10 2.6-10 5v1h20v-1c0-2.4-4.2-5-10-5Zm20-12h6v4h-6v6h-4v-6h-6v-4h6v-6h4Z",
       "description": "Assign Distribution Centers to a user. Choose the saved access email or enter another email, then enter the desired DC count.",
       "runLabel": "Assign DCs",
@@ -152,7 +152,7 @@
       "accessHeaders": [
         "Flex Capacity Definition"
       ],
-      "config": "operations/flex-capacity-definition.json?v=27",
+      "config": "operations/flex-capacity-definition.json?v=29",
       "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z"
     },
     {
@@ -162,7 +162,7 @@
       "accessHeaders": [
         "Parent Determination"
       ],
-      "config": "operations/parent-determination.json?v=27",
+      "config": "operations/parent-determination.json?v=29",
       "iconSvgPath": "M24 4c-8.3 0-15 6.7-15 15 0 10.8 15 25 15 25s15-14.2 15-25c0-8.3-6.7-15-15-15Zm0 4c6.1 0 11 4.9 11 11 0 7.2-8.4 17.4-11 20.3C21.4 36.4 13 26.2 13 19c0-6.1 4.9-11 11-11Zm0 6a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z",
       "description": "Determine parent Distribution Centers for one location or an uploaded Excel file.",
       "runLabel": "Determine Parent",

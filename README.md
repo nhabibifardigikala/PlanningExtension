@@ -44,3 +44,13 @@ Distribution Centers are extracted without opening Columns. Shipping Points and 
 - Search starts after 2 characters with 500 ms debounce.
 - In-session source cache increased to 1 hour.
 - Distribution Center ID continues to use the exact `id` column.
+
+
+## v28
+- Sync IATA Shipping Points now maps `title fa` / `title_fa` to Distribution Center `name`.
+- Shipping Point `code` is compared with Distribution Center `iata`.
+
+
+## v29
+- Capacity Report DC autocomplete uses Google Visualization with headers=3 and only id/name columns to correctly preserve each center ID.
+- Sync IATA update flow uses exact Details links and code/save selectors with shorter waits; platform retries remain enabled.

@@ -180,8 +180,10 @@
           "dataset": "shippingPoints",
           "type": "shipping-point",
           "nameAliases": [
-            "name",
+            "title fa",
+            "title_fa",
             "title",
+            "name",
             "shipping point",
             "shipping point name"
           ],
@@ -211,19 +213,22 @@
       "sources": {
         "shipping-point": {
           "listUrl": "https://drop-shipping.digikala.com/shipping-points/",
-          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "searchSelector": "input.uk-input.uk-form-width-small[name=\"id\"][placeholder=\"ID\"], input[name=\"id\"][placeholder=\"ID\"]",
           "tableSelector": "table tbody tr",
           "rowSelector": "table tbody tr",
-          "detailsSelector": "a,button",
+          "detailsSelector": "a.uk-button.uk-button-success[href*=\"/shipping-points/item/\"]",
           "detailsText": "details",
-          "codeSelector": "#form-field-code, input[name=\"code\"]",
-          "saveSelector": "button.form-save-button.admin-submit-button",
+          "codeSelector": "input#form-field-code[name=\"code\"], input[name=\"code\"]",
+          "saveSelector": "button.uk-button.uk-button-primary.form-save-button.admin-submit-button, button.admin-submit-button",
           "saveText": "save",
-          "afterOpenMs": 500,
-          "afterSearchMs": 1000,
-          "beforeSaveMs": 300,
-          "afterSaveMs": 500,
-          "saveNavigationTimeoutMs": 12000
+          "afterOpenMs": 250,
+          "afterSearchMs": 650,
+          "beforeSaveMs": 100,
+          "afterSaveMs": 250,
+          "saveNavigationTimeoutMs": 10000,
+          "searchTimeoutMs": 12000,
+          "resultsTimeoutMs": 10000,
+          "detailsTimeoutMs": 12000
         }
       },
       "progress": "Applying Shipping Point IATA corrections…"
@@ -390,19 +395,22 @@
       "sources": {
         "shipping-polygon": {
           "listUrl": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/",
-          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "searchSelector": "input.uk-input.uk-form-width-small[name=\"id\"][placeholder=\"ID\"], input[name=\"id\"][placeholder=\"ID\"]",
           "tableSelector": "table tbody tr",
           "rowSelector": "table tbody tr",
-          "detailsSelector": "a,button",
+          "detailsSelector": "a.uk-button.uk-button-success[href*=\"/shipping-point-coverage-polygons/item/\"]",
           "detailsText": "details",
-          "codeSelector": "#form-field-code, input[name=\"code\"]",
-          "saveSelector": "button.form-save-button.admin-submit-button",
+          "codeSelector": "input#form-field-code[name=\"code\"], input[name=\"code\"]",
+          "saveSelector": "button.uk-button.uk-button-primary.form-save-button.admin-submit-button, button.admin-submit-button",
           "saveText": "save",
-          "afterOpenMs": 500,
-          "afterSearchMs": 1000,
-          "beforeSaveMs": 300,
-          "afterSaveMs": 500,
-          "saveNavigationTimeoutMs": 12000
+          "afterOpenMs": 250,
+          "afterSearchMs": 650,
+          "beforeSaveMs": 100,
+          "afterSaveMs": 250,
+          "saveNavigationTimeoutMs": 10000,
+          "searchTimeoutMs": 12000,
+          "resultsTimeoutMs": 10000,
+          "detailsTimeoutMs": 12000
         }
       },
       "progress": "Applying Shipping Polygon IATA corrections…"
