@@ -80,3 +80,10 @@ Shipping Point and Shipping Polygon corrections now use the exact list -> ID sea
 - Sync target label changed to **Sync Polygons**.
 - Extract Distribution Centers now opens a form screen with **Run Extraction**.
 - Extraction no longer auto-downloads Excel; after completion a **Download Excel** button is shown.
+
+
+## v36 Capacity fixes
+- Multiple selected DC IDs are submitted once, joined by a single space.
+- Added deliberate pacing before/after filling the Distribution Center field.
+- Dashboard button label is `Open dashboard`.
+- Dashboard data is opened through a robust background-tab launcher in Runtime 9.3.1.

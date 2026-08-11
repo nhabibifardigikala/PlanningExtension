@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v34: single-query multi-center capacity, adaptive chart width, larger KPI typography and Open dashboard label.",
-  "configVersion": 34,
-  "minimumRuntimeVersion": "9.3.0"
+  "notes": "Remote app v36: combined multi-center Capacity query, deliberate ID-field pacing, Open dashboard label and robust dashboard launch support.",
+  "configVersion": 36,
+  "minimumRuntimeVersion": "9.3.1"
 }

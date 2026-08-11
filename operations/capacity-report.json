@@ -84,6 +84,11 @@
       "error": "Distribution Center field was not found."
     },
     {
+      "action": "wait",
+      "ms": 900,
+      "progress": "Preparing Distribution Center field…"
+    },
+    {
       "action": "fill",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
       "value": "{{dcId}}",
@@ -92,8 +97,8 @@
     },
     {
       "action": "wait",
-      "ms": 350,
-      "progress": "Applying Distribution Centers…"
+      "ms": 1200,
+      "progress": "Waiting after Distribution Center IDs…"
     },
     {
       "action": "clickOutside",
