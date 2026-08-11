@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v36: combined multi-center Capacity query, deliberate ID-field pacing, Open dashboard label and robust dashboard launch support.",
-  "configVersion": 36,
-  "minimumRuntimeVersion": "9.3.1"
+  "notes": "Remote app v37: exclusive per-center Capacity charts after one combined multi-center query; each row is assigned to only one center.",
+  "configVersion": 37,
+  "minimumRuntimeVersion": "9.3.2"
 }

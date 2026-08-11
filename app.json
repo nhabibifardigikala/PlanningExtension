@@ -1,6 +1,6 @@
 {
-  "configVersion": 36,
-  "minEngineVersion": "9.3.1",
+  "configVersion": 37,
+  "minEngineVersion": "9.3.2",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
