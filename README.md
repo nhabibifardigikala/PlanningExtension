@@ -19,3 +19,7 @@ Sync IATA now opens a Remote form with dataset selection and comma-separated exc
 - Sync IATA target selectors are segmented orange buttons.
 - Shipping Point code column is committed with a center-page click, reload wait, second confirmation, and explicit header assertion before extraction.
 - Compatible with Stable Runtime v8.1; no runtime update required.
+
+
+## v22
+Forced remote UI/CSS cache bust to v22 and strengthened Sync IATA target button styling. No Runtime update required.
