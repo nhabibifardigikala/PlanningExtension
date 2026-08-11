@@ -1,5 +1,5 @@
 {
-  "configVersion": 24,
+  "configVersion": 25,
   "minEngineVersion": "8.1",
   "app": {
     "name": "Digiexpress",
@@ -242,8 +242,8 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=24",
-    "css": "ui/app.css?v=24",
+    "html": "ui/app.html?v=25",
+    "css": "ui/app.css?v=25",
     "contractVersion": 2
   },
   "runtimeContract": {
@@ -281,7 +281,7 @@
   "runtime": "runtime.json",
   "runtimeVersion": "8.2.0",
   "remoteUI": {
-    "html": "ui/app.html?v=24",
-    "css": "ui/app.css?v=24"
+    "html": "ui/app.html?v=25",
+    "css": "ui/app.css?v=25"
   }
 }

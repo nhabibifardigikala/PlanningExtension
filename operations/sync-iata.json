@@ -67,29 +67,6 @@
       "progress": "Waiting for Distribution Centers…"
     },
     {
-      "action": "enableColumns",
-      "columns": [
-        "iata"
-      ],
-      "required": false,
-      "afterEachMs": 1200,
-      "afterMs": 1600,
-      "options": {
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
-      },
-      "progress": "Preparing Distribution Center columns…"
-    },
-    {
-      "action": "clickOutside",
-      "progress": "Closing Distribution Center columns…"
-    },
-    {
-      "action": "wait",
-      "ms": 1800,
-      "progress": "Waiting for Distribution Center table…"
-    },
-    {
       "action": "extractPaginatedTable",
       "storeAs": "distributionCenters",
       "makeCurrent": false,
@@ -135,14 +112,27 @@
       "progress": "Waiting for Shipping Points…"
     },
     {
+      "action": "click",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "selector": "button",
+      "textContains": "Columns",
+      "afterMs": 0,
+      "progress": "Opening Shipping Point columns…",
+      "error": "Shipping Point Columns button was not found."
+    },
+    {
       "action": "wait",
       "when": {
         "left": "{{syncTargets}}",
         "operator": "contains",
         "right": "shipping-points"
       },
-      "ms": 3000,
-      "progress": "Waiting before opening Shipping Point columns…"
+      "ms": 1000,
+      "progress": "Waiting for Shipping Point column menu…"
     },
     {
       "action": "enableColumns",
@@ -155,14 +145,16 @@
         "code"
       ],
       "required": true,
-      "afterEachMs": 1800,
-      "afterMs": 1200,
+      "afterEachMs": 250,
+      "afterMs": 0,
       "options": {
-        "buttonText": "Columns",
+        "buttonSelector": "ul#adminColumns",
+        "buttonText": "code",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 15000
+        "menuTimeoutMs": 10000
       },
-      "progress": "Selecting Shipping Point code column…"
+      "progress": "Ensuring Shipping Point code column is selected…",
+      "error": "Shipping Point code option was not found in Columns."
     },
     {
       "action": "clickOutside",
@@ -171,7 +163,8 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "selector": "body",
+      "x": 500,
+      "y": 400,
       "progress": "Closing Shipping Point columns…"
     },
     {
@@ -182,47 +175,7 @@
         "right": "shipping-points"
       },
       "ms": 8000,
-      "progress": "Waiting for Shipping Point table to reload…"
-    },
-    {
-      "action": "enableColumns",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "columns": [
-        "code"
-      ],
-      "required": true,
-      "afterEachMs": 1200,
-      "afterMs": 800,
-      "options": {
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 15000
-      },
-      "progress": "Rechecking Shipping Point code column…"
-    },
-    {
-      "action": "clickOutside",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "selector": "body",
-      "progress": "Applying Shipping Point column selection…"
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "ms": 8000,
-      "progress": "Waiting for final Shipping Point table reload…"
+      "progress": "Waiting for Shipping Point table after column selection…"
     },
     {
       "action": "read",
@@ -248,7 +201,7 @@
         "operator": "contains",
         "right": "code"
       },
-      "error": "Shipping Point code column did not load after enabling Columns. Please retry the operation.",
+      "error": "Shipping Point code column did not load after Columns selection.",
       "progress": "Verifying Shipping Point code column…"
     },
     {
@@ -395,26 +348,26 @@
       "progress": "Waiting for Shipping Polygon column menu…"
     },
     {
-      "action": "click",
+      "action": "enableColumns",
       "when": {
         "left": "{{syncTargets}}",
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "selector": "ul#adminColumns li, ul#adminColumns label",
-      "textContains": "code",
-      "progress": "Selecting Shipping Polygon code column…",
+      "columns": [
+        "code"
+      ],
+      "required": true,
+      "afterEachMs": 250,
+      "afterMs": 0,
+      "options": {
+        "buttonSelector": "ul#adminColumns",
+        "buttonText": "code",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "menuTimeoutMs": 10000
+      },
+      "progress": "Ensuring Shipping Polygon code column is selected…",
       "error": "Shipping Polygon code option was not found in Columns."
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "ms": 250,
-      "progress": "Applying Shipping Polygon code selection…"
     },
     {
       "action": "clickOutside",
@@ -435,7 +388,7 @@
         "right": "shipping-polygons"
       },
       "ms": 8000,
-      "progress": "Waiting for Shipping Polygon table to reload…"
+      "progress": "Waiting for Shipping Polygon table after column selection…"
     },
     {
       "action": "read",
@@ -461,7 +414,7 @@
         "operator": "contains",
         "right": "code"
       },
-      "error": "Shipping Polygon code column did not load after selecting Columns > code.",
+      "error": "Shipping Polygon code column did not load after Columns selection.",
       "progress": "Verifying Shipping Polygon code column…"
     },
     {

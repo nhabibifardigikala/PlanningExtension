@@ -27,3 +27,7 @@ Forced remote UI/CSS cache bust to v22 and strengthened Sync IATA target button 
 
 ## v24
 Shipping Polygon Columns sequence: click Columns, wait 1s, select code, click center, wait for reload, then verify code header.
+
+
+## v25 Columns behavior
+Distribution Centers are extracted without opening Columns. Shipping Points and Shipping Polygons open Columns, wait 1 second, ensure code is checked without toggling an already-checked checkbox, click the center of the page, wait for the table to settle, then verify the code header before extraction.
