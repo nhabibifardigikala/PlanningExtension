@@ -6,8 +6,8 @@
     "card": "#ffffff",
     "text": "#102030",
     "muted": "#667085",
-    "accent": "#c79710",
-    "border": "#d9a514",
+    "accent": "#F79009",
+    "border": "#F79009",
     "danger": "#d92d20",
     "success": "#079455"
   },
@@ -17,8 +17,8 @@
     "card": "#0d2b56",
     "text": "#ffffff",
     "muted": "#b6c1d2",
-    "accent": "#d9a514",
-    "border": "#d9a514",
+    "accent": "#F79009",
+    "border": "#F79009",
     "danger": "#ff5b52",
     "success": "#22c55e"
   },

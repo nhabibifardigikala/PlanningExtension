@@ -96,6 +96,12 @@
         "Name",
         "ID"
       ]
+    },
+    "map": {
+      "enabled": true,
+      "provider": "openstreetmap",
+      "showPolygon": true,
+      "showPoint": true
     }
   },
   "retryPolicy": {

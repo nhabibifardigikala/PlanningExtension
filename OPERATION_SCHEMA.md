@@ -75,3 +75,10 @@ Any workflow step may include `when` with `left`, `operator`, and `right`. Suppo
 
 ### Reconciliation exclusions
 Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-separated string (including a template such as `{{pointExceptions}}`). Matching IDs are skipped entirely.
+
+
+### UI primitives added in Runtime 9.1
+- `remote-multi-autocomplete`: repeatable remote selection rendered as chips.
+- `jalali-date`: text input plus Persian calendar picker.
+- `clientProcessor.type = multi-capacity-report`: sequential per-center execution and interactive result rendering.
+- `clientProcessor.map`: map visualization for point-in-polygon single-location results.

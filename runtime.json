@@ -1,5 +1,5 @@
 {
-  "contractVersion": 3,
+  "contractVersion": 4,
   "loading": {
     "title": "Loading Digiexpress…",
     "message": "Loading the latest application configuration."
@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v26: global step retry policy, state-aware code column selection, 30s polling, and strict Capacity Report ID mapping.",
-  "configVersion": 31,
-  "minimumRuntimeVersion": "9.0.0"
+  "notes": "Remote app v32: maps, multi-center capacity dashboards, Jalali picker, unified accent and keyboard navigation.",
+  "configVersion": 32,
+  "minimumRuntimeVersion": "9.1.0"
 }

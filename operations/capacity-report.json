@@ -2,21 +2,21 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Search for a Distribution Center by name and select it, then enter a Jalali date range.",
+  "description": "Select one or more Distribution Centers by name and choose the Jalali date range.",
   "runLabel": "Run capacity report",
   "inputs": [
     {
-      "name": "dcId",
-      "label": "Distribution Center",
-      "type": "remote-autocomplete",
+      "name": "dcIds",
+      "label": "Distribution Centers",
+      "type": "remote-multi-autocomplete",
       "required": true,
-      "placeholder": "Type a distribution center name…",
+      "placeholder": "Type a center name and press Enter…",
       "minChars": 2,
       "debounceMs": 500,
       "maxResults": 500,
       "showId": true,
-      "selectionMessage": "Please select a Distribution Center from the search results.",
-      "help": "Type at least 2 characters. Matching centers are ranked by similarity. The center list is cached to reduce Google Sheet requests.",
+      "selectionMessage": "Select at least one Distribution Center from the list.",
+      "help": "Type a center name, use ↑/↓ to move through results and Enter to add it. Repeat to add more centers.",
       "source": {
         "format": "csv",
         "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/gviz/tq?sheet=Distribution%20Centers%20(LG)&headers=3&tqx=out:csv&tq=select%20A%2CB%20label%20A%20%27id%27%2CB%20%27name%27",
@@ -36,20 +36,24 @@
       "label": "From date (Jalali)",
       "type": "jalali-date",
       "required": true,
-      "placeholder": "14050501",
+      "placeholder": "14050520",
       "maxLength": 8,
       "pattern": "^\\d{8}$",
-      "validationMessage": "From date must contain exactly 8 digits."
+      "validationMessage": "From date must contain exactly 8 digits.",
+      "picker": true,
+      "help": "Type 8 digits or use the Persian date picker."
     },
     {
       "name": "toDate",
       "label": "To date (Jalali)",
       "type": "jalali-date",
       "required": true,
-      "placeholder": "14050531",
+      "placeholder": "14050520",
       "maxLength": 8,
       "pattern": "^\\d{8}$",
-      "validationMessage": "To date must contain exactly 8 digits."
+      "validationMessage": "To date must contain exactly 8 digits.",
+      "picker": true,
+      "help": "Type 8 digits or use the Persian date picker."
     }
   ],
   "navigation": {
@@ -57,13 +61,13 @@
     "retryDelayMs": 400,
     "completeTimeoutMs": 30000
   },
-  "successMessage": "Done. {{rowCount}} rows exported.",
+  "successMessage": "Capacity report completed.",
   "workflow": [
     {
       "action": "open",
       "url": "https://lg.digikala.com/dc-capacity/",
       "progress": "Opening Capacity Report…",
-      "active": true
+      "active": false
     },
     {
       "action": "ensureLogin",
@@ -184,10 +188,36 @@
       "sheetName": "Capacity Report",
       "filename": "Capacity_DC{{dcId}}_{{fromDate}}_{{toDate}}.xlsx",
       "progress": "Creating Excel file…"
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing report tab…"
     }
   ],
   "retryPolicy": {
     "attempts": 3,
     "delayMs": 1500
+  },
+  "clientProcessor": {
+    "type": "multi-capacity-report",
+    "centerField": "dcIds",
+    "fromField": "fromDate",
+    "toField": "toDate",
+    "resultView": {
+      "dateAliases": [
+        "date",
+        "day",
+        "capacity date",
+        "تاریخ"
+      ],
+      "capacityAliases": [
+        "capacity"
+      ],
+      "reservedAliases": [
+        "capacity reserved",
+        "reserved capacity",
+        "capacity_reserved"
+      ]
+    }
   }
 }

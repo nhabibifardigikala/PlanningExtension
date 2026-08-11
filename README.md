@@ -58,3 +58,10 @@ Distribution Centers are extracted without opening Columns. Shipping Points and 
 
 ## v30 Sync IATA update flow
 Shipping Point and Shipping Polygon corrections now use the exact list -> ID search -> Enter -> Details -> input[name="code"] -> button.admin-submit-button -> return-to-list flow, with ~1s waits matching the reference Playwright scripts.
+
+
+## v32 additions
+- Parent Determination map visualization with polygon overlay.
+- Capacity Report multi-center selector, Persian date picker, per-center trend charts, and interactive dashboard tab.
+- Unified orange accent controlled from theme.json.
+- Keyboard support: arrows/Enter in autocomplete, Tab navigation, Esc close/back, Ctrl/Cmd+Enter run.
