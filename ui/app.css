@@ -79,3 +79,53 @@
 
 /* Generic remote autocomplete */
 .remote-autocomplete{position:relative}.remote-autocomplete>input{width:100%}.remote-autocomplete-loading{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);pointer-events:none}.remote-autocomplete-menu{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 6px);max-height:280px;overflow:auto;background:var(--card);border:1px solid color-mix(in srgb,var(--border) 75%,transparent);border-radius:12px;box-shadow:0 14px 32px #0003;padding:6px}.remote-autocomplete-item{width:100%;border:0;background:transparent;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border-radius:9px;cursor:pointer;text-align:left}.remote-autocomplete-item:hover,.remote-autocomplete-item:focus{background:color-mix(in srgb,var(--accent) 18%,transparent);outline:none}.remote-autocomplete-item span{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.remote-autocomplete-item small{font-size:10px;color:var(--muted);white-space:nowrap}.remote-autocomplete-empty{padding:12px;font-size:11px;color:var(--muted);text-align:center}.remote-autocomplete-empty.error{color:var(--danger)}
+
+
+/* Sync IATA - remote segmented target buttons (v21) */
+[data-field-wrap="syncTargets"] .choice-group{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+[data-field-wrap="syncTargets"] .choice-option{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  margin:0;
+  padding:10px 12px;
+  border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+  border-radius:12px;
+  background:var(--panel);
+  color:var(--text);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.25;
+  text-align:center;
+  cursor:pointer;
+  user-select:none;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease,color .18s ease;
+}
+[data-field-wrap="syncTargets"] .choice-option:hover{
+  transform:translateY(-1px);
+  border-color:#f79009;
+}
+[data-field-wrap="syncTargets"] .choice-option input{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  margin:0!important;
+}
+[data-field-wrap="syncTargets"] .choice-option:has(input:checked){
+  background:#f79009;
+  border-color:#f79009;
+  color:#071a33;
+  box-shadow:0 0 0 2px color-mix(in srgb,#f79009 28%,transparent);
+}
+[data-field-wrap="syncTargets"] .choice-option:has(input:focus-visible){
+  outline:2px solid var(--accent-2);
+  outline-offset:2px;
+}

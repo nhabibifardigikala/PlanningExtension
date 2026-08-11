@@ -13,3 +13,9 @@ The runtime fetches the latest remote bundle every time the side panel opens. If
 
 ## v19 Sync IATA
 Sync IATA now opens a Remote form with dataset selection and comma-separated exception IDs. Shipping Point/Polygon Columns menus are closed with an outside click and the table is allowed to reload before extraction. Requires stable runtime 8.1+ for generic step `when` and reconciliation `excludeIds`.
+
+
+## v21
+- Sync IATA target selectors are segmented orange buttons.
+- Shipping Point code column is committed with a center-page click, reload wait, second confirmation, and explicit header assertion before extraction.
+- Compatible with Stable Runtime v8.1; no runtime update required.

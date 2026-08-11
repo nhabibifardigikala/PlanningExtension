@@ -145,21 +145,13 @@
         "code"
       ],
       "required": true,
-      "afterEachMs": 1000,
-      "afterMs": 2800,
+      "afterEachMs": 800,
+      "afterMs": 1200,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
-      "progress": "Selecting Shipping Point code column…",
-      "closeOutside": true,
-      "afterCloseMs": 1200,
-      "verifyHeaders": [
-        "code"
-      ],
-      "verifyTimeoutMs": 20000,
-      "verifyIntervalMs": 350,
-      "verifyRequired": true
+      "progress": "Selecting Shipping Point code column…"
     },
     {
       "action": "clickOutside",
@@ -168,6 +160,48 @@
         "operator": "contains",
         "right": "shipping-points"
       },
+      "x": 600,
+      "y": 360,
+      "progress": "Applying Shipping Point columns…"
+    },
+    {
+      "action": "wait",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "ms": 5000,
+      "progress": "Waiting for Shipping Point table to reload…"
+    },
+    {
+      "action": "enableColumns",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "columns": [
+        "code"
+      ],
+      "required": true,
+      "afterEachMs": 500,
+      "afterMs": 800,
+      "options": {
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
+      },
+      "progress": "Confirming Shipping Point code column…"
+    },
+    {
+      "action": "clickOutside",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "x": 600,
+      "y": 360,
       "progress": "Closing Shipping Point columns…"
     },
     {
@@ -177,8 +211,35 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "ms": 4000,
-      "progress": "Waiting for Shipping Point code data to load…"
+      "ms": 5000,
+      "progress": "Confirming Shipping Point headers…"
+    },
+    {
+      "action": "read",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "selector": "table thead tr",
+      "storeAs": "shippingPointHeaderText",
+      "required": true,
+      "progress": "Reading Shipping Point headers…"
+    },
+    {
+      "action": "assert",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "condition": {
+        "left": "{{shippingPointHeaderText}}",
+        "operator": "contains",
+        "right": "code"
+      },
+      "error": "Shipping Point code column did not load after enabling Columns. Please retry the operation.",
+      "progress": "Verifying Shipping Point code column…"
     },
     {
       "action": "extractPaginatedTable",
@@ -314,22 +375,12 @@
       ],
       "required": true,
       "afterEachMs": 900,
-      "afterMs": 2800,
+      "afterMs": 1400,
       "options": {
         "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
       },
-      "progress": "Selecting Shipping Polygon columns…",
-      "closeOutside": true,
-      "afterCloseMs": 1200,
-      "verifyHeaders": [
-        "code",
-        "coordinates",
-        "hash_id"
-      ],
-      "verifyTimeoutMs": 20000,
-      "verifyIntervalMs": 350,
-      "verifyRequired": true
+      "progress": "Selecting Shipping Polygon columns…"
     },
     {
       "action": "clickOutside",
@@ -338,7 +389,9 @@
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "progress": "Closing Shipping Polygon columns…"
+      "x": 600,
+      "y": 360,
+      "progress": "Applying Shipping Polygon columns…"
     },
     {
       "action": "wait",
@@ -347,8 +400,35 @@
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "ms": 4000,
-      "progress": "Waiting for Shipping Polygon data to load…"
+      "ms": 5000,
+      "progress": "Waiting for Shipping Polygon table to reload…"
+    },
+    {
+      "action": "read",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "selector": "table thead tr",
+      "storeAs": "shippingPolygonHeaderText",
+      "required": true,
+      "progress": "Reading Shipping Polygon headers…"
+    },
+    {
+      "action": "assert",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "condition": {
+        "left": "{{shippingPolygonHeaderText}}",
+        "operator": "contains",
+        "right": "code"
+      },
+      "error": "Shipping Polygon code column did not load after enabling Columns. Please retry the operation.",
+      "progress": "Verifying Shipping Polygon code column…"
     },
     {
       "action": "extractSearchVariants",
