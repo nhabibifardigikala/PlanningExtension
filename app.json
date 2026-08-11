@@ -246,7 +246,7 @@
     "html": "ui/app.html?v=40",
     "css": "ui/app.css?v=40",
     "contractVersion": 5,
-    "dashboardCss": "ui/dashboard.css?v=41"
+    "dashboardCss": "ui/dashboard.css?v=42"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,

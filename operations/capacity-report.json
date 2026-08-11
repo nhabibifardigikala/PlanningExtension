@@ -342,7 +342,7 @@
     "presentation": {
       "partitionTitle": "{{partition.label}}",
       "partitionSubtitle": "ID {{partition.id}} • {{groupCount}} Time Scope{{groupCountPlural}}",
-      "groupTitle": "Time Scope: {{group.label}}",
+      "groupTitle": "{{group.label}}",
       "dashboardButtonLabel": "Open dashboard",
       "dashboardTitle": "Capacity Dashboard",
       "downloadButtonLabel": "Download Excel",
