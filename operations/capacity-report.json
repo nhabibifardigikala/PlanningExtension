@@ -19,7 +19,7 @@
       "help": "Type part of the center name. Matching centers are ranked by similarity.",
       "source": {
         "format": "csv",
-        "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/gviz/tq?tqx=out:csv&sheet=Distribution%20Centers%20(LG)",
+        "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/export?format=csv&sheet=Distribution%20Centers%20(LG)",
         "cacheMs": 300000,
         "nameColumns": [
           "Name",
@@ -29,12 +29,9 @@
           "name"
         ],
         "idColumns": [
-          "ID",
-          "Distribution Center ID",
-          "DC ID",
-          "distribution center id",
           "id"
-        ]
+        ],
+        "idColumn": "id"
       }
     },
     {
@@ -191,5 +188,9 @@
       "filename": "Capacity_DC{{dcId}}_{{fromDate}}_{{toDate}}.xlsx",
       "progress": "Creating Excel file…"
     }
-  ]
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1500
+  }
 }

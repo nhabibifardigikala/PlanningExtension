@@ -48,5 +48,9 @@
       "filename": "distribution_centers_{{today}}.xlsx",
       "progress": "Creating Excel file…"
     }
-  ]
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1500
+  }
 }

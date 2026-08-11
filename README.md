@@ -31,3 +31,9 @@ Shipping Polygon Columns sequence: click Columns, wait 1s, select code, click ce
 
 ## v25 Columns behavior
 Distribution Centers are extracted without opening Columns. Shipping Points and Shipping Polygons open Columns, wait 1 second, ensure code is checked without toggling an already-checked checkbox, click the center of the page, wait for the table to settle, then verify the code header before extraction.
+
+
+## v26 resilience
+- All remote operations declare a 3-attempt step retry policy. The stable runtime retries transient page/network/frame failures unless the user cancels.
+- Sync IATA uses state-aware `ensureTableColumn`: checks headers first, opens Columns only when needed, waits 1 second, only checks `code` when not already checked, clicks viewport center, and polls up to 30 seconds for the header.
+- Capacity Report remote autocomplete reads the exact Google Sheet `id` column.

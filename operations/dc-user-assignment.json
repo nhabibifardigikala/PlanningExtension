@@ -120,5 +120,9 @@
       ],
       "terminalMatchBehavior": "continue"
     }
-  ]
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1500
+  }
 }

@@ -112,97 +112,32 @@
       "progress": "Waiting for Shipping Points…"
     },
     {
-      "action": "click",
+      "action": "ensureTableColumn",
       "when": {
         "left": "{{syncTargets}}",
         "operator": "contains",
         "right": "shipping-points"
       },
-      "selector": "button",
-      "textContains": "Columns",
-      "afterMs": 0,
-      "progress": "Opening Shipping Point columns…",
-      "error": "Shipping Point Columns button was not found."
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "ms": 1000,
-      "progress": "Waiting for Shipping Point column menu…"
-    },
-    {
-      "action": "enableColumns",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "columns": [
-        "code"
-      ],
+      "column": "code",
       "required": true,
-      "afterEachMs": 250,
-      "afterMs": 0,
+      "attempts": 3,
+      "retryDelayMs": 1200,
+      "progress": "Ensuring Shipping Point code column…",
+      "retryProgress": "Retrying Shipping Point code column ({{attempt}}/{{attempts}})…",
+      "error": "Shipping Point code column did not load after 3 attempts.",
       "options": {
-        "buttonSelector": "ul#adminColumns",
-        "buttonText": "code",
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonSelector": "button",
+        "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 10000
+        "menuTimeoutMs": 10000,
+        "afterOpenMs": 1000,
+        "afterSelectMs": 250,
+        "loadTimeoutMs": 30000,
+        "pollMs": 250
       },
-      "progress": "Ensuring Shipping Point code column is selected…",
-      "error": "Shipping Point code option was not found in Columns."
-    },
-    {
-      "action": "clickOutside",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "x": 500,
-      "y": 400,
-      "progress": "Closing Shipping Point columns…"
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "ms": 8000,
-      "progress": "Waiting for Shipping Point table after column selection…"
-    },
-    {
-      "action": "read",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "selector": "table thead tr",
-      "storeAs": "shippingPointHeaderText",
-      "required": true,
-      "progress": "Reading Shipping Point headers…"
-    },
-    {
-      "action": "assert",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-points"
-      },
-      "condition": {
-        "left": "{{shippingPointHeaderText}}",
-        "operator": "contains",
-        "right": "code"
-      },
-      "error": "Shipping Point code column did not load after Columns selection.",
-      "progress": "Verifying Shipping Point code column…"
+      "stepAttempts": 1
     },
     {
       "action": "extractPaginatedTable",
@@ -325,97 +260,32 @@
       "progress": "Waiting for Shipping Polygons…"
     },
     {
-      "action": "click",
+      "action": "ensureTableColumn",
       "when": {
         "left": "{{syncTargets}}",
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "selector": "button",
-      "textContains": "Columns",
-      "afterMs": 0,
-      "progress": "Opening Shipping Polygon columns…",
-      "error": "Shipping Polygon Columns button was not found."
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "ms": 1000,
-      "progress": "Waiting for Shipping Polygon column menu…"
-    },
-    {
-      "action": "enableColumns",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "columns": [
-        "code"
-      ],
+      "column": "code",
       "required": true,
-      "afterEachMs": 250,
-      "afterMs": 0,
+      "attempts": 3,
+      "retryDelayMs": 1200,
+      "progress": "Ensuring Shipping Polygon code column…",
+      "retryProgress": "Retrying Shipping Polygon code column ({{attempt}}/{{attempts}})…",
+      "error": "Shipping Polygon code column did not load after 3 attempts.",
       "options": {
-        "buttonSelector": "ul#adminColumns",
-        "buttonText": "code",
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonSelector": "button",
+        "buttonText": "Columns",
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 10000
+        "menuTimeoutMs": 10000,
+        "afterOpenMs": 1000,
+        "afterSelectMs": 250,
+        "loadTimeoutMs": 30000,
+        "pollMs": 250
       },
-      "progress": "Ensuring Shipping Polygon code column is selected…",
-      "error": "Shipping Polygon code option was not found in Columns."
-    },
-    {
-      "action": "clickOutside",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "x": 500,
-      "y": 400,
-      "progress": "Closing Shipping Polygon columns…"
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "ms": 8000,
-      "progress": "Waiting for Shipping Polygon table after column selection…"
-    },
-    {
-      "action": "read",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "selector": "table thead tr",
-      "storeAs": "shippingPolygonHeaderText",
-      "required": true,
-      "progress": "Reading Shipping Polygon headers…"
-    },
-    {
-      "action": "assert",
-      "when": {
-        "left": "{{syncTargets}}",
-        "operator": "contains",
-        "right": "shipping-polygons"
-      },
-      "condition": {
-        "left": "{{shippingPolygonHeaderText}}",
-        "operator": "contains",
-        "right": "code"
-      },
-      "error": "Shipping Polygon code column did not load after Columns selection.",
-      "progress": "Verifying Shipping Polygon code column…"
+      "stepAttempts": 1
     },
     {
       "action": "extractSearchVariants",
@@ -541,5 +411,9 @@
       "action": "closeTab",
       "progress": "Finishing synchronization…"
     }
-  ]
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1500
+  }
 }

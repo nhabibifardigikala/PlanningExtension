@@ -16,5 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v19. Workflow supports conditional steps and reconciliation exception IDs when used with stable runtime 8.1+."
+  "notes": "Remote app v26: global step retry policy, state-aware code column selection, 30s polling, and strict Capacity Report ID mapping.",
+  "configVersion": 26,
+  "minimumRuntimeVersion": "9.0.0"
 }
