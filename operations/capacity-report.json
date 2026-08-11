@@ -226,7 +226,14 @@
       "chartPointSpacing": 29,
       "statsLayout": "grouped",
       "chartFillAvailable": true,
-      "dashboardButtonLabel": "Open dashboard"
+      "dashboardButtonLabel": "Open dashboard",
+      "timeScopeAliases": [
+        "time scope",
+        "time_scope",
+        "timescope",
+        "time slot",
+        "time_slot"
+      ]
     },
     "excel": {
       "enabled": true,

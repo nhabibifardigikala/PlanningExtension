@@ -174,3 +174,6 @@
 .capacity-metric-values strong{font-size:15px;line-height:1.2}
 .capacity-summary-days span{font-size:10px}.capacity-summary-days strong{font-size:17px}
 .capacity-chart-host,.chart-scroll{width:100%}
+
+/* Remote UI v38: per-Time-Scope Capacity sections */
+.capacity-timescope-list{display:grid;gap:14px;margin-top:12px}.capacity-timescope-card{padding:12px;border:1px solid color-mix(in srgb,var(--border) 55%,transparent);border-radius:12px;background:color-mix(in srgb,var(--panel) 88%,transparent)}.capacity-timescope-title{margin-bottom:6px}.capacity-timescope-title strong{font-size:12px;color:var(--text)}

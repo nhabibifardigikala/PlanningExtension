@@ -87,3 +87,6 @@ Shipping Point and Shipping Polygon corrections now use the exact list -> ID sea
 - Added deliberate pacing before/after filling the Distribution Center field.
 - Dashboard button label is `Open dashboard`.
 - Dashboard data is opened through a robust background-tab launcher in Runtime 9.3.1.
+
+## v38
+Capacity Report now groups each center by `time scope` and renders separate KPIs and trend chart for every Time Scope.

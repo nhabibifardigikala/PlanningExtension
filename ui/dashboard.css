@@ -14,3 +14,6 @@
 .capacity-metric-values strong{font-size:17px;line-height:1.2}
 .capacity-summary-days span{font-size:12px;font-weight:700}.capacity-summary-days strong{font-size:20px}
 .dash-chart,.chart-scroll{width:100%}
+
+/* Remote UI v38: dashboard per-Time-Scope sections */
+.dash-timescopes{display:grid;gap:16px;margin-top:14px}.dash-timescope-card{border:1px solid var(--border,#e5e7eb);border-radius:13px;padding:14px;background:var(--panel,#f8fafc)}.dash-timescope-title{margin-bottom:8px}.dash-timescope-title strong{font-size:15px}

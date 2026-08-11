@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v37: exclusive per-center Capacity charts after one combined multi-center query; each row is assigned to only one center.",
+  "notes": "Remote app v38: Capacity reports are split by Distribution Center and Time Scope; each Time Scope has independent KPIs and trend chart.",
   "configVersion": 37,
   "minimumRuntimeVersion": "9.3.2"
 }
