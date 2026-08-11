@@ -90,3 +90,7 @@ Shipping Point and Shipping Polygon corrections now use the exact list -> ID sea
 
 ## v38
 Capacity Report now groups each center by `time scope` and renders separate KPIs and trend chart for every Time Scope.
+
+
+## v48 - Extract Distribution Centers
+Remote workflow aligned with the supplied Playwright reference: configured columns, 10s apply wait, refresh + 15s wait, 1000-row readiness check, 90s timeout, and paginated extraction.

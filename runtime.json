@@ -16,8 +16,8 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v47: Extract Distribution Centers opens a dedicated Run page and exposes Download Excel only after successful extraction.",
-  "configVersion": 47,
+  "notes": "Remote app v48: Extract Distribution Centers aligned with the supplied Playwright flow (column configuration, staged waits, refresh, full-page readiness, pagination, manual Excel download).",
+  "configVersion": 48,
   "minimumRuntimeVersion": "9.3.2",
   "minimumRuntime": "10.0.0",
   "workflowLanguageVersion": 2,

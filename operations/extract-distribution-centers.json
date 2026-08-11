@@ -2,20 +2,12 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract all Distribution Center rows and prepare a single Excel file for download.",
-  "inputs": [
-    {
-      "name": "__extractPage",
-      "label": "Extraction",
-      "type": "checkbox",
-      "defaultChecked": false,
-      "help": ""
-    }
-  ],
+  "description": "Extract Distribution Centers using the configured LG columns, full-page waits, pagination, and a single Excel download.",
+  "inputs": [],
   "navigation": {
     "retryCount": 10,
-    "retryDelayMs": 400,
-    "completeTimeoutMs": 30000
+    "retryDelayMs": 500,
+    "completeTimeoutMs": 60000
   },
   "successMessage": "Extraction completed. {{rowCount}} rows are ready.",
   "workflow": [
@@ -27,28 +19,519 @@
     },
     {
       "action": "ensureLogin",
-      "detectTimeoutMs": 5000,
+      "detectTimeoutMs": 15000,
       "progress": "Checking authentication…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "progress": "Opening Distribution Center list…",
+      "completeTimeoutMs": 60000
     },
     {
       "action": "waitFor",
       "selector": "table",
-      "timeoutMs": 30000,
-      "intervalMs": 300,
+      "timeoutMs": 20000,
+      "intervalMs": 250,
       "progress": "Waiting for Distribution Center table…",
       "error": "Distribution Center table was not found."
     },
     {
+      "action": "click",
+      "selector": "button",
+      "textContains": "Columns",
+      "progress": "Opening Columns…",
+      "afterMs": 1000,
+      "error": "Columns button was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "ul#adminColumns input[type=\"checkbox\"]",
+      "timeoutMs": 12000,
+      "intervalMs": 150,
+      "progress": "Loading column settings…",
+      "error": "Column settings did not open."
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"name\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"city\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"iata\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"district\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"active\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"has_fresh\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"sort\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_in_person\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_large\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"critical_time\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_suburbs\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"parent_dc_id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_drop_shipping_active\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_ganje\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_jet\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_third_party\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"child_dc_ids\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"hash_id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"reference_id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"vehicle_types\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"postal_code\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"address\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"alt_submit_type\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"capacity\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"city_id\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"city_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"description\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"direct\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"distribution_center_district\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"distribution_center_district--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"fmcg_warehouse_location_id\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"fmcg_warehouse_location_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"has_time_scope\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"iata_code\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_deleted\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_dms_active\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"latitude\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"longitude\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"marketplace_seller_id\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"marketplace_seller_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"non_fmcg_warehouse_location_id\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"non_fmcg_warehouse_location_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"parent_dc_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"payment_source_id\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"payment_source_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"picking_time_limitation\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"prime_capacity_percentage\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"provider_reference\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"sla_from\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"sla_to\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"state_id\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"state_id--preview\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"virtual\"]",
+      "checked": false,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350
+    },
+    {
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying column settings…"
+    },
+    {
+      "action": "wait",
+      "ms": 10000,
+      "progress": "Waiting for column refresh…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "completeTimeoutMs": 60000,
+      "progress": "Refreshing Distribution Centers…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for refreshed table…"
+    },
+    {
+      "action": "wait",
+      "ms": 15000,
+      "progress": "Waiting for all table rows…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr:nth-child(1000), body:not(:has(a[aria-label=\"Next page\"])) table tbody tr",
+      "timeoutMs": 90000,
+      "intervalMs": 1000,
+      "progress": "Waiting for the first page to fully load…",
+      "error": "Distribution Center rows did not finish loading within 90 seconds."
+    },
+    {
       "action": "extractPaginatedTable",
       "nextSelector": "a[aria-label=\"Next page\"]",
-      "timeoutMs": 30000,
-      "stableMs": 2500,
-      "pollMs": 500,
-      "afterPageMs": 700,
-      "dedupe": true,
+      "timeoutMs": 90000,
+      "stableMs": 10000,
+      "pollMs": 1000,
+      "afterPageMs": 15000,
+      "dedupe": false,
       "maxPages": 1000,
       "pageProgress": "Extracting Distribution Center page {{page}}…",
-      "progress": "Extracting Distribution Centers…"
+      "progress": "Extracting Distribution Centers…",
+      "error": "No Distribution Center rows were found."
     }
   ],
   "retryPolicy": {
@@ -84,5 +567,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 2
+  "remoteBehaviorVersion": 3
 }
