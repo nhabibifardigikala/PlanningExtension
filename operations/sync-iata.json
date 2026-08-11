@@ -372,36 +372,49 @@
       "progress": "Waiting for Shipping Polygons…"
     },
     {
+      "action": "click",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "selector": "button",
+      "textContains": "Columns",
+      "afterMs": 0,
+      "progress": "Opening Shipping Polygon columns…",
+      "error": "Shipping Polygon Columns button was not found."
+    },
+    {
       "action": "wait",
       "when": {
         "left": "{{syncTargets}}",
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "ms": 3000,
-      "progress": "Waiting before opening Shipping Polygon columns…"
+      "ms": 1000,
+      "progress": "Waiting for Shipping Polygon column menu…"
     },
     {
-      "action": "enableColumns",
+      "action": "click",
       "when": {
         "left": "{{syncTargets}}",
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "columns": [
-        "code",
-        "coordinates",
-        "hash_id"
-      ],
-      "required": true,
-      "afterEachMs": 1800,
-      "afterMs": 1200,
-      "options": {
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 15000
+      "selector": "ul#adminColumns li, ul#adminColumns label",
+      "textContains": "code",
+      "progress": "Selecting Shipping Polygon code column…",
+      "error": "Shipping Polygon code option was not found in Columns."
+    },
+    {
+      "action": "wait",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
       },
-      "progress": "Selecting Shipping Polygon columns…"
+      "ms": 250,
+      "progress": "Applying Shipping Polygon code selection…"
     },
     {
       "action": "clickOutside",
@@ -410,8 +423,9 @@
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "progress": "Closing Shipping Polygon columns…",
-      "selector": "body"
+      "x": 500,
+      "y": 400,
+      "progress": "Closing Shipping Polygon columns…"
     },
     {
       "action": "wait",
@@ -447,7 +461,7 @@
         "operator": "contains",
         "right": "code"
       },
-      "error": "Shipping Polygon code column did not load after enabling Columns. Please retry the operation.",
+      "error": "Shipping Polygon code column did not load after selecting Columns > code.",
       "progress": "Verifying Shipping Polygon code column…"
     },
     {
