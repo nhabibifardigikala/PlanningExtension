@@ -1,6 +1,6 @@
 {
-  "configVersion": 13,
-  "minEngineVersion": "7.3",
+  "configVersion": 14,
+  "minEngineVersion": "7.4",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -115,9 +115,88 @@
       ],
       "config": "operations/flex-capacity-definition.json",
       "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z"
+    },
+    {
+      "id": "parent-determination",
+      "title": "Parent Determination",
+      "subtitle": "Find parent DC by location",
+      "accessHeaders": [
+        "Parent Determination"
+      ],
+      "config": "operations/parent-determination.json",
+      "iconSvgPath": "M24 4c-8.3 0-15 6.7-15 15 0 10.8 15 25 15 25s15-14.2 15-25c0-8.3-6.7-15-15-15Zm0 4c6.1 0 11 4.9 11 11 0 7.2-8.4 17.4-11 20.3C21.4 36.4 13 26.2 13 19c0-6.1 4.9-11 11-11Zm0 6a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z",
+      "description": "Determine parent Distribution Centers for one location or an uploaded Excel file.",
+      "runLabel": "Determine Parent",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "inputMode",
+          "label": "Input method",
+          "type": "radio-group",
+          "default": "single",
+          "options": [
+            {
+              "value": "single",
+              "label": "Single location"
+            },
+            {
+              "value": "excel",
+              "label": "Excel file"
+            }
+          ]
+        },
+        {
+          "name": "location",
+          "label": "Latitude, Longitude",
+          "type": "text",
+          "placeholder": "35.7219, 51.3347",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "help": "Enter latitude and longitude separated by a comma."
+        },
+        {
+          "name": "locationsFile",
+          "label": "Excel file",
+          "type": "file",
+          "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "excel"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "excel"
+          },
+          "help": "Column A = latitude, Column B = longitude. Header row is optional."
+        },
+        {
+          "name": "parentTypes",
+          "label": "Expected parents",
+          "type": "checkbox-group",
+          "default": [
+            "All"
+          ],
+          "options": [
+            "All",
+            "Normal",
+            "Medium",
+            "Large",
+            "Barbari",
+            "Business",
+            "Fast"
+          ],
+          "required": true
+        }
+      ]
     }
   ],
-  "publishedAt": "2026-08-11T12:45:00+03:30",
+  "publishedAt": "2026-08-11T13:00:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true

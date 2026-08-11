@@ -28,3 +28,7 @@ Remote config v9:
 - DC User Assignment uses up to 15 pages per batch (~300 DCs).
 - Existing user/DC relation messages no longer terminate the whole operation; later batches continue.
 - Remote Digiexpress logo updated.
+
+
+## Parent Determination
+Remote operation uses `data/DX_Polygons.json` generated from `data/DX_Polygons.xlsx`. The XLSX remains the source dataset in the repository. Update both files together when polygon data changes.

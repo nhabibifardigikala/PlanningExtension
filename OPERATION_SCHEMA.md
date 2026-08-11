@@ -37,3 +37,13 @@ Engine 7.1 additions:
 
 ### Terminal success after submit
 For batch submit operations, use `terminalSuccessSelector` plus `terminalSuccessTextContains` to detect a terminal success message in any frame. Example: `p[error-path="0"]` with text `User and DC relation already exists`.
+
+## Remote form field types added in Engine 7.4
+- `radio-group`: `options`, `default`
+- `checkbox-group`: `options`, `default`
+- `file`: `accept`
+- `showWhen`: `{ "field": "...", "equals": "..." }`
+- `requiredWhen`: `{ "field": "...", "equals": "..." }`
+
+## Client point-in-polygon processor
+`clientProcessor.type = "point-in-polygon"` loads a remote JSON polygon dataset and supports single coordinate lookup or two-column XLSX input. The dataset path, nature mapping, field names, and output behavior are remote-configured.

@@ -1,0 +1,96 @@
+{
+  "enabled": true,
+  "handler": "client",
+  "requiresCredentials": false,
+  "description": "Determine parent Distribution Centers by checking latitude/longitude against remote polygon data.",
+  "runLabel": "Determine Parent",
+  "uiMode": "form",
+  "inputs": [
+    {
+      "name": "inputMode",
+      "label": "Input method",
+      "type": "radio-group",
+      "default": "single",
+      "options": [
+        {
+          "value": "single",
+          "label": "Single location"
+        },
+        {
+          "value": "excel",
+          "label": "Excel file"
+        }
+      ]
+    },
+    {
+      "name": "location",
+      "label": "Latitude, Longitude",
+      "type": "text",
+      "placeholder": "35.7219, 51.3347",
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      },
+      "help": "Enter latitude and longitude separated by a comma."
+    },
+    {
+      "name": "locationsFile",
+      "label": "Excel file",
+      "type": "file",
+      "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "excel"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "excel"
+      },
+      "help": "Column A = latitude, Column B = longitude. Header row is optional."
+    },
+    {
+      "name": "parentTypes",
+      "label": "Expected parents",
+      "type": "checkbox-group",
+      "default": [
+        "All"
+      ],
+      "options": [
+        "All",
+        "Normal",
+        "Medium",
+        "Large",
+        "Barbari",
+        "Business",
+        "Fast"
+      ],
+      "required": true
+    }
+  ],
+  "clientProcessor": {
+    "type": "point-in-polygon",
+    "dataset": "data/DX_Polygons.json?v=14",
+    "sourceWorkbook": "data/DX_Polygons.xlsx?v=14",
+    "modeField": "inputMode",
+    "singleField": "location",
+    "fileField": "locationsFile",
+    "filterField": "parentTypes",
+    "natureMap": {
+      "Normal": 1,
+      "Medium": 2,
+      "Large": 3,
+      "Barbari": 4,
+      "Business": 5,
+      "Fast": 6
+    },
+    "allOption": "All",
+    "output": {
+      "nameKey": "name",
+      "idKey": "dcId"
+    }
+  }
+}
