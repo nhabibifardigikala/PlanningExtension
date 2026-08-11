@@ -67,10 +67,14 @@ Shipping Point and Shipping Polygon corrections now use the exact list -> ID sea
 - Keyboard support: arrows/Enter in autocomplete, Tab navigation, Esc close/back, Ctrl/Cmd+Enter run.
 
 
-## v33 Capacity refinements
+## v34 Capacity refinements
 - One combined Excel for all selected centers, downloaded only on user click.
 - No per-center automatic Excel export.
 - Capacity and Capacity Reserved statistics shown in separate blocks.
 - Selected center chips show names only.
 - Larger Persian date picker month navigation controls.
 - Capacity chart point spacing reduced to 29px and configurable from Remote Config.
+
+
+### Capacity v34
+Multiple selected DC IDs are submitted in one search using a space separator. Results are split back into per-center reports when the result table exposes center name/ID. Charts expand to fill available width before horizontal scrolling is needed.

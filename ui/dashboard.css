@@ -7,3 +7,10 @@
 .capacity-metric-values{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.capacity-metric-values>div{text-align:center;padding:7px;border-radius:8px}.capacity-metric-values small{display:block;font-size:9px;color:var(--muted,#667085);margin-bottom:4px}.capacity-metric-values strong{font-size:12px}.capacity-metric-values .stat-min strong{color:#1877f2}.capacity-metric-values .stat-max strong{color:#e53935}
 .dash-actions{display:flex;gap:8px;align-items:center}.dash-download{border:0;border-radius:10px;background:var(--accent,#f79009);color:#07172c;font-weight:800;padding:10px 14px;cursor:pointer}
 @media(max-width:900px){.capacity-summary{grid-template-columns:1fr}.dash-actions{margin-top:10px}}
+
+/* Remote dashboard v34: readable KPI typography */
+.capacity-metric-block>span{font-size:13px;font-weight:800}
+.capacity-metric-values small{font-size:11px;font-weight:700}
+.capacity-metric-values strong{font-size:17px;line-height:1.2}
+.capacity-summary-days span{font-size:12px;font-weight:700}.capacity-summary-days strong{font-size:20px}
+.dash-chart,.chart-scroll{width:100%}

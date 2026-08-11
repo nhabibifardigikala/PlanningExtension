@@ -167,3 +167,10 @@
 .capacity-metric-values strong{font-size:11px}
 .capacity-metric-values .stat-min strong{color:#1877f2}.capacity-metric-values .stat-max strong{color:#e53935}
 @media(max-width:520px){.capacity-summary{grid-template-columns:1fr}.capacity-result-actions{width:100%}.capacity-result-actions .save-button{flex:1}}
+
+/* Remote UI v34: stronger capacity KPI typography and adaptive chart layout */
+.capacity-metric-block>span{font-size:11px;font-weight:800}
+.capacity-metric-values small{font-size:10px;font-weight:700}
+.capacity-metric-values strong{font-size:15px;line-height:1.2}
+.capacity-summary-days span{font-size:10px}.capacity-summary-days strong{font-size:17px}
+.capacity-chart-host,.chart-scroll{width:100%}

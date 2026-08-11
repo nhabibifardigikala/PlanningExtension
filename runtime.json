@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v32: maps, multi-center capacity dashboards, Jalali picker, unified accent and keyboard navigation.",
-  "configVersion": 32,
-  "minimumRuntimeVersion": "9.1.0"
+  "notes": "Remote app v34: single-query multi-center capacity, adaptive chart width, larger KPI typography and Open dashboard label.",
+  "configVersion": 34,
+  "minimumRuntimeVersion": "9.3.0"
 }

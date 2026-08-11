@@ -84,21 +84,26 @@
       "error": "Distribution Center field was not found."
     },
     {
-      "action": "autocomplete",
+      "action": "fill",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
       "value": "{{dcId}}",
-      "attempts": 5,
-      "verifyNonEmpty": true,
-      "retryDelayMs": 600,
-      "progress": "Setting Distribution Center…",
-      "options": {
-        "typingDelayMs": 140,
-        "autocompleteWaitMs": 1800,
-        "pressEnter": true,
-        "commitWaitMs": 1200,
-        "outsideSelector": "#form-field-from, #form-field-from_date, input[data-name=\"from_date\"]",
-        "outsideWaitMs": 900
-      }
+      "progress": "Setting Distribution Centers…",
+      "error": "Could not set Distribution Center IDs."
+    },
+    {
+      "action": "wait",
+      "ms": 350,
+      "progress": "Applying Distribution Centers…"
+    },
+    {
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying Distribution Centers…"
+    },
+    {
+      "action": "wait",
+      "ms": 900,
+      "progress": "Waiting for Distribution Centers…"
     },
     {
       "action": "jalaliDate",
@@ -214,7 +219,9 @@
         "capacity_reserved"
       ],
       "chartPointSpacing": 29,
-      "statsLayout": "grouped"
+      "statsLayout": "grouped",
+      "chartFillAvailable": true,
+      "dashboardButtonLabel": "Open dashboard"
     },
     "excel": {
       "enabled": true,
@@ -224,6 +231,26 @@
       "saveAs": false,
       "includeCenterName": true,
       "includeCenterId": true
+    },
+    "batchCenters": {
+      "enabled": true,
+      "separator": " ",
+      "grouping": {
+        "idAliases": [
+          "distribution center id",
+          "dc id",
+          "distribution_center_id",
+          "distribution center"
+        ],
+        "nameAliases": [
+          "distribution center",
+          "distribution center name",
+          "dc name",
+          "dc",
+          "name"
+        ],
+        "allowRowScanFallback": true
+      }
     }
   }
 }
