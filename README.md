@@ -37,3 +37,10 @@ Distribution Centers are extracted without opening Columns. Shipping Points and 
 - All remote operations declare a 3-attempt step retry policy. The stable runtime retries transient page/network/frame failures unless the user cancels.
 - Sync IATA uses state-aware `ensureTableColumn`: checks headers first, opens Columns only when needed, waits 1 second, only checks `code` when not already checked, clicks viewport center, and polls up to 30 seconds for the header.
 - Capacity Report remote autocomplete reads the exact Google Sheet `id` column.
+
+
+## v27 - Capacity Report Google Sheet rate-limit mitigation
+- Capacity center source switched from Sheets export endpoint to gviz CSV.
+- Search starts after 2 characters with 500 ms debounce.
+- In-session source cache increased to 1 hour.
+- Distribution Center ID continues to use the exact `id` column.
