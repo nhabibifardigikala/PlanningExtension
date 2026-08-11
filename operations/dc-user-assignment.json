@@ -105,12 +105,20 @@
       "submit": {
         "selector": "button.form-save-button.admin-submit-button",
         "textContains": "save",
-        "error": "Save button was not found."
+        "error": "Save button was not found.",
+        "acceptNavigation": true,
+        "navigationGraceMs": 10000,
+        "navigationCheckIntervalMs": 250
       },
-      "outcomeTimeoutMs": 1,
+      "outcomeTimeoutMs": 20000,
       "outcomeIntervalMs": 250,
       "afterSubmitMs": 1500,
-      "progress": "Assigning Distribution Centers…"
+      "progress": "Assigning Distribution Centers…",
+      "terminalSuccessSelector": "p[error-path=\"0\"]",
+      "terminalSuccessTextContains": [
+        "User and DC relation already exists"
+      ],
+      "terminalMatchBehavior": "continue"
     }
   ]
 }

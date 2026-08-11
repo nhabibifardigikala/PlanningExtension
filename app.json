@@ -1,10 +1,10 @@
 {
-  "configVersion": 12,
-  "minEngineVersion": "7.2",
+  "configVersion": 13,
+  "minEngineVersion": "7.3",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
-    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png"
+    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=13"
   },
   "theme": "theme.json",
   "settings": "settings.json",
@@ -117,7 +117,7 @@
       "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z"
     }
   ],
-  "publishedAt": "2026-08-10T22:30:00+03:30",
+  "publishedAt": "2026-08-11T12:45:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
