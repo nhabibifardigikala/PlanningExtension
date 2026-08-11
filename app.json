@@ -1,10 +1,10 @@
 {
-  "configVersion": 17,
-  "minEngineVersion": "7.6",
+  "configVersion": 18,
+  "minEngineVersion": "8.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
-    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=13"
+    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=18"
   },
   "theme": "theme.json",
   "settings": "settings.json",
@@ -196,15 +196,48 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-11T15:30:00+03:30",
+  "publishedAt": "2026-08-11T15:45:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
-  "engineArchitecture": "bootstrap-secure-runtime-remote-ui-v1",
+  "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=15",
-    "css": "ui/app.css?v=15",
-    "contractVersion": 1
-  }
+    "html": "ui/app.html?v=18",
+    "css": "ui/app.css?v=18",
+    "contractVersion": 2
+  },
+  "runtimeContract": {
+    "workflowContractVersion": 2,
+    "uiContractVersion": 2,
+    "remoteFirst": true,
+    "fetchLatestOnEveryOpen": true,
+    "fallbackToLastKnownGood": true,
+    "securityLocalOnly": [
+      "credentials",
+      "credential-validation-state",
+      "access-enforcement",
+      "chrome-permissions",
+      "activity-log"
+    ],
+    "remoteManaged": [
+      "branding",
+      "ui-html",
+      "ui-css",
+      "theme",
+      "settings-schema",
+      "messages",
+      "operations",
+      "forms",
+      "workflow",
+      "selectors",
+      "timeouts",
+      "retries",
+      "data-sources",
+      "comparison-rules",
+      "export-rules",
+      "feature-flags"
+    ]
+  },
+  "runtime": "runtime.json"
 }

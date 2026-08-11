@@ -90,7 +90,12 @@
     "allOption": "All",
     "output": {
       "nameKey": "name",
-      "idKey": "dcId"
+      "idKey": "dcId",
+      "headers": [
+        "Type",
+        "Name",
+        "ID"
+      ]
     }
   }
 }

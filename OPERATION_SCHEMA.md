@@ -59,3 +59,12 @@ Use `type: remote-autocomplete` for searchable public CSV data sources. The runt
 - `extractSearchVariants`: repeats a search for configured values and combines all paginated results into one named dataset.
 - `reconcileCodeByName`: joins one master dataset to one or more source datasets by normalized name and creates code corrections when source code differs from the master code.
 - `applyFieldCorrections`: searches each mismatched record by ID, opens Details, fills a configured field, and saves. All URLs, selectors, aliases and waits are remote-configured.
+
+
+## Runtime v8 generic principles
+
+Operation files must be declarative. Supported generic interaction primitives include open, ensureLogin, navigate, wait, waitFor, fill, autocomplete, jalaliDate, click, clickAndWait, press, setChecked, clickOutside, read, setContext, assert, enableColumns, extractPaginatedTable, extractSearchVariants, pagedBatchSubmit, selectPagedCheckboxes, calculateStats, exportExcel and closeTab, plus the generic dataset reconciliation/update primitives already used by Sync IATA.
+
+All selectors, selector indexes, timeouts, retry policies, URLs and user-facing progress text belong in remote operation JSON.
+
+For a future external HTTPS host, add `requiredHosts` to the operation metadata. Runtime v8 can request that host permission at execution time without an extension update.

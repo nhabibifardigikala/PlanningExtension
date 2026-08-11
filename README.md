@@ -1,41 +1,11 @@
-# PlanningExtension Remote App v8
+# PlanningExtension Remote Application v18
 
-Upload the contents of this folder to the root of the GitHub Pages repository.
+Upload the contents of this package to the root of the PlanningExtension GitHub Pages repository.
 
-The application UI is now remote:
-- `ui/app.html` = complete Side Panel markup
-- `ui/app.css` = complete application appearance
+This repository is the application definition. Almost all future changes should happen here, without redistributing the extension.
 
-Other remote files:
-- `app.json` = app/version/operation registry
-- `theme.json` = theme tokens
-- `settings.json` = settings labels/options
-- `messages.json` = user-facing messages
-- `operations/*.json` = forms and workflows
+Remote-managed areas include app.json, runtime.json, theme.json, settings.json, messages.json, ui/app.html, ui/app.css, operation definitions, forms, workflows, selectors, URLs, timeout/retry rules, icons and public data files.
 
-## UI contract
-You can redesign/reorder/re-style the UI freely from GitHub, but keep the element IDs used by the runtime (for example `menu`, `settingsBtn`, `operationInputs`, `runOperation`, `username`, `password`, etc.). Removing a required contract ID can make that feature unavailable.
+The local Runtime v8.0 only contains security enforcement and generic browser/data primitives. Do not place passwords, tokens, cookies or other secrets in this public repository.
 
-No remote JavaScript is used. This keeps privileged Chrome APIs and credentials inside the installed extension while allowing the visual application and operational behavior to be remotely maintained.
-
-
-Remote config v9:
-- DC User Assignment now submits large DC selections in bounded batches to avoid HTTP 414 Request-URI Too Large.
-- `0 - User and DC relation already exists` is treated as a successful no-op outcome.
-
-
-## Config v12
-- DC User Assignment uses up to 15 pages per batch (~300 DCs).
-- Existing user/DC relation messages no longer terminate the whole operation; later batches continue.
-- Remote Digiexpress logo updated.
-
-
-## Parent Determination
-Remote operation uses `data/DX_Polygons.json` generated from `data/DX_Polygons.xlsx`. The XLSX remains the source dataset in the repository. Update both files together when polygon data changes.
-
-
-### Capacity Report center search (v16)
-Capacity Report no longer asks users to type a Distribution Center ID. The `dcId` field is now a remote autocomplete backed by the public Google Sheet `Distribution Centers (LG)`. The selected center ID is passed to the existing workflow automatically.
-
-
-Config 17 adds the complete remote workflow for Sync IATA Code. Intermediate datasets are kept in memory and are not downloaded to the user.
+The runtime fetches the latest remote bundle every time the side panel opens. If GitHub is temporarily unavailable it falls back to the last known good version stored locally.

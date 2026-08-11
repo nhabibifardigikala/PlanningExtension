@@ -1,0 +1,20 @@
+{
+  "contractVersion": 2,
+  "loading": {
+    "title": "Loading Digiexpress…",
+    "message": "Loading the latest application configuration."
+  },
+  "remoteRefresh": {
+    "onEveryOpen": true,
+    "cacheFallback": true
+  },
+  "workflow": {
+    "defaultRetryCount": 8,
+    "defaultRetryDelayMs": 350,
+    "defaultCompleteTimeoutMs": 30000
+  },
+  "ui": {
+    "renderFromRemote": true
+  },
+  "notes": "This file contains non-secret runtime defaults. Security enforcement remains local."
+}
