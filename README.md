@@ -23,3 +23,9 @@ Sync IATA now opens a Remote form with dataset selection and comma-separated exc
 
 ## v22
 Forced remote UI/CSS cache bust to v22 and strengthened Sync IATA target button styling. No Runtime update required.
+
+
+## v23
+- Sync IATA waits before/after Columns interactions.
+- Columns dropdown is closed by clicking the page body (outside the menu), then the table gets 8 seconds to reload.
+- Progress bar remains visible while duplicate progress/error text is hidden; final status appears once.

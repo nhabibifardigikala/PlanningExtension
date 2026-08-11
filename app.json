@@ -1,5 +1,5 @@
 {
-  "configVersion": 22,
+  "configVersion": 23,
   "minEngineVersion": "8.1",
   "app": {
     "name": "Digiexpress",
@@ -235,15 +235,15 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-11T15:45:00+03:30",
+  "publishedAt": "2026-08-11T16:10:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=22",
-    "css": "ui/app.css?v=22",
+    "html": "ui/app.html?v=23",
+    "css": "ui/app.css?v=23",
     "contractVersion": 2
   },
   "runtimeContract": {
@@ -281,7 +281,7 @@
   "runtime": "runtime.json",
   "runtimeVersion": "8.2.0",
   "remoteUI": {
-    "html": "ui/app.html?v=22",
-    "css": "ui/app.css?v=22"
+    "html": "ui/app.html?v=23",
+    "css": "ui/app.css?v=23"
   }
 }

@@ -135,6 +135,16 @@
       "progress": "Waiting for Shipping Points…"
     },
     {
+      "action": "wait",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-points"
+      },
+      "ms": 3000,
+      "progress": "Waiting before opening Shipping Point columns…"
+    },
+    {
       "action": "enableColumns",
       "when": {
         "left": "{{syncTargets}}",
@@ -145,11 +155,12 @@
         "code"
       ],
       "required": true,
-      "afterEachMs": 800,
+      "afterEachMs": 1800,
       "afterMs": 1200,
       "options": {
         "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "menuTimeoutMs": 15000
       },
       "progress": "Selecting Shipping Point code column…"
     },
@@ -160,9 +171,8 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "x": 600,
-      "y": 360,
-      "progress": "Applying Shipping Point columns…"
+      "selector": "body",
+      "progress": "Closing Shipping Point columns…"
     },
     {
       "action": "wait",
@@ -171,7 +181,7 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "ms": 5000,
+      "ms": 8000,
       "progress": "Waiting for Shipping Point table to reload…"
     },
     {
@@ -185,13 +195,14 @@
         "code"
       ],
       "required": true,
-      "afterEachMs": 500,
+      "afterEachMs": 1200,
       "afterMs": 800,
       "options": {
         "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "menuTimeoutMs": 15000
       },
-      "progress": "Confirming Shipping Point code column…"
+      "progress": "Rechecking Shipping Point code column…"
     },
     {
       "action": "clickOutside",
@@ -200,9 +211,8 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "x": 600,
-      "y": 360,
-      "progress": "Closing Shipping Point columns…"
+      "selector": "body",
+      "progress": "Applying Shipping Point column selection…"
     },
     {
       "action": "wait",
@@ -211,8 +221,8 @@
         "operator": "contains",
         "right": "shipping-points"
       },
-      "ms": 5000,
-      "progress": "Confirming Shipping Point headers…"
+      "ms": 8000,
+      "progress": "Waiting for final Shipping Point table reload…"
     },
     {
       "action": "read",
@@ -362,6 +372,16 @@
       "progress": "Waiting for Shipping Polygons…"
     },
     {
+      "action": "wait",
+      "when": {
+        "left": "{{syncTargets}}",
+        "operator": "contains",
+        "right": "shipping-polygons"
+      },
+      "ms": 3000,
+      "progress": "Waiting before opening Shipping Polygon columns…"
+    },
+    {
       "action": "enableColumns",
       "when": {
         "left": "{{syncTargets}}",
@@ -374,11 +394,12 @@
         "hash_id"
       ],
       "required": true,
-      "afterEachMs": 900,
-      "afterMs": 1400,
+      "afterEachMs": 1800,
+      "afterMs": 1200,
       "options": {
         "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]"
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "menuTimeoutMs": 15000
       },
       "progress": "Selecting Shipping Polygon columns…"
     },
@@ -389,9 +410,8 @@
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "x": 600,
-      "y": 360,
-      "progress": "Applying Shipping Polygon columns…"
+      "progress": "Closing Shipping Polygon columns…",
+      "selector": "body"
     },
     {
       "action": "wait",
@@ -400,7 +420,7 @@
         "operator": "contains",
         "right": "shipping-polygons"
       },
-      "ms": 5000,
+      "ms": 8000,
       "progress": "Waiting for Shipping Polygon table to reload…"
     },
     {

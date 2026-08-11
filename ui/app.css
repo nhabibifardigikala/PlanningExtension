@@ -135,3 +135,6 @@
 [data-field-wrap="syncTargets"] .choice-option{display:flex!important;align-items:center!important;justify-content:center!important;min-height:46px!important;padding:10px 12px!important;margin:0!important;border:1px solid color-mix(in srgb,var(--border) 65%,transparent)!important;border-radius:12px!important;background:var(--panel)!important;color:var(--text)!important;font-weight:800!important;text-align:center!important;cursor:pointer!important;}
 [data-field-wrap="syncTargets"] .choice-option input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important;}
 [data-field-wrap="syncTargets"] .choice-option:has(input:checked){background:var(--accent)!important;border-color:var(--accent)!important;color:#071a33!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent)!important;}
+
+/* v23: keep the orange progress bar, but avoid duplicating status/error text below it. */
+#progressText{display:none!important;}
