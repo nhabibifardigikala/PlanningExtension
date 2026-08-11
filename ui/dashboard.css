@@ -161,3 +161,198 @@
     width:100%;min-width:0;max-width:none;
   }
 }
+
+/* Remote dashboard v45: clean responsive layout matching approved dashboard reference */
+body{
+  background:#f6f7f9;
+}
+#dashboard{
+  max-width:1600px;
+  padding:24px 28px 34px;
+}
+.dash-top{
+  margin-bottom:22px;
+}
+.dash-title h1{
+  font-size:28px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:-0.025em;
+}
+.dash-title p{
+  font-size:14px;
+  font-weight:600;
+}
+.dash-download{
+  font-size:15px;
+  padding:12px 18px;
+  border-radius:12px;
+}
+
+/* One center heading only. The center name must not be repeated in chart titles. */
+.dash-card{
+  background:transparent;
+  border:0;
+  border-radius:0;
+  padding:0;
+  box-shadow:none;
+}
+.dash-card-head{
+  margin:0 0 14px;
+  padding:0 2px;
+}
+.dash-card-head strong{
+  font-size:30px;
+  line-height:1.15;
+  font-weight:900;
+  margin:0 0 5px;
+}
+.dash-card-head small{
+  font-size:13px;
+  font-weight:600;
+}
+.dash-timescopes{
+  gap:22px;
+}
+.dash-timescope-card{
+  background:#fff;
+  border:1px solid var(--accent,#f79009);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 4px 16px rgba(16,24,40,.035);
+}
+.dash-timescope-title{
+  margin:0 0 16px;
+}
+.dash-timescope-title strong{
+  font-size:20px;
+  line-height:1.25;
+  font-weight:900;
+}
+.dash-timescope-title strong::before{
+  content:"Time Scope: ";
+  color:var(--text,#102030);
+}
+
+/* KPI row: compact days card + two equal metric cards */
+.capacity-summary.generic-metrics{
+  display:grid !important;
+  grid-template-columns:220px minmax(0,1fr) minmax(0,1fr) !important;
+  gap:16px !important;
+  align-items:stretch !important;
+  margin:0 0 20px !important;
+}
+.capacity-summary.generic-metrics > *{
+  order:initial !important;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:none !important;
+  min-height:138px;
+  padding:18px 14px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  text-align:center !important;
+  background:#fff;
+  border:1px solid var(--accent,#f79009);
+  border-radius:14px;
+}
+.capacity-summary-days>span,
+.capacity-metric-block>span{
+  color:var(--text,#102030) !important;
+  font-size:20px !important;
+  line-height:1.2 !important;
+  font-weight:900 !important;
+  letter-spacing:-.015em;
+  margin-bottom:16px !important;
+}
+.capacity-summary-days>span{
+  font-size:17px !important;
+  margin-bottom:10px !important;
+}
+.capacity-summary.generic-metrics > .capacity-summary-days strong{
+  font-size:46px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  color:var(--accent,#f79009);
+}
+.capacity-summary.generic-metrics > .capacity-metric-block{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:138px;
+  height:auto !important;
+  padding:18px 22px !important;
+  background:#fff;
+  border:1px solid var(--accent,#f79009);
+  border-radius:14px;
+}
+.capacity-metric-values{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  align-items:end;
+}
+.capacity-metric-values>div{
+  padding:4px 6px;
+}
+.capacity-metric-values small{
+  font-size:14px !important;
+  font-weight:700 !important;
+  margin-bottom:8px !important;
+}
+.capacity-metric-values strong{
+  font-size:26px !important;
+  line-height:1.05 !important;
+  font-weight:900 !important;
+}
+
+/* Chart: no duplicated center/time-scope title from the chart config. */
+.chart-head{
+  justify-content:flex-end !important;
+  margin:2px 0 12px !important;
+  min-height:22px;
+}
+.chart-head>strong{
+  display:none !important;
+}
+.chart-legend{
+  font-size:14px !important;
+  font-weight:700 !important;
+  gap:18px !important;
+}
+.chart-scroll{
+  border:1px solid var(--accent,#f79009) !important;
+  border-radius:14px !important;
+  background:#fff !important;
+}
+.chart-canvas{
+  min-height:360px;
+}
+.chart-y,.chart-x{
+  font-size:13px !important;
+  font-weight:700 !important;
+}
+.chart-tooltip{
+  font-size:14px !important;
+}
+
+@media(max-width:1050px){
+  .capacity-summary.generic-metrics{
+    grid-template-columns:170px minmax(0,1fr) minmax(0,1fr) !important;
+  }
+  .capacity-summary-days>span,.capacity-metric-block>span{font-size:17px !important}
+  .capacity-metric-values strong{font-size:22px !important}
+}
+@media(max-width:820px){
+  #dashboard{padding:18px}
+  .capacity-summary.generic-metrics{
+    grid-template-columns:1fr !important;
+  }
+  .capacity-summary.generic-metrics > .capacity-summary-days,
+  .capacity-summary.generic-metrics > .capacity-metric-block{
+    min-height:0;
+  }
+  .dash-card-head strong{font-size:26px}
+}

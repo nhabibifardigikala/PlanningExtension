@@ -1,5 +1,5 @@
 {
-  "configVersion": 44,
+  "configVersion": 45,
   "minEngineVersion": "9.3.2",
   "app": {
     "name": "Digiexpress",
@@ -78,7 +78,7 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=36",
+      "config": "operations/capacity-report.json?v=45",
       "description": "Select one or more Distribution Centers, choose a Jalali date range, and compare capacity trends."
     },
     {
@@ -246,7 +246,7 @@
     "html": "ui/app.html?v=40",
     "css": "ui/app.css?v=40",
     "contractVersion": 5,
-    "dashboardCss": "ui/dashboard.css?v=44"
+    "dashboardCss": "ui/dashboard.css?v=45"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,
