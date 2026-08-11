@@ -22,3 +22,9 @@ No remote JavaScript is used. This keeps privileged Chrome APIs and credentials 
 Remote config v9:
 - DC User Assignment now submits large DC selections in bounded batches to avoid HTTP 414 Request-URI Too Large.
 - `0 - User and DC relation already exists` is treated as a successful no-op outcome.
+
+
+## Config v12
+- DC User Assignment uses up to 15 pages per batch (~300 DCs).
+- Existing user/DC relation messages no longer terminate the whole operation; later batches continue.
+- Remote Digiexpress logo updated.

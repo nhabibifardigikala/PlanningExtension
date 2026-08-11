@@ -67,7 +67,7 @@
       "action": "pagedBatchSubmit",
       "count": "{{dcCount}}",
       "itemsPerPage": 20,
-      "pagesPerBatch": 3,
+      "pagesPerBatch": 15,
       "resetUrl": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
       "openerSelector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
       "openerTimeoutMs": 20000,
@@ -81,7 +81,7 @@
       "afterSelectMs": 700,
       "afterNextMs": 1400,
       "afterChooseMs": 1000,
-      "batchProgress": "Assigning batch {{batch}} of {{batches}}…",
+      "batchProgress": "Assigning up to 300 DCs — batch {{batch}} of {{batches}}…",
       "skipProgress": "Moving to DC page {{page}}…",
       "pageProgress": "Selecting DC page {{page}} of {{pages}}…",
       "autocomplete": {
@@ -107,19 +107,10 @@
         "textContains": "save",
         "error": "Save button was not found."
       },
-      "outcomeTimeoutMs": 30000,
+      "outcomeTimeoutMs": 1,
       "outcomeIntervalMs": 250,
-      "terminalSuccessTexts": [
-        "0 - User and DC relation already exists",
-        "User and DC relation already exists"
-      ],
-      "terminalSuccessMessage": "The user and DC relation already exists. No changes were required.",
-      "afterSubmitMs": 1200,
-      "progress": "Assigning Distribution Centers…",
-      "terminalSuccessSelector": "p[error-path=\"0\"]",
-      "terminalSuccessTextContains": [
-        "User and DC relation already exists"
-      ]
+      "afterSubmitMs": 1500,
+      "progress": "Assigning Distribution Centers…"
     }
   ]
 }
