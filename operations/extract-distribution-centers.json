@@ -125,6 +125,11 @@
       "error": "Could not prepare the Distribution Center table."
     },
     {
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying table settings…"
+    },
+    {
       "action": "wait",
       "ms": 10000,
       "progress": "Waiting for table update…"
@@ -207,5 +212,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 8
+  "remoteBehaviorVersion": 10
 }

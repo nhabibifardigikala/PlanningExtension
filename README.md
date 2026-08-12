@@ -104,3 +104,7 @@ After applying the full COLUMN_CONFIG at 20% zoom, the workflow explicitly click
 
 ## v53
 Extract Distribution Centers now follows the supplied reference flow for table preparation and keeps implementation details out of the operation description.
+
+
+## v54
+Extract Distribution Centers now performs an explicit viewport-center click immediately after the full column configuration step, before waiting for the table reload/apply cycle.
