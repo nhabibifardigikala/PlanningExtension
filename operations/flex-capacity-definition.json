@@ -6,8 +6,26 @@
     "https://flex.digikala.com/*",
     "https://auth.mydigikala.com/*"
   ],
-  "description": "Upload the completed Excel template to define Flex capacity slots in batch.",
-  "inputs": [],
+  "description": "Upload a completed capacity template and run the batch operation.",
+  "inputs": [
+    {
+      "name": "templateDownload",
+      "label": "Capacity Slot Template",
+      "type": "download",
+      "buttonLabel": "Download Template",
+      "asset": "templates/CapacitySlotTemplate.xlsx",
+      "filename": "CapacitySlotTemplate.xlsx",
+      "help": "Download and complete the template before running the operation."
+    },
+    {
+      "name": "capacityFile",
+      "label": "Upload Excel",
+      "type": "file",
+      "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "required": true,
+      "help": "Upload the completed Capacity Slot Template."
+    }
+  ],
   "clientProcessor": {
     "type": "excel-batch-workflow",
     "fileField": "capacityFile",
@@ -479,5 +497,7 @@
     "retryCount": 8,
     "retryDelayMs": 350,
     "completeTimeoutMs": 30000
-  }
+  },
+  "uiMode": "form",
+  "runLabel": "Run"
 }

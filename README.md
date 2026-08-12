@@ -111,3 +111,7 @@ Extract Distribution Centers now performs an explicit viewport-center click imme
 
 ## Remote App v56
 Adds Flex Capacity Definition as an Excel-driven batch operation with remote template download, validation, retries, per-row results, and downloadable result workbook.
+
+
+## v57
+Flex Capacity Definition now always opens its internal operation form first. The remote operation config includes the Download Template and Upload Excel fields so the detailed config cannot overwrite the app-level form with an empty inputs array. No Flex website tab opens until the user presses Run.
