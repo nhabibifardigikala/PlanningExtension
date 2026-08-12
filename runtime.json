@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v65 for Stable Host 11 universal declarative platform. Operation/UI/data changes remain remote.",
+  "notes": "Remote app v66 for Stable Host 11 universal declarative platform. Operation/UI/data changes remain remote.",
   "configVersion": 65,
   "minimumRuntimeVersion": "11.0.0",
   "minimumRuntime": "11.0.0",

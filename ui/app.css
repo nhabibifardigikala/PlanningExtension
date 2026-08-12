@@ -232,3 +232,7 @@ html[data-theme="dark"] .generic-legend-1{background:#d3d9e3}
 #dailyPlannerFrame{color-scheme:light}
 html[data-theme="dark"] #dailyPlannerFrame{color-scheme:dark}
 html[data-theme="light"] #dailyPlannerFrame{color-scheme:light}
+/* v66 — Daily Planner owns its internal viewport; no outer vertical overflow. */
+.daily-planner-embedded{height:calc(100vh - 170px);min-height:0;overflow:hidden}
+.daily-planner-embedded iframe{height:100%;min-height:0;overflow:hidden;border-radius:14px}
+@media(max-width:700px){.daily-planner-embedded{height:calc(100vh - 150px);min-height:0}.daily-planner-embedded iframe{height:100%;min-height:0}}

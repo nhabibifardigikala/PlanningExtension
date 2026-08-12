@@ -102,7 +102,7 @@
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/daily-planner.json?v=65",
+      "config": "operations/daily-planner.json?v=66",
       "iconSvgPath": "M8 6h4V3h4v3h16V3h4v3h4a4 4 0 0 1 4 4v30a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4Zm0 12v22h32V18H8Zm6 5h8v8h-8v-8Zm12 0h8v4h-8v-4Zm0 8h8v4h-8v-4Z",
       "description": "Create tasks, review task lists, organize the daily timeline and manage planner settings.",
       "runLabel": "Daily Planner",
@@ -346,7 +346,7 @@
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "62",
+  "version": "66",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

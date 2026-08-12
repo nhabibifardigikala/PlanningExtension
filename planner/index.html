@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daily Planner</title>
-<link rel="stylesheet" href="planner.css?v=65">
+<link rel="stylesheet" href="planner.css?v=66">
 </head>
 <body>
 <div class="planner-app">
@@ -58,7 +58,7 @@
         <div class="panel setting-card"><h2 data-i18n="calendar"></h2><label class="setting-row"><span data-i18n="calendarType"></span><select id="calendarSetting"><option value="jalali" data-i18n="jalali"></option><option value="gregorian" data-i18n="gregorian"></option></select></label><div id="holidayInfo" class="holiday-info"></div></div>
         <div class="panel setting-card"><h2 data-i18n="language"></h2><label class="setting-row"><span data-i18n="language"></span><select id="languageSetting"><option value="fa">فارسی</option><option value="en">English</option></select></label></div>
         <div class="panel setting-card"><h2 data-i18n="workingHours"></h2><div class="two-col"><label><span data-i18n="start"></span><input id="workStart" type="time"></label><label><span data-i18n="end"></span><input id="workEnd" type="time"></label></div></div>
-        <div class="panel setting-card"><h2 data-i18n="notifications"></h2><label class="switch-row"><span data-i18n="notificationsEnabled"></span><input id="notificationsEnabled" type="checkbox"><span class="switch-ui" aria-hidden="true"></span></label><button id="notificationPermission" class="btn ghost" data-i18n="enableBrowserNotifications"></button><small class="muted" data-i18n="notificationHelp"></small></div>
+        <div class="panel setting-card"><h2 data-i18n="notifications"></h2><label class="switch-row"><span data-i18n="notificationsEnabled"></span><input id="notificationsEnabled" type="checkbox"><span class="switch-ui" aria-hidden="true"></span></label><small class="muted" data-i18n="notificationHelp"></small></div>
         <div class="panel setting-card"><h2 data-i18n="dataTransfer"></h2><div class="import-export"><button id="exportExcel" class="btn primary">Export Excel</button><label class="btn ghost file-label">Import Excel<input id="importExcel" type="file" accept=".xlsx,.xls,.csv" hidden></label></div></div>
       </div>
     </section>
@@ -74,5 +74,5 @@
 
 <div id="notificationBox" class="notification-box hidden"><div><strong id="notificationTitle"></strong><p id="notificationText"></p></div><div class="notice-actions"><button id="snoozeNotice">Snooze</button><button id="dismissNotice">Dismiss</button></div></div>
 <div id="toast" class="toast hidden"></div>
-<script src="planner.js?v=65"></script>
+<script src="planner.js?v=66"></script>
 </body></html>
