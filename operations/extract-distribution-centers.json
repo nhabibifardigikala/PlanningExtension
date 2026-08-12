@@ -2,8 +2,18 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract Distribution Centers using the configured LG columns, full-page waits, pagination, and a single Excel download.",
-  "inputs": [],
+  "description": "Run the Distribution Center extraction with 20% page zoom, exact column selection, full-page waits and manual Excel download.",
+  "inputs": [
+    {
+      "name": "_openPage",
+      "label": "",
+      "type": "text",
+      "showWhen": {
+        "field": "__never__",
+        "equals": "true"
+      }
+    }
+  ],
   "navigation": {
     "retryCount": 10,
     "retryDelayMs": 500,
@@ -37,6 +47,11 @@
       "error": "Distribution Center table was not found."
     },
     {
+      "action": "setPageZoom",
+      "zoom": 0.2,
+      "progress": "Setting page zoom to 20%…"
+    },
+    {
       "action": "click",
       "selector": "button",
       "textContains": "Columns",
@@ -58,7 +73,9 @@
       "checked": true,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: id"
     },
     {
       "action": "setChecked",
@@ -66,7 +83,9 @@
       "checked": true,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: name"
     },
     {
       "action": "setChecked",
@@ -74,7 +93,9 @@
       "checked": true,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: city"
     },
     {
       "action": "setChecked",
@@ -82,135 +103,9 @@
       "checked": true,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"district\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"active\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"has_fresh\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"sort\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_in_person\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_large\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"critical_time\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_suburbs\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"parent_dc_id\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_drop_shipping_active\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_ganje\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_jet\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_third_party\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"child_dc_ids\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"hash_id\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
-    },
-    {
-      "action": "setChecked",
-      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"reference_id\"]",
-      "checked": true,
-      "progress": "Configuring Distribution Center columns…",
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: iata"
     },
     {
       "action": "setChecked",
@@ -218,7 +113,99 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: vehicle_types"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"district\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: district"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"active\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: active"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"has_fresh\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: has_fresh"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"sort\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: sort"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_in_person\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_in_person"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_large\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_large"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"critical_time\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: critical_time"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_suburbs\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_suburbs"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"parent_dc_id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: parent_dc_id"
     },
     {
       "action": "setChecked",
@@ -226,7 +213,79 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: postal_code"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_drop_shipping_active\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_drop_shipping_active"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_ganje\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_ganje"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_jet\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_jet"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"is_third_party\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_third_party"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"child_dc_ids\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: child_dc_ids"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"hash_id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: hash_id"
+    },
+    {
+      "action": "setChecked",
+      "selector": "ul#adminColumns input[type=\"checkbox\"][value=\"reference_id\"]",
+      "checked": true,
+      "progress": "Configuring Distribution Center columns…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: reference_id"
     },
     {
       "action": "setChecked",
@@ -234,7 +293,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: address"
     },
     {
       "action": "setChecked",
@@ -242,7 +303,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: alt_submit_type"
     },
     {
       "action": "setChecked",
@@ -250,7 +313,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: capacity"
     },
     {
       "action": "setChecked",
@@ -258,7 +323,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: city_id"
     },
     {
       "action": "setChecked",
@@ -266,7 +333,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: city_id--preview"
     },
     {
       "action": "setChecked",
@@ -274,7 +343,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: description"
     },
     {
       "action": "setChecked",
@@ -282,7 +353,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: direct"
     },
     {
       "action": "setChecked",
@@ -290,7 +363,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: distribution_center_district"
     },
     {
       "action": "setChecked",
@@ -298,7 +373,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: distribution_center_district--preview"
     },
     {
       "action": "setChecked",
@@ -306,7 +383,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: fmcg_warehouse_location_id"
     },
     {
       "action": "setChecked",
@@ -314,7 +393,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: fmcg_warehouse_location_id--preview"
     },
     {
       "action": "setChecked",
@@ -322,7 +403,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: has_time_scope"
     },
     {
       "action": "setChecked",
@@ -330,7 +413,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: iata_code"
     },
     {
       "action": "setChecked",
@@ -338,7 +423,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_deleted"
     },
     {
       "action": "setChecked",
@@ -346,7 +433,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: is_dms_active"
     },
     {
       "action": "setChecked",
@@ -354,7 +443,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: latitude"
     },
     {
       "action": "setChecked",
@@ -362,7 +453,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: longitude"
     },
     {
       "action": "setChecked",
@@ -370,7 +463,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: marketplace_seller_id"
     },
     {
       "action": "setChecked",
@@ -378,7 +473,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: marketplace_seller_id--preview"
     },
     {
       "action": "setChecked",
@@ -386,7 +483,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: non_fmcg_warehouse_location_id"
     },
     {
       "action": "setChecked",
@@ -394,7 +493,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: non_fmcg_warehouse_location_id--preview"
     },
     {
       "action": "setChecked",
@@ -402,7 +503,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: parent_dc_id--preview"
     },
     {
       "action": "setChecked",
@@ -410,7 +513,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: payment_source_id"
     },
     {
       "action": "setChecked",
@@ -418,7 +523,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: payment_source_id--preview"
     },
     {
       "action": "setChecked",
@@ -426,7 +533,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: picking_time_limitation"
     },
     {
       "action": "setChecked",
@@ -434,7 +543,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: prime_capacity_percentage"
     },
     {
       "action": "setChecked",
@@ -442,7 +553,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: provider_reference"
     },
     {
       "action": "setChecked",
@@ -450,7 +563,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: sla_from"
     },
     {
       "action": "setChecked",
@@ -458,7 +573,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: sla_to"
     },
     {
       "action": "setChecked",
@@ -466,7 +583,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: state_id"
     },
     {
       "action": "setChecked",
@@ -474,7 +593,9 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: state_id--preview"
     },
     {
       "action": "setChecked",
@@ -482,23 +603,27 @@
       "checked": false,
       "progress": "Configuring Distribution Center columns…",
       "stepAttempts": 3,
-      "stepRetryDelayMs": 350
+      "stepRetryDelayMs": 350,
+      "afterMs": 50,
+      "error": "Could not configure column: virtual"
     },
     {
       "action": "clickOutside",
-      "center": true,
-      "progress": "Applying column settings…"
+      "selector": "table",
+      "x": 30,
+      "y": 30,
+      "progress": "Closing Columns menu…"
     },
     {
       "action": "wait",
       "ms": 10000,
-      "progress": "Waiting for column refresh…"
+      "progress": "Waiting for column changes to apply…"
     },
     {
       "action": "navigate",
       "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
-      "completeTimeoutMs": 60000,
-      "progress": "Refreshing Distribution Centers…"
+      "progress": "Refreshing table with selected columns…",
+      "completeTimeoutMs": 60000
     },
     {
       "action": "waitFor",
@@ -508,25 +633,24 @@
       "progress": "Waiting for refreshed table…"
     },
     {
-      "action": "wait",
-      "ms": 15000,
-      "progress": "Waiting for all table rows…"
+      "action": "setPageZoom",
+      "zoom": 0.2,
+      "progress": "Reapplying 20% page zoom…"
     },
     {
-      "action": "waitFor",
-      "selector": "table tbody tr:nth-child(1000), body:not(:has(a[aria-label=\"Next page\"])) table tbody tr",
-      "timeoutMs": 90000,
-      "intervalMs": 1000,
-      "progress": "Waiting for the first page to fully load…",
-      "error": "Distribution Center rows did not finish loading within 90 seconds."
+      "action": "wait",
+      "ms": 15000,
+      "progress": "Waiting for the refreshed table to fully load…"
     },
     {
       "action": "extractPaginatedTable",
       "nextSelector": "a[aria-label=\"Next page\"]",
       "timeoutMs": 90000,
-      "stableMs": 10000,
-      "pollMs": 1000,
-      "afterPageMs": 15000,
+      "expectedRowsPerPage": 1000,
+      "allowLastPagePartial": true,
+      "stableMs": 2000,
+      "pollMs": 2000,
+      "afterPageMs": 500,
       "dedupe": false,
       "maxPages": 1000,
       "pageProgress": "Extracting Distribution Center page {{page}}…",
@@ -555,7 +679,8 @@
       "partitionTitle": "Distribution Centers",
       "partitionSubtitle": "",
       "dashboardButtonLabel": "Open dashboard",
-      "downloadButtonLabel": "Download Excel"
+      "downloadButtonLabel": "Download Excel",
+      "hideDashboardButton": true
     },
     "export": {
       "enabled": true,
@@ -567,5 +692,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 3
+  "remoteBehaviorVersion": 4
 }

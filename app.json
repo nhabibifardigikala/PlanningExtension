@@ -1,6 +1,6 @@
 {
-  "configVersion": 48,
-  "minEngineVersion": "9.3.2",
+  "configVersion": 49,
+  "minEngineVersion": "10.1.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -68,9 +68,21 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=48",
-      "description": "Open the extraction page, run the configured Distribution Center extraction, then download one Excel file.",
-      "runLabel": "Run Extraction"
+      "config": "operations/extract-distribution-centers.json?v=49",
+      "description": "Open the extraction page, run the exact Distribution Center extraction flow, then download one Excel file.",
+      "runLabel": "Run Extraction",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "_openPage",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "capacity-report",

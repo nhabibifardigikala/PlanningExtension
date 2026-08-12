@@ -82,3 +82,8 @@ Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-sep
 - `jalali-date`: text input plus Persian calendar picker.
 - `clientProcessor.type = multi-capacity-report`: sequential per-center execution and interactive result rendering.
 - `clientProcessor.map`: map visualization for point-in-polygon single-location results.
+
+
+## Stable Host 10.1 generic primitive
+- `setPageZoom`: sets the current page CSS zoom from remote JSON, e.g. `{ "action": "setPageZoom", "zoom": 0.2 }`.
+- `clientProcessor.presentation.hideDashboardButton`: hides the generic dashboard action for download-only operations.
