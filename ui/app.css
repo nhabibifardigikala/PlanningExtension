@@ -215,3 +215,5 @@ html[data-theme="dark"] .generic-legend-1{background:#d3d9e3}
 #operationView:has(#operationInputs [data-field-wrap="__extractPage"]) #operationResult #gpDownload {
   min-width: 180px;
 }
+
+.operation-control-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.operation-control-row .secondary-button{margin-top:0}.operation-control-row .hidden+button:not(.hidden){grid-column:1/-1}

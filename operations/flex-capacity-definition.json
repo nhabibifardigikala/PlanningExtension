@@ -113,7 +113,8 @@
       "sheetName": "Results",
       "filename": "flex_capacity_result_{{timestamp}}.xlsx",
       "successFill": "C6EFCE",
-      "failureFill": "FFC7CE"
+      "failureFill": "FFC7CE",
+      "notProcessedText": "Not processed (cancelled)"
     }
   },
   "workflow": [

@@ -16,13 +16,13 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v53: Extract Distribution Centers follows the reference Columns flow: configure all checkboxes, close on table, wait 10s, safe refresh, wait for table, restore page preparation, wait 15s, then extract.",
-  "configVersion": 51,
+  "notes": "Remote app v58: Flex Capacity Definition supports pause/resume, cancel with partial report, and downloadable completion reports.",
+  "configVersion": 58,
   "minimumRuntimeVersion": "9.3.2",
-  "minimumRuntime": "10.2.0",
+  "minimumRuntime": "10.4.0",
   "workflowLanguageVersion": 2,
   "dataPipelineVersion": 1,
-  "recommendedRuntime": "10.2.0",
+  "recommendedRuntime": "10.4.0",
   "runtimeUpdatePolicy": "security-or-new-browser-primitive-only",
-  "version": "10.3.0"
+  "version": "10.4.0"
 }

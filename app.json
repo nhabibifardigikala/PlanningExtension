@@ -1,5 +1,5 @@
 {
-  "configVersion": 57,
+  "configVersion": 58,
   "minEngineVersion": "10.3.0",
   "app": {
     "name": "Digiexpress",
@@ -167,7 +167,7 @@
       "accessHeaders": [
         "Flex Capacity Definition"
       ],
-      "config": "operations/flex-capacity-definition.json?v=57",
+      "config": "operations/flex-capacity-definition.json?v=58",
       "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z",
       "description": "Upload a completed capacity template and run the batch operation.",
       "runLabel": "Run",
@@ -322,7 +322,7 @@
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "55",
+  "version": "58",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
