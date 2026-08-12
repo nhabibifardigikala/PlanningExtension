@@ -228,3 +228,7 @@ html[data-theme="dark"] .generic-legend-1{background:#d3d9e3}
 #operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) #capacityStats{display:none!important}
 #operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .daily-planner-embedded{display:block}
 @media(max-width:700px){.daily-planner-embedded iframe{height:calc(100vh - 155px);min-height:560px}.daily-planner-embedded{min-height:560px}}
+/* Daily Planner theme bridge: propagate the extension's selected light/dark color-scheme to the cross-origin planner iframe. */
+#dailyPlannerFrame{color-scheme:light}
+html[data-theme="dark"] #dailyPlannerFrame{color-scheme:dark}
+html[data-theme="light"] #dailyPlannerFrame{color-scheme:light}

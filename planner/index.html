@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daily Planner</title>
-<link rel="stylesheet" href="planner.css?v=64">
+<link rel="stylesheet" href="planner.css?v=65">
 </head>
 <body>
 <div class="planner-app">
   <header class="planner-header">
-    <div><h1 id="pageTitle">تعریف تسک</h1><div id="pageSubtitle" class="muted">کار جدید را تعریف کنید</div></div>
+    <div><h1 id="pageTitle"></h1><div id="pageSubtitle" class="muted"></div></div>
     <div class="header-date" id="headerDate"></div>
   </header>
 
@@ -17,31 +17,31 @@
     <section class="page active" data-page="create">
       <form id="taskForm" class="panel task-form">
         <input type="hidden" id="taskId">
-        <div class="form-row full"><label>عنوان تسک</label><input id="taskTitle" required maxlength="180" placeholder="عنوان فعالیت را وارد کنید"></div>
+        <div class="form-row full"><label data-i18n="taskTitleLabel"></label><input id="taskTitle" required maxlength="180" data-i18n-placeholder="taskTitlePlaceholder"></div>
         <div class="form-grid">
-          <div class="form-row"><label>تاریخ انجام</label><div class="date-input-wrap"><input id="taskDate" required placeholder="1405/05/21"><button class="icon-mini" id="pickToday" type="button" title="امروز">●</button></div></div>
-          <div class="form-row"><label>اولویت</label><select id="taskPriority"><option value="1">1 - بالا</option><option value="2" selected>2 - متوسط</option><option value="3">3 - پایین</option></select></div>
-          <div class="form-row"><label>مسئول</label><input id="taskAssignee" placeholder="نام مسئول"></div>
-          <div class="form-row"><label>دسته‌بندی</label><select id="taskCategory"></select></div>
-          <div class="form-row"><label>مدت تسک</label><div class="duration"><input id="taskDuration" type="number" min="15" step="15" value="60"><span>دقیقه</span></div></div>
-          <div class="form-row"><label>تکرار</label><select id="taskRecurrence"><option value="none">بدون تکرار</option><option value="daily">روزانه</option><option value="weekly">هفتگی</option><option value="custom">سفارشی</option></select></div>
-          <div class="form-row hidden" id="customRepeatWrap"><label>تکرار سفارشی</label><div class="duration"><span>هر</span><input id="taskRepeatEvery" type="number" min="1" value="2"><span>روز</span></div></div>
-          <div class="form-row"><label>وضعیت</label><select id="taskStatus"><option value="todo">انجام نشده</option><option value="done">انجام شده</option><option value="cancelled">لغو شده</option></select></div>
+          <div class="form-row"><label data-i18n="dueDate"></label><div class="date-input-wrap"><input id="taskDate" readonly required><button class="icon-mini date-trigger" id="taskDateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="taskDatePicker"></div></div></div>
+          <div class="form-row"><label data-i18n="priority"></label><select id="taskPriority"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
+          <div class="form-row"><label data-i18n="assignee"></label><input id="taskAssignee" data-i18n-placeholder="assigneePlaceholder"></div>
+          <div class="form-row"><label data-i18n="category"></label><select id="taskCategory"></select></div>
+          <div class="form-row"><label data-i18n="duration"></label><div class="duration"><input id="taskDuration" type="number" min="15" step="15" value="60"><span data-i18n="minutes"></span></div></div>
+          <div class="form-row"><label data-i18n="recurrence"></label><select id="taskRecurrence"><option value="none" data-i18n="recNone"></option><option value="daily" data-i18n="recDaily"></option><option value="weekly" data-i18n="recWeekly"></option><option value="custom" data-i18n="recCustom"></option></select></div>
+          <div class="form-row hidden" id="customRepeatWrap"><label data-i18n="customRecurrence"></label><div class="duration"><span data-i18n="every"></span><input id="taskRepeatEvery" type="number" min="1" value="2"><span data-i18n="days"></span></div></div>
+          <div class="form-row"><label data-i18n="status"></label><select id="taskStatus"><option value="todo" data-i18n="statusTodo"></option><option value="done" data-i18n="statusDone"></option><option value="cancelled" data-i18n="statusCancelled"></option></select></div>
         </div>
-        <div class="form-row full"><label>توضیحات</label><textarea id="taskDescription" rows="4" placeholder="توضیحات تسک"></textarea></div>
-        <div class="form-actions"><button type="button" id="resetTask" class="btn ghost">پاک کردن فرم</button><button type="submit" class="btn primary" id="saveTask">ذخیره تسک</button></div>
+        <div class="form-row full"><label data-i18n="description"></label><textarea id="taskDescription" rows="4" data-i18n-placeholder="descriptionPlaceholder"></textarea></div>
+        <div class="form-actions"><button type="button" id="resetTask" class="btn ghost" data-i18n="clearForm"></button><button type="submit" class="btn primary" id="saveTask" data-i18n="saveTask"></button></div>
       </form>
     </section>
 
     <section class="page" data-page="tasks">
       <div class="panel filters">
         <div class="filter-grid">
-          <label>تاریخ<input id="filterDate" placeholder="همه تاریخ‌ها"></label>
-          <label>مسئول<select id="filterAssignee"><option value="">همه</option></select></label>
-          <label>اولویت<select id="filterPriority"><option value="">همه</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
-          <label>وضعیت<select id="filterStatus"><option value="">همه</option><option value="todo">انجام نشده</option><option value="done">انجام شده</option><option value="cancelled">لغو شده</option></select></label>
+          <label><span data-i18n="date"></span><div class="date-input-wrap"><input id="filterDate" readonly data-i18n-placeholder="allDates"><button class="icon-mini date-trigger" id="filterDateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="filterDatePicker"></div></div></label>
+          <label><span data-i18n="assignee"></span><select id="filterAssignee"></select></label>
+          <label><span data-i18n="priority"></span><select id="filterPriority"><option value="" data-i18n="all"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+          <label><span data-i18n="status"></span><select id="filterStatus"><option value="" data-i18n="all"></option><option value="todo" data-i18n="statusTodo"></option><option value="done" data-i18n="statusDone"></option><option value="cancelled" data-i18n="statusCancelled"></option></select></label>
         </div>
-        <div class="filter-actions"><button id="clearFilters" class="btn ghost">پاک کردن فیلترها</button><span id="taskCount" class="muted"></span></div>
+        <div class="filter-actions"><button id="clearFilters" class="btn ghost" data-i18n="clearFilters"></button><span id="taskCount" class="muted"></span></div>
       </div>
       <div id="taskList" class="task-list"></div>
     </section>
@@ -54,24 +54,25 @@
 
     <section class="page" data-page="settings">
       <div class="settings-grid">
-        <div class="panel setting-card"><h2>دسته‌بندی‌ها</h2><div class="inline"><input id="newCategory" placeholder="نام دسته‌بندی"><button id="addCategory" class="btn primary">اضافه</button></div><div id="categoryList" class="chips"></div></div>
-        <div class="panel setting-card"><h2>تقویم</h2><label class="setting-row"><span>نوع تقویم</span><select id="calendarSetting"><option value="jalali">شمسی</option><option value="gregorian">میلادی</option></select></label><div id="holidayInfo" class="holiday-info"></div></div>
-        <div class="panel setting-card"><h2>ساعت کاری</h2><div class="two-col"><label>شروع<input id="workStart" type="time"></label><label>پایان<input id="workEnd" type="time"></label></div></div>
-        <div class="panel setting-card"><h2>اعلان‌ها</h2><label class="toggle-row"><input id="notificationsEnabled" type="checkbox"><span>فعال بودن اعلان‌ها</span></label><button id="notificationPermission" class="btn ghost">فعال‌سازی اعلان مرورگر</button><small class="muted">شروع هر تسک و پایان زمان آن ۱۵ دقیقه قبل یادآوری می‌شود.</small></div>
-        <div class="panel setting-card"><h2>ورود و خروج اطلاعات</h2><div class="import-export"><button id="exportExcel" class="btn primary">Export Excel</button><label class="btn ghost file-label">Import Excel<input id="importExcel" type="file" accept=".xlsx,.xls,.csv" hidden></label></div></div>
+        <div class="panel setting-card"><h2 data-i18n="categories"></h2><div class="inline"><input id="newCategory" data-i18n-placeholder="categoryPlaceholder"><button id="addCategory" class="btn primary" data-i18n="add"></button></div><div id="categoryList" class="chips"></div></div>
+        <div class="panel setting-card"><h2 data-i18n="calendar"></h2><label class="setting-row"><span data-i18n="calendarType"></span><select id="calendarSetting"><option value="jalali" data-i18n="jalali"></option><option value="gregorian" data-i18n="gregorian"></option></select></label><div id="holidayInfo" class="holiday-info"></div></div>
+        <div class="panel setting-card"><h2 data-i18n="language"></h2><label class="setting-row"><span data-i18n="language"></span><select id="languageSetting"><option value="fa">فارسی</option><option value="en">English</option></select></label></div>
+        <div class="panel setting-card"><h2 data-i18n="workingHours"></h2><div class="two-col"><label><span data-i18n="start"></span><input id="workStart" type="time"></label><label><span data-i18n="end"></span><input id="workEnd" type="time"></label></div></div>
+        <div class="panel setting-card"><h2 data-i18n="notifications"></h2><label class="switch-row"><span data-i18n="notificationsEnabled"></span><input id="notificationsEnabled" type="checkbox"><span class="switch-ui" aria-hidden="true"></span></label><button id="notificationPermission" class="btn ghost" data-i18n="enableBrowserNotifications"></button><small class="muted" data-i18n="notificationHelp"></small></div>
+        <div class="panel setting-card"><h2 data-i18n="dataTransfer"></h2><div class="import-export"><button id="exportExcel" class="btn primary">Export Excel</button><label class="btn ghost file-label">Import Excel<input id="importExcel" type="file" accept=".xlsx,.xls,.csv" hidden></label></div></div>
       </div>
     </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Planner navigation">
-    <button class="nav-item active" data-target="create" title="تعریف تسک"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg><span>تعریف</span></button>
-    <button class="nav-item" data-target="tasks" title="لیست تسک‌ها"><svg viewBox="0 0 24 24"><path d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z"/></svg><span>لیست</span></button>
-    <button class="nav-item" data-target="daily" title="برنامه روزانه"><svg viewBox="0 0 24 24"><path d="M6 2h2v2h8V2h2v2h3v18H3V4h3zm13 8H5v10h14z"/></svg><span>روزانه</span></button>
-    <button class="nav-item" data-target="settings" title="تنظیمات"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.5 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 3.1a8 8 0 0 0-1.7 1l-2.5-1-2 3.4 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.5-1a8 8 0 0 0 1.7 1L11 21h4l.3-3.1a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM13 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg><span>تنظیمات</span></button>
+    <button class="nav-item active" data-target="create"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg><span data-i18n="navCreate"></span></button>
+    <button class="nav-item" data-target="tasks"><svg viewBox="0 0 24 24"><path d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z"/></svg><span data-i18n="navList"></span></button>
+    <button class="nav-item" data-target="daily"><svg viewBox="0 0 24 24"><path d="M6 2h2v2h8V2h2v2h3v18H3V4h3zm13 8H5v10h14z"/></svg><span data-i18n="navDaily"></span></button>
+    <button class="nav-item" data-target="settings"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.5 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 3.1a8 8 0 0 0-1.7 1l-2.5-1-2 3.4 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.5-1a8 8 0 0 0 1.7 1L11 21h4l.3-3.1a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM13 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg><span data-i18n="navSettings"></span></button>
   </nav>
 </div>
 
 <div id="notificationBox" class="notification-box hidden"><div><strong id="notificationTitle"></strong><p id="notificationText"></p></div><div class="notice-actions"><button id="snoozeNotice">Snooze</button><button id="dismissNotice">Dismiss</button></div></div>
 <div id="toast" class="toast hidden"></div>
-<script src="planner.js?v=64"></script>
+<script src="planner.js?v=65"></script>
 </body></html>
