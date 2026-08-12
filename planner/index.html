@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daily Planner</title>
-<link rel="stylesheet" href="planner.css?v=68">
+<link rel="stylesheet" href="planner.css?v=69">
 </head>
 <body>
 <div class="planner-app">
@@ -18,14 +18,15 @@
       <form id="taskForm" class="panel task-form">
         <input type="hidden" id="taskId">
         <div class="form-grid">
-          <div class="form-row"><label data-i18n="taskTitleLabel"></label><input id="taskTitle" required maxlength="180" data-i18n-placeholder="taskTitlePlaceholder"></div>
-          <div class="form-row"><label data-i18n="dueDate"></label><div class="date-input-wrap"><input id="taskDate" readonly required><button class="icon-mini date-trigger" id="taskDateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="taskDatePicker"></div></div></div>
+          <div class="form-row task-title-full"><label data-i18n="taskTitleLabel"></label><input id="taskTitle" required maxlength="180" data-i18n-placeholder="taskTitlePlaceholder"></div>
+          <div class="form-row"><label data-i18n="dueDate"></label><div class="date-input-wrap"><input id="taskDate" type="text" inputmode="numeric" autocomplete="off" required><button class="icon-mini date-trigger" id="taskDateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="taskDatePicker"></div></div></div>
           <div class="form-row"><label data-i18n="priority"></label><select id="taskPriority"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
           <div class="form-row"><label data-i18n="assignee"></label><input id="taskAssignee" data-i18n-placeholder="assigneePlaceholder"></div>
           <div class="form-row"><label data-i18n="category"></label><select id="taskCategory"></select></div>
           <div class="form-row"><label data-i18n="duration"></label><div class="duration"><input id="taskDuration" type="number" min="15" step="15" value="60"><span data-i18n="minutes"></span></div></div>
           <div class="form-row"><label data-i18n="recurrence"></label><select id="taskRecurrence"><option value="none" data-i18n="recNone"></option><option value="daily" data-i18n="recDaily"></option><option value="weekly" data-i18n="recWeekly"></option><option value="custom" data-i18n="recCustom"></option></select></div>
           <div class="form-row hidden" id="customRepeatWrap"><label data-i18n="customRecurrence"></label><div class="duration"><span data-i18n="every"></span><input id="taskRepeatEvery" type="number" min="1" value="2"><span data-i18n="days"></span></div></div>
+          <div class="form-row hidden" id="editStatusWrap"><label data-i18n="status"></label><select id="editTaskStatus"><option value="todo" data-i18n="statusTodo"></option><option value="done" data-i18n="statusDone"></option><option value="cancelled" data-i18n="statusCancelled"></option></select></div>
           
         </div>
         <div class="form-row full"><label data-i18n="description"></label><textarea id="taskDescription" rows="1" data-i18n-placeholder="descriptionPlaceholder"></textarea></div>
@@ -36,7 +37,7 @@
     <section class="page" data-page="tasks">
       <div class="panel filters">
         <div class="filter-grid">
-          <label><span data-i18n="date"></span><div class="date-input-wrap"><input id="filterDate" readonly data-i18n-placeholder="allDates"><button class="icon-mini date-trigger" id="filterDateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="filterDatePicker"></div></div></label>
+          <label><span data-i18n="date"></span><div class="date-input-wrap"><input id="filterDate" type="text" inputmode="numeric" autocomplete="off" data-i18n-placeholder="allDates"><button class="icon-mini date-trigger" id="filterDateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="filterDatePicker"></div></div></label>
           <label><span data-i18n="assignee"></span><select id="filterAssignee"></select></label>
           <label><span data-i18n="priority"></span><select id="filterPriority"><option value="" data-i18n="all"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
           <label><span data-i18n="status"></span><select id="filterStatus"><option value="" data-i18n="all"></option><option value="todo" data-i18n="statusTodo"></option><option value="done" data-i18n="statusDone"></option><option value="cancelled" data-i18n="statusCancelled"></option></select></label>
@@ -74,5 +75,5 @@
 
 <div id="notificationBox" class="notification-box hidden"><div><strong id="notificationTitle"></strong><p id="notificationText"></p></div><div class="notice-actions"><button id="snoozeNotice">Snooze</button><button id="dismissNotice">Dismiss</button></div></div>
 <div id="toast" class="toast hidden"></div>
-<script src="planner.js?v=68"></script>
+<script src="planner.js?v=69"></script>
 </body></html>
