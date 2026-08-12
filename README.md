@@ -108,3 +108,6 @@ Extract Distribution Centers now follows the supplied reference flow for table p
 
 ## v54
 Extract Distribution Centers now performs an explicit viewport-center click immediately after the full column configuration step, before waiting for the table reload/apply cycle.
+
+## Remote App v56
+Adds Flex Capacity Definition as an Excel-driven batch operation with remote template download, validation, retries, per-row results, and downloadable result workbook.

@@ -23,5 +23,6 @@
   "workflowLanguageVersion": 2,
   "dataPipelineVersion": 1,
   "recommendedRuntime": "10.2.0",
-  "runtimeUpdatePolicy": "security-or-new-browser-primitive-only"
+  "runtimeUpdatePolicy": "security-or-new-browser-primitive-only",
+  "version": "10.3.0"
 }

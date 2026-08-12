@@ -2,11 +2,482 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Flex Capacity Definition is available from the home screen. Its workflow will be configured remotely when the operation steps are defined.",
+  "requiredHosts": [
+    "https://flex.digikala.com/*",
+    "https://auth.mydigikala.com/*"
+  ],
+  "description": "Upload the completed Excel template to define Flex capacity slots in batch.",
   "inputs": [],
-  "workflow": [],
+  "clientProcessor": {
+    "type": "excel-batch-workflow",
+    "fileField": "capacityFile",
+    "maxRetries": 5,
+    "retryDelayMs": 2000,
+    "columnMap": {
+      "hubNetworkId": "Hub Network ID",
+      "hubTimeSlotId": "Hub Time Slot ID",
+      "timeSlotName": "Time Slot",
+      "dailyCapacity": "Daily Capacity",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "volumeCapacity": "Volume Capacity",
+      "weightCapacity": "Weight Capacity",
+      "shippingSize": "Shipping Size",
+      "pickupReservable": "Pickup Reservable",
+      "deliveryReservable": "Delivery Reservable",
+      "activeForDropShipping": "Active For Drop Shipping"
+    },
+    "booleanFields": [
+      "saturday",
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "pickupReservable",
+      "deliveryReservable",
+      "activeForDropShipping"
+    ],
+    "validation": {
+      "required": [
+        "hubNetworkId",
+        "hubTimeSlotId",
+        "dailyCapacity",
+        "startDate",
+        "endDate",
+        "volumeCapacity",
+        "weightCapacity",
+        "shippingSize",
+        "activeForDropShipping"
+      ],
+      "atLeastOne": [
+        [
+          "saturday",
+          "sunday",
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday"
+        ]
+      ],
+      "mutuallyExclusive": [
+        [
+          "pickupReservable",
+          "deliveryReservable"
+        ]
+      ],
+      "labels": {
+        "hubNetworkId": "Hub Network ID",
+        "hubTimeSlotId": "Hub Time Slot ID",
+        "dailyCapacity": "Daily Capacity",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "volumeCapacity": "Volume Capacity",
+        "weightCapacity": "Weight Capacity",
+        "shippingSize": "Shipping Size",
+        "activeForDropShipping": "Active For Drop Shipping"
+      }
+    },
+    "result": {
+      "resultColumn": "Result",
+      "successText": "Done",
+      "existingText": "Existing capacity slot",
+      "downloadButtonLabel": "Download Result",
+      "sheetName": "Results",
+      "filename": "flex_capacity_result_{{timestamp}}.xlsx",
+      "successFill": "C6EFCE",
+      "failureFill": "FFC7CE"
+    }
+  },
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://flex.digikala.com/hubs/capacity-slots/item/0/?_back=https://flex.digikala.com/hubs/capacity-slots/",
+      "progress": "Opening Flex Capacity form…",
+      "completeTimeoutMs": 30000
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking access…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://flex.digikala.com/hubs/capacity-slots/item/0/?_back=https://flex.digikala.com/hubs/capacity-slots/",
+      "completeTimeoutMs": 30000
+    },
+    {
+      "action": "waitFor",
+      "selector": "input.uk-select.es-input",
+      "timeoutMs": 20000
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input",
+      "value": "{{hubNetworkId}}",
+      "attempts": 3,
+      "options": {
+        "focusWaitMs": 700,
+        "typingDelayMs": 50,
+        "autocompleteWaitMs": 1000,
+        "pressEnter": true,
+        "commitWaitMs": 1000,
+        "outsideWaitMs": 500,
+        "selectorIndex": 0
+      }
+    },
+    {
+      "action": "wait",
+      "ms": 500
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input",
+      "value": "{{hubTimeSlotId}}",
+      "attempts": 3,
+      "options": {
+        "focusWaitMs": 700,
+        "typingDelayMs": 50,
+        "autocompleteWaitMs": 1000,
+        "pressEnter": true,
+        "commitWaitMs": 1000,
+        "outsideWaitMs": 500,
+        "selectorIndex": 1
+      }
+    },
+    {
+      "action": "wait",
+      "ms": 500
+    },
+    {
+      "action": "pressGlobal",
+      "key": "Tab"
+    },
+    {
+      "action": "wait",
+      "ms": 100
+    },
+    {
+      "action": "pressGlobal",
+      "key": "Tab"
+    },
+    {
+      "action": "wait",
+      "ms": 100
+    },
+    {
+      "action": "pressGlobal",
+      "key": "Tab"
+    },
+    {
+      "action": "jalaliDate",
+      "selector": "#form-field-from",
+      "value": "{{startDate}}",
+      "options": {
+        "slashFormat": false,
+        "waitBeforeOutsideMs": 300,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 200
+      }
+    },
+    {
+      "action": "jalaliDate",
+      "selector": "#form-field-to",
+      "value": "{{endDate}}",
+      "options": {
+        "slashFormat": false,
+        "waitBeforeOutsideMs": 300,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 200
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"saturday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{saturday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"saturday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{saturday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"sunday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{sunday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"sunday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{sunday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"monday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{monday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"monday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{monday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"tuesday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{tuesday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"tuesday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{tuesday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"wednesday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{wednesday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"wednesday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{wednesday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"thursday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{thursday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"thursday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{thursday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"friday\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{friday}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"friday\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{friday}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "fill",
+      "selector": "#form-field-daily_capacity",
+      "value": "{{dailyCapacity}}"
+    },
+    {
+      "action": "fill",
+      "selector": "#form-field-volume_capacity",
+      "value": "{{volumeCapacity}}"
+    },
+    {
+      "action": "fill",
+      "selector": "#form-field-weight_capacity",
+      "value": "{{weightCapacity}}"
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input",
+      "value": "{{shippingSize}}",
+      "attempts": 3,
+      "options": {
+        "focusWaitMs": 700,
+        "typingDelayMs": 50,
+        "autocompleteWaitMs": 1000,
+        "pressEnter": true,
+        "commitWaitMs": 1000,
+        "outsideWaitMs": 500,
+        "selectorIndex": -1
+      }
+    },
+    {
+      "action": "wait",
+      "ms": 500
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"delivery_reservable\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{deliveryReservable}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"delivery_reservable\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{deliveryReservable}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"pickup_reservable\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{pickupReservable}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"pickup_reservable\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{pickupReservable}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"is_active_for_drop_shipping\"][type=\"checkbox\"]",
+      "checked": true,
+      "when": {
+        "left": "{{activeForDropShipping}}",
+        "equals": "true"
+      }
+    },
+    {
+      "action": "setChecked",
+      "selector": "input[name=\"is_active_for_drop_shipping\"][type=\"checkbox\"]",
+      "checked": false,
+      "when": {
+        "left": "{{activeForDropShipping}}",
+        "equals": "false"
+      }
+    },
+    {
+      "action": "wait",
+      "ms": 2000
+    },
+    {
+      "action": "click",
+      "selector": "button.form-save-button",
+      "progress": "Saving capacity slot…"
+    },
+    {
+      "action": "wait",
+      "ms": 2000
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Save status unclear (no alert found)."
+    },
+    {
+      "action": "read",
+      "selector": ".uk-alert-success",
+      "required": false,
+      "storeAs": "successAlert"
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Done",
+      "when": {
+        "left": "{{context.successAlert}}",
+        "operator": "truthy"
+      }
+    },
+    {
+      "action": "read",
+      "selector": ".uk-alert-danger",
+      "required": false,
+      "storeAs": "errorAlert"
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "{{context.errorAlert}}",
+      "when": {
+        "left": "{{context.errorAlert}}",
+        "operator": "truthy"
+      }
+    },
+    {
+      "action": "closeTab"
+    }
+  ],
+  "successMessage": "{{context.resultText}}",
   "retryPolicy": {
-    "attempts": 3,
-    "delayMs": 1500
+    "attempts": 1,
+    "delayMs": 500
+  },
+  "navigation": {
+    "retryCount": 8,
+    "retryDelayMs": 350,
+    "completeTimeoutMs": 30000
   }
 }

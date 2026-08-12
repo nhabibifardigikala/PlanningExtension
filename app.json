@@ -1,6 +1,6 @@
 {
-  "configVersion": 54,
-  "minEngineVersion": "10.1.0",
+  "configVersion": 56,
+  "minEngineVersion": "10.3.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -167,8 +167,30 @@
       "accessHeaders": [
         "Flex Capacity Definition"
       ],
-      "config": "operations/flex-capacity-definition.json?v=36",
-      "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z"
+      "config": "operations/flex-capacity-definition.json?v=56",
+      "iconSvgPath": "M7 40h34v4H3V7h4v33Zm5-5V23h5v12h-5Zm9 0V16h5v19h-5Zm9 0V10h5v25h-5Zm9 0V27h5v8h-5ZM12 13h19v4H12v-4Zm20-6h4v4h4v4h-4v4h-4v-4h-4v-4h4V7Z",
+      "description": "Upload the completed Excel template to define Flex capacity slots in batch.",
+      "runLabel": "Run",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "templateDownload",
+          "label": "Capacity Slot Template",
+          "type": "download",
+          "buttonLabel": "Download Template",
+          "asset": "templates/CapacitySlotTemplate.xlsx",
+          "filename": "CapacitySlotTemplate.xlsx",
+          "help": "Download and complete the template before running the operation."
+        },
+        {
+          "name": "capacityFile",
+          "label": "Upload Excel",
+          "type": "file",
+          "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "required": true,
+          "help": "Upload the completed Capacity Slot Template."
+        }
+      ]
     },
     {
       "id": "parent-determination",
@@ -250,7 +272,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-12T15:15:00+03:30",
+  "publishedAt": "2026-08-12T15:34:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -295,7 +317,7 @@
     ]
   },
   "runtime": "runtime.json",
-  "runtimeVersion": "10.2.0",
+  "runtimeVersion": "10.3.0",
   "remoteUI": {
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
