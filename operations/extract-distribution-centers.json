@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Distribution Center extraction: zoom 20%, apply COLUMN_CONFIG, click viewport center, wait for table reload, then extract all pages.",
+  "description": "Extract Distribution Center data and prepare an Excel file for download.",
   "inputs": [
     {
       "name": "_openPage",
@@ -49,7 +49,7 @@
     {
       "action": "setPageZoom",
       "zoom": 0.2,
-      "progress": "Setting page zoom to 20%…"
+      "progress": "Preparing page…"
     },
     {
       "action": "configureColumns",
@@ -121,31 +121,37 @@
         "fallbackX": 900,
         "fallbackY": 500
       },
-      "progress": "Applying exact column configuration…",
-      "error": "Could not apply Distribution Center column settings."
-    },
-    {
-      "action": "clickOutside",
-      "center": true,
-      "progress": "Applying column selection…"
+      "progress": "Preparing table columns…",
+      "error": "Could not prepare the Distribution Center table."
     },
     {
       "action": "wait",
       "ms": 10000,
-      "progress": "Waiting for Distribution Center table to reload…"
+      "progress": "Waiting for table update…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "progress": "Refreshing Distribution Center data…",
+      "completeTimeoutMs": 60000
     },
     {
       "action": "waitFor",
       "selector": "table",
-      "timeoutMs": 30000,
+      "timeoutMs": 20000,
       "intervalMs": 250,
-      "progress": "Waiting for reloaded table…",
-      "error": "Distribution Center table did not reload after Columns selection."
+      "progress": "Waiting for refreshed table…",
+      "error": "Distribution Center table was not available after refresh."
     },
     {
       "action": "setPageZoom",
       "zoom": 0.2,
-      "progress": "Keeping page zoom at 20%…"
+      "progress": "Preparing refreshed page…"
+    },
+    {
+      "action": "wait",
+      "ms": 15000,
+      "progress": "Waiting for data to finish loading…"
     },
     {
       "action": "extractPaginatedTable",
@@ -201,5 +207,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 7
+  "remoteBehaviorVersion": 8
 }

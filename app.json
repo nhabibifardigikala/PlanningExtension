@@ -1,5 +1,5 @@
 {
-  "configVersion": 52,
+  "configVersion": 53,
   "minEngineVersion": "10.1.0",
   "app": {
     "name": "Digiexpress",
@@ -68,8 +68,8 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=51",
-      "description": "Open a dedicated page, run the exact reference extraction flow, then download the Excel file.",
+      "config": "operations/extract-distribution-centers.json?v=53",
+      "description": "Extract Distribution Center data and download the result as an Excel file.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
       "inputs": [
@@ -250,7 +250,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-12T14:20:00+03:30",
+  "publishedAt": "2026-08-12T15:15:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -300,7 +300,7 @@
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "51",
+  "version": "53",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

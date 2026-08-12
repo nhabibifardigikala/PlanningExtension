@@ -100,3 +100,7 @@ After all COLUMN_CONFIG checkboxes are set, the workflow clicks the exact center
 
 ## v52 - Extract Distribution Centers Columns commit
 After applying the full COLUMN_CONFIG at 20% zoom, the workflow explicitly clicks the center of the viewport, waits for the table to reload, verifies the table is available again, then starts paginated extraction. The previous explicit navigate/refresh cycle after Columns selection was removed.
+
+
+## v53
+Extract Distribution Centers now follows the supplied reference flow for table preparation and keeps implementation details out of the operation description.

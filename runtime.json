@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v51: Extract Distribution Centers now mirrors the attached Playwright flow using configureColumns map, 20% zoom, 10s refresh wait, safe reload, 15s wait, 1000-row pagination, and SVG boolean parsing.",
+  "notes": "Remote app v53: Extract Distribution Centers follows the reference Columns flow: configure all checkboxes, close on table, wait 10s, safe refresh, wait for table, restore page preparation, wait 15s, then extract.",
   "configVersion": 51,
   "minimumRuntimeVersion": "9.3.2",
   "minimumRuntime": "10.2.0",
