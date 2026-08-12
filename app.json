@@ -68,8 +68,8 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=50",
-      "description": "Open the extraction page, run the exact Distribution Center extraction flow, then download one Excel file.",
+      "config": "operations/extract-distribution-centers.json?v=51",
+      "description": "Open a dedicated page, run the exact reference extraction flow, then download the Excel file.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
       "inputs": [
@@ -250,7 +250,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-12T00:30:00+03:30",
+  "publishedAt": "2026-08-12T14:20:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -295,12 +295,12 @@
     ]
   },
   "runtime": "runtime.json",
-  "runtimeVersion": "9.3.0",
+  "runtimeVersion": "10.2.0",
   "remoteUI": {
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "50",
+  "version": "51",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
