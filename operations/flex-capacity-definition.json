@@ -118,6 +118,13 @@
       "confirmationText": "Existing capacity slot",
       "repeatUntilConfirmation": true,
       "preserveConfirmationMessage": true
+    },
+    "tabSession": {
+      "enabled": true,
+      "background": true,
+      "reuseForBatch": true,
+      "closeOnFinish": true,
+      "closeOnCancel": true
     }
   },
   "workflow": [
@@ -125,7 +132,8 @@
       "action": "open",
       "url": "https://flex.digikala.com/hubs/capacity-slots/item/0/?_back=https://flex.digikala.com/hubs/capacity-slots/",
       "progress": "Opening Flex Capacity form…",
-      "completeTimeoutMs": 30000
+      "completeTimeoutMs": 30000,
+      "active": false
     },
     {
       "action": "ensureLogin",
@@ -487,9 +495,6 @@
         "left": "{{context.errorAlert}}",
         "operator": "truthy"
       }
-    },
-    {
-      "action": "closeTab"
     }
   ],
   "successMessage": "{{context.resultText}}",

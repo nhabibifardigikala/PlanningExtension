@@ -1,0 +1,12 @@
+{
+  "platformContract": 11,
+  "workflowDsl": 1,
+  "engineModeDefault": "remote",
+  "hostUpdatePolicy": "fundamental-only",
+  "remoteOwns": [
+    "operations","forms","validation","ui","theme","icons","messages","selectors","urls","waits","retries","batch","pause-resume-cancel","success-rules","reports","excel","dashboards","charts","data-sources","transformations","access-aliases"
+  ],
+  "hostOwns": [
+    "chrome-permission-broker","secure-local-credentials","access-verification","generic-tabs","generic-dom","generic-control-flow","generic-network","generic-download","activity-log","remote-loader"
+  ]
+}

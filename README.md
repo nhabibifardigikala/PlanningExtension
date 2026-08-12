@@ -118,3 +118,6 @@ Flex Capacity Definition now always opens its internal operation form first. The
 
 ## v60
 Flex Capacity Definition now treats `Existing capacity slot` as the final success confirmation. A row is repeated until that confirmation is observed, unless the user pauses or cancels.
+
+## Remote App v62 / Stable Host 11
+This package targets Stable Host 11. Product behavior is remote-owned. See `PLATFORM_CONTRACT.md` and `UNIVERSAL_DSL.md`.

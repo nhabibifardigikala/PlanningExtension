@@ -16,13 +16,14 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v58: Flex Capacity Definition supports pause/resume, cancel with partial report, and downloadable completion reports.",
-  "configVersion": 59,
-  "minimumRuntimeVersion": "9.3.2",
-  "minimumRuntime": "10.4.0",
-  "workflowLanguageVersion": 2,
-  "dataPipelineVersion": 1,
-  "recommendedRuntime": "10.4.0",
-  "runtimeUpdatePolicy": "security-or-new-browser-primitive-only",
-  "version": "10.4.2"
+  "notes": "Remote app v62 for Stable Host 11 universal declarative platform. Operation/UI/data changes must remain remote.",
+  "configVersion": 62,
+  "minimumRuntimeVersion": "11.0.0",
+  "minimumRuntime": "11.0.0",
+  "workflowLanguageVersion": 3,
+  "dataPipelineVersion": 2,
+  "recommendedRuntime": "11.0.0",
+  "runtimeUpdatePolicy": "fundamental-only",
+  "version": "11.0.0",
+  "platformContract": 11
 }
