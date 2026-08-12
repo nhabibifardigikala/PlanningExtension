@@ -236,3 +236,14 @@ html[data-theme="light"] #dailyPlannerFrame{color-scheme:light}
 .daily-planner-embedded{height:calc(100vh - 170px);min-height:0;overflow:hidden}
 .daily-planner-embedded iframe{height:100%;min-height:0;overflow:hidden;border-radius:14px}
 @media(max-width:700px){.daily-planner-embedded{height:calc(100vh - 150px);min-height:0}.daily-planner-embedded iframe{height:100%;min-height:0}}
+
+/* v67 — Daily Planner consumes the remaining operation viewport; outer host never scrolls. */
+html:has(#operationView.active #operationInputs [data-field-wrap="__dailyPlannerEmbedded"]),
+body:has(#operationView.active #operationInputs [data-field-wrap="__dailyPlannerEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__dailyPlannerEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .topbar{flex:0 0 auto;padding-bottom:10px}
+#operationView.active:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) #operationBackBtn,
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .settings-heading{flex:0 0 auto}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .daily-planner-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden;margin-top:6px}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .daily-planner-embedded iframe{height:100%!important;min-height:0!important}
