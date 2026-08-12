@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "storageMode": "local-first",
+  "database": {
+    "enabled": false,
+    "baseUrl": "",
+    "workspaceId": ""
+  },
+  "calendar": {
+    "google": {
+      "enabled": false
+    },
+    "outlook": {
+      "enabled": false
+    }
+  },
+  "holidays": {
+    "url": "holidays.json?v=1"
+  },
+  "defaults": {
+    "calendar": "jalali",
+    "theme": "system",
+    "workdayStart": "08:00",
+    "workdayEnd": "18:00",
+    "language": "fa"
+  }
+}

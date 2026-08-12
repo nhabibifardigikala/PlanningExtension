@@ -121,3 +121,7 @@ Flex Capacity Definition now treats `Existing capacity slot` as the final succes
 
 ## Remote App v62 / Stable Host 11
 This package targets Stable Host 11. Product behavior is remote-owned. See `PLATFORM_CONTRACT.md` and `UNIVERSAL_DSL.md`.
+
+
+## Daily Planner (v63)
+Daily Planner is a fully remote, local-first planner page under `planner/`. The Stable Host is unchanged at v11.0.0. Personal data is stored in the browser on the user's machine. Team/database sync is remote-config ready and activates only when a database endpoint is configured in `planner/config.json`.
