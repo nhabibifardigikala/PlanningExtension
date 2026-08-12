@@ -217,3 +217,14 @@ html[data-theme="dark"] .generic-legend-1{background:#d3d9e3}
 }
 
 .operation-control-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.operation-control-row .secondary-button{margin-top:0}.operation-control-row .hidden+button:not(.hidden){grid-column:1/-1}
+
+
+/* v64 — embedded Daily Planner. No host logic required. */
+.daily-planner-embedded{display:none;width:100%;min-height:calc(100vh - 170px);margin-top:8px}
+.daily-planner-embedded iframe{display:block;width:100%;height:calc(100vh - 178px);min-height:620px;border:0;border-radius:14px;background:var(--card,#fff)}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .settings-heading{margin-bottom:8px}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .settings-heading p{display:none}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .daily-planner-embedded{display:block}
+@media(max-width:700px){.daily-planner-embedded iframe{height:calc(100vh - 155px);min-height:560px}.daily-planner-embedded{min-height:560px}}

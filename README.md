@@ -125,3 +125,7 @@ This package targets Stable Host 11. Product behavior is remote-owned. See `PLAT
 
 ## Daily Planner (v63)
 Daily Planner is a fully remote, local-first planner page under `planner/`. The Stable Host is unchanged at v11.0.0. Personal data is stored in the browser on the user's machine. Team/database sync is remote-config ready and activates only when a database endpoint is configured in `planner/config.json`.
+
+
+## Remote App v64
+Daily Planner was redesigned as an embedded planner inside the extension operation view. It no longer opens a separate browser tab. Planner UI and logic remain remote-hosted and require no Stable Host update.

@@ -2,15 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Plan tasks, calendar blocks, reminders and productivity from a local-first daily planning workspace.",
-  "workflow": [
-    {
-      "action": "open",
-      "url": "https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=63",
-      "active": true,
-      "progress": "Opening Daily Planner…",
-      "completeTimeoutMs": 30000
-    }
-  ],
-  "successMessage": "Daily Planner opened."
+  "description": "Create tasks, review task lists, organize the daily timeline and manage planner settings.",
+  "workflow": [],
+  "successMessage": "Planner ready."
 }

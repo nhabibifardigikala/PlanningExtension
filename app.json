@@ -1,5 +1,5 @@
 {
-  "configVersion": 63,
+  "configVersion": 64,
   "minEngineVersion": "11.0.0",
   "app": {
     "name": "Digiexpress",
@@ -102,10 +102,22 @@
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/daily-planner.json?v=63",
+      "config": "operations/daily-planner.json?v=64",
       "iconSvgPath": "M8 6h4V3h4v3h16V3h4v3h4a4 4 0 0 1 4 4v30a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4Zm0 12v22h32V18H8Zm6 5h8v8h-8v-8Zm12 0h8v4h-8v-4Zm0 8h8v4h-8v-4Z",
-      "description": "Plan tasks, time blocks, recurring work, reminders and personal productivity in one workspace.",
-      "runLabel": "Open Planner"
+      "description": "Create tasks, review task lists, organize the daily timeline and manage planner settings.",
+      "runLabel": "Daily Planner",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__dailyPlannerEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "parcel-log",
