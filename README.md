@@ -94,3 +94,6 @@ Capacity Report now groups each center by `time scope` and renders separate KPIs
 
 ## v48 - Extract Distribution Centers
 Remote workflow aligned with the supplied Playwright reference: configured columns, 10s apply wait, refresh + 15s wait, 1000-row readiness check, 90s timeout, and paginated extraction.
+
+## v50 - Extract Distribution Centers center apply
+After all COLUMN_CONFIG checkboxes are set, the workflow clicks the exact center of the viewport, waits for the table reload/apply cycle, then continues the reference refresh/readiness/pagination flow.

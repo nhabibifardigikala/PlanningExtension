@@ -609,15 +609,13 @@
     },
     {
       "action": "clickOutside",
-      "selector": "table",
-      "x": 30,
-      "y": 30,
-      "progress": "Closing Columns menu…"
+      "center": true,
+      "progress": "Clicking center of page to apply Columns…"
     },
     {
       "action": "wait",
       "ms": 10000,
-      "progress": "Waiting for column changes to apply…"
+      "progress": "Waiting for the table to reload after Columns selection…"
     },
     {
       "action": "navigate",
@@ -692,5 +690,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 4
+  "remoteBehaviorVersion": 5
 }

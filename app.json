@@ -68,7 +68,7 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=49",
+      "config": "operations/extract-distribution-centers.json?v=50",
       "description": "Open the extraction page, run the exact Distribution Center extraction flow, then download one Excel file.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
@@ -300,7 +300,7 @@
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "40.0.0",
+  "version": "50",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

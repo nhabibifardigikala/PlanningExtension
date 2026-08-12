@@ -16,7 +16,7 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v48: Extract Distribution Centers aligned with the supplied Playwright flow (column configuration, staged waits, refresh, full-page readiness, pagination, manual Excel download).",
+  "notes": "Remote app v50: Extract Distribution Centers clicks exact viewport center after applying Columns, waits for reload/apply, then continues reference refresh/readiness/pagination.",
   "configVersion": 48,
   "minimumRuntimeVersion": "9.3.2",
   "minimumRuntime": "10.0.0",
