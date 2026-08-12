@@ -114,7 +114,10 @@
       "filename": "flex_capacity_result_{{timestamp}}.xlsx",
       "successFill": "C6EFCE",
       "failureFill": "FFC7CE",
-      "notProcessedText": "Not processed (cancelled)"
+      "notProcessedText": "Not processed (cancelled)",
+      "confirmationText": "Existing capacity slot",
+      "repeatUntilConfirmation": true,
+      "preserveConfirmationMessage": true
     }
   },
   "workflow": [
@@ -126,8 +129,8 @@
     },
     {
       "action": "ensureLogin",
-      "detectTimeoutMs": 15000,
-      "progress": "Checking access…"
+      "detectTimeoutMs": 750,
+      "progress": "Checking session…"
     },
     {
       "action": "navigate",

@@ -1,6 +1,6 @@
 {
-  "configVersion": 58,
-  "minEngineVersion": "10.3.0",
+  "configVersion": 59,
+  "minEngineVersion": "10.4.1",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Operations Toolkit",
@@ -317,12 +317,12 @@
     ]
   },
   "runtime": "runtime.json",
-  "runtimeVersion": "10.3.0",
+  "runtimeVersion": "10.4.1",
   "remoteUI": {
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "58",
+  "version": "60",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

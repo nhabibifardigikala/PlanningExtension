@@ -115,3 +115,6 @@ Adds Flex Capacity Definition as an Excel-driven batch operation with remote tem
 
 ## v57
 Flex Capacity Definition now always opens its internal operation form first. The remote operation config includes the Download Template and Upload Excel fields so the detailed config cannot overwrite the app-level form with an empty inputs array. No Flex website tab opens until the user presses Run.
+
+## v60
+Flex Capacity Definition now treats `Existing capacity slot` as the final success confirmation. A row is repeated until that confirmation is observed, unless the user pauses or cancels.

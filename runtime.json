@@ -17,12 +17,12 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v58: Flex Capacity Definition supports pause/resume, cancel with partial report, and downloadable completion reports.",
-  "configVersion": 58,
+  "configVersion": 59,
   "minimumRuntimeVersion": "9.3.2",
   "minimumRuntime": "10.4.0",
   "workflowLanguageVersion": 2,
   "dataPipelineVersion": 1,
   "recommendedRuntime": "10.4.0",
   "runtimeUpdatePolicy": "security-or-new-browser-primitive-only",
-  "version": "10.4.0"
+  "version": "10.4.2"
 }
