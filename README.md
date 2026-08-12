@@ -97,3 +97,6 @@ Remote workflow aligned with the supplied Playwright reference: configured colum
 
 ## v50 - Extract Distribution Centers center apply
 After all COLUMN_CONFIG checkboxes are set, the workflow clicks the exact center of the viewport, waits for the table reload/apply cycle, then continues the reference refresh/readiness/pagination flow.
+
+## v52 - Extract Distribution Centers Columns commit
+After applying the full COLUMN_CONFIG at 20% zoom, the workflow explicitly clicks the center of the viewport, waits for the table to reload, verifies the table is available again, then starts paginated extraction. The previous explicit navigate/refresh cycle after Columns selection was removed.

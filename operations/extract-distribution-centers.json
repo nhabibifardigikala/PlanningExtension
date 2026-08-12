@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Exact remote implementation of the reference Distribution Center extraction flow.",
+  "description": "Distribution Center extraction: zoom 20%, apply COLUMN_CONFIG, click viewport center, wait for table reload, then extract all pages.",
   "inputs": [
     {
       "name": "_openPage",
@@ -125,33 +125,27 @@
       "error": "Could not apply Distribution Center column settings."
     },
     {
-      "action": "wait",
-      "ms": 10000,
-      "progress": "Waiting 10 seconds for client-side refresh…"
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying column selection…"
     },
     {
-      "action": "navigate",
-      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
-      "progress": "Refreshing page with selected columns…",
-      "completeTimeoutMs": 60000
+      "action": "wait",
+      "ms": 10000,
+      "progress": "Waiting for Distribution Center table to reload…"
     },
     {
       "action": "waitFor",
       "selector": "table",
-      "timeoutMs": 20000,
+      "timeoutMs": 30000,
       "intervalMs": 250,
-      "progress": "Waiting for refreshed table…",
-      "error": "Refreshed Distribution Center table was not found."
+      "progress": "Waiting for reloaded table…",
+      "error": "Distribution Center table did not reload after Columns selection."
     },
     {
       "action": "setPageZoom",
       "zoom": 0.2,
-      "progress": "Reapplying 20% page zoom…"
-    },
-    {
-      "action": "wait",
-      "ms": 15000,
-      "progress": "Waiting 15 seconds for full reload…"
+      "progress": "Keeping page zoom at 20%…"
     },
     {
       "action": "extractPaginatedTable",
@@ -207,5 +201,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 6
+  "remoteBehaviorVersion": 7
 }
