@@ -115,11 +115,7 @@
         "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
         "menuTimeoutMs": 12000,
         "afterEachMs": 50,
-        "closeSelector": "table",
-        "closeX": 30,
-        "closeY": 30,
-        "fallbackX": 900,
-        "fallbackY": 500
+        "closeAfter": false
       },
       "progress": "Preparing table columns…",
       "error": "Could not prepare the Distribution Center table."
@@ -212,5 +208,5 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 10
+  "remoteBehaviorVersion": 11
 }

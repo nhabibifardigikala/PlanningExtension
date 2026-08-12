@@ -300,7 +300,7 @@
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "54",
+  "version": "55",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
