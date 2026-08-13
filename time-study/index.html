@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Time Study</title>
-<link rel="stylesheet" href="time-study.css?v=80" />
+<link rel="stylesheet" href="time-study.css?v=81" />
 </head>
 <body>
 <div id="toast" class="toast" aria-live="polite"></div>
@@ -66,8 +66,9 @@
 
   <section class="screen timer-screen" data-screen="timer">
     <div class="timer-top">
-      <div><div id="timerProject" class="timer-project"></div><div id="currentTask" class="current-task">Current Task: —</div></div>
       <div id="timerDisplay" class="timer-display">00:00</div>
+      <div id="timerProject" class="timer-project hidden" aria-hidden="true"></div>
+      <div id="currentTask" class="current-task hidden" aria-hidden="true">Current Task: —</div>
     </div>
 
     <div class="control-section">
@@ -90,11 +91,11 @@
       <div class="section-label">Tasks</div>
       <div id="timerTasks" class="timer-task-grid"></div>
     </div>
-    <div class="bottom-actions sticky"><button id="pauseBtn" class="secondary">Pause</button><button id="endStudy" class="danger-btn">End Time Study</button></div>
+    <div class="study-actions"><button id="pauseBtn" class="pause-btn">Pause</button><button id="endStudy" class="danger-btn">End Time Study</button></div>
   </section>
 
   <div id="modal" class="modal hidden"><div class="modal-card"><h3 id="modalTitle"></h3><div id="modalBody"></div><div id="modalActions" class="modal-actions"></div></div></div>
 </main>
-<script src="time-study.js?v=80"></script>
+<script src="time-study.js?v=81"></script>
 </body>
 </html>
