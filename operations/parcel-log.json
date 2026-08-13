@@ -93,8 +93,13 @@
       "selector": "a[href=\"/coordination-cases/\"][uk-close]",
       "timeoutMs": 30000,
       "intervalMs": 250,
-      "progress": "Waiting for barcode search to load…",
-      "error": "Parcel search did not finish loading: the close button did not appear."
+      "progress": "Waiting for parcel page to finish loading…",
+      "error": "Parcel page did not finish loading after pressing Enter."
+    },
+    {
+      "action": "wait",
+      "ms": 500,
+      "progress": "Finalizing parcel results…"
     },
     {
       "action": "read",
@@ -114,11 +119,11 @@
     },
     {
       "action": "waitFor",
-      "selector": "table",
+      "selector": "#tableForm > table.crud-index-table",
       "timeoutMs": 30000,
       "intervalMs": 300,
-      "progress": "Waiting for coordination log…",
-      "error": "Coordination log table did not appear after the barcode search loaded."
+      "progress": "Waiting for main coordination table…",
+      "error": "Main coordination table did not appear after the parcel search loaded."
     },
     {
       "action": "extractPaginatedTable",
@@ -129,8 +134,13 @@
       "afterPageMs": 700,
       "dedupe": false,
       "maxPages": 500,
-      "pageProgress": "Reading parcel page {{page}}…",
-      "progress": "Extracting parcel history…"
+      "pageProgress": "Reading main parcel table page {{page}}…",
+      "progress": "Extracting main parcel history…",
+      "parser": {
+        "tableSelector": "#tableForm > table.crud-index-table",
+        "rowSelector": ":scope > tbody > tr.crud-index-table__row",
+        "headerSelector": ":scope > thead > tr > th"
+      }
     },
     {
       "action": "closeTab",

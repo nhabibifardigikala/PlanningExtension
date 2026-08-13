@@ -174,7 +174,7 @@
       "accessHeaders": [
         "Parcel Log"
       ],
-      "config": "operations/parcel-log.json?v=77",
+      "config": "operations/parcel-log.json?v=79",
       "iconSvgPath": "M24 4 5 13v22l19 9 19-9V13L24 4Zm0 4.4L37.4 15 24 21.6 10.6 15 24 8.4ZM9 18.2l13 6.4v14.1L9 32.5V18.2Zm17 20.5V24.6l13-6.4v14.3l-13 6.2Z",
       "description": "Search Parcel coordination logs by barcode, individually or from Excel, then review, download, or open the full dashboard.",
       "runLabel": "Run Parcel Log",
@@ -444,7 +444,7 @@
     "html": "ui/app.html?v=75",
     "css": "ui/app.css?v=75"
   },
-  "version": 78,
+  "version": 79,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

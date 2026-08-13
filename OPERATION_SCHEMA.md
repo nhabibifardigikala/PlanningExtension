@@ -87,3 +87,6 @@ Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-sep
 ## Stable Host 10.1 generic primitive
 - `setPageZoom`: sets the current page CSS zoom from remote JSON, e.g. `{ "action": "setPageZoom", "zoom": 0.2 }`.
 - `clientProcessor.presentation.hideDashboardButton`: hides the generic dashboard action for download-only operations.
+
+### Paginated table parser selectors
+`extractPaginatedTable.parser` may define `tableSelector`, `headerSelector`, and `rowSelector`. This allows operations to extract only primary records from pages that contain nested/subtables.
