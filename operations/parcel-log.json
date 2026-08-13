@@ -89,17 +89,12 @@
       "progress": "Searching parcel…"
     },
     {
-      "action": "wait",
-      "ms": 1200,
-      "progress": "Waiting for parcel search…"
-    },
-    {
       "action": "waitFor",
-      "selector": "table",
+      "selector": "a[href=\"/coordination-cases/\"][uk-close]",
       "timeoutMs": 30000,
-      "intervalMs": 300,
-      "progress": "Waiting for coordination log…",
-      "error": "Coordination log table did not appear after pressing Enter."
+      "intervalMs": 250,
+      "progress": "Waiting for barcode search to load…",
+      "error": "Parcel search did not finish loading: the close button did not appear."
     },
     {
       "action": "read",
@@ -112,10 +107,18 @@
       "action": "assert",
       "condition": {
         "left": "{{confirmedParcelCode}}",
-        "operator": "equals",
+        "operator": "contains",
         "right": "{{parcelCode}}"
       },
-      "error": "The barcode search was not committed. Expected {{parcelCode}} but the field contains {{confirmedParcelCode}}."
+      "error": "The barcode search was not committed. The barcode field does not contain {{parcelCode}} (current value: {{confirmedParcelCode}})."
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 30000,
+      "intervalMs": 300,
+      "progress": "Waiting for coordination log…",
+      "error": "Coordination log table did not appear after the barcode search loaded."
     },
     {
       "action": "extractPaginatedTable",
