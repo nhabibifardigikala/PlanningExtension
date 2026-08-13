@@ -126,9 +126,9 @@
       "accessHeaders": [
         "Note"
       ],
-      "config": "operations/note.json?v=70",
+      "config": "operations/note.json?v=71",
       "iconSvgPath": "M9 5h26a4 4 0 0 1 4 4v24l-10 10H9a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4Zm4 10h18v4H13v-4Zm0 8h18v4H13v-4Zm0 8h11v4H13v-4Zm14 8 8-8h-8v8Z",
-      "description": "Create notes with colors, categories, checklists and images.",
+      "description": "Create and edit notes with colors, categories, checklists and images.",
       "runLabel": "Note",
       "uiMode": "form",
       "inputs": [
@@ -320,7 +320,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-12T15:34:00+03:30",
+  "publishedAt": "2026-08-13T14:48:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -370,7 +370,7 @@
     "html": "ui/app.html?v=34",
     "css": "ui/app.css?v=34"
   },
-  "version": "69",
+  "version": "71",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

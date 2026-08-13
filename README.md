@@ -134,3 +134,10 @@ Daily Planner was redesigned as an embedded planner inside the extension operati
 ## v70
 - Daily Planner: native browser-backed date picker bridge and Delete all tasks control.
 - Added embedded Note operation with color/category/checklist/image support and JSON import/export.
+
+
+## Remote App v71
+- Note navigation moved to an icon bottom bar matching Daily Planner.
+- Note settings now include Persian/English language selection and Planner-style category management.
+- Note save/edit flow rebuilt; all note properties are editable after creation.
+- Access rule documented: a literal `All` cell in an operation column marks it public. Enforcement is implemented in Stable Host 11.0.2 because access verification is a security-boundary responsibility.

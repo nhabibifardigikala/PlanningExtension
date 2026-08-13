@@ -1,1 +1,115 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Note</title><link rel="stylesheet" href="note.css?v=70"></head><body><div class="app"><header><div><h1>Note</h1><small>یادداشت‌ها و چک‌لیست‌ها</small></div><div class="tabs"><button class="tab active" data-page="notes">یادداشت‌ها</button><button class="tab" data-page="settings">تنظیمات</button></div></header><main><section id="notesPage" class="page active"><div class="toolbar"><button id="newNote" class="primary">+ یادداشت جدید</button><select id="filterCategory"><option value="">همه دسته‌بندی‌ها</option></select></div><div id="notesGrid" class="notes-grid"></div></section><section id="settingsPage" class="page"><div class="panel"><h2>دسته‌بندی‌ها</h2><div class="row"><input id="newCategory" placeholder="نام دسته‌بندی"><button id="addCategory" class="primary">اضافه</button></div><div id="categoryChips" class="chips"></div></div><div class="panel"><h2>Import / Export</h2><div class="row wrap"><button id="exportNotes" class="primary">Export Notes</button><label class="button">Import Notes<input id="importNotes" type="file" accept=".json" hidden></label></div></div></section></main></div><div id="editor" class="overlay hidden"><div class="editor"><div class="editor-head"><h2 id="editorTitle">یادداشت</h2><button id="closeEditor">×</button></div><input id="noteTitle" placeholder="عنوان یادداشت"><div class="two"><label>رنگ<select id="noteColor"><option value="#fff4cc">زرد</option><option value="#ffe1d6">نارنجی</option><option value="#dff4ff">آبی</option><option value="#e6f6df">سبز</option><option value="#f1e4ff">بنفش</option><option value="#f2f2f2">خاکستری</option></select></label><label>دسته‌بندی<select id="noteCategory"></select></label></div><textarea id="noteText" rows="7" placeholder="متن یادداشت"></textarea><div class="check-area"><div class="row"><input id="checkText" placeholder="آیتم چک‌لیست"><button id="addCheck">افزودن</button></div><div id="checkList"></div></div><div class="image-area"><label class="button">افزودن تصویر<input id="noteImage" type="file" accept="image/*" hidden></label><div id="imagePreview"></div></div><div class="editor-actions"><button id="deleteNote" class="danger">حذف</button><button id="saveNote" class="primary">ذخیره</button></div></div></div><script src="note.js?v=70"></script></body></html>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Note</title>
+  <link rel="stylesheet" href="note.css?v=71">
+</head>
+<body>
+<div class="note-app">
+  <header class="note-header">
+    <div>
+      <h1 data-i18n="title">یادداشت‌ها</h1>
+      <small data-i18n="subtitle">یادداشت، چک‌لیست و تصویر</small>
+    </div>
+    <button id="newNote" class="icon-action primary" type="button" aria-label="New note" title="New note">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>
+    </button>
+  </header>
+
+  <main class="note-content">
+    <section id="notesPage" class="page active" data-page="notes">
+      <div class="toolbar panel">
+        <label class="grow"><span data-i18n="filterCategory">دسته‌بندی</span><select id="filterCategory"></select></label>
+        <button id="clearNoteFilter" class="button compact" type="button" data-i18n="clearFilter">پاک کردن</button>
+      </div>
+      <div id="notesGrid" class="notes-grid"></div>
+    </section>
+
+    <section id="settingsPage" class="page" data-page="settings">
+      <div class="panel">
+        <h2 data-i18n="language">زبان</h2>
+        <select id="languageSetting">
+          <option value="fa">فارسی</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="categories">دسته‌بندی‌ها</h2>
+        <div class="row">
+          <input id="newCategory" data-i18n-placeholder="categoryPlaceholder" placeholder="نام دسته‌بندی">
+          <button id="addCategory" class="primary" type="button" data-i18n="add">اضافه</button>
+        </div>
+        <div id="categoryChips" class="chips"></div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="dataTransfer">ورود و خروج اطلاعات</h2>
+        <div class="row wrap">
+          <button id="exportNotes" class="primary" type="button" data-i18n="exportNotes">خروجی یادداشت‌ها</button>
+          <label class="button file-label"><span data-i18n="importNotes">ورود یادداشت‌ها</span><input id="importNotes" type="file" accept=".json,application/json" hidden></label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Note navigation">
+    <button class="nav-item active" data-target="notes" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14a2 2 0 0 1 2 2v11l-5 5H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 5h10V6H7v2Zm0 4h10v-2H7v2Zm0 4h6v-2H7v2Zm8 3 4-4h-4v4Z"/></svg>
+      <span data-i18n="navNotes">یادداشت‌ها</span>
+    </button>
+    <button class="nav-item" data-target="settings" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.5 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 3.1a8 8 0 0 0-1.7 1l-2.5-1-2 3.4 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.5-1a8 8 0 0 0 1.7 1L11 21h4l.3-3.1a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM13 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/></svg>
+      <span data-i18n="navSettings">تنظیمات</span>
+    </button>
+  </nav>
+</div>
+
+<div id="editor" class="overlay hidden" aria-hidden="true">
+  <form id="noteForm" class="editor" novalidate>
+    <div class="editor-head">
+      <h2 id="editorTitle" data-i18n="newNote">یادداشت جدید</h2>
+      <button id="closeEditor" class="close-button" type="button" aria-label="Close">×</button>
+    </div>
+    <label class="field full"><span data-i18n="noteTitle">عنوان</span><input id="noteTitle" data-i18n-placeholder="noteTitlePlaceholder" placeholder="عنوان یادداشت"></label>
+    <div class="two">
+      <label class="field"><span data-i18n="color">رنگ</span><select id="noteColor">
+        <option value="#fff4cc" data-fa="زرد" data-en="Yellow">زرد</option>
+        <option value="#ffe1d6" data-fa="نارنجی" data-en="Orange">نارنجی</option>
+        <option value="#dff4ff" data-fa="آبی" data-en="Blue">آبی</option>
+        <option value="#e6f6df" data-fa="سبز" data-en="Green">سبز</option>
+        <option value="#f1e4ff" data-fa="بنفش" data-en="Purple">بنفش</option>
+        <option value="#f2f2f2" data-fa="خاکستری" data-en="Gray">خاکستری</option>
+      </select></label>
+      <label class="field"><span data-i18n="category">دسته‌بندی</span><select id="noteCategory"></select></label>
+    </div>
+    <label class="field full"><span data-i18n="noteText">متن</span><textarea id="noteText" rows="7" data-i18n-placeholder="noteTextPlaceholder" placeholder="متن یادداشت"></textarea></label>
+
+    <div class="check-area">
+      <label class="section-label" data-i18n="checklist">چک‌لیست</label>
+      <div class="row">
+        <input id="checkText" data-i18n-placeholder="checkPlaceholder" placeholder="آیتم چک‌لیست">
+        <button id="addCheck" type="button" data-i18n="add">اضافه</button>
+      </div>
+      <div id="checkList"></div>
+    </div>
+
+    <div class="image-area">
+      <label class="section-label" data-i18n="image">تصویر</label>
+      <label class="button file-label"><span data-i18n="chooseImage">انتخاب تصویر</span><input id="noteImage" type="file" accept="image/*" hidden></label>
+      <div id="imagePreview"></div>
+    </div>
+
+    <div class="editor-actions">
+      <button id="deleteNote" type="button" class="danger" data-i18n="delete">حذف</button>
+      <button id="saveNote" type="submit" class="primary" data-i18n="save">ذخیره</button>
+    </div>
+  </form>
+</div>
+
+<div id="toast" class="toast hidden" aria-live="polite"></div>
+<script src="note.js?v=71"></script>
+</body>
+</html>
