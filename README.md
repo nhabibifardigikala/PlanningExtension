@@ -166,3 +166,6 @@ Paste Assistant screenshot is now instant: visible tab -> clipboard, with no scr
 
 
 2026-08-13: v76 / Host 11.2 adds reliable clipboard screenshots, concurrent operation run isolation, Planner date picker parity, Capacity ID commit verification, and generic batch-report support used by Parcel Log.
+
+## Remote App v80 - Time Study
+Adds the embedded Time Study operation. The complete UI and logic live under `time-study/` and are loaded remotely; no Stable Host change is required. It supports reusable project definitions, tasks, one custom field, piece/worker/performance controls, pause/continue, time-per-piece and standard-time calculations, local autosave, and XLSX export/import.

@@ -1,5 +1,5 @@
 {
-  "configVersion": 77,
+  "configVersion": 80,
   "minEngineVersion": "11.2.0",
   "app": {
     "name": "Digiexpress",
@@ -392,9 +392,33 @@
           "required": true
         }
       ]
+    },
+    {
+      "id": "time-study",
+      "title": "Time Study",
+      "subtitle": "Task timing & measurement",
+      "accessHeaders": [
+        "Time Study"
+      ],
+      "config": "operations/time-study.json?v=80",
+      "iconSvgPath": "M8 5h32a3 3 0 0 1 3 3v32a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3Zm16 6a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm2 4v8.2l5.3 3.1-2 3.4-7.3-4.3V15h4Z",
+      "description": "Create reusable projects, define tasks, measure task durations, calculate time per piece and standard time, and export observations to Excel.",
+      "runLabel": "Time Study",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__timeStudyEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     }
   ],
-  "publishedAt": "2026-08-13T13:50:00Z",
+  "publishedAt": "2026-08-13T16:30:00Z",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -444,7 +468,7 @@
     "html": "ui/app.html?v=75",
     "css": "ui/app.css?v=75"
   },
-  "version": 79,
+  "version": 80,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

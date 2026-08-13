@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Create reusable time-study projects, define tasks, record task durations and export measurements to Excel.",
+  "workflow": [],
+  "successMessage": "Time Study ready."
+}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Time Study</title>
+<link rel="stylesheet" href="time-study.css?v=80" />
+</head>
+<body>
+<div id="toast" class="toast" aria-live="polite"></div>
+<main class="ts-app">
+  <header class="ts-header">
+    <div>
+      <div class="eyebrow">Operations Toolkit</div>
+      <h1>Time Study</h1>
+    </div>
+    <div id="projectChip" class="project-chip hidden"></div>
+  </header>
+
+  <section class="screen active" data-screen="home">
+    <div class="hero-card">
+      <h2>Time Study Assistant</h2>
+      <p>Create reusable projects, measure task durations and export observations to Excel.</p>
+    </div>
+    <div class="home-grid">
+      <button class="tile primary" data-go="project"><span class="tile-icon">＋</span><strong>New Project</strong><small>Define a new study</small></button>
+      <button class="tile" data-go="projects"><span class="tile-icon">↻</span><strong>Existing Projects</strong><small>Start, edit or delete</small></button>
+      <button class="tile" id="homeExport"><span class="tile-icon">⇩</span><strong>Export to Excel</strong><small>Download current observations</small></button>
+      <button class="tile" id="homeAbout"><span class="tile-icon">i</span><strong>About</strong><small>Time Study Assistant</small></button>
+    </div>
+  </section>
+
+  <section class="screen" data-screen="project">
+    <div class="screen-title"><div><h2>Project setup</h2><p>Define the basic information for this study.</p></div></div>
+    <form id="projectForm" class="card form-grid">
+      <label><span>Project Name</span><input id="projectName" required /></label>
+      <label><span>Station Name</span><input id="stationName" required /></label>
+      <label><span>Date</span><input id="projectDate" inputmode="numeric" placeholder="YYYYMMDD" required /></label>
+      <label><span>Specialist Name</span><input id="specialistName" /></label>
+      <div class="form-actions full"><button type="button" class="secondary" data-go="home">Back</button><button type="submit" class="primary-btn">Next · Define Tasks</button></div>
+    </form>
+  </section>
+
+  <section class="screen" data-screen="tasks">
+    <div class="screen-title"><div><h2>Define project tasks</h2><p>Add all observable tasks and one optional custom field.</p></div></div>
+    <div class="card">
+      <div class="inline-add"><input id="taskNameInput" placeholder="Task name" /><button id="addTask" class="primary-btn">Add Task</button></div>
+      <div id="taskList" class="task-list"></div>
+    </div>
+    <div class="card">
+      <h3>Optional Custom Field</h3>
+      <div class="form-grid compact">
+        <label><span>Field name</span><input id="customFieldName" placeholder="e.g. Product type" /></label>
+        <label><span>Values</span><textarea id="customFieldValues" rows="3" placeholder="One value per line"></textarea></label>
+      </div>
+    </div>
+    <div class="bottom-actions"><button class="secondary" data-go="project">Back</button><button id="startStudy" class="primary-btn">Start Time Study</button></div>
+  </section>
+
+  <section class="screen" data-screen="projects">
+    <div class="screen-title"><div><h2>Saved projects</h2><p>Reusable project definitions are stored locally in this browser.</p></div></div>
+    <div class="toolbar"><button id="exportProjects" class="secondary">Export Projects</button><label class="secondary file-button">Import Projects<input id="importProjects" type="file" accept=".xls,.xml,.json" /></label></div>
+    <div id="savedProjects" class="project-list"></div>
+    <div class="bottom-actions"><button class="secondary" data-go="home">Back</button></div>
+  </section>
+
+  <section class="screen timer-screen" data-screen="timer">
+    <div class="timer-top">
+      <div><div id="timerProject" class="timer-project"></div><div id="currentTask" class="current-task">Current Task: —</div></div>
+      <div id="timerDisplay" class="timer-display">00:00</div>
+    </div>
+
+    <div class="control-section">
+      <div class="section-label">Pieces Count</div>
+      <div id="pieceButtons" class="choice-grid"></div>
+    </div>
+    <div class="control-section">
+      <div class="section-label">Worker Count</div>
+      <div id="workerButtons" class="choice-grid workers"></div>
+    </div>
+    <div class="control-section">
+      <div class="section-label">Performance Rating</div>
+      <div id="ratingButtons" class="choice-grid ratings"></div>
+    </div>
+    <div class="control-section">
+      <label class="wide-label"><span>Description</span><input id="description" placeholder="Optional" /></label>
+    </div>
+    <div id="customRuntime" class="control-section hidden"></div>
+    <div class="control-section">
+      <div class="section-label">Tasks</div>
+      <div id="timerTasks" class="timer-task-grid"></div>
+    </div>
+    <div class="bottom-actions sticky"><button id="pauseBtn" class="secondary">Pause</button><button id="endStudy" class="danger-btn">End Time Study</button></div>
+  </section>
+
+  <div id="modal" class="modal hidden"><div class="modal-card"><h3 id="modalTitle"></h3><div id="modalBody"></div><div id="modalActions" class="modal-actions"></div></div></div>
+</main>
+<script src="time-study.js?v=80"></script>
+</body>
+</html>
