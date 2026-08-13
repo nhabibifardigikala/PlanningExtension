@@ -111,6 +111,21 @@
       "progress": "Waiting for Distribution Centers…"
     },
     {
+      "action": "read",
+      "selector": "input.es-input[placeholder=\"Distribution center\"]",
+      "storeAs": "dcFieldValue",
+      "progress": "Verifying Distribution Center IDs…",
+      "error": "Distribution Center field was not found."
+    },
+    {
+      "action": "assert",
+      "condition": {
+        "left": "{{dcFieldValue}}",
+        "operator": "truthy"
+      },
+      "error": "Distribution Center IDs were not committed. The field is empty; retry the operation."
+    },
+    {
       "action": "jalaliDate",
       "selector": "#form-field-from, #form-field-from_date, input[data-name=\"from_date\"], input[placeholder=\"from Date\"]",
       "value": "{{fromDate}}",

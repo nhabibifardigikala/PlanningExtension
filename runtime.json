@@ -25,5 +25,6 @@
   "recommendedRuntime": "11.0.0",
   "runtimeUpdatePolicy": "fundamental-only",
   "version": "11.0.0",
-  "platformContract": 11
+  "platformContract": 11,
+  "remoteVersion": 76
 }

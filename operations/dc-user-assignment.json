@@ -118,7 +118,8 @@
       "terminalSuccessTextContains": [
         "User and DC relation already exists"
       ],
-      "terminalMatchBehavior": "continue"
+      "terminalMatchBehavior": "stop",
+      "terminalSuccessMessage": "DC assignment completed successfully. User and DC relation already exists."
     }
   ],
   "retryPolicy": {

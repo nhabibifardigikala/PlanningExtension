@@ -2,11 +2,178 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "This operation is visible and access-controlled remotely. Add a declarative workflow here when the workflow is ready.",
-  "inputs": [],
-  "workflow": [],
+  "description": "Search coordination-case history for one or many parcel barcodes.",
+  "runLabel": "Run Parcel Log",
+  "inputs": [
+    {
+      "name": "inputMode",
+      "label": "Input method",
+      "type": "radio-group",
+      "default": "single",
+      "options": [
+        {
+          "value": "single",
+          "label": "Single barcode"
+        },
+        {
+          "value": "excel",
+          "label": "Excel file"
+        }
+      ]
+    },
+    {
+      "name": "parcelCode",
+      "label": "Parcel barcode",
+      "type": "text",
+      "placeholder": "AMD5652209112754_1",
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      }
+    },
+    {
+      "name": "parcelFile",
+      "label": "Excel file",
+      "type": "file",
+      "accept": ".xlsx,.xls,.csv",
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "excel"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "excel"
+      },
+      "help": "Put parcel barcodes in the first column. Header row is optional."
+    }
+  ],
+  "navigation": {
+    "retryCount": 5,
+    "retryDelayMs": 500,
+    "completeTimeoutMs": 30000
+  },
+  "successMessage": "Parcel log extracted successfully.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://digiexpress.digikala.com/coordination-cases/",
+      "active": false,
+      "progress": "Opening Parcel Log…"
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 5000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "input[name=\"parcel_code\"][placeholder=\"Barcode\"]",
+      "timeoutMs": 20000,
+      "progress": "Waiting for barcode search…",
+      "error": "Barcode field was not found."
+    },
+    {
+      "action": "fill",
+      "selector": "input[name=\"parcel_code\"][placeholder=\"Barcode\"]",
+      "value": "{{parcelCode}}",
+      "progress": "Entering barcode…"
+    },
+    {
+      "action": "press",
+      "selector": "input[name=\"parcel_code\"][placeholder=\"Barcode\"]",
+      "key": "Enter",
+      "progress": "Searching parcel…"
+    },
+    {
+      "action": "wait",
+      "ms": 800
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 30000,
+      "progress": "Waiting for coordination log…",
+      "error": "Coordination log table did not appear."
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "timeoutMs": 30000,
+      "stableMs": 1000,
+      "pollMs": 300,
+      "afterPageMs": 700,
+      "dedupe": false,
+      "maxPages": 500,
+      "pageProgress": "Reading parcel page {{page}}…",
+      "progress": "Extracting parcel history…"
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing Parcel Log tab…"
+    }
+  ],
   "retryPolicy": {
     "attempts": 3,
-    "delayMs": 1500
+    "delayMs": 1200
+  },
+  "clientProcessor": {
+    "type": "batch-data-pipeline",
+    "modeField": "inputMode",
+    "singleMode": "single",
+    "singleField": "parcelCode",
+    "fileField": "parcelFile",
+    "sourceOperationId": "parcel-log",
+    "sourceInputName": "parcelCode",
+    "inputLabel": "Barcode",
+    "resultColumns": [
+      {
+        "header": "barcode",
+        "aliases": [
+          "barcode",
+          "parcel code",
+          "parcel_code"
+        ]
+      },
+      {
+        "header": "coordination status",
+        "aliases": [
+          "coordination status",
+          "status"
+        ]
+      },
+      {
+        "header": "reason",
+        "aliases": [
+          "reason"
+        ]
+      },
+      {
+        "header": "updated at",
+        "aliases": [
+          "updated at",
+          "updated_at"
+        ]
+      }
+    ],
+    "presentation": {
+      "title": "Parcel Log Report",
+      "dashboardTitle": "Parcel Log Dashboard",
+      "downloadButtonLabel": "Download Excel",
+      "openDashboardLabel": "Open Dashboard",
+      "table": {
+        "enabled": true
+      }
+    },
+    "export": {
+      "enabled": true,
+      "buttonLabel": "Download Excel",
+      "filename": "parcel_log_report.xlsx",
+      "sheetName": "Parcel Log",
+      "saveAs": false
+    }
   }
 }

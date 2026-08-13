@@ -163,3 +163,6 @@ Paste Assistant publishes its user-defined shortcuts declaratively to Stable Hos
 
 ## Remote v75
 Paste Assistant screenshot is now instant: visible tab -> clipboard, with no screen picker or crop step.
+
+
+2026-08-13: v76 / Host 11.2 adds reliable clipboard screenshots, concurrent operation run isolation, Planner date picker parity, Capacity ID commit verification, and generic batch-report support used by Parcel Log.
