@@ -129,3 +129,8 @@ Daily Planner is a fully remote, local-first planner page under `planner/`. The 
 
 ## Remote App v67
 Daily Planner was redesigned as an embedded planner inside the extension operation view. It no longer opens a separate browser tab. Planner UI and logic remain remote-hosted and require no Stable Host update.
+
+
+## v70
+- Daily Planner: native browser-backed date picker bridge and Delete all tasks control.
+- Added embedded Note operation with color/category/checklist/image support and JSON import/export.

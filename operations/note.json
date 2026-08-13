@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Create and organize notes, checklists and images.",
+  "workflow": [],
+  "successMessage": "Note ready."
+}
