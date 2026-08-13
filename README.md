@@ -159,3 +159,7 @@ Daily Planner was redesigned as an embedded planner inside the extension operati
 
 ## v74 Paste Assistant global shortcuts
 Paste Assistant publishes its user-defined shortcuts declaratively to Stable Host 11.1. Future snippet/shortcut edits are stored as data and do not require Host updates.
+
+
+## Remote v75
+Paste Assistant screenshot is now instant: visible tab -> clipboard, with no screen picker or crop step.
