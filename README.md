@@ -149,3 +149,9 @@ Daily Planner was redesigned as an embedded planner inside the extension operati
 - Checklist spacing reduced and title/text search added.
 - Note iframe is strictly isolated from non-Note operations.
 - Home operation cards use fixed-size responsive auto-fill grid.
+
+
+## Remote v73
+- Note search and category filter share one row; duplicate host title removed.
+- Home operation grid is elastic and adds columns as width permits.
+- Added embedded Paste Assistant (snippets, shortcuts while focused, region screenshot, import/export).

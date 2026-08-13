@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Save frequently used snippets, shortcuts and screenshots.",
+  "workflow": [],
+  "successMessage": "Paste Assistant ready."
+}

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paste Assistant</title>
+<link rel="stylesheet" href="paste.css?v=73">
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div><h1 data-i18n="title">Paste Assistant</h1><small data-i18n="subtitle">عبارت‌های پرکاربرد و اسکرین‌شات سریع</small></div>
+    <button id="newSnippet" class="icon-btn primary" type="button" title="New snippet" aria-label="New snippet">+</button>
+  </header>
+
+  <main class="content">
+    <section id="snippetsPage" class="page active" data-page="snippets">
+      <div class="filters panel">
+        <input id="search" type="search" data-i18n-placeholder="search" placeholder="جستجو در عنوان و متن">
+        <select id="categoryFilter"></select>
+      </div>
+      <div id="snippetGrid" class="snippet-grid"></div>
+    </section>
+
+    <section id="capturePage" class="page" data-page="capture">
+      <div class="panel capture-panel">
+        <h2 data-i18n="captureTitle">اسکرین‌شات ناحیه</h2>
+        <p data-i18n="captureHelp">روی شروع بزنید، صفحه یا تب را انتخاب کنید، سپس ناحیه موردنظر را روی تصویر بکشید. خروجی مستقیماً در Clipboard کپی می‌شود.</p>
+        <label><span data-i18n="captureShortcut">میانبر هنگام فعال بودن Paste Assistant</span><input id="captureShortcut" type="text" placeholder="Alt+Shift+S"></label>
+        <button id="startCapture" class="primary wide" type="button" data-i18n="startCapture">شروع اسکرین‌شات</button>
+        <div id="captureStatus" class="status"></div>
+      </div>
+    </section>
+
+    <section id="settingsPage" class="page" data-page="settings">
+      <div class="panel">
+        <h2 data-i18n="language">زبان</h2>
+        <select id="language"><option value="fa">فارسی</option><option value="en">English</option></select>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="categories">دسته‌بندی‌ها</h2>
+        <div class="row"><input id="newCategory" data-i18n-placeholder="categoryName" placeholder="نام دسته‌بندی"><button id="addCategory" class="primary" type="button" data-i18n="add">اضافه</button></div>
+        <div id="chips" class="chips"></div>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="data">ورود و خروج اطلاعات</h2>
+        <div class="row wrap"><button id="exportData" class="primary" type="button" data-i18n="export">Export</button><label class="button file"><span data-i18n="import">Import</span><input id="importData" type="file" accept=".json,application/json" hidden></label></div>
+      </div>
+      <div class="panel tip">
+        <h2 data-i18n="tips">پیشنهادهای کاربردی</h2>
+        <p data-i18n="tipText">می‌توانید عبارت‌ها را Favorite کنید، بر اساس میزان استفاده مرتب کنید و از متغیرهای {{date}} و {{time}} داخل متن استفاده کنید.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav active" data-target="snippets" type="button"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8v2H8zm0 4h8v2H8zm0 4h5v2H8z"/></svg><span data-i18n="navSnippets">عبارت‌ها</span></button>
+    <button class="nav" data-target="capture" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h4l1.5-2h5L16 7h4v12H4V7zm8 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg><span data-i18n="navCapture">اسکرین‌شات</span></button>
+    <button class="nav" data-target="settings" type="button"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.5 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 3.1a8 8 0 0 0-1.7 1l-2.5-1-2 3.4 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.5-1a8 8 0 0 0 1.7 1L11 21h4l.3-3.1a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM13 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg><span data-i18n="navSettings">تنظیمات</span></button>
+  </nav>
+</div>
+
+<div id="editorOverlay" class="overlay hidden">
+  <form id="snippetForm" class="editor">
+    <div class="editor-head"><h2 id="editorTitle" data-i18n="newSnippet">عبارت جدید</h2><div class="actions"><button class="primary" id="saveSnippet" type="submit" data-i18n="save">ذخیره</button><button id="closeEditor" type="button">×</button></div></div>
+    <label><span data-i18n="snippetTitle">عنوان</span><input id="snippetTitle" required></label>
+    <label><span data-i18n="snippetText">متن</span><textarea id="snippetText" rows="6" required></textarea></label>
+    <div class="two"><label><span data-i18n="category">دسته‌بندی</span><select id="snippetCategory"></select></label><label><span data-i18n="shortcut">میانبر</span><input id="snippetShortcut" placeholder="Alt+1"></label></div>
+    <label class="toggle-row"><input id="snippetFavorite" type="checkbox"><span data-i18n="favorite">Favorite</span></label>
+    <div class="editor-foot"><button id="deleteSnippet" class="danger" type="button" data-i18n="delete">حذف</button></div>
+  </form>
+</div>
+
+<div id="cropOverlay" class="crop-overlay hidden">
+  <div class="crop-toolbar"><strong data-i18n="cropHint">ناحیه موردنظر را بکشید</strong><button id="cancelCrop" type="button">×</button></div>
+  <div id="cropStage" class="crop-stage"><img id="captureImage" alt=""><div id="selection" class="selection hidden"></div></div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="paste.js?v=73"></script>
+</body>
+</html>

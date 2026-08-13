@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Note</title>
-  <link rel="stylesheet" href="note.css?v=72">
+  <link rel="stylesheet" href="note.css?v=73">
 </head>
 <body>
 <div class="note-app">
@@ -20,12 +20,9 @@
 
   <main class="note-content">
     <section id="notesPage" class="page active" data-page="notes">
-      <div class="search-panel panel">
-        <input id="noteSearch" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="جستجو در عنوان و متن یادداشت‌ها">
-      </div>
-      <div class="toolbar panel">
+      <div class="search-filter-row panel">
+        <label class="grow"><span data-i18n="searchLabel">جستجو</span><input id="noteSearch" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="جستجو در عنوان و متن یادداشت‌ها"></label>
         <label class="grow"><span data-i18n="filterCategory">دسته‌بندی</span><select id="filterCategory"></select></label>
-        <button id="clearNoteFilter" class="button compact" type="button" data-i18n="clearFilter">پاک کردن</button>
       </div>
       <div id="notesGrid" class="notes-grid"></div>
     </section>
@@ -115,6 +112,6 @@
 </div>
 
 <div id="toast" class="toast hidden" aria-live="polite"></div>
-<script src="note.js?v=72"></script>
+<script src="note.js?v=73"></script>
 </body>
 </html>
