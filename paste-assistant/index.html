@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Paste Assistant</title>
-<link rel="stylesheet" href="paste.css?v=73">
+<link rel="stylesheet" href="paste.css?v=74">
 </head>
 <body>
 <div class="app">
@@ -36,6 +36,12 @@
       <div class="panel">
         <h2 data-i18n="language">زبان</h2>
         <select id="language"><option value="fa">فارسی</option><option value="en">English</option></select>
+      </div>
+      <div class="panel">
+        <h2 data-i18n="globalShortcuts">میانبرهای سراسری</h2>
+        <label class="toggle-row setting-toggle"><input id="globalEnabled" type="checkbox"><span data-i18n="globalEnabled">فعال بودن میانبرها در صفحات مرورگر</span></label>
+        <label><span data-i18n="pasteBehavior">رفتار عبارت</span><select id="pasteBehavior"><option value="insert-or-copy" data-i18n="insertOrCopy">درج در فیلد فعال؛ در غیر این صورت کپی</option><option value="copy-only" data-i18n="copyOnly">همیشه فقط کپی در Clipboard</option></select></label>
+        <small class="field-help" data-i18n="globalHint">میانبرهای سراسری باید حداقل یکی از Ctrl، Alt، Shift یا Meta را داشته باشند.</small>
       </div>
       <div class="panel">
         <h2 data-i18n="categories">دسته‌بندی‌ها</h2>
@@ -76,6 +82,6 @@
   <div id="cropStage" class="crop-stage"><img id="captureImage" alt=""><div id="selection" class="selection hidden"></div></div>
 </div>
 <div id="toast" class="toast hidden"></div>
-<script src="paste.js?v=73"></script>
+<script src="paste.js?v=74"></script>
 </body>
 </html>

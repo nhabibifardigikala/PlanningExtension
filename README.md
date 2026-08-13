@@ -151,7 +151,11 @@ Daily Planner was redesigned as an embedded planner inside the extension operati
 - Home operation cards use fixed-size responsive auto-fill grid.
 
 
-## Remote v73
+## Remote v74
 - Note search and category filter share one row; duplicate host title removed.
 - Home operation grid is elastic and adds columns as width permits.
 - Added embedded Paste Assistant (snippets, shortcuts while focused, region screenshot, import/export).
+
+
+## v74 Paste Assistant global shortcuts
+Paste Assistant publishes its user-defined shortcuts declaratively to Stable Host 11.1. Future snippet/shortcut edits are stored as data and do not require Host updates.
