@@ -110,16 +110,15 @@
         "navigationGraceMs": 10000,
         "navigationCheckIntervalMs": 250
       },
-      "outcomeTimeoutMs": 20000,
+      "outcomeTimeoutMs": 30000,
       "outcomeIntervalMs": 250,
       "afterSubmitMs": 1500,
       "progress": "Assigning Distribution Centers…",
-      "terminalSuccessSelector": "p[error-path=\"0\"]",
-      "terminalSuccessTextContains": [
-        "User and DC relation already exists"
-      ],
       "terminalMatchBehavior": "stop",
-      "terminalSuccessMessage": "DC assignment completed successfully. User and DC relation already exists."
+      "terminalSuccessMessage": "DC assignment completed successfully. User and DC relation already exists.",
+      "terminalSuccessTexts": [
+        "User and DC relation already exists"
+      ]
     }
   ],
   "retryPolicy": {

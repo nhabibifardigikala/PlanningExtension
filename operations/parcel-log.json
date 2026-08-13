@@ -90,14 +90,32 @@
     },
     {
       "action": "wait",
-      "ms": 800
+      "ms": 1200,
+      "progress": "Waiting for parcel search…"
     },
     {
       "action": "waitFor",
       "selector": "table",
       "timeoutMs": 30000,
+      "intervalMs": 300,
       "progress": "Waiting for coordination log…",
-      "error": "Coordination log table did not appear."
+      "error": "Coordination log table did not appear after pressing Enter."
+    },
+    {
+      "action": "read",
+      "selector": "input[name=\"parcel_code\"][placeholder=\"Barcode\"]",
+      "storeAs": "confirmedParcelCode",
+      "progress": "Verifying barcode…",
+      "error": "Barcode field was not found after search."
+    },
+    {
+      "action": "assert",
+      "condition": {
+        "left": "{{confirmedParcelCode}}",
+        "operator": "equals",
+        "right": "{{parcelCode}}"
+      },
+      "error": "The barcode search was not committed. Expected {{parcelCode}} but the field contains {{confirmedParcelCode}}."
     },
     {
       "action": "extractPaginatedTable",
