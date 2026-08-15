@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Upload point locations and visualize their distribution beside built-in coverage polygons.",
+  "workflow": [],
+  "successMessage": "Ready."
+}

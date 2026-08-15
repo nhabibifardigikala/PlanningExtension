@@ -302,3 +302,16 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__timeStudyEmb
 #operationView:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]) #operationBackBtn{flex:0 0 auto}
 #operationView:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]) #timeStudyEmbedded.time-study-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;margin-top:8px}
 #operationView:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]) #timeStudyEmbedded.time-study-embedded iframe{height:100%!important;min-height:0!important}
+
+/* v88 - embedded map operations */
+.map-operation-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
+.map-operation-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light dark}
+#operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) #coveragePolygonsEmbedded,
+#operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) #pointDistributionEmbedded{display:block!important;flex:1 1 auto;height:auto!important;min-height:0!important;margin-top:8px}
+#operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) > .settings-card,
+#operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) #capacityStats,
+#operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) #capacityStats{display:none!important}
+#operationView.active:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]){display:flex;flex-direction:column;min-height:calc(100vh - 110px)}
+@media(max-width:700px){.map-operation-embedded{height:calc(100vh - 150px);min-height:520px}}
