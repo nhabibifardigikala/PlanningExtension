@@ -3,7 +3,7 @@ const DATA='../data/DX_Polygons.json?v=89';
 let rows=[],shown=[],pointHits=[],searchedPoint=null,sortKey='name',sortDir=1;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const map=L.map('map',{zoomControl:true}).setView([32,51],6), polygons=L.layerGroup().addTo(map), points=L.layerGroup().addTo(map);
-const baseTiles=L.tileLayer('https://osm.digiexpress.ir/tile/{z}/{x}/{y}.png',{maxZoom:19,minZoom:2,crossOrigin:true}); baseTiles.addTo(map); baseTiles.on('tileerror',e=>console.warn('OSM Digiexpress tile failed',e?.tile?.src||''));
+const baseTiles=L.tileLayer('https://osm.digiexpress.ir/tile/{z}/{x}/{y}.png',{maxZoom:19}); baseTiles.addTo(map); baseTiles.on('tileerror',e=>console.warn('OSM Digiexpress tile failed',e?.tile?.src||''));
 function natureLabel(n){return ({1:'Normal',2:'Medium',3:'Large',4:'Barbari',5:'Business',6:'Fast'})[Number(n)]||String(n??'-')}
 function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#F79009',5:'#d946ef',6:'#0891b2'})[Number(n)]||'#64748b'}
 function cleanSubmit(v){return String(v||'').replace(/^EXPRESS\s+/i,'').trim()||'-'}
