@@ -468,7 +468,7 @@
     "html": "ui/app.html?v=75",
     "css": "ui/app.css?v=75"
   },
-  "version": 80,
+  "version": 84,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
