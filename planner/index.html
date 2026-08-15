@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daily Planner</title>
-<link rel="stylesheet" href="planner.css?v=86">
+<link rel="stylesheet" href="planner.css?v=87">
 </head>
 <body>
 <div class="planner-app">
@@ -25,6 +25,7 @@
           <div class="form-row"><label data-i18n="category"></label><select id="taskCategory"></select></div>
           <div class="form-row"><label data-i18n="duration"></label><div class="duration"><input id="taskDuration" type="number" min="15" step="15" value="60"><span data-i18n="minutes"></span></div></div>
           <div class="form-row"><label data-i18n="recurrence"></label><select id="taskRecurrence"><option value="none" data-i18n="recNone"></option><option value="daily" data-i18n="recDaily"></option><option value="weekly" data-i18n="recWeekly"></option><option value="custom" data-i18n="recCustom"></option></select></div>
+          <div class="form-row hidden" id="repeatCountWrap"><label data-i18n="repeatCount"></label><div class="duration"><input id="taskRepeatCount" type="number" min="1" step="1" value="10"><span data-i18n="times"></span></div></div>
           <div class="form-row hidden" id="customRepeatWrap"><label data-i18n="customRecurrence"></label><div class="duration"><span data-i18n="every"></span><input id="taskRepeatEvery" type="number" min="1" value="2"><span data-i18n="days"></span></div></div>
           <div class="form-row hidden" id="editStatusWrap"><label data-i18n="status"></label><select id="editTaskStatus"><option value="todo" data-i18n="statusTodo"></option><option value="done" data-i18n="statusDone"></option><option value="cancelled" data-i18n="statusCancelled"></option></select></div>
           
@@ -42,7 +43,7 @@
           <label><span data-i18n="priority"></span><select id="filterPriority"><option value="" data-i18n="all"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
           <label><span data-i18n="status"></span><select id="filterStatus"><option value="" data-i18n="all"></option><option value="todo" data-i18n="statusTodo"></option><option value="done" data-i18n="statusDone"></option><option value="cancelled" data-i18n="statusCancelled"></option></select></label>
         </div>
-        <div class="filter-actions"><button id="clearFilters" class="btn ghost" data-i18n="clearFilters"></button><span id="taskCount" class="muted"></span></div>
+        <div class="filter-actions"><div class="bulk-actions"><button id="selectAllFiltered" type="button" class="btn ghost" data-i18n="selectAllFiltered"></button><button id="deleteSelectedTasks" type="button" class="btn danger hidden" data-i18n="deleteSelected"></button><button id="clearFilters" type="button" class="btn ghost" data-i18n="clearFilters"></button></div><span id="taskCount" class="muted"></span></div>
       </div>
       <div id="taskList" class="task-list"></div>
     </section>
@@ -76,5 +77,5 @@
 
 <div id="notificationBox" class="notification-box hidden"><div><strong id="notificationTitle"></strong><p id="notificationText"></p></div><div class="notice-actions"><button id="snoozeNotice">Snooze</button><button id="dismissNotice">Dismiss</button></div></div>
 <div id="toast" class="toast hidden"></div>
-<script src="planner.js?v=86"></script>
+<script src="planner.js?v=87"></script>
 </body></html>
