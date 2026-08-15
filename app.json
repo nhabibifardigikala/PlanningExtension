@@ -400,7 +400,7 @@
       "accessHeaders": [
         "Coverage Polygons"
       ],
-      "config": "operations/coverage-polygons.json?v=88",
+      "config": "operations/coverage-polygons.json?v=89",
       "iconSvgPath": "M6 10 18 4l12 6 12-6v34l-12 6-12-6-12 6V10Zm14 0v24l8 4V14l-8-4Zm12 4v24l6-3V11l-6 3ZM10 13v24l6-3V10l-6 3Z",
       "description": "Explore the built-in coverage polygon dataset, filter polygons, and check coordinates on the map.",
       "runLabel": "Coverage Polygons",
@@ -424,7 +424,7 @@
       "accessHeaders": [
         "Point Distribution"
       ],
-      "config": "operations/point-distribution.json?v=88",
+      "config": "operations/point-distribution.json?v=89",
       "iconSvgPath": "M24 4a9 9 0 0 1 9 9c0 6.5-9 15-9 15s-9-8.5-9-15a9 9 0 0 1 9-9Zm0 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM7 29h10l7 7 7-7h10l3 15H4l3-15Z",
       "description": "Upload an Excel of point locations and view them beside the built-in coverage polygons.",
       "runLabel": "Point Distribution",

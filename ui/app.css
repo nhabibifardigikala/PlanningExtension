@@ -315,3 +315,13 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__timeStudyEmb
 #operationView.active:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]){display:flex;flex-direction:column;min-height:calc(100vh - 110px)}
 @media(max-width:700px){.map-operation-embedded{height:calc(100vh - 150px);min-height:520px}}
+
+/* v89 map operations: use the extension theme and all remaining Side Panel height. */
+html[data-theme="dark"] #coveragePolygonsEmbedded iframe,html[data-theme="dark"] #pointDistributionEmbedded iframe{color-scheme:dark}
+html[data-theme="light"] #coveragePolygonsEmbedded iframe,html[data-theme="light"] #pointDistributionEmbedded iframe{color-scheme:light}
+#operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) > .section-heading,
+#operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) > .section-heading{display:none!important}
+#operationView.active:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]){height:calc(100vh - 108px);min-height:0!important;overflow:hidden}
+#operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) .map-operation-embedded,
+#operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) .map-operation-embedded{flex:1 1 0!important;height:0!important;min-height:0!important}
