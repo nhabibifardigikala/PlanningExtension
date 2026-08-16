@@ -179,7 +179,7 @@
       "frameTimeoutMs": 20000,
       "timeoutMs": 20000,
       "intervalMs": 250,
-      "requireSourceGone": true,
+      "requireSourceGone": false,
       "progress": "Applying selected roles…",
       "error": "The selected roles could not be returned to the user form."
     },
@@ -190,12 +190,14 @@
       "error": "Save button was not found after choosing roles."
     },
     {
-      "action": "click",
+      "action": "clickInFrameAndWait",
       "selector": "button.form-save-button.admin-submit-button",
-      "textContains": "save",
-      "afterMs": 2500,
+      "requireSourceGone": true,
+      "frameTimeoutMs": 20000,
+      "timeoutMs": 30000,
+      "intervalMs": 250,
       "progress": "Saving assigned roles…",
-      "error": "Roles could not be saved."
+      "error": "Roles could not be saved because the Save button is still visible."
     },
     {"action": "closeTab", "progress": "Finishing Role Assignment…"}
   ],
