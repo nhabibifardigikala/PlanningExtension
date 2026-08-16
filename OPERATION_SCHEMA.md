@@ -67,6 +67,8 @@ Operation files must be declarative. Supported generic interaction primitives in
 
 All selectors, selector indexes, timeouts, retry policies, URLs and user-facing progress text belong in remote operation JSON.
 
+Stable Host 11.3.3 adds `clickNewestTableRowAction` and `selectItemsBySearchValues` for generic date-ranked table actions and exact multi-ID chooser selection.
+
 For a future external HTTPS host, add `requiredHosts` to the operation metadata. Runtime v8 can request that host permission at execution time without an extension update.
 
 

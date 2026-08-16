@@ -2,10 +2,159 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "This operation is visible and access-controlled remotely. Add a declarative workflow here when the workflow is ready.",
-  "notConfiguredMessage": "Role Assignment is not available yet.",
-  "inputs": [],
-  "workflow": [],
+  "description": "Find a user by email or personnel code and assign one or more role IDs.",
+  "uiMode": "form",
+  "runLabel": "Assign Roles",
+  "requiredHosts": ["https://sso.digikala.com/*"],
+  "inputs": [
+    {
+      "name": "lookupType",
+      "label": "User identifier type",
+      "type": "radio-group",
+      "default": "email",
+      "required": true,
+      "options": [
+        {"value": "email", "label": "Email"},
+        {"value": "personal_code", "label": "Personnel code"}
+      ]
+    },
+    {
+      "name": "userIdentifier",
+      "label": "Email or personnel code",
+      "type": "text",
+      "required": true,
+      "placeholder": "name@digikala.com or 100"
+    },
+    {
+      "name": "roleIds",
+      "label": "Role IDs",
+      "type": "text",
+      "required": true,
+      "placeholder": "1170 1180 1190",
+      "pattern": "^\\s*\\d+(?:\\s+\\d+)*\\s*$",
+      "validationMessage": "Enter one or more numeric role IDs separated by spaces.",
+      "help": "Separate multiple role IDs with spaces."
+    }
+  ],
+  "successMessage": "Roles assigned successfully.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+      "active": true,
+      "progress": "Opening User Management…"
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 7000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "waitFor",
+      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "email"},
+      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+      "timeoutMs": 20000,
+      "error": "Email search field was not found."
+    },
+    {
+      "action": "fill",
+      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "email"},
+      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+      "value": "{{userIdentifier}}",
+      "progress": "Entering email…"
+    },
+    {
+      "action": "press",
+      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "email"},
+      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+      "key": "Enter",
+      "progress": "Searching user…"
+    },
+    {
+      "action": "waitFor",
+      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "personal_code"},
+      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+      "timeoutMs": 20000,
+      "error": "Personnel-code search field was not found."
+    },
+    {
+      "action": "fill",
+      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "personal_code"},
+      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+      "value": "{{userIdentifier}}",
+      "progress": "Entering personnel code…"
+    },
+    {
+      "action": "press",
+      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "personal_code"},
+      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+      "key": "Enter",
+      "progress": "Searching user…"
+    },
+    {"action": "wait", "ms": 1400, "progress": "Waiting for search results…"},
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 20000,
+      "error": "No matching user was found."
+    },
+    {
+      "action": "clickNewestTableRowAction",
+      "progress": "Opening the user with the newest login…",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "dateHeaderAliases": ["last login at", "last_login_at"],
+        "actionSelector": "a,button",
+        "actionText": "details"
+      },
+      "error": "Could not open the matching user with the newest login date."
+    },
+    {
+      "action": "waitFor",
+      "selector": "a.chooseItemLink[title=\"click to choose\"]",
+      "timeoutMs": 20000,
+      "error": "Role chooser button was not found."
+    },
+    {
+      "action": "click",
+      "selector": "a.chooseItemLink[title=\"click to choose\"]",
+      "afterMs": 900,
+      "progress": "Opening role chooser…"
+    },
+    {
+      "action": "selectItemsBySearchValues",
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+      "values": "{{roleIds}}",
+      "frameTimeoutMs": 20000,
+      "progress": "Selecting role IDs…",
+      "options": {
+        "checkboxSelector": "input.uk-checkbox[data-target]",
+        "idAttribute": "data-target",
+        "resultTimeoutMs": 15000,
+        "pollMs": 250,
+        "afterEachMs": 350,
+        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
+      },
+      "error": "Role ID {{value}} could not be found or selected."
+    },
+    {
+      "action": "waitFor",
+      "selector": "button.form-save-button.admin-submit-button",
+      "timeoutMs": 20000,
+      "error": "Save button was not found after choosing roles."
+    },
+    {
+      "action": "click",
+      "selector": "button.form-save-button.admin-submit-button",
+      "textContains": "save",
+      "afterMs": 1200,
+      "progress": "Saving assigned roles…",
+      "error": "Roles could not be saved."
+    },
+    {"action": "closeTab", "progress": "Finishing Role Assignment…"}
+  ],
   "retryPolicy": {
     "attempts": 3,
     "delayMs": 1500
