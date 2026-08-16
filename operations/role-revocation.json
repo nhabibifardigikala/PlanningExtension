@@ -2,9 +2,9 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign one or more role IDs.",
+  "description": "Find a user by email or personnel code and revoke one or more role IDs.",
   "uiMode": "form",
-  "runLabel": "Assign Roles",
+  "runLabel": "Revoke Roles",
   "requiredHosts": ["https://sso.digikala.com/*"],
   "closeTabOnError": true,
   "inputs": [
@@ -57,15 +57,15 @@
     "fileField": "inputFile",
     "reportHeaders": ["User", "Role ID", "Status", "Message"],
     "downloadButtonLabel": "Download Report",
-    "sheetName": "Role Assignment Results",
-    "filename": "role_assignment_results.xlsx",
+    "sheetName": "Role Revocation Results",
+    "filename": "role_revocation_results.xlsx",
     "successFill": "C6EFCE",
     "failureFill": "FFC7CE",
     "excel": {
       "headerAliases": ["email", "personnel code", "personal code", "identifier", "user", "ایمیل", "کد پرسنلی", "role id", "role ids", "roles"]
     }
   },
-  "successMessage": "Roles assigned successfully.",
+  "successMessage": "Roles revoked successfully.",
   "workflow": [
     {
       "action": "open",
@@ -272,8 +272,8 @@
       "frameTimeoutMs": 20000,
       "progress": "Selecting role IDs…",
       "options": {
-        "selectionMode": "assign",
-        "chosenFilterChecked": false,
+        "selectionMode": "revoke",
+        "chosenFilterChecked": true,
         "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
         "afterChosenFilterMs": 900,
         "checkboxSelector": "input.uk-checkbox[data-target]",
