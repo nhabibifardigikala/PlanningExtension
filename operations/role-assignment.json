@@ -6,6 +6,7 @@
   "uiMode": "form",
   "runLabel": "Assign Roles",
   "requiredHosts": ["https://sso.digikala.com/*"],
+  "closeTabOnError": true,
   "inputs": [
     {
       "name": "inputMode",
@@ -69,7 +70,7 @@
     {
       "action": "open",
       "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
-      "active": true,
+      "active": false,
       "progress": "Opening User Management…"
     },
     {
