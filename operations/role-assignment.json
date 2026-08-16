@@ -20,6 +20,17 @@
       ]
     },
     {
+      "name": "accessAction",
+      "label": "Access action",
+      "type": "radio-group",
+      "default": "assign",
+      "required": true,
+      "options": [
+        {"value": "assign", "label": "Assign roles"},
+        {"value": "revoke", "label": "Revoke roles"}
+      ]
+    },
+    {
       "name": "userIdentifier",
       "label": "Email or personnel code",
       "type": "text",
@@ -55,17 +66,18 @@
     "identifierField": "userIdentifier",
     "rolesField": "roleIds",
     "fileField": "inputFile",
+    "passthroughFields": ["accessAction"],
     "reportHeaders": ["User", "Role ID", "Status", "Message"],
     "downloadButtonLabel": "Download Report",
-    "sheetName": "Role Assignment Results",
-    "filename": "role_assignment_results.xlsx",
+    "sheetName": "Role Access Results",
+    "filename": "role_access_results.xlsx",
     "successFill": "C6EFCE",
     "failureFill": "FFC7CE",
     "excel": {
       "headerAliases": ["email", "personnel code", "personal code", "identifier", "user", "ایمیل", "کد پرسنلی", "role id", "role ids", "roles"]
     }
   },
-  "successMessage": "Roles assigned successfully.",
+  "successMessage": "Role access operation completed.",
   "workflow": [
     {
       "action": "open",
@@ -123,6 +135,7 @@
     {"action": "wait", "ms": 2500, "progress": "Waiting for search results…"},
     {
       "action": "clickNewestTableRowAction",
+      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
       "required": false,
       "storeAs": "userLookup",
       "progress": "Opening the user with the newest login…",
@@ -131,6 +144,26 @@
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
         "dateHeaderAliases": ["last login at", "last_login_at"],
+        "matchHeaderAliases": ["email"],
+        "matchValue": "{{userIdentifier}}",
+        "actionSelector": "a,button",
+        "actionText": "details"
+      },
+      "error": "Could not open the matching user with the newest login date."
+    },
+    {
+      "action": "clickNewestTableRowAction",
+      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "required": false,
+      "storeAs": "userLookup",
+      "progress": "Opening the user with the newest login…",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "dateHeaderAliases": ["last login at", "last_login_at"],
+        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
+        "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
       },
@@ -241,17 +274,60 @@
     },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
       "progress": "Opening the synced user…",
       "options": {
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
         "dateHeaderAliases": ["last login at", "last_login_at"],
+        "matchHeaderAliases": ["email"],
+        "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
       },
       "error": "The synced user could not be opened."
+    },
+    {
+      "action": "clickNewestTableRowAction",
+      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "progress": "Opening the synced user…",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "dateHeaderAliases": ["last login at", "last_login_at"],
+        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
+        "matchValue": "{{userIdentifier}}",
+        "actionSelector": "a,button",
+        "actionText": "details"
+      },
+      "error": "The synced user could not be opened."
+    },
+    {
+      "action": "waitFor",
+      "selector": "#form-field-email, #form-field-personal_code",
+      "timeoutMs": 20000,
+      "error": "The opened user details could not be verified."
+    },
+    {
+      "action": "read",
+      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
+      "selector": "#form-field-email",
+      "storeAs": "verifiedUserIdentifier",
+      "error": "The email field was not found on the details page."
+    },
+    {
+      "action": "read",
+      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "selector": "#form-field-personal_code",
+      "storeAs": "verifiedUserIdentifier",
+      "error": "The personnel-code field was not found on the details page."
+    },
+    {
+      "action": "assert",
+      "condition": {"left": "{{verifiedUserIdentifier}}", "operator": "equals", "right": "{{userIdentifier}}"},
+      "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
     },
     {
       "action": "waitFor",
@@ -267,6 +343,7 @@
     },
     {
       "action": "selectItemsBySearchValues",
+      "when": {"left": "{{accessAction}}", "operator": "equals", "right": "assign"},
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
       "frameTimeoutMs": 20000,
@@ -286,6 +363,29 @@
       },
       "resultHeaders": ["Role ID", "Status", "Message"],
       "error": "Role ID {{value}} could not be found or selected."
+    },
+    {
+      "action": "selectItemsBySearchValues",
+      "when": {"left": "{{accessAction}}", "operator": "equals", "right": "revoke"},
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+      "values": "{{roleIds}}",
+      "frameTimeoutMs": 20000,
+      "progress": "Selecting roles to revoke…",
+      "options": {
+        "selectionMode": "revoke",
+        "chosenFilterChecked": true,
+        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
+        "afterChosenFilterMs": 900,
+        "checkboxSelector": "input.uk-checkbox[data-target]",
+        "idAttribute": "data-target",
+        "resultTimeoutMs": 15000,
+        "pollMs": 250,
+        "afterEachMs": 350,
+        "clickChoose": false,
+        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
+      },
+      "resultHeaders": ["Role ID", "Status", "Message"],
+      "error": "Role ID {{value}} could not be found or selected for revocation."
     },
     {
       "action": "clickInFrameAndWait",
