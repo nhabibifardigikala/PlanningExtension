@@ -8,34 +8,62 @@
   "requiredHosts": ["https://sso.digikala.com/*"],
   "inputs": [
     {
-      "name": "lookupType",
-      "label": "User identifier type",
+      "name": "inputMode",
+      "label": "Input method",
       "type": "radio-group",
-      "default": "email",
+      "default": "single",
       "required": true,
       "options": [
-        {"value": "email", "label": "Email"},
-        {"value": "personal_code", "label": "Personnel code"}
+        {"value": "single", "label": "Single user"},
+        {"value": "excel", "label": "Excel file"}
       ]
     },
     {
       "name": "userIdentifier",
       "label": "Email or personnel code",
       "type": "text",
-      "required": true,
-      "placeholder": "name@digikala.com or 100"
+      "placeholder": "name@digikala.com or 100",
+      "showWhen": {"field": "inputMode", "equals": "single"},
+      "requiredWhen": {"field": "inputMode", "equals": "single"},
+      "help": "Email is detected by @; a numeric value is treated as personnel code."
     },
     {
       "name": "roleIds",
       "label": "Role IDs",
       "type": "text",
-      "required": true,
       "placeholder": "1170 1180 1190",
       "pattern": "^\\s*\\d+(?:\\s+\\d+)*\\s*$",
       "validationMessage": "Enter one or more numeric role IDs separated by spaces.",
-      "help": "Separate multiple role IDs with spaces."
+      "help": "Separate multiple role IDs with spaces.",
+      "showWhen": {"field": "inputMode", "equals": "single"},
+      "requiredWhen": {"field": "inputMode", "equals": "single"}
+    },
+    {
+      "name": "inputFile",
+      "label": "Excel file",
+      "type": "file",
+      "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "showWhen": {"field": "inputMode", "equals": "excel"},
+      "requiredWhen": {"field": "inputMode", "equals": "excel"},
+      "help": "Column A: email/personnel code. Column B: space-separated role IDs. Header row is optional."
     }
   ],
+  "clientProcessor": {
+    "type": "single-or-excel-workflow",
+    "modeField": "inputMode",
+    "identifierField": "userIdentifier",
+    "rolesField": "roleIds",
+    "fileField": "inputFile",
+    "reportHeaders": ["User", "Role ID", "Status", "Message"],
+    "downloadButtonLabel": "Download Report",
+    "sheetName": "Role Assignment Results",
+    "filename": "role_assignment_results.xlsx",
+    "successFill": "C6EFCE",
+    "failureFill": "FFC7CE",
+    "excel": {
+      "headerAliases": ["email", "personnel code", "personal code", "identifier", "user", "ایمیل", "کد پرسنلی", "role id", "role ids", "roles"]
+    }
+  },
   "successMessage": "Roles assigned successfully.",
   "workflow": [
     {
@@ -51,42 +79,42 @@
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "email"},
+      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "timeoutMs": 20000,
       "error": "Email search field was not found."
     },
     {
       "action": "fill",
-      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "email"},
+      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "value": "{{userIdentifier}}",
       "progress": "Entering email…"
     },
     {
       "action": "press",
-      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "email"},
+      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "key": "Enter",
       "progress": "Searching user…"
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "personal_code"},
+      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "timeoutMs": 20000,
       "error": "Personnel-code search field was not found."
     },
     {
       "action": "fill",
-      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "personal_code"},
+      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "value": "{{userIdentifier}}",
       "progress": "Entering personnel code…"
     },
     {
       "action": "press",
-      "when": {"left": "{{lookupType}}", "operator": "equals", "right": "personal_code"},
+      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "key": "Enter",
       "progress": "Searching user…"
@@ -130,6 +158,8 @@
       "frameTimeoutMs": 20000,
       "progress": "Selecting role IDs…",
       "options": {
+        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
+        "afterChosenFilterMs": 900,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
         "resultTimeoutMs": 15000,
@@ -137,6 +167,7 @@
         "afterEachMs": 350,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
       },
+      "resultHeaders": ["Role ID", "Status", "Message"],
       "error": "Role ID {{value}} could not be found or selected."
     },
     {
