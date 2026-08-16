@@ -1,8 +1,42 @@
 
-const DATA='../data/DX_Polygons.json?v=91';let polygonsData=[],pointsData=[],displayRows=[];
+const DATA='../data/DX_Polygons.json?v=92';let polygonsData=[],pointsData=[],displayRows=[];
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const map=L.map('map').setView([32,51],6),polyLayer=L.layerGroup().addTo(map),pointLayer=L.layerGroup().addTo(map);const DigiexpressTileLayer=L.TileLayer.extend({createTile(coords,done){const tile=document.createElement('img');L.DomEvent.on(tile,'load',L.Util.bind(this._tileOnLoad,this,done,tile));L.DomEvent.on(tile,'error',L.Util.bind(this._tileOnError,this,done,tile));tile.alt='';tile.setAttribute('role','presentation');tile.referrerPolicy='no-referrer';tile.src=this.getTileUrl(coords);return tile;}});
-const baseTiles=new DigiexpressTileLayer('https://osm.digiexpress.ir/tile/{z}/{x}/{y}.png',{maxZoom:19});baseTiles.addTo(map);baseTiles.on('tileerror',e=>console.warn('OSM Digiexpress tile failed',e?.tile?.src||''));
+const map=L.map('map').setView([32,51],6),polyLayer=L.layerGroup().addTo(map),pointLayer=L.layerGroup().addTo(map);
+const TILE_BRIDGE_ORIGIN='https://nhabibifardigikala.github.io';
+const TILE_TIMEOUT_MS=15000;
+const tilePending=new Map();
+let tileSeq=0;
+window.addEventListener('message',event=>{
+  if(event.source!==parent)return;
+  const data=event.data||{};
+  if(data.type!=='DIGIEXPRESS_RESOURCE_RESULT')return;
+  const p=tilePending.get(String(data.requestId||''));
+  if(!p)return;
+  tilePending.delete(String(data.requestId||''));
+  clearTimeout(p.timer);
+  if(data.ok&&data.dataUrl)p.resolve(data.dataUrl); else p.reject(new Error(data.error||'Tile request failed'));
+});
+function requestTileFromHost(url){
+  return new Promise((resolve,reject)=>{
+    const requestId='tile-'+Date.now()+'-'+(++tileSeq);
+    const timer=setTimeout(()=>{tilePending.delete(requestId);reject(new Error('Tile bridge timeout'));},TILE_TIMEOUT_MS);
+    tilePending.set(requestId,{resolve,reject,timer});
+    parent.postMessage({type:'DIGIEXPRESS_FETCH_RESOURCE',requestId,url},'*');
+  });
+}
+const DigiexpressTileLayer=L.TileLayer.extend({
+  createTile(coords,done){
+    const tile=document.createElement('img');
+    tile.alt=''; tile.setAttribute('role','presentation');
+    const url=this.getTileUrl(coords);
+    requestTileFromHost(url).then(dataUrl=>{tile.onload=()=>done(null,tile);tile.onerror=()=>done(new Error('Tile decode failed'),tile);tile.src=dataUrl;}).catch(err=>done(err,tile));
+    return tile;
+  }
+});
+const baseTiles=new DigiexpressTileLayer('https://osm.digiexpress.ir/tile/{z}/{x}/{y}.png',{maxZoom:19,keepBuffer:2,updateWhenIdle:true});
+baseTiles.addTo(map);
+baseTiles.on('tileerror',e=>console.warn('OSM tile bridge failed',e?.error||e));
+
 function natureLabel(n){return ({1:'Normal',2:'Medium',3:'Large',4:'Barbari',5:'Business',6:'Fast'})[Number(n)]||String(n??'-')}function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#F79009',5:'#d946ef',6:'#0891b2'})[Number(n)]||'#64748b'}
 function makeFilter(host,vals,cls){host.innerHTML=vals.map(v=>`<label class="filter-chip"><input type="checkbox" class="${cls}" value="${esc(v)}"><span>${esc(v)}</span></label>`).join('');host.querySelectorAll('input').forEach(x=>x.addEventListener('change',refresh))}function selected(cls){return[...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
 function filteredPolygons(){const ts=selected('f-type'),ds=selected('f-district');return polygonsData.filter(r=>(!ts.length||ts.includes(natureLabel(r.natureId)))&&(!ds.length||ds.some(x=>String(r.district||'').startsWith(x))))}
