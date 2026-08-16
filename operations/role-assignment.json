@@ -166,10 +166,22 @@
         "resultTimeoutMs": 15000,
         "pollMs": 250,
         "afterEachMs": 350,
+        "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
       },
       "resultHeaders": ["Role ID", "Status", "Message"],
       "error": "Role ID {{value}} could not be found or selected."
+    },
+    {
+      "action": "clickInFrameAndWait",
+      "selector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+      "successSelector": "button.form-save-button.admin-submit-button",
+      "frameTimeoutMs": 20000,
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "requireSourceGone": true,
+      "progress": "Applying selected roles…",
+      "error": "The selected roles could not be returned to the user form."
     },
     {
       "action": "waitFor",
@@ -181,7 +193,7 @@
       "action": "click",
       "selector": "button.form-save-button.admin-submit-button",
       "textContains": "save",
-      "afterMs": 1200,
+      "afterMs": 2500,
       "progress": "Saving assigned roles…",
       "error": "Roles could not be saved."
     },
