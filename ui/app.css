@@ -274,13 +274,6 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__noteEmbedded
 #operationView:has(#operationInputs [data-field-wrap="__noteEmbedded"]) #noteEmbedded.note-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden;margin-top:6px}
 #operationView:has(#operationInputs [data-field-wrap="__noteEmbedded"]) #noteEmbedded.note-embedded iframe{height:100%!important;min-height:0!important}
 
-/* v103 — keep every remote view usable at very narrow Side Panel widths. */
-html,body{min-width:0!important;width:100%;max-width:100%;overflow-x:hidden!important}
-.app-shell,.view,.section-heading,.settings-card,.dynamic-form,.operation-result{min-width:0;max-width:100%;overflow-wrap:anywhere}
-.app-shell{padding-inline:clamp(8px,4vw,18px)}
-.operation-grid{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))!important}
-input,select,textarea,button{max-width:100%}
-
 /* v73 — elastic operation grid: cards grow only until another column can fit. */
 .operation-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:var(--gap)!important;justify-content:stretch!important}
 .op-card{width:100%!important;max-width:none!important;min-width:0!important}
@@ -340,3 +333,8 @@ html[data-theme="light"] #coveragePolygonsEmbedded iframe,html[data-theme="light
 #operationView.active:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]){height:calc(100vh - 108px);min-height:0!important;overflow:hidden}
 #operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) .map-operation-embedded,
 #operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) .map-operation-embedded{flex:1 1 0!important;height:0!important;min-height:0!important}
+
+/* v105 — narrow viewport guard without changing embedded mini-app layout. */
+body{min-width:0!important;overflow-x:hidden}
+.app-shell{min-width:0;max-width:100%;padding-inline:clamp(8px,4vw,18px)}
+@media(max-width:340px){.operation-grid{grid-template-columns:1fr!important}.settings-card{padding-inline:10px}}
