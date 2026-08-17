@@ -170,84 +170,6 @@
       "error": "Could not open the matching user with the newest login date."
     },
     {
-      "action": "wait",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
-      "ms": 3000,
-      "progress": "Waiting for the user table to finish loading…"
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
-      "required": false,
-      "storeAs": "userLookup",
-      "progress": "Checking the loaded table again…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["email"],
-        "matchHeaderAliases": ["email"],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      }
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
-      "required": false,
-      "storeAs": "userLookup",
-      "progress": "Checking the loaded table again…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["personal code", "personal_code", "personnel code"],
-        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      }
-    },
-    {
-      "action": "wait",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
-      "ms": 3500,
-      "progress": "Performing a final check before Active Directory sync…"
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
-      "required": false,
-      "storeAs": "userLookup",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["email"],
-        "matchHeaderAliases": ["email"],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      }
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
-      "required": false,
-      "storeAs": "userLookup",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["personal code", "personal_code", "personnel code"],
-        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      }
-    },
-    {
       "action": "navigate",
       "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
       "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
@@ -358,7 +280,7 @@
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["email"],
+        "dateHeaderAliases": ["last login at", "last_login_at"],
         "matchHeaderAliases": ["email"],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
@@ -374,7 +296,7 @@
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["personal code", "personal_code", "personnel code"],
+        "dateHeaderAliases": ["last login at", "last_login_at"],
         "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",

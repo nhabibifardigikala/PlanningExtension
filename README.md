@@ -1,5 +1,11 @@
 # PlanningExtension Remote Application v18
 
+## Remote App v103
+- Daily Planner task cards are now compact and keep both checkboxes on the title row.
+- Bulk-selection and completion checkboxes use distinct blue and green colors.
+- Long task titles stay on one line and truncate with an ellipsis.
+- The task list expands responsively from one to two, three, and four columns.
+
 Upload the contents of this package to the root of the PlanningExtension GitHub Pages repository.
 
 This repository is the application definition. Almost all future changes should happen here, without redistributing the extension.

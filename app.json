@@ -1,5 +1,5 @@
 {
-  "configVersion": 106,
+  "configVersion": 102,
   "minEngineVersion": "11.2.0",
   "app": {
     "name": "Digiexpress",
@@ -234,7 +234,7 @@
       "accessHeaders": [
         "Role Assignment"
       ],
-      "config": "operations/role-assignment.json?v=104",
+      "config": "operations/role-assignment.json?v=102",
       "iconSvgPath": "M24 4 8 10v12c0 10.2 6.8 18.8 16 22 9.2-3.2 16-11.8 16-22V10L24 4Zm0 5 11 4.1V22c0 7.4-4.6 14-11 17-6.4-3-11-9.6-11-17v-8.9L24 9Zm-2 8v5h-5v4h5v5h4v-5h5v-4h-5v-5h-4Z"
     },
     {
@@ -513,10 +513,10 @@
   "runtime": "runtime.json",
   "runtimeVersion": "11.2.0",
   "remoteUI": {
-    "html": "ui/app.html?v=93",
-    "css": "ui/app.css?v=93"
+    "html": "ui/app.html?v=102",
+    "css": "ui/app.css?v=102"
   },
-  "version": "106",
+  "version": "102",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
