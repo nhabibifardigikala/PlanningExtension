@@ -47,6 +47,13 @@ body{overscroll-behavior:none}
 
 .native-date-bridge{position:absolute!important;inline-size:1px!important;block-size:1px!important;opacity:.001!important;pointer-events:none!important;inset-inline-end:48px;top:50%;transform:translateY(-50%);padding:0!important;border:0!important}.btn.danger{border-color:var(--danger);color:#fff;background:var(--danger)}.danger-zone{border-color:color-mix(in srgb,var(--danger) 55%,var(--line))}.danger-zone p{margin:0 0 10px}.note-embed-placeholder{display:none}
 
+/* v107 — working days and compact timeline details */
+.timeline-task small{display:none!important}
+.workdays-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.workdays-grid label{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px}
+.workdays-grid input{width:auto!important;flex:0 0 auto;accent-color:var(--accent)}
+@media(max-width:330px){.workdays-grid{grid-template-columns:1fr!important}}
+
 /* v103 — compact responsive task cards */
 .bulk-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.btn.danger{border-color:var(--danger);color:var(--danger);background:transparent}.btn.danger:hover{background:var(--danger);color:#fff}.task-actions [data-delete]{transition:background .15s,border-color .15s,color .15s}.task-actions [data-delete]:hover{background:var(--danger)!important;border-color:var(--danger)!important;color:#fff!important}.timeline-task{padding:2px 6px;align-items:center}.timeline-task strong{line-height:1.05}.timeline-task small{line-height:1.05}.timeline-task input{flex:0 0 auto}.timeline-task button{padding:0 5px;line-height:18px}.filter-actions{gap:8px;flex-wrap:wrap}
 
