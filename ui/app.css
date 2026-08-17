@@ -333,8 +333,3 @@ html[data-theme="light"] #coveragePolygonsEmbedded iframe,html[data-theme="light
 #operationView.active:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]){height:calc(100vh - 108px);min-height:0!important;overflow:hidden}
 #operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) .map-operation-embedded,
 #operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) .map-operation-embedded{flex:1 1 0!important;height:0!important;min-height:0!important}
-
-/* v105 — narrow viewport guard without changing embedded mini-app layout. */
-body{min-width:0!important;overflow-x:hidden}
-.app-shell{min-width:0;max-width:100%;padding-inline:clamp(8px,4vw,18px)}
-@media(max-width:340px){.operation-grid{grid-template-columns:1fr!important}.settings-card{padding-inline:10px}}

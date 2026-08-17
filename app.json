@@ -1,5 +1,5 @@
 {
-  "configVersion": 105,
+  "configVersion": 106,
   "minEngineVersion": "11.2.0",
   "app": {
     "name": "Digiexpress",
@@ -473,8 +473,8 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=105",
-    "css": "ui/app.css?v=105",
+    "html": "ui/app.html?v=93",
+    "css": "ui/app.css?v=93",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=46"
   },
@@ -513,10 +513,10 @@
   "runtime": "runtime.json",
   "runtimeVersion": "11.2.0",
   "remoteUI": {
-    "html": "ui/app.html?v=105",
-    "css": "ui/app.css?v=105"
+    "html": "ui/app.html?v=93",
+    "css": "ui/app.css?v=93"
   },
-  "version": "105",
+  "version": "106",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
