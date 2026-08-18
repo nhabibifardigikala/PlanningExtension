@@ -2,10 +2,12 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign one or more role IDs.",
+  "description": "Find a user by email or personnel code and assign or revoke role IDs. Retry transient workflow failures up to two additional times.",
   "uiMode": "form",
   "runLabel": "Assign Roles",
-  "requiredHosts": ["https://sso.digikala.com/*"],
+  "requiredHosts": [
+    "https://sso.digikala.com/*"
+  ],
   "closeTabOnError": true,
   "inputs": [
     {
@@ -15,8 +17,14 @@
       "default": "single",
       "required": true,
       "options": [
-        {"value": "single", "label": "Single user"},
-        {"value": "excel", "label": "Excel file"}
+        {
+          "value": "single",
+          "label": "Single user"
+        },
+        {
+          "value": "excel",
+          "label": "Excel file"
+        }
       ]
     },
     {
@@ -26,8 +34,14 @@
       "default": "assign",
       "required": true,
       "options": [
-        {"value": "assign", "label": "Assign roles"},
-        {"value": "revoke", "label": "Revoke roles"}
+        {
+          "value": "assign",
+          "label": "Assign roles"
+        },
+        {
+          "value": "revoke",
+          "label": "Revoke roles"
+        }
       ]
     },
     {
@@ -35,8 +49,14 @@
       "label": "Email or personnel code",
       "type": "text",
       "placeholder": "name@digikala.com or 100",
-      "showWhen": {"field": "inputMode", "equals": "single"},
-      "requiredWhen": {"field": "inputMode", "equals": "single"},
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      },
       "help": "Email is detected by @; a numeric value is treated as personnel code."
     },
     {
@@ -47,16 +67,28 @@
       "pattern": "^\\s*\\d+(?:\\s+\\d+)*\\s*$",
       "validationMessage": "Enter one or more numeric role IDs separated by spaces.",
       "help": "Separate multiple role IDs with spaces.",
-      "showWhen": {"field": "inputMode", "equals": "single"},
-      "requiredWhen": {"field": "inputMode", "equals": "single"}
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "single"
+      }
     },
     {
       "name": "inputFile",
       "label": "Excel file",
       "type": "file",
       "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "showWhen": {"field": "inputMode", "equals": "excel"},
-      "requiredWhen": {"field": "inputMode", "equals": "excel"},
+      "showWhen": {
+        "field": "inputMode",
+        "equals": "excel"
+      },
+      "requiredWhen": {
+        "field": "inputMode",
+        "equals": "excel"
+      },
       "help": "Column A: email/personnel code. Column B: space-separated role IDs. Header row is optional."
     }
   ],
@@ -66,15 +98,33 @@
     "identifierField": "userIdentifier",
     "rolesField": "roleIds",
     "fileField": "inputFile",
-    "passthroughFields": ["accessAction"],
-    "reportHeaders": ["User", "Role ID", "Status", "Message"],
+    "passthroughFields": [
+      "accessAction"
+    ],
+    "reportHeaders": [
+      "User",
+      "Role ID",
+      "Status",
+      "Message"
+    ],
     "downloadButtonLabel": "Download Report",
     "sheetName": "Role Access Results",
     "filename": "role_access_results.xlsx",
     "successFill": "C6EFCE",
     "failureFill": "FFC7CE",
     "excel": {
-      "headerAliases": ["email", "personnel code", "personal code", "identifier", "user", "ایمیل", "کد پرسنلی", "role id", "role ids", "roles"]
+      "headerAliases": [
+        "email",
+        "personnel code",
+        "personal code",
+        "identifier",
+        "user",
+        "ایمیل",
+        "کد پرسنلی",
+        "role id",
+        "role ids",
+        "roles"
+      ]
     }
   },
   "successMessage": "Role access operation completed.",
@@ -92,50 +142,82 @@
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "contains",
+        "right": "@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "timeoutMs": 20000,
       "error": "Email search field was not found."
     },
     {
       "action": "fill",
-      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "contains",
+        "right": "@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "value": "{{userIdentifier}}",
       "progress": "Entering email…"
     },
     {
       "action": "press",
-      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "contains",
+        "right": "@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "key": "Enter",
       "progress": "Searching user…"
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "notContains",
+        "right": "@"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "timeoutMs": 20000,
       "error": "Personnel-code search field was not found."
     },
     {
       "action": "fill",
-      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "notContains",
+        "right": "@"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "value": "{{userIdentifier}}",
       "progress": "Entering personnel code…"
     },
     {
       "action": "press",
-      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "notContains",
+        "right": "@"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "key": "Enter",
       "progress": "Searching user…"
     },
-    {"action": "wait", "ms": 2500, "progress": "Waiting for search results…"},
+    {
+      "action": "wait",
+      "ms": 2500,
+      "progress": "Waiting for search results…"
+    },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "contains",
+        "right": "@"
+      },
       "required": false,
       "storeAs": "userLookup",
       "progress": "Opening the user with the newest login…",
@@ -143,8 +225,13 @@
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["last login at", "last_login_at"],
-        "matchHeaderAliases": ["email"],
+        "dateHeaderAliases": [
+          "last login at",
+          "last_login_at"
+        ],
+        "matchHeaderAliases": [
+          "email"
+        ],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
@@ -153,7 +240,11 @@
     },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "notContains",
+        "right": "@"
+      },
       "required": false,
       "storeAs": "userLookup",
       "progress": "Opening the user with the newest login…",
@@ -161,8 +252,15 @@
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["last login at", "last_login_at"],
-        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
+        "dateHeaderAliases": [
+          "last login at",
+          "last_login_at"
+        ],
+        "matchHeaderAliases": [
+          "personal code",
+          "personal_code",
+          "personnel code"
+        ],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
@@ -171,13 +269,21 @@
     },
     {
       "action": "wait",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {
+        "left": "{{userLookup.ok}}",
+        "operator": "equals",
+        "right": "false"
+      },
       "ms": 3000,
       "progress": "Waiting for the user table to finish loading…"
     },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "required": false,
       "storeAs": "userLookup",
       "progress": "Checking matching Details without requiring Last Login…",
@@ -185,8 +291,12 @@
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["email"],
-        "matchHeaderAliases": ["email"],
+        "dateHeaderAliases": [
+          "email"
+        ],
+        "matchHeaderAliases": [
+          "email"
+        ],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
@@ -194,7 +304,11 @@
     },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "required": false,
       "storeAs": "userLookup",
       "progress": "Checking matching Details without requiring Last Login…",
@@ -202,8 +316,16 @@
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["personal code", "personal_code", "personnel code"],
-        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
+        "dateHeaderAliases": [
+          "personal code",
+          "personal_code",
+          "personnel code"
+        ],
+        "matchHeaderAliases": [
+          "personal code",
+          "personal_code",
+          "personnel code"
+        ],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
@@ -211,62 +333,98 @@
     },
     {
       "action": "navigate",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {
+        "left": "{{userLookup.ok}}",
+        "operator": "equals",
+        "right": "false"
+      },
       "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
       "progress": "Opening Active Directory sync…"
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "timeoutMs": 20000,
       "error": "Active Directory email field was not found."
     },
     {
       "action": "fill",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "value": "{{userIdentifier}}",
       "progress": "Entering email for Active Directory sync…"
     },
     {
       "action": "press",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "key": "Enter",
       "progress": "Searching Active Directory…"
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
       "timeoutMs": 20000,
       "error": "Active Directory personnel-code field was not found."
     },
     {
       "action": "fill",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
       "value": "{{userIdentifier}}",
       "progress": "Entering personnel code for Active Directory sync…"
     },
     {
       "action": "press",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
       "key": "Enter",
       "progress": "Searching Active Directory…"
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {
+        "left": "{{userLookup.ok}}",
+        "operator": "equals",
+        "right": "false"
+      },
       "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
       "timeoutMs": 20000,
       "error": "The user could not be found in Active Directory sync results."
     },
     {
       "action": "click",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {
+        "left": "{{userLookup.ok}}",
+        "operator": "equals",
+        "right": "false"
+      },
       "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
       "textContains": "sync",
       "afterMs": 1800,
@@ -275,53 +433,85 @@
     },
     {
       "action": "navigate",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {
+        "left": "{{userLookup.ok}}",
+        "operator": "equals",
+        "right": "false"
+      },
       "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
       "progress": "Returning to User Management…"
     },
     {
       "action": "fill",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "value": "{{userIdentifier}}",
       "progress": "Searching synced user by email…"
     },
     {
       "action": "press",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
       "key": "Enter"
     },
     {
       "action": "fill",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "value": "{{userIdentifier}}",
       "progress": "Searching synced user by personnel code…"
     },
     {
       "action": "press",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
       "key": "Enter"
     },
     {
       "action": "waitFor",
-      "when": {"left": "{{userLookup.ok}}", "operator": "equals", "right": "false"},
+      "when": {
+        "left": "{{userLookup.ok}}",
+        "operator": "equals",
+        "right": "false"
+      },
       "selector": "table tbody tr",
       "timeoutMs": 20000,
       "error": "The synced user did not appear in User Management."
     },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|.*@"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|.*@"
+      },
       "progress": "Opening the synced user…",
       "options": {
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["email"],
-        "matchHeaderAliases": ["email"],
+        "dateHeaderAliases": [
+          "email"
+        ],
+        "matchHeaderAliases": [
+          "email"
+        ],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
@@ -330,14 +520,26 @@
     },
     {
       "action": "clickNewestTableRowAction",
-      "when": {"left": "{{userLookup.ok}}|{{userIdentifier}}", "operator": "regex", "right": "^false\\|\\d+$"},
+      "when": {
+        "left": "{{userLookup.ok}}|{{userIdentifier}}",
+        "operator": "regex",
+        "right": "^false\\|\\d+$"
+      },
       "progress": "Opening the synced user…",
       "options": {
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "dateHeaderAliases": ["personal code", "personal_code", "personnel code"],
-        "matchHeaderAliases": ["personal code", "personal_code", "personnel code"],
+        "dateHeaderAliases": [
+          "personal code",
+          "personal_code",
+          "personnel code"
+        ],
+        "matchHeaderAliases": [
+          "personal code",
+          "personal_code",
+          "personnel code"
+        ],
         "matchValue": "{{userIdentifier}}",
         "actionSelector": "a,button",
         "actionText": "details"
@@ -352,21 +554,33 @@
     },
     {
       "action": "read",
-      "when": {"left": "{{userIdentifier}}", "operator": "contains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "contains",
+        "right": "@"
+      },
       "selector": "#form-field-email",
       "storeAs": "verifiedUserIdentifier",
       "error": "The email field was not found on the details page."
     },
     {
       "action": "read",
-      "when": {"left": "{{userIdentifier}}", "operator": "notContains", "right": "@"},
+      "when": {
+        "left": "{{userIdentifier}}",
+        "operator": "notContains",
+        "right": "@"
+      },
       "selector": "#form-field-personal_code",
       "storeAs": "verifiedUserIdentifier",
       "error": "The personnel-code field was not found on the details page."
     },
     {
       "action": "assert",
-      "condition": {"left": "{{verifiedUserIdentifier}}", "operator": "equals", "right": "{{userIdentifier}}"},
+      "condition": {
+        "left": "{{verifiedUserIdentifier}}",
+        "operator": "equals",
+        "right": "{{userIdentifier}}"
+      },
       "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
     },
     {
@@ -383,7 +597,11 @@
     },
     {
       "action": "selectItemsBySearchValues",
-      "when": {"left": "{{accessAction}}", "operator": "equals", "right": "assign"},
+      "when": {
+        "left": "{{accessAction}}",
+        "operator": "equals",
+        "right": "assign"
+      },
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
       "frameTimeoutMs": 20000,
@@ -401,12 +619,20 @@
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
       },
-      "resultHeaders": ["Role ID", "Status", "Message"],
+      "resultHeaders": [
+        "Role ID",
+        "Status",
+        "Message"
+      ],
       "error": "Role ID {{value}} could not be found or selected."
     },
     {
       "action": "selectItemsBySearchValues",
-      "when": {"left": "{{accessAction}}", "operator": "equals", "right": "revoke"},
+      "when": {
+        "left": "{{accessAction}}",
+        "operator": "equals",
+        "right": "revoke"
+      },
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
       "frameTimeoutMs": 20000,
@@ -424,7 +650,11 @@
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
       },
-      "resultHeaders": ["Role ID", "Status", "Message"],
+      "resultHeaders": [
+        "Role ID",
+        "Status",
+        "Message"
+      ],
       "error": "Role ID {{value}} could not be found or selected for revocation."
     },
     {
@@ -454,7 +684,10 @@
       "progress": "Saving assigned roles…",
       "error": "Roles could not be saved because the Save button is still visible."
     },
-    {"action": "closeTab", "progress": "Finishing Role Assignment…"}
+    {
+      "action": "closeTab",
+      "progress": "Finishing Role Assignment…"
+    }
   ],
   "retryPolicy": {
     "attempts": 3,

@@ -16,15 +16,15 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v109 for Stable Host 11.3.8: generic live operation reports and Excel export support.",
+  "notes": "Remote app v67 for Stable Host 11 universal declarative platform. Operation/UI/data changes remain remote.",
   "configVersion": 109,
-  "minimumRuntimeVersion": "11.2.0",
+  "minimumRuntimeVersion": "11.0.0",
   "minimumRuntime": "11.0.0",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "11.2.0",
+  "recommendedRuntime": "11.0.0",
   "runtimeUpdatePolicy": "fundamental-only",
-  "version": "11.2.0",
+  "version": "11.0.0",
   "platformContract": 11,
   "remoteVersion": 109
 }

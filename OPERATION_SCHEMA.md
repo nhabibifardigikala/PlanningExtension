@@ -92,15 +92,3 @@ Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-sep
 
 ### Paginated table parser selectors
 `extractPaginatedTable.parser` may define `tableSelector`, `headerSelector`, and `rowSelector`. This allows operations to extract only primary records from pages that contain nested/subtables.
-
-## Stable Host 11.3.8: generic live reports for applyFieldCorrections
-`applyFieldCorrections.liveReport` can define a cumulative user-visible report without operation-specific Host code.
-
-Fields:
-- `title`: report title.
-- `successText` / `failureText`: remote templates emitted after each item.
-- `columns`: array of `{ "header": "...", "value": "{{template}}" }`.
-- `export`: `{ "buttonLabel", "sheetName", "filename", "saveAs" }`.
-
-Available row templates include the correction fields (`source`, `name`, `id`, `currentCode`, `targetCode`) plus `status`, `error`, `index`, `count`, and `processedAt`.
-The UI accumulates rows live and exports exactly the visible report through the Host's generic XLSX service.

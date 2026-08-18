@@ -77,3 +77,6 @@ body{overscroll-behavior:none}
 @media(min-width:620px){.task-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:920px){.task-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(min-width:1240px){.task-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* v109 current-time marker */
+#timeline{position:relative}.current-time-line{position:absolute;left:0;right:0;height:2px;background:#000;z-index:12;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.28)}.current-time-line span{position:absolute;left:2px;transform:translateY(-50%);background:#000;color:#fff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;direction:ltr}

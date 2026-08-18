@@ -104,4 +104,38 @@ function setupDatePicker(inputSel,buttonSel,pickerSel,{allowClear=false,onChange
  button.onclick=open;input.ondblclick=open;input.onblur=()=>{if(!input.value.trim())return;try{const iso=inputToISO(input.value);input.value=isoToInput(iso);onChange&&onChange()}catch{}};input.onkeydown=e=>{if((e.altKey&&e.key==='ArrowDown')||e.key==='F4'){open(e)}else if(e.key==='Escape')close()};document.addEventListener('click',e=>{if(!pop.contains(e.target)&&e.target!==button&&e.target!==input)close()});
 }
 $$('[data-workday]').forEach(x=>x.onchange=()=>{state.settings.workDays=$$('[data-workday]:checked').map(day=>Number(day.dataset.workday));saveState();renderDaily()});
-setupDatePicker('#taskDate','#taskDateButton','#taskDatePicker');setupDatePicker('#filterDate','#filterDateButton','#filterDatePicker',{allowClear:true,onChange:renderTaskList});applyLanguage();resetForm();renderAll();setInterval(checkNotifications,30000);checkNotifications();
+
+// v109: reliable export, reminders and current-time marker.
+function xmlEsc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c))}
+function exportPlannerExcel(){
+  const headers=['Title','Date','Start Time','Duration (min)','Priority','Assignee','Category','Status','Recurrence','Description'];
+  const rows=occurrenceRows('2000-01-01','2100-12-31').slice(0,10000).map(r=>{const key=occurrenceKey(r.task,r.date);return [r.task.title,r.date,state.scheduled[key]||'',r.task.duration||'',r.task.priority||'',r.task.assignee||'',r.task.category||'',r.status||'',r.task.recurrence||'none',r.task.description||'']});
+  const all=[headers,...rows];
+  const body=all.map((row,ri)=>`<Row>${row.map(v=>`<Cell><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`).join('')}</Row>`).join('');
+  const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Daily Planner"><Table>${body}</Table></Worksheet></Workbook>`;
+  const blob=new Blob(['\ufeff',xml],{type:'application/vnd.ms-excel'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`daily_planner_${todayISO()}.xls`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast(state.settings.language==='fa'?'فایل Excel آماده شد':'Excel exported');
+}
+function noticeKey(task,date,type){return `${task.id}|${date}|${type}`}
+function hideNotice(){const box=$('#notificationBox');if(box)box.classList.add('hidden');activeNotice=null}
+function showPlannerNotice(item){
+  activeNotice=item;const box=$('#notificationBox');if(!box)return;
+  $('#notificationTitle').textContent=item.type==='start'?tr('startNotice'):tr('endNotice');
+  $('#notificationText').textContent=`${item.task.title} • ${tr('minutesLeft')}`;box.classList.remove('hidden');
+  try{if('Notification' in window&&Notification.permission==='granted')new Notification($('#notificationTitle').textContent,{body:$('#notificationText').textContent,tag:item.key,renotify:true})}catch(_){ }
+}
+function checkNotifications(){
+  if(!state.settings.notifications)return;const now=new Date(),date=todayISO(),rows=occurrenceRows(date,date).filter(r=>r.status==='todo'),candidates=[];
+  for(const r of rows){const key=occurrenceKey(r.task,r.date),startText=state.scheduled[key];if(!startText)continue;const [hh,mm]=startText.split(':').map(Number),start=new Date(now.getFullYear(),now.getMonth(),now.getDate(),hh,mm,0,0),end=new Date(start.getTime()+Math.max(15,Number(r.task.duration)||60)*60000);
+    for(const [type,at] of [['start',start],['end',end]]){const nk=noticeKey(r.task,r.date,type),mins=(at-now)/60000,snoozeUntil=Number(state.snoozes?.[nk]||0);if(state.dismissed?.[nk])continue;if(snoozeUntil&&Date.now()<snoozeUntil)continue;if(mins>0&&mins<=15)candidates.push({task:r.task,date:r.date,type,key:nk,at,mins});}
+  }
+  candidates.sort((a,b)=>a.at-b.at);if(candidates.length&&(!activeNotice||activeNotice.key!==candidates[0].key))showPlannerNotice(candidates[0]);
+}
+$('#snoozeNotice').onclick=()=>{if(!activeNotice)return;state.snoozes=state.snoozes||{};state.snoozes[activeNotice.key]=Date.now()+10*60000;saveState();hideNotice()};
+$('#dismissNotice').onclick=()=>{if(!activeNotice)return;state.dismissed=state.dismissed||{};state.dismissed[activeNotice.key]=true;saveState();hideNotice()};
+function updateCurrentTimeLine(){
+  const tl=$('#timeline');if(!tl)return;tl.querySelector('.current-time-line')?.remove();if(dailyCursor!==todayISO())return;const now=new Date(),current=now.getHours()*60+now.getMinutes()+now.getSeconds()/60,start=timeToMin(state.settings.workStart),end=timeToMin(state.settings.workEnd);if(current<start||current>end)return;
+  const line=document.createElement('div');line.className='current-time-line';line.style.top=`${((current-start)/SLOT)*SLOT_H}px`;line.innerHTML=`<span>${pad(now.getHours())}:${pad(now.getMinutes())}</span>`;tl.appendChild(line);
+}
+const _renderDailyV109=renderDaily;renderDaily=function(){_renderDailyV109();updateCurrentTimeLine()};
+$('#exportExcel').onclick=exportPlannerExcel;
+setupDatePicker('#taskDate','#taskDateButton','#taskDatePicker');setupDatePicker('#filterDate','#filterDateButton','#filterDatePicker',{allowClear:true,onChange:renderTaskList});applyLanguage();resetForm();renderAll();setInterval(checkNotifications,30000);setInterval(updateCurrentTimeLine,30000);checkNotifications();updateCurrentTimeLine();

@@ -18,7 +18,7 @@
       "accessHeaders": [
         "Sync IATA Code"
       ],
-      "config": "operations/sync-iata.json?v=77",
+      "config": "operations/sync-iata.json?v=109",
       "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
       "runLabel": "Start IATA Sync",
       "inputs": [
@@ -102,7 +102,7 @@
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/daily-planner.json?v=77",
+      "config": "operations/daily-planner.json?v=109",
       "iconSvgPath": "M8 6h4V3h4v3h16V3h4v3h4a4 4 0 0 1 4 4v30a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4Zm0 12v22h32V18H8Zm6 5h8v8h-8v-8Zm12 0h8v4h-8v-4Zm0 8h8v4h-8v-4Z",
       "description": "Create tasks, review task lists, organize the daily timeline and manage planner settings.",
       "runLabel": "Daily Planner",
@@ -234,7 +234,7 @@
       "accessHeaders": [
         "Role Assignment"
       ],
-      "config": "operations/role-assignment.json?v=108",
+      "config": "operations/role-assignment.json?v=109",
       "iconSvgPath": "M24 4 8 10v12c0 10.2 6.8 18.8 16 22 9.2-3.2 16-11.8 16-22V10L24 4Zm0 5 11 4.1V22c0 7.4-4.6 14-11 17-6.4-3-11-9.6-11-17v-8.9L24 9Zm-2 8v5h-5v4h5v5h4v-5h5v-4h-5v-5h-4Z"
     },
     {
@@ -464,17 +464,65 @@
           }
         }
       ]
+    },
+    {
+      "id": "pomodoro",
+      "title": "Pomodoro",
+      "subtitle": "Focus timer",
+      "accessHeaders": [
+        "Daily Planner"
+      ],
+      "config": "operations/pomodoro.json?v=109",
+      "iconSvgPath": "M24 5a17 17 0 1 0 17 17A17 17 0 0 0 24 5Zm2 6v10.2l7 4.1-2 3.4-9-5.2V11h4Zm-8-8h12v4H18V3Z",
+      "description": "Professional Pomodoro focus timer with configurable focus and break cycles, auto-start, sound and daily statistics.",
+      "runLabel": "Pomodoro",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__pomodoroEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
+    },
+    {
+      "id": "work-healthy",
+      "title": "Work Healthy",
+      "subtitle": "Healthy desk breaks",
+      "accessHeaders": [
+        "Daily Planner"
+      ],
+      "config": "operations/work-healthy.json?v=109",
+      "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-9 15h18l5 7-3 3-4-5v18h-5V31h-4v11h-5V24l-4 5-3-3 5-7Z",
+      "description": "Configurable workplace wellness reminders with illustrated desk exercises for eyes, neck, shoulders, back, wrists and legs.",
+      "runLabel": "Work Healthy",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__workHealthyEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     }
   ],
-  "publishedAt": "2026-08-15T19:55:00+03:30",
+  "publishedAt": "2026-08-18T14:55:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=108",
-    "css": "ui/app.css?v=108",
+    "html": "ui/app.html?v=109",
+    "css": "ui/app.css?v=109",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=46"
   },
@@ -513,8 +561,8 @@
   "runtime": "runtime.json",
   "runtimeVersion": "11.2.0",
   "remoteUI": {
-    "html": "ui/app.html?v=108",
-    "css": "ui/app.css?v=108"
+    "html": "ui/app.html?v=109",
+    "css": "ui/app.css?v=109"
   },
   "version": "109",
   "remoteArchitecture": "generic-data-pipeline-v1",

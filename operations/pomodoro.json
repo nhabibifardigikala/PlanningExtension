@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Professional Pomodoro focus timer with configurable focus/break cycles, auto-start, sound and session statistics.",
+  "workflow": [],
+  "successMessage": "Pomodoro ready."
+}
