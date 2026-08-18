@@ -1,5 +1,5 @@
 {
-  "configVersion": 111,
+  "configVersion": 112,
   "minEngineVersion": "11.2.0",
   "app": {
     "name": "Digiexpress",
@@ -496,7 +496,7 @@
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/work-healthy.json?v=110",
+      "config": "operations/work-healthy.json?v=112",
       "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-9 15h18l5 7-3 3-4-5v18h-5V31h-4v11h-5V24l-4 5-3-3 5-7Z",
       "description": "Built-in workplace wellness feature with configurable reminders and colorful animated exercise demonstrations. Opens directly with no operation run step.",
       "runLabel": "Open Work Healthy",

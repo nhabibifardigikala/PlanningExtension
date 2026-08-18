@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Configurable workplace wellness reminders with illustrated desk exercises and enable/disable controls.",
+  "description": "Configurable workplace wellness reminders with professional ergonomic motion guides and enable/disable controls.",
   "workflow": [],
   "successMessage": "Work Healthy ready."
 }
