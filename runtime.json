@@ -17,7 +17,7 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v67 for Stable Host 11 universal declarative platform. Operation/UI/data changes remain remote.",
-  "configVersion": 110,
+  "configVersion": 111,
   "minimumRuntimeVersion": "11.0.0",
   "minimumRuntime": "11.0.0",
   "workflowLanguageVersion": 3,
@@ -26,5 +26,5 @@
   "runtimeUpdatePolicy": "fundamental-only",
   "version": "11.0.0",
   "platformContract": 11,
-  "remoteVersion": 110
+  "remoteVersion": 111
 }
