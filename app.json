@@ -1,5 +1,5 @@
 {
-  "configVersion": 108,
+  "configVersion": 109,
   "minEngineVersion": "11.2.0",
   "app": {
     "name": "Digiexpress",
@@ -516,7 +516,7 @@
     "html": "ui/app.html?v=108",
     "css": "ui/app.css?v=108"
   },
-  "version": "108",
+  "version": "109",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

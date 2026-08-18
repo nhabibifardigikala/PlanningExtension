@@ -4,7 +4,7 @@
   "requiresCredentials": true,
   "uiMode": "form",
   "runLabel": "Start IATA Sync",
-  "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
+  "description": "Synchronize Shipping Point and Shipping Polygon IATA codes with Distribution Centers, show each correction live, and export the processed-item report to Excel.",
   "inputs": [
     {
       "name": "syncTargets",
@@ -209,7 +209,7 @@
         "right": "shipping-points"
       },
       "continueOnError": true,
-      "itemProgress": "Processing Shipping Point {{id}} ({{index}}/{{count}})…",
+      "itemProgress": "Processing {{source}} {{name}} (ID {{id}}) - {{index}}/{{count}}...",
       "sources": {
         "shipping-point": {
           "listUrl": "https://drop-shipping.digikala.com/shipping-points/",
@@ -232,7 +232,52 @@
           "loginDetectTimeoutMs": 4000
         }
       },
-      "progress": "Updating Shipping Point IATA corrections…"
+      "progress": "Updating Shipping Point IATA corrections…",
+      "liveReport": {
+        "title": "Sync IATA live report",
+        "successText": "Updated {{source}} {{id}}: {{currentCode}} -> {{targetCode}}",
+        "failureText": "Failed {{source}} {{id}}: {{error}}",
+        "columns": [
+          {
+            "header": "Type",
+            "value": "{{source}}"
+          },
+          {
+            "header": "Name",
+            "value": "{{name}}"
+          },
+          {
+            "header": "ID",
+            "value": "{{id}}"
+          },
+          {
+            "header": "Previous IATA",
+            "value": "{{currentCode}}"
+          },
+          {
+            "header": "Target IATA",
+            "value": "{{targetCode}}"
+          },
+          {
+            "header": "Result",
+            "value": "{{status}}"
+          },
+          {
+            "header": "Error",
+            "value": "{{error}}"
+          },
+          {
+            "header": "Processed At",
+            "value": "{{processedAt}}"
+          }
+        ],
+        "export": {
+          "buttonLabel": "Download Excel",
+          "sheetName": "Sync IATA Report",
+          "filename": "sync_iata_report_{{timestamp}}.xlsx",
+          "saveAs": true
+        }
+      }
     },
     {
       "action": "navigate",
@@ -392,7 +437,7 @@
         "right": "shipping-polygons"
       },
       "continueOnError": true,
-      "itemProgress": "Processing Shipping Polygon {{id}} ({{index}}/{{count}})…",
+      "itemProgress": "Processing {{source}} {{name}} (ID {{id}}) - {{index}}/{{count}}...",
       "sources": {
         "shipping-polygon": {
           "listUrl": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/",
@@ -415,7 +460,52 @@
           "loginDetectTimeoutMs": 4000
         }
       },
-      "progress": "Updating Shipping Polygon IATA corrections…"
+      "progress": "Updating Shipping Polygon IATA corrections…",
+      "liveReport": {
+        "title": "Sync IATA live report",
+        "successText": "Updated {{source}} {{id}}: {{currentCode}} -> {{targetCode}}",
+        "failureText": "Failed {{source}} {{id}}: {{error}}",
+        "columns": [
+          {
+            "header": "Type",
+            "value": "{{source}}"
+          },
+          {
+            "header": "Name",
+            "value": "{{name}}"
+          },
+          {
+            "header": "ID",
+            "value": "{{id}}"
+          },
+          {
+            "header": "Previous IATA",
+            "value": "{{currentCode}}"
+          },
+          {
+            "header": "Target IATA",
+            "value": "{{targetCode}}"
+          },
+          {
+            "header": "Result",
+            "value": "{{status}}"
+          },
+          {
+            "header": "Error",
+            "value": "{{error}}"
+          },
+          {
+            "header": "Processed At",
+            "value": "{{processedAt}}"
+          }
+        ],
+        "export": {
+          "buttonLabel": "Download Excel",
+          "sheetName": "Sync IATA Report",
+          "filename": "sync_iata_report_{{timestamp}}.xlsx",
+          "saveAs": true
+        }
+      }
     },
     {
       "action": "closeTab",
