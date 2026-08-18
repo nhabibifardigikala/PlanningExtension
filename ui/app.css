@@ -334,10 +334,27 @@ html[data-theme="light"] #coveragePolygonsEmbedded iframe,html[data-theme="light
 #operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) .map-operation-embedded,
 #operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) .map-operation-embedded{flex:1 1 0!important;height:0!important;min-height:0!important}
 
-/* v109 remote-only Pomodoro and Work Healthy embeds */
+/* v110 Remote capabilities: Pomodoro and Work Healthy are embedded tools, not executable operations. */
 .wellness-embedded{display:none;width:100%;height:calc(100vh - 170px);min-height:0;margin-top:6px;overflow:hidden}
-.wellness-embedded iframe{display:block;width:100%;height:100%;min-height:0;border:0;border-radius:14px;background:var(--card,#fff);color-scheme:light dark}
+.wellness-embedded iframe{display:block;width:100%;height:100%;min-height:0;border:0;border-radius:14px;background:var(--card,#fff)}
+html[data-theme="light"] .wellness-embedded iframe{color-scheme:light}
+html[data-theme="dark"] .wellness-embedded iframe{color-scheme:dark}
 #operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) #pomodoroEmbedded{display:block}
 #operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) #workHealthyEmbedded{display:block}
-#operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) .settings-card,#operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) .settings-card{flex:0 0 auto}
+#operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) > .settings-card,
+#operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) > .settings-card{display:none!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__pomodoroEmbedded"]),
+body:has(#operationView.active #operationInputs [data-field-wrap="__pomodoroEmbedded"]),
+html:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyEmbedded"]),
+body:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__pomodoroEmbedded"]),
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+#operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) #operationBackBtn,
+#operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) #operationBackBtn,
+#operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) .settings-heading,
+#operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) .settings-heading{flex:0 0 auto}
+#operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) .wellness-embedded,
+#operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) .wellness-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden;margin-top:6px}
 @media(max-width:700px){.wellness-embedded{height:calc(100vh - 150px)}}

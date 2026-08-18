@@ -1,5 +1,5 @@
 {
-  "configVersion": 109,
+  "configVersion": 110,
   "minEngineVersion": "11.2.0",
   "app": {
     "name": "Digiexpress",
@@ -468,14 +468,14 @@
     {
       "id": "pomodoro",
       "title": "Pomodoro",
-      "subtitle": "Focus timer",
+      "subtitle": "Focus feature",
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/pomodoro.json?v=109",
+      "config": "operations/pomodoro.json?v=110",
       "iconSvgPath": "M24 5a17 17 0 1 0 17 17A17 17 0 0 0 24 5Zm2 6v10.2l7 4.1-2 3.4-9-5.2V11h4Zm-8-8h12v4H18V3Z",
-      "description": "Professional Pomodoro focus timer with configurable focus and break cycles, auto-start, sound and daily statistics.",
-      "runLabel": "Pomodoro",
+      "description": "Built-in focus timer with configurable Pomodoro cycles, auto-start, sound and daily statistics. Opens directly with no operation run step.",
+      "runLabel": "Open Pomodoro",
       "uiMode": "form",
       "inputs": [
         {
@@ -492,14 +492,14 @@
     {
       "id": "work-healthy",
       "title": "Work Healthy",
-      "subtitle": "Healthy desk breaks",
+      "subtitle": "Wellness feature",
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/work-healthy.json?v=109",
+      "config": "operations/work-healthy.json?v=110",
       "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-9 15h18l5 7-3 3-4-5v18h-5V31h-4v11h-5V24l-4 5-3-3 5-7Z",
-      "description": "Configurable workplace wellness reminders with illustrated desk exercises for eyes, neck, shoulders, back, wrists and legs.",
-      "runLabel": "Work Healthy",
+      "description": "Built-in workplace wellness feature with configurable reminders and colorful animated exercise demonstrations. Opens directly with no operation run step.",
+      "runLabel": "Open Work Healthy",
       "uiMode": "form",
       "inputs": [
         {
@@ -514,15 +514,15 @@
       ]
     }
   ],
-  "publishedAt": "2026-08-18T14:55:00+03:30",
+  "publishedAt": "2026-08-18T15:51:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=109",
-    "css": "ui/app.css?v=109",
+    "html": "ui/app.html?v=110",
+    "css": "ui/app.css?v=110",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=46"
   },
