@@ -126,18 +126,6 @@
           "field": "parentName"
         },
         {
-          "header": "کد پرنت",
-          "field": "parentCode"
-        },
-        {
-          "header": "تاریخ شروع",
-          "field": "startDate"
-        },
-        {
-          "header": "تاریخ پایان",
-          "field": "endDate"
-        },
-        {
           "header": "وضعیت",
           "result": true,
           "successText": "Success",

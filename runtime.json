@@ -17,7 +17,7 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v206 for Stable Host 12.0.1. PUDO adds whole-batch progress plus a live auto-scrolling center result table; PUDO business rules remain Remote-owned.",
-  "configVersion": 209,
+  "configVersion": 210,
   "minimumRuntimeVersion": "12.0.1",
   "minimumRuntime": "12.0.1",
   "workflowLanguageVersion": 3,
@@ -26,6 +26,6 @@
   "runtimeUpdatePolicy": "security-only",
   "version": "12.0.1",
   "platformContract": 12,
-  "remoteVersion": 209,
+  "remoteVersion": 210,
   "executionModel": "remote-first-declarative"
 }
