@@ -165,7 +165,8 @@
         "exactMatchTimeoutMs": 6000,
         "verifyExactValue": true,
         "commitWaitMs": 1000,
-        "outsideWaitMs": 350
+        "outsideWaitMs": 350,
+        "ignoreBracketSuffix": true
       }
     },
     {

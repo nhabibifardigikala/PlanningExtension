@@ -16,8 +16,8 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v115. PUDO Auto Config uses generic exact-match autocomplete available in Stable Host 11.3.9.",
-  "configVersion": 115,
+  "notes": "Remote app v116. PUDO Auto Config uses generic exact-match autocomplete available in Stable Host 11.3.9.",
+  "configVersion": 116,
   "minimumRuntimeVersion": "11.3.9",
   "minimumRuntime": "11.3.9",
   "workflowLanguageVersion": 3,
@@ -26,5 +26,5 @@
   "runtimeUpdatePolicy": "fundamental-only",
   "version": "11.3.9",
   "platformContract": 11,
-  "remoteVersion": 115
+  "remoteVersion": 116
 }
