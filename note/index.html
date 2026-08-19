@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Note</title>
-  <link rel="stylesheet" href="note.css?v=73">
+  <link rel="stylesheet" href="note.css?v=115">
 </head>
 <body>
 <div class="note-app">
@@ -88,6 +88,11 @@
       </select></label>
       <label class="field"><span data-i18n="category">دسته‌بندی</span><select id="noteCategory"></select></label>
     </div>
+    <label class="field full"><span data-i18n="textDirection">جهت متن</span><select id="noteDirection">
+      <option value="auto" data-i18n="directionAuto">خودکار</option>
+      <option value="rtl" data-i18n="directionRtl">راست به چپ</option>
+      <option value="ltr" data-i18n="directionLtr">چپ به راست</option>
+    </select></label>
     <label class="field full"><span data-i18n="noteText">متن</span><textarea id="noteText" rows="7" data-i18n-placeholder="noteTextPlaceholder" placeholder="متن یادداشت"></textarea></label>
 
     <div class="check-area">
@@ -112,6 +117,6 @@
 </div>
 
 <div id="toast" class="toast hidden" aria-live="polite"></div>
-<script src="note.js?v=73"></script>
+<script src="note.js?v=115"></script>
 </body>
 </html>

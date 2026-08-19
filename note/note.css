@@ -8,3 +8,10 @@
 .search-filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.72fr);gap:8px;align-items:end}
 .search-filter-row label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:12px}
 @media(max-width:360px){.search-filter-row{grid-template-columns:1fr 1fr}}
+
+/* v114 — per-note RTL/LTR support */
+.note-card[dir="rtl"] h3,.note-card[dir="rtl"] p,.note-card[dir="rtl"] .mini-check{direction:rtl;text-align:right}
+.note-card[dir="ltr"] h3,.note-card[dir="ltr"] p,.note-card[dir="ltr"] .mini-check{direction:ltr;text-align:left}
+.note-card[dir="rtl"] .mini-check{flex-direction:row}.note-card[dir="ltr"] .mini-check{flex-direction:row}
+#noteTitle[dir="rtl"],#noteText[dir="rtl"],#checkText[dir="rtl"],#checkList input[dir="rtl"]{direction:rtl;text-align:right}
+#noteTitle[dir="ltr"],#noteText[dir="ltr"],#checkText[dir="ltr"],#checkList input[dir="ltr"]{direction:ltr;text-align:left}

@@ -1,0 +1,210 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "requiredHosts": [
+    "https://drop-shipping.digikala.com/*",
+    "https://sso.digikala.com/*",
+    "https://auth.mydigikala.com/*"
+  ],
+  "description": "Upload an Excel file and create Drop Shipping batch configurations row by row.",
+  "runLabel": "Start PUDO Auto Config",
+  "inputs": [
+    {
+      "name": "pudoFile",
+      "label": "PUDO configuration Excel",
+      "type": "file",
+      "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "required": true,
+      "help": "Four columns: Center Name / نام مرکز, Parent Name / نام پرنت, Start Date / تاریخ شروع, End Date / تاریخ پایان. Jalali dates: YYYYMMDD or YYYY/MM/DD."
+    }
+  ],
+  "clientProcessor": {
+    "type": "excel-batch-workflow",
+    "fileField": "pudoFile",
+    "maxRetries": 3,
+    "retryDelayMs": 1500,
+    "columnMap": {
+      "centerName": {
+        "headers": [
+          "Center Name",
+          "Center",
+          "نام مرکز",
+          "مرکز"
+        ],
+        "index": 0
+      },
+      "parentName": {
+        "headers": [
+          "Parent Name",
+          "Parent",
+          "نام پرنت",
+          "پرنت"
+        ],
+        "index": 1
+      },
+      "startDate": {
+        "headers": [
+          "Start Date",
+          "From Date",
+          "تاریخ شروع"
+        ],
+        "index": 2
+      },
+      "endDate": {
+        "headers": [
+          "End Date",
+          "To Date",
+          "تاریخ پایان"
+        ],
+        "index": 3
+      }
+    },
+    "validation": {
+      "required": [
+        "centerName",
+        "parentName",
+        "startDate",
+        "endDate"
+      ],
+      "labels": {
+        "centerName": "Center Name",
+        "parentName": "Parent Name",
+        "startDate": "Start Date",
+        "endDate": "End Date"
+      }
+    },
+    "result": {
+      "resultColumn": "Result",
+      "successText": "Done",
+      "downloadButtonLabel": "Download Result",
+      "sheetName": "PUDO Auto Config Results",
+      "filename": "pudo_auto_config_result_{{timestamp}}.xlsx",
+      "successFill": "C6EFCE",
+      "failureFill": "FFC7CE",
+      "notProcessedText": "Not processed (cancelled)"
+    },
+    "tabSession": {
+      "enabled": true,
+      "background": false,
+      "reuseForBatch": true,
+      "closeOnFinish": false,
+      "closeOnCancel": false
+    }
+  },
+  "navigation": {
+    "retryCount": 8,
+    "retryDelayMs": 400,
+    "completeTimeoutMs": 30000
+  },
+  "successMessage": "Done",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://drop-shipping.digikala.com/batch-configs",
+      "active": true,
+      "progress": "Opening PUDO Batch Config…",
+      "completeTimeoutMs": 30000
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 5000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/batch-configs",
+      "progress": "Opening Batch Config form…",
+      "completeTimeoutMs": 30000
+    },
+    {
+      "action": "waitFor",
+      "selector": "input.uk-select.es-input",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for PUDO configuration form…",
+      "error": "PUDO configuration fields were not found."
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input",
+      "value": "{{parentName}}",
+      "attempts": 3,
+      "verifyNonEmpty": true,
+      "progress": "Selecting parent: {{parentName}}…",
+      "error": "Parent could not be selected.",
+      "options": {
+        "selectorIndex": 0,
+        "focusWaitMs": 400,
+        "typingDelayMs": 70,
+        "autocompleteWaitMs": 1400,
+        "pressEnter": true,
+        "commitWaitMs": 900,
+        "outsideWaitMs": 350
+      }
+    },
+    {
+      "action": "wait",
+      "ms": 500,
+      "progress": "Waiting for parent selection…"
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input",
+      "value": "{{centerName}}",
+      "attempts": 3,
+      "verifyNonEmpty": true,
+      "progress": "Selecting exact center: {{centerName}}…",
+      "error": "An exact Center Name match could not be selected.",
+      "options": {
+        "selectorIndex": 1,
+        "focusWaitMs": 400,
+        "typingDelayMs": 70,
+        "autocompleteWaitMs": 1400,
+        "exactMatch": true,
+        "exactMatchTimeoutMs": 6000,
+        "verifyExactValue": true,
+        "commitWaitMs": 1000,
+        "outsideWaitMs": 350
+      }
+    },
+    {
+      "action": "jalaliDate",
+      "selector": "#form-field-from_date, input[data-name=\"from_date\"]",
+      "value": "{{startDate}}",
+      "progress": "Setting start date: {{startDate}}…",
+      "error": "Start Date could not be entered.",
+      "options": {
+        "slashFormat": true,
+        "waitBeforeOutsideMs": 700,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 450
+      }
+    },
+    {
+      "action": "jalaliDate",
+      "selector": "#form-field-to_date, input[data-name=\"to_date\"]",
+      "value": "{{endDate}}",
+      "progress": "Setting end date: {{endDate}}…",
+      "error": "End Date could not be entered.",
+      "options": {
+        "slashFormat": true,
+        "waitBeforeOutsideMs": 700,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 500
+      }
+    },
+    {
+      "action": "click",
+      "selector": "button.uk-button.uk-button-primary",
+      "textContains": "Add Batch Config",
+      "progress": "Adding batch configuration…",
+      "error": "Add Batch Config button could not be clicked.",
+      "afterMs": 1800
+    }
+  ]
+}

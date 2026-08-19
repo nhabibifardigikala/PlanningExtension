@@ -92,3 +92,6 @@ Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-sep
 
 ### Paginated table parser selectors
 `extractPaginatedTable.parser` may define `tableSelector`, `headerSelector`, and `rowSelector`. This allows operations to extract only primary records from pages that contain nested/subtables.
+
+## Runtime 11.3.9 generic autocomplete exact matching
+The existing `autocomplete` primitive may set `options.exactMatch: true`. In this mode the engine waits for visible autocomplete suggestions and clicks only a suggestion whose visible text exactly matches the requested value. `exactMatchSelector`, `exactMatchTimeoutMs`, and `verifyExactValue` remain remote-configurable.

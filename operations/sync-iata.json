@@ -232,7 +232,57 @@
           "loginDetectTimeoutMs": 4000
         }
       },
-      "progress": "Updating Shipping Point IATA corrections…"
+      "progress": "Updating Shipping Point IATA corrections…",
+      "liveReport": {
+        "title": "Sync IATA live report",
+        "successText": "Updated {{source}} {{id}}: {{currentCode}} -> {{targetCode}}",
+        "failureText": "Failed {{source}} {{id}}: {{error}}",
+        "columns": [
+          {
+            "header": "Type",
+            "value": "{{source}}"
+          },
+          {
+            "header": "Name",
+            "value": "{{name}}"
+          },
+          {
+            "header": "ID",
+            "value": "{{id}}"
+          },
+          {
+            "header": "Previous IATA",
+            "value": "{{currentCode}}"
+          },
+          {
+            "header": "Target IATA",
+            "value": "{{targetCode}}"
+          },
+          {
+            "header": "Attempt",
+            "value": "Initial"
+          },
+          {
+            "header": "Result",
+            "value": "{{status}}"
+          },
+          {
+            "header": "Error",
+            "value": "{{error}}"
+          },
+          {
+            "header": "Processed At",
+            "value": "{{processedAt}}"
+          }
+        ],
+        "export": {
+          "buttonLabel": "Download Excel",
+          "sheetName": "Sync IATA Report",
+          "filename": "sync_iata_report_{{timestamp}}.xlsx",
+          "saveAs": false,
+          "autoDownloadOnDone": true
+        }
+      }
     },
     {
       "action": "navigate",
@@ -386,7 +436,57 @@
           "loginDetectTimeoutMs": 4000
         }
       },
-      "progress": "Retrying remaining Shipping Point IATA corrections…"
+      "progress": "Retrying remaining Shipping Point IATA corrections…",
+      "liveReport": {
+        "title": "Sync IATA live report",
+        "successText": "Updated {{source}} {{id}}: {{currentCode}} -> {{targetCode}}",
+        "failureText": "Failed {{source}} {{id}}: {{error}}",
+        "columns": [
+          {
+            "header": "Type",
+            "value": "{{source}}"
+          },
+          {
+            "header": "Name",
+            "value": "{{name}}"
+          },
+          {
+            "header": "ID",
+            "value": "{{id}}"
+          },
+          {
+            "header": "Previous IATA",
+            "value": "{{currentCode}}"
+          },
+          {
+            "header": "Target IATA",
+            "value": "{{targetCode}}"
+          },
+          {
+            "header": "Attempt",
+            "value": "Retry"
+          },
+          {
+            "header": "Result",
+            "value": "{{status}}"
+          },
+          {
+            "header": "Error",
+            "value": "{{error}}"
+          },
+          {
+            "header": "Processed At",
+            "value": "{{processedAt}}"
+          }
+        ],
+        "export": {
+          "buttonLabel": "Download Excel",
+          "sheetName": "Sync IATA Report",
+          "filename": "sync_iata_report_{{timestamp}}.xlsx",
+          "saveAs": false,
+          "autoDownloadOnDone": true
+        }
+      }
     },
     {
       "action": "navigate",
@@ -569,7 +669,57 @@
           "loginDetectTimeoutMs": 4000
         }
       },
-      "progress": "Updating Shipping Polygon IATA corrections…"
+      "progress": "Updating Shipping Polygon IATA corrections…",
+      "liveReport": {
+        "title": "Sync IATA live report",
+        "successText": "Updated {{source}} {{id}}: {{currentCode}} -> {{targetCode}}",
+        "failureText": "Failed {{source}} {{id}}: {{error}}",
+        "columns": [
+          {
+            "header": "Type",
+            "value": "{{source}}"
+          },
+          {
+            "header": "Name",
+            "value": "{{name}}"
+          },
+          {
+            "header": "ID",
+            "value": "{{id}}"
+          },
+          {
+            "header": "Previous IATA",
+            "value": "{{currentCode}}"
+          },
+          {
+            "header": "Target IATA",
+            "value": "{{targetCode}}"
+          },
+          {
+            "header": "Attempt",
+            "value": "Initial"
+          },
+          {
+            "header": "Result",
+            "value": "{{status}}"
+          },
+          {
+            "header": "Error",
+            "value": "{{error}}"
+          },
+          {
+            "header": "Processed At",
+            "value": "{{processedAt}}"
+          }
+        ],
+        "export": {
+          "buttonLabel": "Download Excel",
+          "sheetName": "Sync IATA Report",
+          "filename": "sync_iata_report_{{timestamp}}.xlsx",
+          "saveAs": false,
+          "autoDownloadOnDone": true
+        }
+      }
     },
     {
       "action": "navigate",
@@ -752,7 +902,57 @@
           "loginDetectTimeoutMs": 4000
         }
       },
-      "progress": "Retrying remaining Shipping Polygon IATA corrections…"
+      "progress": "Retrying remaining Shipping Polygon IATA corrections…",
+      "liveReport": {
+        "title": "Sync IATA live report",
+        "successText": "Updated {{source}} {{id}}: {{currentCode}} -> {{targetCode}}",
+        "failureText": "Failed {{source}} {{id}}: {{error}}",
+        "columns": [
+          {
+            "header": "Type",
+            "value": "{{source}}"
+          },
+          {
+            "header": "Name",
+            "value": "{{name}}"
+          },
+          {
+            "header": "ID",
+            "value": "{{id}}"
+          },
+          {
+            "header": "Previous IATA",
+            "value": "{{currentCode}}"
+          },
+          {
+            "header": "Target IATA",
+            "value": "{{targetCode}}"
+          },
+          {
+            "header": "Attempt",
+            "value": "Retry"
+          },
+          {
+            "header": "Result",
+            "value": "{{status}}"
+          },
+          {
+            "header": "Error",
+            "value": "{{error}}"
+          },
+          {
+            "header": "Processed At",
+            "value": "{{processedAt}}"
+          }
+        ],
+        "export": {
+          "buttonLabel": "Download Excel",
+          "sheetName": "Sync IATA Report",
+          "filename": "sync_iata_report_{{timestamp}}.xlsx",
+          "saveAs": false,
+          "autoDownloadOnDone": true
+        }
+      }
     },
     {
       "action": "closeTab",
