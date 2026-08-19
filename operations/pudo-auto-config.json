@@ -154,25 +154,35 @@
       "value": "{{centerName}}",
       "attempts": 3,
       "verifyNonEmpty": true,
-      "progress": "Selecting exact center: {{centerName}}…",
-      "error": "An exact Center Name match could not be selected.",
+      "progress": "Selecting center by exact name (ignoring [ID]): {{centerName}}…",
+      "error": "Center was shown but could not be selected by exact name after ignoring the trailing [ID].",
       "options": {
         "selectorIndex": 1,
         "focusWaitMs": 400,
         "typingDelayMs": 70,
         "autocompleteWaitMs": 1400,
         "exactMatch": true,
-        "exactMatchTimeoutMs": 6000,
+        "exactMatchTimeoutMs": 8000,
         "verifyExactValue": true,
         "commitWaitMs": 1000,
         "outsideWaitMs": 350,
         "matchTransforms": [
-          "normalizeUnicode",
-          "stripTrailingBrackets",
+          {
+            "type": "normalizeUnicode",
+            "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "\\s*\\[[^\\]]*\\]\\s*$",
+            "flags": "g",
+            "replacement": ""
+          },
           "collapseWhitespace",
           "trim",
           "caseFold"
-        ]
+        ],
+        "exactMatchSelector": ".es-list li, .es-list > div, .es-list a, .es-list span, [class*=\"es-list\"] li, [class*=\"es-list\"] > div, [class*=\"autocomplete\"] li, [class*=\"autocomplete\"] [role=\"option\"], [role=\"listbox\"] [role=\"option\"]",
+        "exactMatchCommitWaitMs": 1200
       }
     },
     {

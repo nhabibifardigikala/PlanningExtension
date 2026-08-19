@@ -1,6 +1,6 @@
 # Remote architecture status
 
-**Remote v200 — remote-first product layer.** Normal releases must not require a Host update.
+**Remote v201 — remote-first product layer.** Normal releases must not require a Host update.
 
 # PlanningExtension Remote Application v18
 
