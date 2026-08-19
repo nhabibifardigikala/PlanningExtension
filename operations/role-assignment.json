@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign or revoke role IDs. Retry transient workflow failures up to two additional times.",
+  "description": "Find a user by email or personnel code and assign or revoke role IDs. Runs through the persistent background batch controller and retries transient workflow failures.",
   "uiMode": "form",
   "runLabel": "Assign Roles",
   "requiredHosts": [
@@ -125,7 +125,10 @@
         "role ids",
         "roles"
       ]
-    }
+    },
+    "executionMode": "background",
+    "backgroundPersistent": true,
+    "description": "Batch controller runs in the extension background runtime so switching tabs or minimizing the Operations Toolkit does not stop the job."
   },
   "successMessage": "Role access operation completed.",
   "workflow": [
@@ -163,15 +166,16 @@
       "progress": "Entering email…"
     },
     {
-      "action": "press",
+      "action": "submitNearestForm",
       "when": {
         "left": "{{userIdentifier}}",
         "operator": "contains",
         "right": "@"
       },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "key": "Enter",
-      "progress": "Searching user…"
+      "progress": "Searching user…",
+      "waitForNavigation": false,
+      "options": {}
     },
     {
       "action": "waitFor",
@@ -196,15 +200,16 @@
       "progress": "Entering personnel code…"
     },
     {
-      "action": "press",
+      "action": "submitNearestForm",
       "when": {
         "left": "{{userIdentifier}}",
         "operator": "notContains",
         "right": "@"
       },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "key": "Enter",
-      "progress": "Searching user…"
+      "progress": "Searching user…",
+      "waitForNavigation": false,
+      "options": {}
     },
     {
       "action": "wait",
@@ -364,15 +369,16 @@
       "progress": "Entering email for Active Directory sync…"
     },
     {
-      "action": "press",
+      "action": "submitNearestForm",
       "when": {
         "left": "{{userLookup.ok}}|{{userIdentifier}}",
         "operator": "regex",
         "right": "^false\\|.*@"
       },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "key": "Enter",
-      "progress": "Searching Active Directory…"
+      "progress": "Searching Active Directory…",
+      "waitForNavigation": false,
+      "options": {}
     },
     {
       "action": "waitFor",
@@ -397,15 +403,16 @@
       "progress": "Entering personnel code for Active Directory sync…"
     },
     {
-      "action": "press",
+      "action": "submitNearestForm",
       "when": {
         "left": "{{userLookup.ok}}|{{userIdentifier}}",
         "operator": "regex",
         "right": "^false\\|\\d+$"
       },
       "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
-      "key": "Enter",
-      "progress": "Searching Active Directory…"
+      "progress": "Searching Active Directory…",
+      "waitForNavigation": false,
+      "options": {}
     },
     {
       "action": "waitFor",
@@ -453,14 +460,15 @@
       "progress": "Searching synced user by email…"
     },
     {
-      "action": "press",
+      "action": "submitNearestForm",
       "when": {
         "left": "{{userLookup.ok}}|{{userIdentifier}}",
         "operator": "regex",
         "right": "^false\\|.*@"
       },
       "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "key": "Enter"
+      "waitForNavigation": false,
+      "options": {}
     },
     {
       "action": "fill",
@@ -474,14 +482,15 @@
       "progress": "Searching synced user by personnel code…"
     },
     {
-      "action": "press",
+      "action": "submitNearestForm",
       "when": {
         "left": "{{userLookup.ok}}|{{userIdentifier}}",
         "operator": "regex",
         "right": "^false\\|\\d+$"
       },
       "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "key": "Enter"
+      "waitForNavigation": false,
+      "options": {}
     },
     {
       "action": "waitFor",
@@ -604,7 +613,7 @@
       },
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 20000,
+      "frameTimeoutMs": 30000,
       "progress": "Selecting role IDs…",
       "options": {
         "selectionMode": "assign",
@@ -613,12 +622,13 @@
         "afterChosenFilterMs": 900,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
-        "resultTimeoutMs": 15000,
-        "pollMs": 250,
+        "resultTimeoutMs": 45000,
+        "pollMs": 500,
         "afterEachMs": 350,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-        "backgroundSafe": true
+        "backgroundSafe": true,
+        "submitMode": "form"
       },
       "resultHeaders": [
         "Role ID",
@@ -636,7 +646,7 @@
       },
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 20000,
+      "frameTimeoutMs": 30000,
       "progress": "Selecting roles to revoke…",
       "options": {
         "selectionMode": "revoke",
@@ -645,12 +655,13 @@
         "afterChosenFilterMs": 900,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
-        "resultTimeoutMs": 15000,
-        "pollMs": 250,
+        "resultTimeoutMs": 45000,
+        "pollMs": 500,
         "afterEachMs": 350,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-        "backgroundSafe": true
+        "backgroundSafe": true,
+        "submitMode": "form"
       },
       "resultHeaders": [
         "Role ID",
@@ -663,8 +674,8 @@
       "action": "clickInFrameAndWait",
       "selector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
       "successSelector": "button.form-save-button.admin-submit-button",
-      "frameTimeoutMs": 20000,
-      "timeoutMs": 20000,
+      "frameTimeoutMs": 30000,
+      "timeoutMs": 45000,
       "intervalMs": 250,
       "requireSourceGone": false,
       "progress": "Applying selected roles…",
@@ -680,8 +691,8 @@
       "action": "clickInFrameAndWait",
       "selector": "button.form-save-button.admin-submit-button",
       "requireSourceGone": true,
-      "frameTimeoutMs": 20000,
-      "timeoutMs": 30000,
+      "frameTimeoutMs": 30000,
+      "timeoutMs": 45000,
       "intervalMs": 250,
       "progress": "Saving assigned roles…",
       "error": "Roles could not be saved because the Save button is still visible."

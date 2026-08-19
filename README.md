@@ -1,6 +1,6 @@
 # Remote architecture status
 
-**Remote v208 — remote-first product layer.** Normal releases must not require a Host update.
+**Remote v209 — remote-first product layer.** Normal releases must not require a Host update.
 
 # PlanningExtension Remote Application v18
 
@@ -204,3 +204,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v206
 PUDO live batch progress is enabled through the generic Host 12.0.1 batch-observability capability. The progress bar reports processed centers across the full workbook, and the live result table auto-scrolls to the latest center. PUDO selectors, success rules, columns and workflow remain Remote-owned.
+
+## v209 Role Assignment background-safe execution
+
+Role Assignment now submits the parsed user list to the Host background batch controller in one request. User/AD searches use native form submission where available, and role chooser result polling allows longer hidden-tab rendering without moving product logic into the Host.
