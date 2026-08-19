@@ -166,7 +166,13 @@
         "verifyExactValue": true,
         "commitWaitMs": 1000,
         "outsideWaitMs": 350,
-        "ignoreBracketSuffix": true
+        "matchTransforms": [
+          "normalizeUnicode",
+          "stripTrailingBrackets",
+          "collapseWhitespace",
+          "trim",
+          "caseFold"
+        ]
       }
     },
     {
@@ -207,5 +213,7 @@
       "error": "Add Batch Config button could not be clicked.",
       "afterMs": 1800
     }
-  ]
+  ],
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

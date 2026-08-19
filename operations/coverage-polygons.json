@@ -4,5 +4,7 @@
   "requiresCredentials": false,
   "description": "View and filter built-in coverage polygons and check a location against them.",
   "workflow": [],
-  "successMessage": "Ready."
+  "successMessage": "Ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

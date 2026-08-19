@@ -1,8 +1,8 @@
 {
-  "platformContract": 11,
+  "platformContract": 12,
   "workflowDsl": 1,
   "engineModeDefault": "remote",
-  "hostUpdatePolicy": "fundamental-only",
+  "hostUpdatePolicy": "security-only",
   "remoteOwns": [
     "operations",
     "forms",
@@ -35,8 +35,11 @@
     "generic-control-flow",
     "generic-network",
     "generic-download",
+    "generic-xlsx",
+    "generic-normalization",
     "activity-log",
     "remote-loader"
   ],
-  "remoteVersion": 116
+  "remoteVersion": 200,
+  "updateRule": "Business/product changes must be Remote-only. Host updates are reserved for security or browser-runtime compatibility."
 }

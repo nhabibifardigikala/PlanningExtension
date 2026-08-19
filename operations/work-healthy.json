@@ -4,5 +4,7 @@
   "requiresCredentials": false,
   "description": "Configurable workplace wellness reminders with professional ergonomic motion guides and enable/disable controls.",
   "workflow": [],
-  "successMessage": "Work Healthy ready."
+  "successMessage": "Work Healthy ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

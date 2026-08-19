@@ -107,5 +107,7 @@
   "retryPolicy": {
     "attempts": 3,
     "delayMs": 1500
-  }
+  },
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

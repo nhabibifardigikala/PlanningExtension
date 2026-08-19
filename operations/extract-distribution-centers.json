@@ -208,5 +208,7 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 11
+  "remoteBehaviorVersion": 11,
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

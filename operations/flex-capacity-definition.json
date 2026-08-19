@@ -508,5 +508,7 @@
     "completeTimeoutMs": 30000
   },
   "uiMode": "form",
-  "runLabel": "Run"
+  "runLabel": "Run",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

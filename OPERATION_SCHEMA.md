@@ -93,5 +93,23 @@ Each `reconcileCodeByName.sources[]` entry may contain `excludeIds`, a comma-sep
 ### Paginated table parser selectors
 `extractPaginatedTable.parser` may define `tableSelector`, `headerSelector`, and `rowSelector`. This allows operations to extract only primary records from pages that contain nested/subtables.
 
-## Runtime 11.3.9 generic autocomplete exact matching
+## Stable Host 12 generic autocomplete matching
 The existing `autocomplete` primitive may set `options.exactMatch: true`. In this mode the engine waits for visible autocomplete suggestions and clicks only a suggestion whose visible text exactly matches the requested value. `exactMatchSelector`, `exactMatchTimeoutMs`, and `verifyExactValue` remain remote-configurable.
+
+
+## Remote-defined normalization pipeline
+
+Autocomplete exact matching may define `options.matchTransforms` entirely in Remote. Supported stable transforms include `normalizeUnicode`, `trim`, `collapseWhitespace`, `caseFold`, `stripTrailingBrackets`, `stripAllBrackets`, `replace`, and parameterized `regexReplace`. Business-specific normalization must be expressed here rather than added to Host code.
+
+Example:
+```json
+{
+  "matchTransforms": [
+    "normalizeUnicode",
+    {"type":"regexReplace","pattern":"\\s*\\[[^\\]]*\\]\\s*$","replacement":""},
+    "collapseWhitespace",
+    "trim",
+    "caseFold"
+  ]
+}
+```

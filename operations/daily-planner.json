@@ -4,5 +4,7 @@
   "requiresCredentials": false,
   "description": "Create tasks, review task lists, organize the daily timeline and manage planner settings.",
   "workflow": [],
-  "successMessage": "Planner ready."
+  "successMessage": "Planner ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

@@ -4,5 +4,7 @@
   "requiresCredentials": false,
   "description": "Create reusable time-study projects, define tasks, record task durations and export measurements to Excel.",
   "workflow": [],
-  "successMessage": "Time Study ready."
+  "successMessage": "Time Study ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }

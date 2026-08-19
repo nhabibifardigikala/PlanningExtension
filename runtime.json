@@ -1,5 +1,5 @@
 {
-  "contractVersion": 4,
+  "contractVersion": 5,
   "loading": {
     "title": "Loading Digiexpress…",
     "message": "Loading the latest application configuration."
@@ -16,15 +16,16 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v116. PUDO Auto Config uses generic exact-match autocomplete available in Stable Host 11.3.9.",
-  "configVersion": 116,
-  "minimumRuntimeVersion": "11.3.9",
-  "minimumRuntime": "11.3.9",
+  "notes": "Remote app v200 for Secure Stable Host 12. Business logic, selectors, workflows, retry rules, normalization, reports and feature UI are remote-owned. Host updates are reserved for security/browser-runtime changes.",
+  "configVersion": 200,
+  "minimumRuntimeVersion": "12.0.0",
+  "minimumRuntime": "12.0.0",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "11.3.9",
-  "runtimeUpdatePolicy": "fundamental-only",
-  "version": "11.3.9",
-  "platformContract": 11,
-  "remoteVersion": 116
+  "recommendedRuntime": "12.0.0",
+  "runtimeUpdatePolicy": "security-only",
+  "version": "12.0.0",
+  "platformContract": 12,
+  "remoteVersion": 200,
+  "executionModel": "remote-first-declarative"
 }

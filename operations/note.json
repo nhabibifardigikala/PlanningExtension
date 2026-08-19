@@ -4,5 +4,7 @@
   "requiresCredentials": false,
   "description": "Create and edit notes with colors, categories, checklists and images.",
   "workflow": [],
-  "successMessage": "Note ready."
+  "successMessage": "Note ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
 }
