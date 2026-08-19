@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Secure local TOTP authenticator backed by the Host encrypted vault.",
+  "workflow": [],
+  "successMessage": "Authenticator ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "host-security-boundary"
+}

@@ -365,3 +365,17 @@ body:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyE
 #operationView:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]) .wellness-embedded,
 #operationView:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]) .wellness-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden;margin-top:6px}
 @media(max-width:700px){.wellness-embedded{height:calc(100vh - 150px)}}
+
+
+/* Generic operation sub-tabs — Remote-owned labels/config, Host renders the shell. */
+.operation-subtabs{position:sticky;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:18px -6px -6px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid color-mix(in srgb,var(--border) 40%,transparent)}
+.operation-subtabs.hidden{display:none!important}.operation-subtab{min-height:44px;border:1px solid color-mix(in srgb,var(--border) 55%,transparent);border-radius:12px;background:var(--card);color:var(--muted);font:inherit;font-size:11px;font-weight:800;cursor:pointer;padding:8px 6px}.operation-subtab.active{background:var(--accent);border-color:var(--accent);color:#071a33}.operation-subtab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#operationView:has(#operationSubTabs:not(.hidden)){padding-bottom:4px}
+
+/* Authenticator is a Host-owned local security UI; Remote only exposes the feature shell. */
+.authenticator-embedded{display:none;flex:1 1 auto;min-height:0;margin-top:6px}
+.authenticator-embedded iframe{display:block;width:100%;height:100%;min-height:560px;border:0;border-radius:14px;background:var(--card,#fff)}
+#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) #authenticatorEmbedded{display:block}
+#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) #operationBackBtn,#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) .settings-heading{display:none!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),#operationView.active:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]){height:100%;min-height:0;overflow:hidden}
+#operationView.active:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]){display:flex;flex-direction:column}

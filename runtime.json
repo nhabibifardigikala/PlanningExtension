@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v213. Polygon consumers load DX_Polygons.xlsx directly; Role Assignment uses native framed-form search with Host 12.0.5 for minimized/background execution.",
-  "configVersion": 216,
-  "minimumRuntimeVersion": "12.0.5",
-  "minimumRuntime": "12.0.5",
+  "notes": "Remote app v218. Adds Authenticator feature shell; encrypted secrets and TOTP generation remain inside Host 12.0.7 security boundary.",
+  "configVersion": 218,
+  "minimumRuntimeVersion": "12.0.7",
+  "minimumRuntime": "12.0.7",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.0.5",
+  "recommendedRuntime": "12.0.7",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.0.5",
+  "version": "12.0.7",
   "platformContract": 12,
-  "remoteVersion": 216,
+  "remoteVersion": 218,
   "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.0.5"
+  "runtimeVersion": "12.0.7"
 }

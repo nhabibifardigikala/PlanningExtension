@@ -2,849 +2,3027 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign or revoke one or more role IDs. Role selection is first-row safe: the chooser filter checkbox is isolated from row checkboxes, and role checkbox state is applied without toggle-style double clicks.",
+  "description": "Role access toolkit with Assign/Revoke, Copy Roles, and User Access Diff.",
   "uiMode": "form",
-  "runLabel": "Assign Roles",
   "requiredHosts": [
     "https://sso.digikala.com/*"
   ],
   "closeTabOnError": true,
-  "inputs": [
+  "defaultSubOperation": "assign-revoke",
+  "subOperations": [
     {
-      "name": "inputMode",
-      "label": "Input method",
-      "type": "radio-group",
-      "default": "single",
-      "required": true,
-      "options": [
+      "id": "assign-revoke",
+      "tabLabel": "Assign / Revoke",
+      "title": "Assign / Revoke",
+      "description": "Find a user by email or personnel code and assign or revoke one or more role IDs. Role selection is first-row safe: the chooser filter checkbox is isolated from row checkboxes, and role checkbox state is applied without toggle-style double clicks.",
+      "uiMode": "form",
+      "runLabel": "Assign Roles",
+      "inputs": [
         {
-          "value": "single",
-          "label": "Single user"
+          "name": "inputMode",
+          "label": "Input method",
+          "type": "radio-group",
+          "default": "single",
+          "required": true,
+          "options": [
+            {
+              "value": "single",
+              "label": "Single user"
+            },
+            {
+              "value": "excel",
+              "label": "Excel file"
+            }
+          ]
         },
         {
-          "value": "excel",
-          "label": "Excel file"
-        }
-      ]
-    },
-    {
-      "name": "accessAction",
-      "label": "Access action",
-      "type": "radio-group",
-      "default": "assign",
-      "required": true,
-      "options": [
-        {
-          "value": "assign",
-          "label": "Assign roles"
+          "name": "accessAction",
+          "label": "Access action",
+          "type": "radio-group",
+          "default": "assign",
+          "required": true,
+          "options": [
+            {
+              "value": "assign",
+              "label": "Assign roles"
+            },
+            {
+              "value": "revoke",
+              "label": "Revoke roles"
+            }
+          ]
         },
         {
-          "value": "revoke",
-          "label": "Revoke roles"
+          "name": "userIdentifier",
+          "label": "Email or personnel code",
+          "type": "text",
+          "placeholder": "name@digikala.com or 100",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "help": "Email is detected by @; a numeric value is treated as personnel code."
+        },
+        {
+          "name": "roleIds",
+          "label": "Role IDs",
+          "type": "text",
+          "placeholder": "1170 1180 1190",
+          "pattern": "^\\s*\\d+(?:\\s+\\d+)*\\s*$",
+          "validationMessage": "Enter one or more numeric role IDs separated by spaces.",
+          "help": "Separate multiple role IDs with spaces.",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          }
+        },
+        {
+          "name": "inputFile",
+          "label": "Excel file",
+          "type": "file",
+          "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "excel"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "excel"
+          },
+          "help": "Column A: email/personnel code. Column B: space-separated role IDs. Header row is optional."
         }
-      ]
-    },
-    {
-      "name": "userIdentifier",
-      "label": "Email or personnel code",
-      "type": "text",
-      "placeholder": "name@digikala.com or 100",
-      "showWhen": {
-        "field": "inputMode",
-        "equals": "single"
+      ],
+      "clientProcessor": {
+        "type": "single-or-excel-workflow",
+        "modeField": "inputMode",
+        "identifierField": "userIdentifier",
+        "rolesField": "roleIds",
+        "fileField": "inputFile",
+        "passthroughFields": [
+          "accessAction"
+        ],
+        "reportHeaders": [
+          "User",
+          "Role ID",
+          "Status",
+          "Message"
+        ],
+        "downloadButtonLabel": "Download Report",
+        "sheetName": "Role Access Results",
+        "filename": "role_access_results.xlsx",
+        "successFill": "C6EFCE",
+        "failureFill": "FFC7CE",
+        "excel": {
+          "headerAliases": [
+            "email",
+            "personnel code",
+            "personal code",
+            "identifier",
+            "user",
+            "ایمیل",
+            "کد پرسنلی",
+            "role id",
+            "role ids",
+            "roles"
+          ]
+        },
+        "executionMode": "background",
+        "backgroundPersistent": true,
+        "description": "Batch controller runs in the extension background runtime so switching tabs or minimizing the Operations Toolkit does not stop the job."
       },
-      "requiredWhen": {
-        "field": "inputMode",
-        "equals": "single"
-      },
-      "help": "Email is detected by @; a numeric value is treated as personnel code."
-    },
-    {
-      "name": "roleIds",
-      "label": "Role IDs",
-      "type": "text",
-      "placeholder": "1170 1180 1190",
-      "pattern": "^\\s*\\d+(?:\\s+\\d+)*\\s*$",
-      "validationMessage": "Enter one or more numeric role IDs separated by spaces.",
-      "help": "Separate multiple role IDs with spaces.",
-      "showWhen": {
-        "field": "inputMode",
-        "equals": "single"
-      },
-      "requiredWhen": {
-        "field": "inputMode",
-        "equals": "single"
+      "successMessage": "Role access operation completed.",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "active": false,
+          "progress": "Opening User Management…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 1000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Email search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Personnel-code search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "ms": 2500,
+          "progress": "Waiting for search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "ms": 3000,
+          "progress": "Waiting for the user table to finish loading…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
+          "progress": "Opening Active Directory sync…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory email field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory personnel-code field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "timeoutMs": 20000,
+          "error": "The user could not be found in Active Directory sync results."
+        },
+        {
+          "action": "click",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "textContains": "sync",
+          "afterMs": 1800,
+          "progress": "Syncing Active Directory account…",
+          "error": "The Active Directory account could not be synced."
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "progress": "Returning to User Management…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr",
+          "timeoutMs": 20000,
+          "error": "The synced user did not appear in User Management."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "waitFor",
+          "selector": "#form-field-email, #form-field-personal_code",
+          "timeoutMs": 20000,
+          "error": "The opened user details could not be verified."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "#form-field-email",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The email field was not found on the details page."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "#form-field-personal_code",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The personnel-code field was not found on the details page."
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{verifiedUserIdentifier}}",
+            "operator": "equals",
+            "right": "{{userIdentifier}}"
+          },
+          "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
+        },
+        {
+          "action": "waitFor",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "timeoutMs": 20000,
+          "error": "Role chooser button was not found."
+        },
+        {
+          "action": "click",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "afterMs": 2500,
+          "progress": "Opening and stabilizing role chooser…"
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "assign"
+          },
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "values": "{{roleIds}}",
+          "frameTimeoutMs": 120000,
+          "progress": "Selecting role IDs (first-row safe)…",
+          "options": {
+            "selectionMode": "assign",
+            "chosenFilterChecked": false,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 3000,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "resultTimeoutMs": 120000,
+            "pollMs": 750,
+            "afterEachMs": 1100,
+            "clickChoose": false,
+            "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+            "backgroundSafe": true,
+            "submitMode": "native-form",
+            "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+            "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+            "requireSearchInputForResult": false,
+            "directCheckboxState": true,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 1200
+          },
+          "resultHeaders": [
+            "Role ID",
+            "Status",
+            "Message"
+          ],
+          "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
+          "intervalMs": 500,
+          "stepAttempts": 2,
+          "stepRetryDelayMs": 2000,
+          "retryProgress": "Retrying first-row-safe role selection ({{attempt}}/{{attempts}})…",
+          "makeCurrent": false
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "assign"
+          },
+          "ms": 900,
+          "progress": "Verifying role selection state…"
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "assign"
+          },
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "values": "{{roleIds}}",
+          "frameTimeoutMs": 120000,
+          "progress": "Verifying selected role IDs without toggling checked roles…",
+          "options": {
+            "selectionMode": "assign",
+            "chosenFilterChecked": false,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 3000,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "resultTimeoutMs": 120000,
+            "pollMs": 600,
+            "afterEachMs": 1600,
+            "clickChoose": false,
+            "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+            "backgroundSafe": true,
+            "submitMode": "native-form",
+            "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+            "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+            "requireSearchInputForResult": false,
+            "directCheckboxState": true,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 1200
+          },
+          "resultHeaders": [
+            "Role ID",
+            "Status",
+            "Message"
+          ],
+          "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
+          "intervalMs": 500,
+          "stepAttempts": 3,
+          "stepRetryDelayMs": 2000,
+          "retryProgress": "Retrying role verification ({{attempt}}/{{attempts}})…",
+          "makeCurrent": true
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "revoke"
+          },
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "values": "{{roleIds}}",
+          "frameTimeoutMs": 120000,
+          "progress": "Selecting roles to revoke (first-row safe)…",
+          "options": {
+            "selectionMode": "revoke",
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 3000,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "resultTimeoutMs": 120000,
+            "pollMs": 750,
+            "afterEachMs": 1100,
+            "clickChoose": false,
+            "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+            "backgroundSafe": true,
+            "submitMode": "native-form",
+            "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+            "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+            "requireSearchInputForResult": false,
+            "directCheckboxState": true,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 1200
+          },
+          "resultHeaders": [
+            "Role ID",
+            "Status",
+            "Message"
+          ],
+          "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
+          "intervalMs": 500,
+          "stepAttempts": 2,
+          "stepRetryDelayMs": 2000,
+          "retryProgress": "Retrying role selection pass 1 ({{attempt}}/{{attempts}})…",
+          "makeCurrent": false
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "revoke"
+          },
+          "ms": 900,
+          "progress": "Verifying role revocation state…"
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "revoke"
+          },
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "values": "{{roleIds}}",
+          "frameTimeoutMs": 120000,
+          "progress": "Verifying revoked role IDs without toggling cleared roles…",
+          "options": {
+            "selectionMode": "revoke",
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 3000,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "resultTimeoutMs": 120000,
+            "pollMs": 600,
+            "afterEachMs": 1600,
+            "clickChoose": false,
+            "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+            "backgroundSafe": true,
+            "submitMode": "native-form",
+            "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+            "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+            "requireSearchInputForResult": false,
+            "directCheckboxState": true,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 1200
+          },
+          "resultHeaders": [
+            "Role ID",
+            "Status",
+            "Message"
+          ],
+          "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
+          "intervalMs": 500,
+          "stepAttempts": 3,
+          "stepRetryDelayMs": 2000,
+          "retryProgress": "Retrying role verification ({{attempt}}/{{attempts}})…",
+          "makeCurrent": true
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+          "successSelector": "button.form-save-button.admin-submit-button",
+          "frameTimeoutMs": 60000,
+          "timeoutMs": 90000,
+          "intervalMs": 500,
+          "requireSourceGone": false,
+          "progress": "Applying selected roles…",
+          "error": "The selected roles could not be returned to the user form.",
+          "stepAttempts": 4,
+          "stepRetryDelayMs": 2000
+        },
+        {
+          "action": "waitFor",
+          "selector": "button.form-save-button.admin-submit-button",
+          "timeoutMs": 20000,
+          "error": "Save button was not found after choosing roles."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button.form-save-button.admin-submit-button",
+          "requireSourceGone": true,
+          "frameTimeoutMs": 60000,
+          "timeoutMs": 90000,
+          "intervalMs": 500,
+          "progress": "Saving assigned roles…",
+          "error": "Roles could not be saved because the Save button is still visible.",
+          "stepAttempts": 4,
+          "stepRetryDelayMs": 2000
+        },
+        {
+          "action": "closeTab",
+          "progress": "Finishing Role Assignment…"
+        }
+      ],
+      "retryPolicy": {
+        "attempts": 3,
+        "delayMs": 1500
       }
     },
     {
-      "name": "inputFile",
-      "label": "Excel file",
-      "type": "file",
-      "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "showWhen": {
-        "field": "inputMode",
-        "equals": "excel"
+      "id": "copy-roles",
+      "tabLabel": "Copy Roles",
+      "title": "Copy Roles",
+      "description": "Copy every currently assigned Role ID from User A to User B. Existing roles on User B are preserved.",
+      "uiMode": "form",
+      "runLabel": "Copy Roles",
+      "inputs": [
+        {
+          "name": "sourceUserIdentifier",
+          "label": "User A — source email or personnel code",
+          "type": "text",
+          "placeholder": "name@digikala.com or 100",
+          "required": true,
+          "help": "All currently assigned roles are read from this user."
+        },
+        {
+          "name": "targetUserIdentifier",
+          "label": "User B — target email or personnel code",
+          "type": "text",
+          "placeholder": "name@digikala.com or 200",
+          "required": true,
+          "help": "Roles from User A are added to this user; existing User B roles are preserved."
+        }
+      ],
+      "clientProcessor": {
+        "type": "direct-workflow"
       },
-      "requiredWhen": {
-        "field": "inputMode",
-        "equals": "excel"
+      "successMessage": "Roles copied from User A to User B.",
+      "workflow": [
+        {
+          "action": "setContext",
+          "name": "userIdentifier",
+          "value": "{{sourceUserIdentifier}}"
+        },
+        {
+          "action": "open",
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "active": false,
+          "progress": "Opening User Management…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 1000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Email search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Personnel-code search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "ms": 2500,
+          "progress": "Waiting for search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "ms": 3000,
+          "progress": "Waiting for the user table to finish loading…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
+          "progress": "Opening Active Directory sync…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory email field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory personnel-code field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "timeoutMs": 20000,
+          "error": "The user could not be found in Active Directory sync results."
+        },
+        {
+          "action": "click",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "textContains": "sync",
+          "afterMs": 1800,
+          "progress": "Syncing Active Directory account…",
+          "error": "The Active Directory account could not be synced."
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "progress": "Returning to User Management…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr",
+          "timeoutMs": 20000,
+          "error": "The synced user did not appear in User Management."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "waitFor",
+          "selector": "#form-field-email, #form-field-personal_code",
+          "timeoutMs": 20000,
+          "error": "The opened user details could not be verified."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "#form-field-email",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The email field was not found on the details page."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "#form-field-personal_code",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The personnel-code field was not found on the details page."
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{verifiedUserIdentifier}}",
+            "operator": "equals",
+            "right": "{{userIdentifier}}"
+          },
+          "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
+        },
+        {
+          "action": "waitFor",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "timeoutMs": 20000,
+          "error": "Role chooser button was not found."
+        },
+        {
+          "action": "click",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "afterMs": 2500,
+          "progress": "Opening and stabilizing role chooser…"
+        },
+        {
+          "action": "collectFrameCheckboxValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "storeAs": "sourceRoleIds",
+          "separator": " ",
+          "frameTimeoutMs": 120000,
+          "progress": "Reading all selected roles for User A…",
+          "options": {
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 1800,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "checkedOnly": true,
+            "resultFrameSelector": "input.uk-checkbox[data-target], input[name=\"id\"][placeholder=\"ID\"]",
+            "nextSelector": "a[aria-label=\"Next page\"], a[rel=\"next\"], .uk-pagination-next a",
+            "maxPages": 100,
+            "afterPageMs": 800,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 700
+          },
+          "error": "Could not read the selected roles for User A. Reason: {{reason}}"
+        },
+        {
+          "action": "closeTab",
+          "progress": "Closing source user…"
+        },
+        {
+          "action": "setContext",
+          "name": "userIdentifier",
+          "value": "{{targetUserIdentifier}}"
+        },
+        {
+          "action": "open",
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "active": false,
+          "progress": "Opening User Management…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 1000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Email search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Personnel-code search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "ms": 2500,
+          "progress": "Waiting for search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "ms": 3000,
+          "progress": "Waiting for the user table to finish loading…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
+          "progress": "Opening Active Directory sync…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory email field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory personnel-code field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "timeoutMs": 20000,
+          "error": "The user could not be found in Active Directory sync results."
+        },
+        {
+          "action": "click",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "textContains": "sync",
+          "afterMs": 1800,
+          "progress": "Syncing Active Directory account…",
+          "error": "The Active Directory account could not be synced."
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "progress": "Returning to User Management…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr",
+          "timeoutMs": 20000,
+          "error": "The synced user did not appear in User Management."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "waitFor",
+          "selector": "#form-field-email, #form-field-personal_code",
+          "timeoutMs": 20000,
+          "error": "The opened user details could not be verified."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "#form-field-email",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The email field was not found on the details page."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "#form-field-personal_code",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The personnel-code field was not found on the details page."
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{verifiedUserIdentifier}}",
+            "operator": "equals",
+            "right": "{{userIdentifier}}"
+          },
+          "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
+        },
+        {
+          "action": "waitFor",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "timeoutMs": 20000,
+          "error": "Role chooser button was not found."
+        },
+        {
+          "action": "click",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "afterMs": 2500,
+          "progress": "Opening and stabilizing role chooser…"
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{sourceRoleIdsCount}}",
+            "operator": "gt",
+            "right": "0"
+          },
+          "error": "User A has no roles to copy."
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "values": "{{sourceRoleIds}}",
+          "frameTimeoutMs": 120000,
+          "progress": "Copying User A roles to User B…",
+          "options": {
+            "selectionMode": "assign",
+            "chosenFilterChecked": false,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 3000,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "resultTimeoutMs": 120000,
+            "pollMs": 750,
+            "afterEachMs": 1100,
+            "clickChoose": false,
+            "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+            "backgroundSafe": true,
+            "submitMode": "native-form",
+            "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+            "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+            "requireSearchInputForResult": false,
+            "directCheckboxState": true,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 1200
+          },
+          "resultHeaders": [
+            "Role ID",
+            "Status",
+            "Message"
+          ],
+          "error": "Role ID {{value}} could not be copied. Reason: {{reason}}",
+          "intervalMs": 500,
+          "stepAttempts": 3,
+          "stepRetryDelayMs": 1500,
+          "retryProgress": "Retrying copied role selection ({{attempt}}/{{attempts}})…",
+          "makeCurrent": true
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+          "successSelector": "button.form-save-button.admin-submit-button",
+          "frameTimeoutMs": 60000,
+          "timeoutMs": 90000,
+          "intervalMs": 500,
+          "requireSourceGone": false,
+          "progress": "Applying copied roles to User B…",
+          "error": "Copied roles could not be returned to the User B form.",
+          "stepAttempts": 4,
+          "stepRetryDelayMs": 1800
+        },
+        {
+          "action": "waitFor",
+          "selector": "button.form-save-button.admin-submit-button",
+          "timeoutMs": 20000,
+          "error": "Save button was not found for User B."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button.form-save-button.admin-submit-button",
+          "requireSourceGone": true,
+          "frameTimeoutMs": 60000,
+          "timeoutMs": 90000,
+          "intervalMs": 500,
+          "progress": "Saving copied roles…",
+          "error": "Copied roles could not be saved for User B.",
+          "stepAttempts": 4,
+          "stepRetryDelayMs": 1800
+        },
+        {
+          "action": "closeTab",
+          "progress": "Finishing Copy Roles…"
+        }
+      ],
+      "retryPolicy": {
+        "attempts": 2,
+        "delayMs": 1500
       },
-      "help": "Column A: email/personnel code. Column B: space-separated role IDs. Header row is optional."
+      "resultTitle": "Copy Roles result",
+      "downloadButtonLabel": "Download Report",
+      "sheetName": "Copy Roles",
+      "filename": "copy_roles_result.xlsx"
+    },
+    {
+      "id": "access-diff",
+      "tabLabel": "Access Diff",
+      "title": "User Access Diff",
+      "description": "Compare all currently assigned Role IDs for two users and show common and different access.",
+      "uiMode": "form",
+      "runLabel": "Compare Access",
+      "inputs": [
+        {
+          "name": "userAIdentifier",
+          "label": "User A — email or personnel code",
+          "type": "text",
+          "placeholder": "name@digikala.com or 100",
+          "required": true
+        },
+        {
+          "name": "userBIdentifier",
+          "label": "User B — email or personnel code",
+          "type": "text",
+          "placeholder": "name@digikala.com or 200",
+          "required": true
+        }
+      ],
+      "clientProcessor": {
+        "type": "direct-workflow"
+      },
+      "successMessage": "User access comparison completed.",
+      "workflow": [
+        {
+          "action": "setContext",
+          "name": "userIdentifier",
+          "value": "{{userAIdentifier}}"
+        },
+        {
+          "action": "open",
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "active": false,
+          "progress": "Opening User Management…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 1000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Email search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Personnel-code search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "ms": 2500,
+          "progress": "Waiting for search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "ms": 3000,
+          "progress": "Waiting for the user table to finish loading…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
+          "progress": "Opening Active Directory sync…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory email field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory personnel-code field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "timeoutMs": 20000,
+          "error": "The user could not be found in Active Directory sync results."
+        },
+        {
+          "action": "click",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "textContains": "sync",
+          "afterMs": 1800,
+          "progress": "Syncing Active Directory account…",
+          "error": "The Active Directory account could not be synced."
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "progress": "Returning to User Management…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr",
+          "timeoutMs": 20000,
+          "error": "The synced user did not appear in User Management."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "waitFor",
+          "selector": "#form-field-email, #form-field-personal_code",
+          "timeoutMs": 20000,
+          "error": "The opened user details could not be verified."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "#form-field-email",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The email field was not found on the details page."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "#form-field-personal_code",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The personnel-code field was not found on the details page."
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{verifiedUserIdentifier}}",
+            "operator": "equals",
+            "right": "{{userIdentifier}}"
+          },
+          "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
+        },
+        {
+          "action": "waitFor",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "timeoutMs": 20000,
+          "error": "Role chooser button was not found."
+        },
+        {
+          "action": "click",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "afterMs": 2500,
+          "progress": "Opening and stabilizing role chooser…"
+        },
+        {
+          "action": "collectFrameCheckboxValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "storeAs": "userARoleIds",
+          "separator": " ",
+          "frameTimeoutMs": 120000,
+          "progress": "Reading all selected roles for User A…",
+          "options": {
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 1800,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "checkedOnly": true,
+            "resultFrameSelector": "input.uk-checkbox[data-target], input[name=\"id\"][placeholder=\"ID\"]",
+            "nextSelector": "a[aria-label=\"Next page\"], a[rel=\"next\"], .uk-pagination-next a",
+            "maxPages": 100,
+            "afterPageMs": 800,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 700
+          },
+          "error": "Could not read the selected roles for User A. Reason: {{reason}}"
+        },
+        {
+          "action": "closeTab",
+          "progress": "Closing source user…"
+        },
+        {
+          "action": "setContext",
+          "name": "userIdentifier",
+          "value": "{{userBIdentifier}}"
+        },
+        {
+          "action": "open",
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "active": false,
+          "progress": "Opening User Management…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 1000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Email search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Personnel-code search field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "progress": "Searching user…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "ms": 2500,
+          "progress": "Waiting for search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening the user with the newest login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "Could not open the matching user with the newest login date."
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "ms": 3000,
+          "progress": "Waiting for the user table to finish loading…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Checking matching Details without requiring Last Login…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
+          "progress": "Opening Active Directory sync…"
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory email field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering email for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "timeoutMs": 20000,
+          "error": "Active Directory personnel-code field was not found."
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Entering personnel code for Active Directory sync…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
+          "progress": "Searching Active Directory…",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "timeoutMs": 20000,
+          "error": "The user could not be found in Active Directory sync results."
+        },
+        {
+          "action": "click",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
+          "textContains": "sync",
+          "afterMs": 1800,
+          "progress": "Syncing Active Directory account…",
+          "error": "The Active Directory account could not be synced."
+        },
+        {
+          "action": "navigate",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
+          "progress": "Returning to User Management…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by email…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "value": "{{userIdentifier}}",
+          "progress": "Searching synced user by personnel code…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "waitFor",
+          "when": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "false"
+          },
+          "selector": "table tbody tr",
+          "timeoutMs": 20000,
+          "error": "The synced user did not appear in User Management."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|\\d+$"
+          },
+          "progress": "Opening the synced user…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchHeaderAliases": [
+              "personal code",
+              "personal_code",
+              "personnel code"
+            ],
+            "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          },
+          "error": "The synced user could not be opened."
+        },
+        {
+          "action": "waitFor",
+          "selector": "#form-field-email, #form-field-personal_code",
+          "timeoutMs": 20000,
+          "error": "The opened user details could not be verified."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "contains",
+            "right": "@"
+          },
+          "selector": "#form-field-email",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The email field was not found on the details page."
+        },
+        {
+          "action": "read",
+          "when": {
+            "left": "{{userIdentifier}}",
+            "operator": "notContains",
+            "right": "@"
+          },
+          "selector": "#form-field-personal_code",
+          "storeAs": "verifiedUserIdentifier",
+          "error": "The personnel-code field was not found on the details page."
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{verifiedUserIdentifier}}",
+            "operator": "equals",
+            "right": "{{userIdentifier}}"
+          },
+          "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
+        },
+        {
+          "action": "waitFor",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "timeoutMs": 20000,
+          "error": "Role chooser button was not found."
+        },
+        {
+          "action": "click",
+          "selector": "a.chooseItemLink[title=\"click to choose\"]",
+          "afterMs": 2500,
+          "progress": "Opening and stabilizing role chooser…"
+        },
+        {
+          "action": "collectFrameCheckboxValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "storeAs": "userBRoleIds",
+          "separator": " ",
+          "frameTimeoutMs": 120000,
+          "progress": "Reading all selected roles for User B and comparing access…",
+          "options": {
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 1800,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "checkedOnly": true,
+            "resultFrameSelector": "input.uk-checkbox[data-target], input[name=\"id\"][placeholder=\"ID\"]",
+            "nextSelector": "a[aria-label=\"Next page\"], a[rel=\"next\"], .uk-pagination-next a",
+            "maxPages": 100,
+            "afterPageMs": 800,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 700
+          },
+          "compareWith": "userARoleIds",
+          "compareLabels": {
+            "left": "User A",
+            "right": "User B",
+            "both": "Both",
+            "onlyLeft": "Only User A",
+            "onlyRight": "Only User B"
+          },
+          "resultHeaders": [
+            "Role ID",
+            "User A",
+            "User B",
+            "Difference"
+          ],
+          "error": "Could not read or compare the selected roles for User B. Reason: {{reason}}"
+        },
+        {
+          "action": "closeTab",
+          "progress": "Finishing User Access Diff…"
+        }
+      ],
+      "retryPolicy": {
+        "attempts": 2,
+        "delayMs": 1500
+      },
+      "resultTitle": "User Access Diff",
+      "downloadButtonLabel": "Download Diff",
+      "sheetName": "User Access Diff",
+      "filename": "user_access_diff.xlsx"
     }
   ],
-  "clientProcessor": {
-    "type": "single-or-excel-workflow",
-    "modeField": "inputMode",
-    "identifierField": "userIdentifier",
-    "rolesField": "roleIds",
-    "fileField": "inputFile",
-    "passthroughFields": [
-      "accessAction"
-    ],
-    "reportHeaders": [
-      "User",
-      "Role ID",
-      "Status",
-      "Message"
-    ],
-    "downloadButtonLabel": "Download Report",
-    "sheetName": "Role Access Results",
-    "filename": "role_access_results.xlsx",
-    "successFill": "C6EFCE",
-    "failureFill": "FFC7CE",
-    "excel": {
-      "headerAliases": [
-        "email",
-        "personnel code",
-        "personal code",
-        "identifier",
-        "user",
-        "ایمیل",
-        "کد پرسنلی",
-        "role id",
-        "role ids",
-        "roles"
-      ]
-    },
-    "executionMode": "background",
-    "backgroundPersistent": true,
-    "description": "Batch controller runs in the extension background runtime so switching tabs or minimizing the Operations Toolkit does not stop the job."
-  },
-  "successMessage": "Role access operation completed.",
-  "workflow": [
-    {
-      "action": "open",
-      "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
-      "active": false,
-      "progress": "Opening User Management…"
-    },
-    {
-      "action": "ensureLogin",
-      "detectTimeoutMs": 1000,
-      "progress": "Checking authentication…"
-    },
-    {
-      "action": "waitFor",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "contains",
-        "right": "@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "timeoutMs": 20000,
-      "error": "Email search field was not found."
-    },
-    {
-      "action": "fill",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "contains",
-        "right": "@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "value": "{{userIdentifier}}",
-      "progress": "Entering email…"
-    },
-    {
-      "action": "submitNearestForm",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "contains",
-        "right": "@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "progress": "Searching user…",
-      "waitForNavigation": false,
-      "options": {}
-    },
-    {
-      "action": "waitFor",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "notContains",
-        "right": "@"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "timeoutMs": 20000,
-      "error": "Personnel-code search field was not found."
-    },
-    {
-      "action": "fill",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "notContains",
-        "right": "@"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "value": "{{userIdentifier}}",
-      "progress": "Entering personnel code…"
-    },
-    {
-      "action": "submitNearestForm",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "notContains",
-        "right": "@"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "progress": "Searching user…",
-      "waitForNavigation": false,
-      "options": {}
-    },
-    {
-      "action": "wait",
-      "ms": 2500,
-      "progress": "Waiting for search results…"
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "contains",
-        "right": "@"
-      },
-      "required": false,
-      "storeAs": "userLookup",
-      "progress": "Opening the user with the newest login…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": [
-          "last login at",
-          "last_login_at"
-        ],
-        "matchHeaderAliases": [
-          "email"
-        ],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      },
-      "error": "Could not open the matching user with the newest login date."
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "notContains",
-        "right": "@"
-      },
-      "required": false,
-      "storeAs": "userLookup",
-      "progress": "Opening the user with the newest login…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": [
-          "last login at",
-          "last_login_at"
-        ],
-        "matchHeaderAliases": [
-          "personal code",
-          "personal_code",
-          "personnel code"
-        ],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      },
-      "error": "Could not open the matching user with the newest login date."
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{userLookup.ok}}",
-        "operator": "equals",
-        "right": "false"
-      },
-      "ms": 3000,
-      "progress": "Waiting for the user table to finish loading…"
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "required": false,
-      "storeAs": "userLookup",
-      "progress": "Checking matching Details without requiring Last Login…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": [
-          "email"
-        ],
-        "matchHeaderAliases": [
-          "email"
-        ],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      }
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "required": false,
-      "storeAs": "userLookup",
-      "progress": "Checking matching Details without requiring Last Login…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": [
-          "personal code",
-          "personal_code",
-          "personnel code"
-        ],
-        "matchHeaderAliases": [
-          "personal code",
-          "personal_code",
-          "personnel code"
-        ],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      }
-    },
-    {
-      "action": "navigate",
-      "when": {
-        "left": "{{userLookup.ok}}",
-        "operator": "equals",
-        "right": "false"
-      },
-      "url": "https://sso.digikala.com/accounts/sync-active-directory-users-to-account/",
-      "progress": "Opening Active Directory sync…"
-    },
-    {
-      "action": "waitFor",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "timeoutMs": 20000,
-      "error": "Active Directory email field was not found."
-    },
-    {
-      "action": "fill",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "value": "{{userIdentifier}}",
-      "progress": "Entering email for Active Directory sync…"
-    },
-    {
-      "action": "submitNearestForm",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "progress": "Searching Active Directory…",
-      "waitForNavigation": false,
-      "options": {}
-    },
-    {
-      "action": "waitFor",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
-      "timeoutMs": 20000,
-      "error": "Active Directory personnel-code field was not found."
-    },
-    {
-      "action": "fill",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
-      "value": "{{userIdentifier}}",
-      "progress": "Entering personnel code for Active Directory sync…"
-    },
-    {
-      "action": "submitNearestForm",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Personal Code\"]",
-      "progress": "Searching Active Directory…",
-      "waitForNavigation": false,
-      "options": {}
-    },
-    {
-      "action": "waitFor",
-      "when": {
-        "left": "{{userLookup.ok}}",
-        "operator": "equals",
-        "right": "false"
-      },
-      "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
-      "timeoutMs": 20000,
-      "error": "The user could not be found in Active Directory sync results."
-    },
-    {
-      "action": "click",
-      "when": {
-        "left": "{{userLookup.ok}}",
-        "operator": "equals",
-        "right": "false"
-      },
-      "selector": "table tbody tr a.uk-button.uk-button-success[href*=\"/sync/\"]",
-      "textContains": "sync",
-      "afterMs": 1800,
-      "progress": "Syncing Active Directory account…",
-      "error": "The Active Directory account could not be synced."
-    },
-    {
-      "action": "navigate",
-      "when": {
-        "left": "{{userLookup.ok}}",
-        "operator": "equals",
-        "right": "false"
-      },
-      "url": "https://sso.digikala.com/accounts/users-management/?order_by=last_login_at&order_type=DESC",
-      "progress": "Returning to User Management…"
-    },
-    {
-      "action": "fill",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "value": "{{userIdentifier}}",
-      "progress": "Searching synced user by email…"
-    },
-    {
-      "action": "submitNearestForm",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "selector": "input[name=\"email\"][placeholder=\"Email\"]",
-      "waitForNavigation": false,
-      "options": {}
-    },
-    {
-      "action": "fill",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "value": "{{userIdentifier}}",
-      "progress": "Searching synced user by personnel code…"
-    },
-    {
-      "action": "submitNearestForm",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "selector": "input[name=\"personal_code\"][placeholder=\"Pesonal Code\"]",
-      "waitForNavigation": false,
-      "options": {}
-    },
-    {
-      "action": "waitFor",
-      "when": {
-        "left": "{{userLookup.ok}}",
-        "operator": "equals",
-        "right": "false"
-      },
-      "selector": "table tbody tr",
-      "timeoutMs": 20000,
-      "error": "The synced user did not appear in User Management."
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|.*@"
-      },
-      "progress": "Opening the synced user…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": [
-          "email"
-        ],
-        "matchHeaderAliases": [
-          "email"
-        ],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      },
-      "error": "The synced user could not be opened."
-    },
-    {
-      "action": "clickNewestTableRowAction",
-      "when": {
-        "left": "{{userLookup.ok}}|{{userIdentifier}}",
-        "operator": "regex",
-        "right": "^false\\|\\d+$"
-      },
-      "progress": "Opening the synced user…",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "dateHeaderAliases": [
-          "personal code",
-          "personal_code",
-          "personnel code"
-        ],
-        "matchHeaderAliases": [
-          "personal code",
-          "personal_code",
-          "personnel code"
-        ],
-        "matchValue": "{{userIdentifier}}",
-        "actionSelector": "a,button",
-        "actionText": "details"
-      },
-      "error": "The synced user could not be opened."
-    },
-    {
-      "action": "waitFor",
-      "selector": "#form-field-email, #form-field-personal_code",
-      "timeoutMs": 20000,
-      "error": "The opened user details could not be verified."
-    },
-    {
-      "action": "read",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "contains",
-        "right": "@"
-      },
-      "selector": "#form-field-email",
-      "storeAs": "verifiedUserIdentifier",
-      "error": "The email field was not found on the details page."
-    },
-    {
-      "action": "read",
-      "when": {
-        "left": "{{userIdentifier}}",
-        "operator": "notContains",
-        "right": "@"
-      },
-      "selector": "#form-field-personal_code",
-      "storeAs": "verifiedUserIdentifier",
-      "error": "The personnel-code field was not found on the details page."
-    },
-    {
-      "action": "assert",
-      "condition": {
-        "left": "{{verifiedUserIdentifier}}",
-        "operator": "equals",
-        "right": "{{userIdentifier}}"
-      },
-      "error": "The opened details page belongs to another user. Expected {{userIdentifier}}, found {{verifiedUserIdentifier}}."
-    },
-    {
-      "action": "waitFor",
-      "selector": "a.chooseItemLink[title=\"click to choose\"]",
-      "timeoutMs": 20000,
-      "error": "Role chooser button was not found."
-    },
-    {
-      "action": "click",
-      "selector": "a.chooseItemLink[title=\"click to choose\"]",
-      "afterMs": 2500,
-      "progress": "Opening and stabilizing role chooser…"
-    },
-    {
-      "action": "selectItemsBySearchValues",
-      "when": {
-        "left": "{{accessAction}}",
-        "operator": "equals",
-        "right": "assign"
-      },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-      "values": "{{roleIds}}",
-      "frameTimeoutMs": 120000,
-      "progress": "Selecting role IDs (first-row safe)…",
-      "options": {
-        "selectionMode": "assign",
-        "chosenFilterChecked": false,
-        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
-        "afterChosenFilterMs": 3000,
-        "checkboxSelector": "input.uk-checkbox[data-target]",
-        "idAttribute": "data-target",
-        "resultTimeoutMs": 120000,
-        "pollMs": 750,
-        "afterEachMs": 1100,
-        "clickChoose": false,
-        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-        "backgroundSafe": true,
-        "submitMode": "native-form",
-        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
-        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
-        "requireSearchInputForResult": false,
-        "directCheckboxState": true,
-        "wakeFrames": true,
-        "frameElementSelector": "iframe",
-        "afterWakeFramesMs": 1200
-      },
-      "resultHeaders": [
-        "Role ID",
-        "Status",
-        "Message"
-      ],
-      "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
-      "intervalMs": 500,
-      "stepAttempts": 2,
-      "stepRetryDelayMs": 2000,
-      "retryProgress": "Retrying first-row-safe role selection ({{attempt}}/{{attempts}})…",
-      "makeCurrent": false
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{accessAction}}",
-        "operator": "equals",
-        "right": "assign"
-      },
-      "ms": 900,
-      "progress": "Verifying role selection state…"
-    },
-    {
-      "action": "selectItemsBySearchValues",
-      "when": {
-        "left": "{{accessAction}}",
-        "operator": "equals",
-        "right": "assign"
-      },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-      "values": "{{roleIds}}",
-      "frameTimeoutMs": 120000,
-      "progress": "Verifying selected role IDs without toggling checked roles…",
-      "options": {
-        "selectionMode": "assign",
-        "chosenFilterChecked": false,
-        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
-        "afterChosenFilterMs": 3000,
-        "checkboxSelector": "input.uk-checkbox[data-target]",
-        "idAttribute": "data-target",
-        "resultTimeoutMs": 120000,
-        "pollMs": 600,
-        "afterEachMs": 1600,
-        "clickChoose": false,
-        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-        "backgroundSafe": true,
-        "submitMode": "native-form",
-        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
-        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
-        "requireSearchInputForResult": false,
-        "directCheckboxState": true,
-        "wakeFrames": true,
-        "frameElementSelector": "iframe",
-        "afterWakeFramesMs": 1200
-      },
-      "resultHeaders": [
-        "Role ID",
-        "Status",
-        "Message"
-      ],
-      "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
-      "intervalMs": 500,
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 2000,
-      "retryProgress": "Retrying role verification ({{attempt}}/{{attempts}})…",
-      "makeCurrent": true
-    },
-    {
-      "action": "selectItemsBySearchValues",
-      "when": {
-        "left": "{{accessAction}}",
-        "operator": "equals",
-        "right": "revoke"
-      },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-      "values": "{{roleIds}}",
-      "frameTimeoutMs": 120000,
-      "progress": "Selecting roles to revoke (first-row safe)…",
-      "options": {
-        "selectionMode": "revoke",
-        "chosenFilterChecked": true,
-        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
-        "afterChosenFilterMs": 3000,
-        "checkboxSelector": "input.uk-checkbox[data-target]",
-        "idAttribute": "data-target",
-        "resultTimeoutMs": 120000,
-        "pollMs": 750,
-        "afterEachMs": 1100,
-        "clickChoose": false,
-        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-        "backgroundSafe": true,
-        "submitMode": "native-form",
-        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
-        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
-        "requireSearchInputForResult": false,
-        "directCheckboxState": true,
-        "wakeFrames": true,
-        "frameElementSelector": "iframe",
-        "afterWakeFramesMs": 1200
-      },
-      "resultHeaders": [
-        "Role ID",
-        "Status",
-        "Message"
-      ],
-      "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
-      "intervalMs": 500,
-      "stepAttempts": 2,
-      "stepRetryDelayMs": 2000,
-      "retryProgress": "Retrying role selection pass 1 ({{attempt}}/{{attempts}})…",
-      "makeCurrent": false
-    },
-    {
-      "action": "wait",
-      "when": {
-        "left": "{{accessAction}}",
-        "operator": "equals",
-        "right": "revoke"
-      },
-      "ms": 900,
-      "progress": "Verifying role revocation state…"
-    },
-    {
-      "action": "selectItemsBySearchValues",
-      "when": {
-        "left": "{{accessAction}}",
-        "operator": "equals",
-        "right": "revoke"
-      },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-      "values": "{{roleIds}}",
-      "frameTimeoutMs": 120000,
-      "progress": "Verifying revoked role IDs without toggling cleared roles…",
-      "options": {
-        "selectionMode": "revoke",
-        "chosenFilterChecked": true,
-        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
-        "afterChosenFilterMs": 3000,
-        "checkboxSelector": "input.uk-checkbox[data-target]",
-        "idAttribute": "data-target",
-        "resultTimeoutMs": 120000,
-        "pollMs": 600,
-        "afterEachMs": 1600,
-        "clickChoose": false,
-        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-        "backgroundSafe": true,
-        "submitMode": "native-form",
-        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
-        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
-        "requireSearchInputForResult": false,
-        "directCheckboxState": true,
-        "wakeFrames": true,
-        "frameElementSelector": "iframe",
-        "afterWakeFramesMs": 1200
-      },
-      "resultHeaders": [
-        "Role ID",
-        "Status",
-        "Message"
-      ],
-      "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
-      "intervalMs": 500,
-      "stepAttempts": 3,
-      "stepRetryDelayMs": 2000,
-      "retryProgress": "Retrying role verification ({{attempt}}/{{attempts}})…",
-      "makeCurrent": true
-    },
-    {
-      "action": "clickInFrameAndWait",
-      "selector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
-      "successSelector": "button.form-save-button.admin-submit-button",
-      "frameTimeoutMs": 60000,
-      "timeoutMs": 90000,
-      "intervalMs": 500,
-      "requireSourceGone": false,
-      "progress": "Applying selected roles…",
-      "error": "The selected roles could not be returned to the user form.",
-      "stepAttempts": 4,
-      "stepRetryDelayMs": 2000
-    },
-    {
-      "action": "waitFor",
-      "selector": "button.form-save-button.admin-submit-button",
-      "timeoutMs": 20000,
-      "error": "Save button was not found after choosing roles."
-    },
-    {
-      "action": "clickInFrameAndWait",
-      "selector": "button.form-save-button.admin-submit-button",
-      "requireSourceGone": true,
-      "frameTimeoutMs": 60000,
-      "timeoutMs": 90000,
-      "intervalMs": 500,
-      "progress": "Saving assigned roles…",
-      "error": "Roles could not be saved because the Save button is still visible.",
-      "stepAttempts": 4,
-      "stepRetryDelayMs": 2000
-    },
-    {
-      "action": "closeTab",
-      "progress": "Finishing Role Assignment…"
-    }
-  ],
-  "retryPolicy": {
-    "attempts": 3,
-    "delayMs": 1500
-  },
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "minimumRuntimeVersion": "12.0.5"
+  "minimumRuntimeVersion": "12.0.6"
 }
