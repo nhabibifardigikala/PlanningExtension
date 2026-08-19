@@ -42,8 +42,8 @@
     "secure-authenticator-vault",
     "totp-engine"
   ],
-  "remoteVersion": 220,
+  "remoteVersion": 221,
   "updateRule": "Business/product changes must be Remote-only. Host updates are reserved for security or browser-runtime compatibility.",
-  "configVersion": 220,
+  "configVersion": 221,
   "minimumRuntimeVersion": "12.0.9"
 }

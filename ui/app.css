@@ -367,10 +367,10 @@ body:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyE
 @media(max-width:700px){.wellness-embedded{height:calc(100vh - 150px)}}
 
 
-/* Generic operation sub-tabs — Remote-owned labels/config, Host renders the shell. */
-.operation-subtabs{position:sticky;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:18px -6px -6px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid color-mix(in srgb,var(--border) 40%,transparent)}
-.operation-subtabs.hidden{display:none!important}.operation-subtab{min-height:44px;border:1px solid color-mix(in srgb,var(--border) 55%,transparent);border-radius:12px;background:var(--card);color:var(--muted);font:inherit;font-size:11px;font-weight:800;cursor:pointer;padding:8px 6px}.operation-subtab.active{background:var(--accent);border-color:var(--accent);color:#071a33}.operation-subtab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#operationView:has(#operationSubTabs:not(.hidden)){padding-bottom:4px}
+/* Role Assignment bottom navigation — fixed like Daily Planner. */
+.operation-subtabs{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;z-index:80;display:grid;grid-template-columns:repeat(3,58px);gap:10px;padding:7px 10px calc(7px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(12px);border:1px solid color-mix(in srgb,var(--border) 55%,transparent);border-radius:18px;box-shadow:0 10px 30px rgba(15,23,42,.18)}
+.operation-subtabs.hidden{display:none!important}.operation-subtab{width:58px;height:48px;border:0;border-radius:13px;background:transparent;color:var(--muted);font:800 25px/1 system-ui;cursor:pointer;padding:0;display:grid;place-items:center}.operation-subtab.active{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}.operation-subtab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#operationView:has(#operationSubTabs:not(.hidden)){padding-bottom:90px}
 
 /* Authenticator is a Host-owned local security UI; Remote only exposes the feature shell. */
 .authenticator-embedded{display:none;flex:1 1 auto;min-height:0;margin-top:6px}

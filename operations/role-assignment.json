@@ -12,7 +12,7 @@
   "subOperations": [
     {
       "id": "assign-revoke",
-      "tabLabel": "Assign / Revoke",
+      "tabLabel": "⇄",
       "title": "Assign / Revoke",
       "description": "Find a user by email or personnel code and assign or revoke one or more role IDs. Role selection is first-row safe: the chooser filter checkbox is isolated from row checkboxes, and role checkbox state is applied without toggle-style double clicks.",
       "uiMode": "form",
@@ -855,7 +855,7 @@
     },
     {
       "id": "copy-roles",
-      "tabLabel": "Copy Roles",
+      "tabLabel": "⧉",
       "title": "Copy Roles",
       "description": "Copy every currently assigned Role ID from User A to User B. Existing roles on User B are preserved.",
       "uiMode": "form",
@@ -1961,7 +1961,7 @@
     },
     {
       "id": "access-diff",
-      "tabLabel": "Access Diff",
+      "tabLabel": "≠",
       "title": "User Access Diff",
       "description": "Compare all currently assigned Role IDs for two users and show common and different access.",
       "uiMode": "form",
