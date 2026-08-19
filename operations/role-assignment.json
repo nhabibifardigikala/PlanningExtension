@@ -613,7 +613,7 @@
       },
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 30000,
+      "frameTimeoutMs": 45000,
       "progress": "Selecting role IDs…",
       "options": {
         "selectionMode": "assign",
@@ -622,20 +622,23 @@
         "afterChosenFilterMs": 900,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
-        "resultTimeoutMs": 45000,
+        "resultTimeoutMs": 90000,
         "pollMs": 500,
         "afterEachMs": 350,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
-        "submitMode": "form"
+        "submitMode": "hybrid",
+        "searchTriggerAttempts": 3,
+        "failWhenMissing": true
       },
       "resultHeaders": [
         "Role ID",
         "Status",
         "Message"
       ],
-      "error": "Role ID {{value}} could not be found or selected."
+      "error": "Role ID {{value}} could not be found or selected.",
+      "retryProgress": "Retrying role selection for {{value}} — reason: {{reason}} ({{attempt}}/{{attempts}})…"
     },
     {
       "action": "selectItemsBySearchValues",
@@ -646,7 +649,7 @@
       },
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 30000,
+      "frameTimeoutMs": 45000,
       "progress": "Selecting roles to revoke…",
       "options": {
         "selectionMode": "revoke",
@@ -655,20 +658,23 @@
         "afterChosenFilterMs": 900,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
-        "resultTimeoutMs": 45000,
+        "resultTimeoutMs": 90000,
         "pollMs": 500,
         "afterEachMs": 350,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
-        "submitMode": "form"
+        "submitMode": "hybrid",
+        "searchTriggerAttempts": 3,
+        "failWhenMissing": true
       },
       "resultHeaders": [
         "Role ID",
         "Status",
         "Message"
       ],
-      "error": "Role ID {{value}} could not be found or selected for revocation."
+      "error": "Role ID {{value}} could not be found or selected for revocation.",
+      "retryProgress": "Retrying role selection for {{value}} — reason: {{reason}} ({{attempt}}/{{attempts}})…"
     },
     {
       "action": "clickInFrameAndWait",
