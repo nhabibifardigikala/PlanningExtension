@@ -1,6 +1,6 @@
 # Remote architecture status
 
-**Remote v203 — remote-first product layer.** Normal releases must not require a Host update.
+**Remote v204 — remote-first product layer.** Normal releases must not require a Host update.
 
 # PlanningExtension Remote Application v18
 
@@ -188,3 +188,8 @@ Adds the embedded Time Study operation. The complete UI and logic live under `ti
 
 ## v203 PUDO field targeting fix
 PUDO now targets the first and second `.uk-select.es-input` controls by index instead of relying on the unstable `title` attribute. Center exact matching still ignores bracketed IDs. This is Remote-only and requires no Host update.
+
+
+## v204 PUDO autocomplete commit and version synchronization
+- PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
+- All visible/config/cache-buster version references are synchronized to Config 204.

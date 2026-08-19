@@ -152,33 +152,21 @@
       "action": "autocomplete",
       "selector": "input.uk-select.es-input",
       "value": "{{centerName}}",
-      "attempts": 3,
+      "attempts": 4,
       "verifyNonEmpty": true,
-      "progress": "Selecting exact center (ignoring [ID]): {{centerName}}…",
-      "error": "Center was shown in the suggestion list but could not be selected exactly after ignoring [ID].",
+      "progress": "Selecting center: {{centerName}}…",
+      "error": "Center could not be selected from the suggestions.",
       "options": {
         "selectorIndex": 1,
         "focusWaitMs": 400,
         "typingDelayMs": 70,
-        "autocompleteWaitMs": 1800,
-        "exactMatch": true,
-        "exactMatchTimeoutMs": 12000,
-        "verifyExactValue": true,
-        "commitWaitMs": 1000,
-        "outsideWaitMs": 350,
-        "matchTransforms": [
-          {
-            "type": "normalizeUnicode",
-            "form": "NFKC"
-          },
-          "stripAllBrackets",
-          "collapseWhitespace",
-          "trim",
-          "caseFold"
-        ],
-        "exactMatchSelector": ".es-list-item, .es-list li, .es-list > li, .es-list > div, .es-list a, [class*=\"es-list\"] li, [class*=\"es-list\"] .es-list-item, [role=\"listbox\"] [role=\"option\"], [class*=\"autocomplete\"] [role=\"option\"]",
-        "exactMatchCommitWaitMs": 1800
-      }
+        "autocompleteWaitMs": 2200,
+        "commitWaitMs": 1400,
+        "outsideWaitMs": 500,
+        "pressEnter": true,
+        "keyDelayMs": 120
+      },
+      "retryDelayMs": 700
     },
     {
       "action": "jalaliDate",
