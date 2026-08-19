@@ -617,7 +617,8 @@
         "pollMs": 250,
         "afterEachMs": 350,
         "clickChoose": false,
-        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
+        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+        "backgroundSafe": true
       },
       "resultHeaders": [
         "Role ID",
@@ -648,7 +649,8 @@
         "pollMs": 250,
         "afterEachMs": 350,
         "clickChoose": false,
-        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]"
+        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+        "backgroundSafe": true
       },
       "resultHeaders": [
         "Role ID",

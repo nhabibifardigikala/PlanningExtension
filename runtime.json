@@ -16,16 +16,16 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v205 for Secure Stable Host 12. PUDO uses Parent Code, verifies the transient Done!!!! save confirmation and retries rows when confirmation is absent. Includes a downloadable five-column PUDO template.",
-  "configVersion": 205,
-  "minimumRuntimeVersion": "12.0.0",
-  "minimumRuntime": "12.0.0",
+  "notes": "Remote app v206 for Stable Host 12.0.1. PUDO adds whole-batch progress plus a live auto-scrolling center result table; PUDO business rules remain Remote-owned.",
+  "configVersion": 208,
+  "minimumRuntimeVersion": "12.0.1",
+  "minimumRuntime": "12.0.1",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.0.0",
+  "recommendedRuntime": "12.0.1",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.0.0",
+  "version": "12.0.1",
   "platformContract": 12,
-  "remoteVersion": 205,
+  "remoteVersion": 208,
   "executionModel": "remote-first-declarative"
 }

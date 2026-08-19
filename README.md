@@ -1,6 +1,6 @@
 # Remote architecture status
 
-**Remote v205 — remote-first product layer.** Normal releases must not require a Host update.
+**Remote v208 — remote-first product layer.** Normal releases must not require a Host update.
 
 # PlanningExtension Remote Application v18
 
@@ -195,8 +195,12 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 - All visible/config/cache-buster version references are synchronized to Config 204.
 
 
-## v205 PUDO confirmation, Parent Code and template
+## v206 PUDO confirmation, Parent Code and template
 - PUDO now selects the Parent autocomplete using `کد پرنت` / Parent Code rather than Parent Name.
 - After Add Batch Config, the workflow samples the page immediately and during the next 700 ms for the transient `Done!!!!` confirmation. If it is not observed, the Excel batch processor retries the entire row (up to 3 total attempts).
 - A downloadable `PUDO_Auto_Config_Template.xlsx` is included with five columns: نام مرکز، نام پرنت، کد پرنت، تاریخ شروع، تاریخ پایان.
 - Host 12.0.0 remains unchanged.
+
+
+## v206
+PUDO live batch progress is enabled through the generic Host 12.0.1 batch-observability capability. The progress bar reports processed centers across the full workbook, and the live result table auto-scrolls to the latest center. PUDO selectors, success rules, columns and workflow remain Remote-owned.

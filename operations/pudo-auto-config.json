@@ -110,6 +110,44 @@
       "reuseForBatch": true,
       "closeOnFinish": false,
       "closeOnCancel": false
+    },
+    "liveReport": {
+      "enabled": true,
+      "itemLabel": "centers",
+      "autoScroll": true,
+      "maxHeight": 360,
+      "columns": [
+        {
+          "header": "نام مرکز",
+          "field": "centerName"
+        },
+        {
+          "header": "نام پرنت",
+          "field": "parentName"
+        },
+        {
+          "header": "کد پرنت",
+          "field": "parentCode"
+        },
+        {
+          "header": "تاریخ شروع",
+          "field": "startDate"
+        },
+        {
+          "header": "تاریخ پایان",
+          "field": "endDate"
+        },
+        {
+          "header": "وضعیت",
+          "result": true,
+          "successText": "Success",
+          "failureText": "Failed"
+        },
+        {
+          "header": "جزئیات",
+          "resultMessage": true
+        }
+      ]
     }
   },
   "navigation": {
