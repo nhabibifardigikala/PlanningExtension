@@ -376,6 +376,6 @@ body:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyE
 .authenticator-embedded{display:none;flex:1 1 auto;min-height:0;margin-top:6px}
 .authenticator-embedded iframe{display:block;width:100%;height:100%;min-height:560px;border:0;border-radius:14px;background:var(--card,#fff)}
 #operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) #authenticatorEmbedded{display:block}
-#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) #operationBackBtn,#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) .settings-heading{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]) .settings-heading{display:none!important}
 html:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),#operationView.active:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]){height:100%;min-height:0;overflow:hidden}
 #operationView.active:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]){display:flex;flex-direction:column}

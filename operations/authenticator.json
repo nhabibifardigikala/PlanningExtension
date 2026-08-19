@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Local TOTP Authenticator with Google migration import. Secrets and migration payloads are processed only inside the Host.",
+  "description": "Local TOTP Authenticator with Google migration import, click-to-copy codes, circular timers and drag-to-reorder. Secrets and migration payloads are processed only inside the Host.",
   "workflow": [],
   "successMessage": "Authenticator ready.",
   "runtimeContract": "stable-host-12",

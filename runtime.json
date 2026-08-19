@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v219. Authenticator supports local Google Authenticator migration import; Host 12.0.8 removes recurring app PIN/lock while keeping secrets inside the Host security boundary.",
-  "configVersion": 219,
-  "minimumRuntimeVersion": "12.0.8",
-  "minimumRuntime": "12.0.8",
+  "notes": "Remote app v219. Authenticator supports local Google Authenticator migration import; Host 12.0.9 removes recurring app PIN/lock while keeping secrets inside the Host security boundary.",
+  "configVersion": 220,
+  "minimumRuntimeVersion": "12.0.9",
+  "minimumRuntime": "12.0.9",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.0.8",
+  "recommendedRuntime": "12.0.9",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.0.8",
+  "version": "12.0.9",
   "platformContract": 12,
-  "remoteVersion": 219,
+  "remoteVersion": 220,
   "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.0.8"
+  "runtimeVersion": "12.0.9"
 }
