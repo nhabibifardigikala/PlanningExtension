@@ -192,7 +192,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
-- All visible/config/cache-buster version references are synchronized to Config 215.
+- All visible/config/cache-buster version references are synchronized to Config 216.
 
 
 ## v206 PUDO confirmation, Parent Code and template
@@ -223,8 +223,11 @@ Role Assignment now submits the parsed user list to the Host background batch co
 - Role Assignment uses native form navigation inside the chooser; Host 12.0.5 adds only this generic frame-form primitive.
 - Role Assignment requests generic iframe wake-up before chooser discovery; the Runtime does not activate or focus the tab.
 
-## v215 Role Assignment reliability
+## v216 Role Assignment first-row fix
 
-- Reduced Role Assignment login-form detection from 7 seconds to 1 second so an already-authenticated User Management page reaches personnel-code/email entry much faster.
-- Role selection now runs in two passes. Pass 1 selects/revokes requested role IDs; pass 2 verifies the same IDs and repairs any selection that did not persist, including the chooser first-row case.
-- No Host/runtime change is required; minimum runtime remains 12.0.5.
+- Fixed the case where a requested Role is the first row in the chooser and is checked, then immediately unchecked.
+- The `chosen` filter selector now explicitly excludes row checkboxes that carry `data-target`, so the Runtime cannot mistake the first Role checkbox for the chooser filter.
+- Role state changes use direct checked-state assignment plus a single input/change notification instead of toggle-style click behavior.
+- The verification pass remains enabled, but already-checked Roles are read-only during verification and are not toggled again.
+- Fast login detection from v215 is retained.
+- Remote-only change; Host 12.0.5 remains unchanged.
