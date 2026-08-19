@@ -16,16 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v212 for Stable Host 12.0.3. DX_Polygons.json is regenerated from the updated workbook and Role Assignment receives Remote-only hidden-tab chooser hardening.",
-  "configVersion": 212,
-  "minimumRuntimeVersion": "12.0.3",
-  "minimumRuntime": "12.0.3",
+  "notes": "Remote app v213. Polygon consumers load DX_Polygons.xlsx directly; Role Assignment uses native framed-form search with Host 12.0.5 for minimized/background execution.",
+  "configVersion": 213,
+  "minimumRuntimeVersion": "12.0.5",
+  "minimumRuntime": "12.0.5",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.0.3",
+  "recommendedRuntime": "12.0.5",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.0.3",
+  "version": "12.0.5",
   "platformContract": 12,
-  "remoteVersion": 212,
-  "executionModel": "remote-first-declarative"
+  "remoteVersion": 213,
+  "executionModel": "remote-first-declarative",
+  "runtimeVersion": "12.0.5"
 }

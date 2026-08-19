@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Parent Determination</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"><link rel="stylesheet" href="app.css"></head><body>
+<div class="app">
+  <div class="map-wrap"><div id="map" class="map"></div></div>
+  <aside class="side">
+    <div class="panel compact"><div class="mode-row"><label><input type="radio" name="mode" value="single" checked> Single location</label><label><input type="radio" name="mode" value="excel"> Excel file</label></div></div>
+    <div class="panel" id="singlePanel"><label>Latitude, Longitude</label><div class="row"><input id="location" class="grow" type="text" placeholder="35.7219, 51.3347"><button id="determine" class="primary" type="button">Determine</button></div></div>
+    <div class="panel hidden" id="excelPanel"><label class="file-btn primary" for="locationsFile">Upload locations Excel</label><input id="locationsFile" class="hidden-file" type="file" accept=".xlsx,.xls"><button id="processExcel" type="button">Process & Download</button><div class="help">Column A = latitude, Column B = longitude. Header row is optional.</div></div>
+    <div class="panel"><div class="section-label">Expected parents</div><div class="filters" id="typeFilters"></div></div>
+    <div id="datasetStatus" class="status">Loading DX_Polygons.xlsx…</div>
+    <div id="resultStatus" class="status"></div>
+    <div id="results" class="result"></div>
+  </aside>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script><script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="../data/polygon-loader.js?v=213"></script><script src="app.js?v=213"></script>
+</body></html>

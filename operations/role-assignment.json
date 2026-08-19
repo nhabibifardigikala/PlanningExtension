@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign or revoke role IDs. Uses the persistent background batch controller with Remote-only role-chooser visibility hardening for Host 12.0.3.",
+  "description": "Find a user by email or personnel code and assign or revoke role IDs. Role chooser searches use native framed-form navigation so they do not depend on foreground keyboard/render events.",
   "uiMode": "form",
   "runLabel": "Assign Roles",
   "requiredHosts": [
@@ -611,9 +611,9 @@
         "operator": "equals",
         "right": "assign"
       },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 60000,
+      "frameTimeoutMs": 120000,
       "progress": "Selecting role IDs…",
       "options": {
         "selectionMode": "assign",
@@ -623,12 +623,19 @@
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
         "resultTimeoutMs": 120000,
-        "pollMs": 1000,
-        "afterEachMs": 700,
+        "pollMs": 750,
+        "afterEachMs": 350,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
-        "submitMode": "form"
+        "submitMode": "native-form",
+        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+        "requireSearchInputForResult": false,
+        "directCheckboxState": true,
+        "wakeFrames": true,
+        "frameElementSelector": "iframe",
+        "afterWakeFramesMs": 1200
       },
       "resultHeaders": [
         "Role ID",
@@ -637,9 +644,9 @@
       ],
       "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
       "intervalMs": 500,
-      "stepAttempts": 4,
-      "stepRetryDelayMs": 2500,
-      "retryProgress": "Role chooser background recovery ({{attempt}}/{{attempts}})…"
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 2000,
+      "retryProgress": "Retrying native role search ({{attempt}}/{{attempts}})…"
     },
     {
       "action": "selectItemsBySearchValues",
@@ -648,9 +655,9 @@
         "operator": "equals",
         "right": "revoke"
       },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 60000,
+      "frameTimeoutMs": 120000,
       "progress": "Selecting roles to revoke…",
       "options": {
         "selectionMode": "revoke",
@@ -660,12 +667,19 @@
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
         "resultTimeoutMs": 120000,
-        "pollMs": 1000,
-        "afterEachMs": 700,
+        "pollMs": 750,
+        "afterEachMs": 350,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
-        "submitMode": "form"
+        "submitMode": "native-form",
+        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+        "requireSearchInputForResult": false,
+        "directCheckboxState": true,
+        "wakeFrames": true,
+        "frameElementSelector": "iframe",
+        "afterWakeFramesMs": 1200
       },
       "resultHeaders": [
         "Role ID",
@@ -674,9 +688,9 @@
       ],
       "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
       "intervalMs": 500,
-      "stepAttempts": 4,
-      "stepRetryDelayMs": 2500,
-      "retryProgress": "Role chooser background recovery ({{attempt}}/{{attempts}})…"
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 2000,
+      "retryProgress": "Retrying native role search ({{attempt}}/{{attempts}})…"
     },
     {
       "action": "clickInFrameAndWait",
@@ -719,5 +733,6 @@
     "delayMs": 1500
   },
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "minimumRuntimeVersion": "12.0.5"
 }

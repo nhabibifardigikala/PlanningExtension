@@ -210,8 +210,15 @@ PUDO live batch progress is enabled through the generic Host 12.0.1 batch-observ
 Role Assignment now submits the parsed user list to the Host background batch controller in one request. User/AD searches use native form submission where available, and role chooser result polling allows longer hidden-tab rendering without moving product logic into the Host.
 
 
-## Remote v212
-- Rebuilt `data/DX_Polygons.json` from the current `DX_Polygons.xlsx`; map and point-in-polygon consumers now use the synchronized dataset.
-- Updated local cache-busters to v212 so map pages do not reuse stale polygon JSON.
-- Hardened Role Assignment on Host 12.0.3 for hidden/background tabs by keeping chooser frame discovery valid while the search input is temporarily replaced by result rows, and by extending Remote-owned waits/retries.
+## Remote v213
+- Legacy v212 note: `DX_Polygons.json` was synchronized once. From v213 onward polygon consumers read `DX_Polygons.xlsx` directly and the JSON file is not part of the runtime data path.
+- Updated local cache-busters to v213 so map pages do not reuse stale polygon JSON.
+- Legacy v212 role hardening was insufficient for minimized tabs. v213 uses native framed-form navigation with Host 12.0.5 so role search no longer depends on keyboard/render events inside the chooser.
 - No Host update is required.
+
+
+## v213
+- DX_Polygons.xlsx is the single runtime source for Coverage Polygons, Point Distribution, and Parent Determination.
+- Parent Determination is now a Remote embedded tool and reads the workbook directly.
+- Role Assignment uses native form navigation inside the chooser; Host 12.0.5 adds only this generic frame-form primitive.
+- Role Assignment requests generic iframe wake-up before chooser discovery; the Runtime does not activate or focus the tab.
