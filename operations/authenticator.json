@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Secure local TOTP authenticator backed by the Host encrypted vault.",
+  "description": "Local TOTP Authenticator with Google migration import. Secrets and migration payloads are processed only inside the Host.",
   "workflow": [],
   "successMessage": "Authenticator ready.",
   "runtimeContract": "stable-host-12",

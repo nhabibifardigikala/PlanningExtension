@@ -192,7 +192,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
-- All visible/config/cache-buster version references are synchronized to Config 218.
+- All visible/config/cache-buster version references are synchronized to Config 219.
 
 
 ## v206 PUDO confirmation, Parent Code and template
@@ -236,5 +236,5 @@ Role Assignment now submits the parsed user list to the Host background batch co
 Role Assignment now contains three bottom-tab tools: Assign / Revoke, Copy Roles, and User Access Diff. Copy Roles reads all currently assigned role IDs from User A and adds them to User B without deleting User B's existing roles. Access Diff reads both users and reports Both / Only User A / Only User B. These behaviors are Remote-owned; Host 12.0.6 only provides generic sub-operation rendering and generic frame checkbox collection.
 
 
-## v218 Authenticator
+## v219 Authenticator
 Adds the Authenticator feature shell. The actual secret-entry UI and TOTP vault are Host-owned for security; Remote only controls catalog placement and non-secret feature exposure.
