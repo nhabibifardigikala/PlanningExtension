@@ -16,8 +16,8 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v204 for Secure Stable Host 12. PUDO uses the site autocomplete commit behavior for resilient Center selection; all config-version surfaces and cache-busters are synchronized to 204.",
-  "configVersion": 204,
+  "notes": "Remote app v205 for Secure Stable Host 12. PUDO uses Parent Code, verifies the transient Done!!!! save confirmation and retries rows when confirmation is absent. Includes a downloadable five-column PUDO template.",
+  "configVersion": 205,
   "minimumRuntimeVersion": "12.0.0",
   "minimumRuntime": "12.0.0",
   "workflowLanguageVersion": 3,
@@ -26,6 +26,6 @@
   "runtimeUpdatePolicy": "security-only",
   "version": "12.0.0",
   "platformContract": 12,
-  "remoteVersion": 204,
+  "remoteVersion": 205,
   "executionModel": "remote-first-declarative"
 }

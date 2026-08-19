@@ -1,6 +1,6 @@
 # Remote architecture status
 
-**Remote v204 — remote-first product layer.** Normal releases must not require a Host update.
+**Remote v205 — remote-first product layer.** Normal releases must not require a Host update.
 
 # PlanningExtension Remote Application v18
 
@@ -193,3 +193,10 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
 - All visible/config/cache-buster version references are synchronized to Config 204.
+
+
+## v205 PUDO confirmation, Parent Code and template
+- PUDO now selects the Parent autocomplete using `کد پرنت` / Parent Code rather than Parent Name.
+- After Add Batch Config, the workflow samples the page immediately and during the next 700 ms for the transient `Done!!!!` confirmation. If it is not observed, the Excel batch processor retries the entire row (up to 3 total attempts).
+- A downloadable `PUDO_Auto_Config_Template.xlsx` is included with five columns: نام مرکز، نام پرنت، کد پرنت، تاریخ شروع، تاریخ پایان.
+- Host 12.0.0 remains unchanged.

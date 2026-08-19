@@ -7,71 +7,89 @@
     "https://sso.digikala.com/*",
     "https://auth.mydigikala.com/*"
   ],
-  "description": "Upload an Excel file and create Drop Shipping batch configurations row by row.",
+  "description": "Upload the five-column PUDO template and create Drop Shipping batch configurations row by row. Parent selection uses Parent Code.",
   "runLabel": "Start PUDO Auto Config",
   "inputs": [
+    {
+      "name": "templateDownload",
+      "label": "PUDO Auto Config Template",
+      "type": "download",
+      "buttonLabel": "Download Template",
+      "asset": "templates/PUDO_Auto_Config_Template.xlsx",
+      "filename": "PUDO_Auto_Config_Template.xlsx",
+      "help": "Template columns: نام مرکز، نام پرنت، کد پرنت، تاریخ شروع، تاریخ پایان."
+    },
     {
       "name": "pudoFile",
       "label": "PUDO configuration Excel",
       "type": "file",
       "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "required": true,
-      "help": "Four columns: Center Name / نام مرکز, Parent Name / نام پرنت, Start Date / تاریخ شروع, End Date / تاریخ پایان. Jalali dates: YYYYMMDD or YYYY/MM/DD."
+      "help": "Use the five-column template. Parent is selected by کد پرنت. Jalali dates: YYYYMMDD or YYYY/MM/DD."
     }
   ],
   "clientProcessor": {
     "type": "excel-batch-workflow",
     "fileField": "pudoFile",
     "maxRetries": 3,
-    "retryDelayMs": 1500,
+    "retryDelayMs": 1800,
     "columnMap": {
       "centerName": {
         "headers": [
+          "نام مرکز",
           "Center Name",
           "Center",
-          "نام مرکز",
           "مرکز"
         ],
         "index": 0
       },
       "parentName": {
         "headers": [
-          "Parent Name",
-          "Parent",
           "نام پرنت",
-          "پرنت"
+          "Parent Name",
+          "Parent"
         ],
         "index": 1
       },
-      "startDate": {
+      "parentCode": {
         "headers": [
-          "Start Date",
-          "From Date",
-          "تاریخ شروع"
+          "کد پرنت",
+          "Parent Code",
+          "Parent ID",
+          "Parent Code / ID"
         ],
         "index": 2
       },
-      "endDate": {
+      "startDate": {
         "headers": [
-          "End Date",
-          "To Date",
-          "تاریخ پایان"
+          "تاریخ شروع",
+          "Start Date",
+          "From Date"
         ],
         "index": 3
+      },
+      "endDate": {
+        "headers": [
+          "تاریخ پایان",
+          "End Date",
+          "To Date"
+        ],
+        "index": 4
       }
     },
     "validation": {
       "required": [
         "centerName",
-        "parentName",
+        "parentCode",
         "startDate",
         "endDate"
       ],
       "labels": {
-        "centerName": "Center Name",
-        "parentName": "Parent Name",
-        "startDate": "Start Date",
-        "endDate": "End Date"
+        "centerName": "نام مرکز",
+        "parentName": "نام پرنت",
+        "parentCode": "کد پرنت",
+        "startDate": "تاریخ شروع",
+        "endDate": "تاریخ پایان"
       }
     },
     "result": {
@@ -82,7 +100,9 @@
       "filename": "pudo_auto_config_result_{{timestamp}}.xlsx",
       "successFill": "C6EFCE",
       "failureFill": "FFC7CE",
-      "notProcessedText": "Not processed (cancelled)"
+      "notProcessedText": "Not processed (cancelled)",
+      "confirmationText": "Done!!!!",
+      "repeatUntilConfirmation": false
     },
     "tabSession": {
       "enabled": true,
@@ -128,11 +148,11 @@
     {
       "action": "autocomplete",
       "selector": "input.uk-select.es-input",
-      "value": "{{parentName}}",
+      "value": "{{parentCode}}",
       "attempts": 3,
       "verifyNonEmpty": true,
-      "progress": "Selecting parent: {{parentName}}…",
-      "error": "Parent could not be selected from the first autocomplete field.",
+      "progress": "Selecting parent code: {{parentCode}}…",
+      "error": "Parent could not be selected using Parent Code.",
       "options": {
         "selectorIndex": 0,
         "focusWaitMs": 400,
@@ -202,9 +222,49 @@
       "action": "click",
       "selector": "button.uk-button.uk-button-primary",
       "textContains": "Add Batch Config",
-      "progress": "Adding batch configuration…",
-      "error": "Add Batch Config button could not be clicked.",
-      "afterMs": 1800
+      "progress": "Submitting batch configuration…",
+      "error": "Add Batch Config button could not be clicked."
+    },
+    {
+      "action": "read",
+      "selector": "body",
+      "storeAs": "pudoAfterSubmit0",
+      "required": true,
+      "progress": "Checking save confirmation…"
+    },
+    {
+      "action": "wait",
+      "ms": 250
+    },
+    {
+      "action": "read",
+      "selector": "body",
+      "storeAs": "pudoAfterSubmit1",
+      "required": true
+    },
+    {
+      "action": "wait",
+      "ms": 450
+    },
+    {
+      "action": "read",
+      "selector": "body",
+      "storeAs": "pudoAfterSubmit2",
+      "required": true
+    },
+    {
+      "action": "setContext",
+      "name": "pudoConfirmationText",
+      "value": "{{pudoAfterSubmit0}} {{pudoAfterSubmit1}} {{pudoAfterSubmit2}}"
+    },
+    {
+      "action": "assert",
+      "condition": {
+        "left": "{{pudoConfirmationText}}",
+        "operator": "contains",
+        "right": "Done!!!!"
+      },
+      "error": "PUDO save confirmation Done!!!! was not observed. The row will be retried."
     }
   ],
   "runtimeContract": "stable-host-12",
