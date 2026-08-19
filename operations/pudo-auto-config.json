@@ -127,19 +127,19 @@
     },
     {
       "action": "autocomplete",
-      "selector": "input.uk-select.es-input[title]",
+      "selector": "input.uk-select.es-input",
       "value": "{{parentName}}",
       "attempts": 3,
       "verifyNonEmpty": true,
       "progress": "Selecting parent: {{parentName}}…",
-      "error": "Parent could not be selected.",
+      "error": "Parent could not be selected from the first autocomplete field.",
       "options": {
         "selectorIndex": 0,
         "focusWaitMs": 400,
         "typingDelayMs": 70,
-        "autocompleteWaitMs": 1400,
+        "autocompleteWaitMs": 1800,
         "pressEnter": true,
-        "commitWaitMs": 900,
+        "commitWaitMs": 1100,
         "outsideWaitMs": 350
       }
     },
@@ -150,19 +150,19 @@
     },
     {
       "action": "autocomplete",
-      "selector": "input.uk-select.es-input:not([title])",
+      "selector": "input.uk-select.es-input",
       "value": "{{centerName}}",
       "attempts": 3,
       "verifyNonEmpty": true,
-      "progress": "Selecting center by exact name (ignoring bracketed ID): {{centerName}}…",
-      "error": "Center suggestion was visible but could not be committed. Bracketed IDs are ignored during exact-name matching.",
+      "progress": "Selecting exact center (ignoring [ID]): {{centerName}}…",
+      "error": "Center was shown in the suggestion list but could not be selected exactly after ignoring [ID].",
       "options": {
-        "selectorIndex": 0,
+        "selectorIndex": 1,
         "focusWaitMs": 400,
         "typingDelayMs": 70,
-        "autocompleteWaitMs": 1400,
+        "autocompleteWaitMs": 1800,
         "exactMatch": true,
-        "exactMatchTimeoutMs": 10000,
+        "exactMatchTimeoutMs": 12000,
         "verifyExactValue": true,
         "commitWaitMs": 1000,
         "outsideWaitMs": 350,
@@ -176,8 +176,8 @@
           "trim",
           "caseFold"
         ],
-        "exactMatchSelector": ".es-list-item, .es-list .es-list-item, .es-list li, .es-list > div, .es-list a, [class*=\"es-list\"] .es-list-item, [class*=\"autocomplete\"] [role=\"option\"], [role=\"listbox\"] [role=\"option\"]",
-        "exactMatchCommitWaitMs": 1500
+        "exactMatchSelector": ".es-list-item, .es-list li, .es-list > li, .es-list > div, .es-list a, [class*=\"es-list\"] li, [class*=\"es-list\"] .es-list-item, [role=\"listbox\"] [role=\"option\"], [class*=\"autocomplete\"] [role=\"option\"]",
+        "exactMatchCommitWaitMs": 1800
       }
     },
     {

@@ -1,6 +1,6 @@
 # Remote architecture status
 
-**Remote v202 — remote-first product layer.** Normal releases must not require a Host update.
+**Remote v203 — remote-first product layer.** Normal releases must not require a Host update.
 
 # PlanningExtension Remote Application v18
 
@@ -184,3 +184,7 @@ Adds the embedded Time Study operation. The complete UI and logic live under `ti
 ## v88
 - Added Coverage Polygons using the built-in DX_Polygons dataset.
 - Added Point Distribution with Excel point upload and polygon overlay.
+
+
+## v203 PUDO field targeting fix
+PUDO now targets the first and second `.uk-select.es-input` controls by index instead of relying on the unstable `title` attribute. Center exact matching still ignores bracketed IDs. This is Remote-only and requires no Host update.

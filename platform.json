@@ -40,6 +40,6 @@
     "activity-log",
     "remote-loader"
   ],
-  "remoteVersion": 200,
+  "remoteVersion": 203,
   "updateRule": "Business/product changes must be Remote-only. Host updates are reserved for security or browser-runtime compatibility."
 }
