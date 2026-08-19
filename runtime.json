@@ -16,16 +16,16 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v206 for Stable Host 12.0.1. PUDO adds whole-batch progress plus a live auto-scrolling center result table; PUDO business rules remain Remote-owned.",
-  "configVersion": 211,
-  "minimumRuntimeVersion": "12.0.4",
-  "minimumRuntime": "12.0.1",
+  "notes": "Remote app v212 for Stable Host 12.0.3. DX_Polygons.json is regenerated from the updated workbook and Role Assignment receives Remote-only hidden-tab chooser hardening.",
+  "configVersion": 212,
+  "minimumRuntimeVersion": "12.0.3",
+  "minimumRuntime": "12.0.3",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.0.4",
+  "recommendedRuntime": "12.0.3",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.0.4",
+  "version": "12.0.3",
   "platformContract": 12,
-  "remoteVersion": 211,
+  "remoteVersion": 212,
   "executionModel": "remote-first-declarative"
 }

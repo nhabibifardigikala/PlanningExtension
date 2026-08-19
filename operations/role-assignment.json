@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign or revoke role IDs. Runs through the persistent background batch controller and retries transient workflow failures.",
+  "description": "Find a user by email or personnel code and assign or revoke role IDs. Uses the persistent background batch controller with Remote-only role-chooser visibility hardening for Host 12.0.3.",
   "uiMode": "form",
   "runLabel": "Assign Roles",
   "requiredHosts": [
@@ -601,8 +601,8 @@
     {
       "action": "click",
       "selector": "a.chooseItemLink[title=\"click to choose\"]",
-      "afterMs": 900,
-      "progress": "Opening role chooser…"
+      "afterMs": 2500,
+      "progress": "Opening and stabilizing role chooser…"
     },
     {
       "action": "selectItemsBySearchValues",
@@ -611,34 +611,35 @@
         "operator": "equals",
         "right": "assign"
       },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 45000,
+      "frameTimeoutMs": 60000,
       "progress": "Selecting role IDs…",
       "options": {
         "selectionMode": "assign",
         "chosenFilterChecked": false,
         "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
-        "afterChosenFilterMs": 900,
+        "afterChosenFilterMs": 1800,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
-        "resultTimeoutMs": 90000,
-        "pollMs": 500,
-        "afterEachMs": 350,
+        "resultTimeoutMs": 120000,
+        "pollMs": 1000,
+        "afterEachMs": 700,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
-        "submitMode": "hybrid",
-        "searchTriggerAttempts": 3,
-        "failWhenMissing": true
+        "submitMode": "form"
       },
       "resultHeaders": [
         "Role ID",
         "Status",
         "Message"
       ],
-      "error": "Role ID {{value}} could not be found or selected.",
-      "retryProgress": "Retrying role selection for {{value}} — reason: {{reason}} ({{attempt}}/{{attempts}})…"
+      "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
+      "intervalMs": 500,
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 2500,
+      "retryProgress": "Role chooser background recovery ({{attempt}}/{{attempts}})…"
     },
     {
       "action": "selectItemsBySearchValues",
@@ -647,45 +648,48 @@
         "operator": "equals",
         "right": "revoke"
       },
-      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
       "values": "{{roleIds}}",
-      "frameTimeoutMs": 45000,
+      "frameTimeoutMs": 60000,
       "progress": "Selecting roles to revoke…",
       "options": {
         "selectionMode": "revoke",
         "chosenFilterChecked": true,
         "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
-        "afterChosenFilterMs": 900,
+        "afterChosenFilterMs": 1800,
         "checkboxSelector": "input.uk-checkbox[data-target]",
         "idAttribute": "data-target",
-        "resultTimeoutMs": 90000,
-        "pollMs": 500,
-        "afterEachMs": 350,
+        "resultTimeoutMs": 120000,
+        "pollMs": 1000,
+        "afterEachMs": 700,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
-        "submitMode": "hybrid",
-        "searchTriggerAttempts": 3,
-        "failWhenMissing": true
+        "submitMode": "form"
       },
       "resultHeaders": [
         "Role ID",
         "Status",
         "Message"
       ],
-      "error": "Role ID {{value}} could not be found or selected for revocation.",
-      "retryProgress": "Retrying role selection for {{value}} — reason: {{reason}} ({{attempt}}/{{attempts}})…"
+      "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
+      "intervalMs": 500,
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 2500,
+      "retryProgress": "Role chooser background recovery ({{attempt}}/{{attempts}})…"
     },
     {
       "action": "clickInFrameAndWait",
       "selector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
       "successSelector": "button.form-save-button.admin-submit-button",
-      "frameTimeoutMs": 30000,
-      "timeoutMs": 45000,
-      "intervalMs": 250,
+      "frameTimeoutMs": 60000,
+      "timeoutMs": 90000,
+      "intervalMs": 500,
       "requireSourceGone": false,
       "progress": "Applying selected roles…",
-      "error": "The selected roles could not be returned to the user form."
+      "error": "The selected roles could not be returned to the user form.",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 2000
     },
     {
       "action": "waitFor",
@@ -697,11 +701,13 @@
       "action": "clickInFrameAndWait",
       "selector": "button.form-save-button.admin-submit-button",
       "requireSourceGone": true,
-      "frameTimeoutMs": 30000,
-      "timeoutMs": 45000,
-      "intervalMs": 250,
+      "frameTimeoutMs": 60000,
+      "timeoutMs": 90000,
+      "intervalMs": 500,
       "progress": "Saving assigned roles…",
-      "error": "Roles could not be saved because the Save button is still visible."
+      "error": "Roles could not be saved because the Save button is still visible.",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 2000
     },
     {
       "action": "closeTab",

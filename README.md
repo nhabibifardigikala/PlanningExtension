@@ -208,3 +208,10 @@ PUDO live batch progress is enabled through the generic Host 12.0.1 batch-observ
 ## v210 Role Assignment background-safe execution
 
 Role Assignment now submits the parsed user list to the Host background batch controller in one request. User/AD searches use native form submission where available, and role chooser result polling allows longer hidden-tab rendering without moving product logic into the Host.
+
+
+## Remote v212
+- Rebuilt `data/DX_Polygons.json` from the current `DX_Polygons.xlsx`; map and point-in-polygon consumers now use the synchronized dataset.
+- Updated local cache-busters to v212 so map pages do not reuse stale polygon JSON.
+- Hardened Role Assignment on Host 12.0.3 for hidden/background tabs by keeping chooser frame discovery valid while the search input is temporarily replaced by result rows, and by extending Remote-owned waits/retries.
+- No Host update is required.
