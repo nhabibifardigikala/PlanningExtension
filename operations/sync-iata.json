@@ -52,7 +52,7 @@
     {
       "action": "open",
       "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
-      "active": true,
+      "active": false,
       "progress": "Loading Distribution Centers…"
     },
     {

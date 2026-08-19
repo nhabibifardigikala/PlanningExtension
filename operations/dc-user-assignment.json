@@ -56,7 +56,7 @@
       "action": "open",
       "url": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
       "progress": "Opening DC User Assignment…",
-      "active": true
+      "active": false
     },
     {
       "action": "ensureLogin",

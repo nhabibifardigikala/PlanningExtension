@@ -86,7 +86,7 @@
     },
     "tabSession": {
       "enabled": true,
-      "background": false,
+      "background": true,
       "reuseForBatch": true,
       "closeOnFinish": false,
       "closeOnCancel": false
@@ -102,7 +102,7 @@
     {
       "action": "open",
       "url": "https://drop-shipping.digikala.com/batch-configs",
-      "active": true,
+      "active": false,
       "progress": "Opening PUDO Batch Config…",
       "completeTimeoutMs": 30000
     },
@@ -127,7 +127,7 @@
     },
     {
       "action": "autocomplete",
-      "selector": "input.uk-select.es-input",
+      "selector": "input.uk-select.es-input[title]",
       "value": "{{parentName}}",
       "attempts": 3,
       "verifyNonEmpty": true,
@@ -150,19 +150,19 @@
     },
     {
       "action": "autocomplete",
-      "selector": "input.uk-select.es-input",
+      "selector": "input.uk-select.es-input:not([title])",
       "value": "{{centerName}}",
       "attempts": 3,
       "verifyNonEmpty": true,
-      "progress": "Selecting center by exact name (ignoring [ID]): {{centerName}}…",
-      "error": "Center was shown but could not be selected by exact name after ignoring the trailing [ID].",
+      "progress": "Selecting center by exact name (ignoring bracketed ID): {{centerName}}…",
+      "error": "Center suggestion was visible but could not be committed. Bracketed IDs are ignored during exact-name matching.",
       "options": {
-        "selectorIndex": 1,
+        "selectorIndex": 0,
         "focusWaitMs": 400,
         "typingDelayMs": 70,
         "autocompleteWaitMs": 1400,
         "exactMatch": true,
-        "exactMatchTimeoutMs": 8000,
+        "exactMatchTimeoutMs": 10000,
         "verifyExactValue": true,
         "commitWaitMs": 1000,
         "outsideWaitMs": 350,
@@ -171,18 +171,13 @@
             "type": "normalizeUnicode",
             "form": "NFKC"
           },
-          {
-            "type": "regexReplace",
-            "pattern": "\\s*\\[[^\\]]*\\]\\s*$",
-            "flags": "g",
-            "replacement": ""
-          },
+          "stripAllBrackets",
           "collapseWhitespace",
           "trim",
           "caseFold"
         ],
-        "exactMatchSelector": ".es-list li, .es-list > div, .es-list a, .es-list span, [class*=\"es-list\"] li, [class*=\"es-list\"] > div, [class*=\"autocomplete\"] li, [class*=\"autocomplete\"] [role=\"option\"], [role=\"listbox\"] [role=\"option\"]",
-        "exactMatchCommitWaitMs": 1200
+        "exactMatchSelector": ".es-list-item, .es-list .es-list-item, .es-list li, .es-list > div, .es-list a, [class*=\"es-list\"] .es-list-item, [class*=\"autocomplete\"] [role=\"option\"], [role=\"listbox\"] [role=\"option\"]",
+        "exactMatchCommitWaitMs": 1500
       }
     },
     {

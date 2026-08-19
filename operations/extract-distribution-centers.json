@@ -25,7 +25,7 @@
       "action": "open",
       "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Opening Distribution Centers…",
-      "active": true
+      "active": false
     },
     {
       "action": "ensureLogin",

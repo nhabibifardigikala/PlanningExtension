@@ -1,4 +1,4 @@
-# Remote-first architecture (v201)
+# Remote-first architecture (v202)
 
 Remote owns all business behavior. Host 12.0.0 is treated as a security-only runtime.
 
