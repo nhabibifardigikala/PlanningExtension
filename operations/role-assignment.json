@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Find a user by email or personnel code and assign or revoke one or more role IDs. Multi-role selection uses the chooser checkbox click handler so each selected role is persisted before the next role search.",
+  "description": "Find a user by email or personnel code and assign or revoke one or more role IDs. Uses a two-pass role selection/verification strategy so a role that appears as the first chooser row is rechecked and reselected if needed.",
   "uiMode": "form",
   "runLabel": "Assign Roles",
   "requiredHosts": [
@@ -140,7 +140,7 @@
     },
     {
       "action": "ensureLogin",
-      "detectTimeoutMs": 7000,
+      "detectTimeoutMs": 1000,
       "progress": "Checking authentication…"
     },
     {
@@ -614,7 +614,7 @@
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
       "frameTimeoutMs": 120000,
-      "progress": "Selecting role IDs…",
+      "progress": "Selecting role IDs (pass 1)…",
       "options": {
         "selectionMode": "assign",
         "chosenFilterChecked": false,
@@ -624,7 +624,62 @@
         "idAttribute": "data-target",
         "resultTimeoutMs": 120000,
         "pollMs": 750,
-        "afterEachMs": 1400,
+        "afterEachMs": 1100,
+        "clickChoose": false,
+        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+        "backgroundSafe": true,
+        "submitMode": "native-form",
+        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+        "requireSearchInputForResult": false,
+        "directCheckboxState": false,
+        "wakeFrames": true,
+        "frameElementSelector": "iframe",
+        "afterWakeFramesMs": 1200
+      },
+      "resultHeaders": [
+        "Role ID",
+        "Status",
+        "Message"
+      ],
+      "error": "Role ID {{value}} could not be found or selected. Reason: {{reason}}",
+      "intervalMs": 500,
+      "stepAttempts": 2,
+      "stepRetryDelayMs": 2000,
+      "retryProgress": "Retrying role selection pass 1 ({{attempt}}/{{attempts}})…",
+      "makeCurrent": false
+    },
+    {
+      "action": "wait",
+      "when": {
+        "left": "{{accessAction}}",
+        "operator": "equals",
+        "right": "assign"
+      },
+      "ms": 900,
+      "progress": "Verifying role selection state…"
+    },
+    {
+      "action": "selectItemsBySearchValues",
+      "when": {
+        "left": "{{accessAction}}",
+        "operator": "equals",
+        "right": "assign"
+      },
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+      "values": "{{roleIds}}",
+      "frameTimeoutMs": 120000,
+      "progress": "Verifying and repairing selected role IDs…",
+      "options": {
+        "selectionMode": "assign",
+        "chosenFilterChecked": false,
+        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
+        "afterChosenFilterMs": 3000,
+        "checkboxSelector": "input.uk-checkbox[data-target]",
+        "idAttribute": "data-target",
+        "resultTimeoutMs": 120000,
+        "pollMs": 600,
+        "afterEachMs": 1600,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
@@ -646,7 +701,8 @@
       "intervalMs": 500,
       "stepAttempts": 3,
       "stepRetryDelayMs": 2000,
-      "retryProgress": "Retrying native role search ({{attempt}}/{{attempts}})…"
+      "retryProgress": "Retrying role verification ({{attempt}}/{{attempts}})…",
+      "makeCurrent": true
     },
     {
       "action": "selectItemsBySearchValues",
@@ -658,7 +714,7 @@
       "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
       "values": "{{roleIds}}",
       "frameTimeoutMs": 120000,
-      "progress": "Selecting roles to revoke…",
+      "progress": "Selecting roles to revoke (pass 1)…",
       "options": {
         "selectionMode": "revoke",
         "chosenFilterChecked": true,
@@ -668,7 +724,62 @@
         "idAttribute": "data-target",
         "resultTimeoutMs": 120000,
         "pollMs": 750,
-        "afterEachMs": 1400,
+        "afterEachMs": 1100,
+        "clickChoose": false,
+        "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+        "backgroundSafe": true,
+        "submitMode": "native-form",
+        "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+        "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+        "requireSearchInputForResult": false,
+        "directCheckboxState": false,
+        "wakeFrames": true,
+        "frameElementSelector": "iframe",
+        "afterWakeFramesMs": 1200
+      },
+      "resultHeaders": [
+        "Role ID",
+        "Status",
+        "Message"
+      ],
+      "error": "Role ID {{value}} could not be found or selected for revocation. Reason: {{reason}}",
+      "intervalMs": 500,
+      "stepAttempts": 2,
+      "stepRetryDelayMs": 2000,
+      "retryProgress": "Retrying role selection pass 1 ({{attempt}}/{{attempts}})…",
+      "makeCurrent": false
+    },
+    {
+      "action": "wait",
+      "when": {
+        "left": "{{accessAction}}",
+        "operator": "equals",
+        "right": "revoke"
+      },
+      "ms": 900,
+      "progress": "Verifying role revocation state…"
+    },
+    {
+      "action": "selectItemsBySearchValues",
+      "when": {
+        "left": "{{accessAction}}",
+        "operator": "equals",
+        "right": "revoke"
+      },
+      "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+      "values": "{{roleIds}}",
+      "frameTimeoutMs": 120000,
+      "progress": "Verifying and repairing roles to revoke…",
+      "options": {
+        "selectionMode": "revoke",
+        "chosenFilterChecked": true,
+        "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]",
+        "afterChosenFilterMs": 3000,
+        "checkboxSelector": "input.uk-checkbox[data-target]",
+        "idAttribute": "data-target",
+        "resultTimeoutMs": 120000,
+        "pollMs": 600,
+        "afterEachMs": 1600,
         "clickChoose": false,
         "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
         "backgroundSafe": true,
@@ -690,7 +801,8 @@
       "intervalMs": 500,
       "stepAttempts": 3,
       "stepRetryDelayMs": 2000,
-      "retryProgress": "Retrying native role search ({{attempt}}/{{attempts}})…"
+      "retryProgress": "Retrying role verification ({{attempt}}/{{attempts}})…",
+      "makeCurrent": true
     },
     {
       "action": "clickInFrameAndWait",

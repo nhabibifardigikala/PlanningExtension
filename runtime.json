@@ -17,7 +17,7 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v213. Polygon consumers load DX_Polygons.xlsx directly; Role Assignment uses native framed-form search with Host 12.0.5 for minimized/background execution.",
-  "configVersion": 214,
+  "configVersion": 215,
   "minimumRuntimeVersion": "12.0.5",
   "minimumRuntime": "12.0.5",
   "workflowLanguageVersion": 3,
@@ -26,7 +26,7 @@
   "runtimeUpdatePolicy": "security-only",
   "version": "12.0.5",
   "platformContract": 12,
-  "remoteVersion": 214,
+  "remoteVersion": 215,
   "executionModel": "remote-first-declarative",
   "runtimeVersion": "12.0.5"
 }
