@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Configurable workplace wellness reminders with professional ergonomic motion guides and enable/disable controls.",
+  "description": "Configurable workplace wellness reminders with clear real-person reference images and independent schedules for each activity.",
   "workflow": [],
   "successMessage": "Work Healthy ready.",
   "runtimeContract": "stable-host-12",

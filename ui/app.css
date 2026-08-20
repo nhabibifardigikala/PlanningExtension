@@ -389,16 +389,16 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__voiceTypingE
 #operationView.active:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #operationBackBtn{flex:0 0 auto}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;margin-top:8px}
-/* v226 Voice Typing: consume all available operation viewport and inherit extension color scheme. */
+/* v227 Voice Typing: consume all available operation viewport and inherit extension color scheme. */
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{border:0!important;border-radius:0!important;margin-top:6px!important;overflow:hidden!important;min-height:0!important}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded iframe{height:100%!important;min-height:0!important;border-radius:12px}
 html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark}html[data-theme="light"] #voiceTypingFrame{color-scheme:light}
-/* v226 Voice Typing viewport and theme bridge */
+/* v227 Voice Typing viewport and theme bridge */
 html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark!important}
 html[data-theme="light"] #voiceTypingFrame{color-scheme:light!important}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{height:calc(100vh - 145px)!important;min-height:560px!important;flex:1 1 auto!important;overflow:hidden!important}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded iframe{height:100%!important;min-height:560px!important}
-/* v226 Voice Typing viewport and theme bridge */
+/* v227 Voice Typing viewport and theme bridge */
 html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark!important}
 html[data-theme="light"] #voiceTypingFrame{color-scheme:light!important}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{height:calc(100vh - 145px)!important;min-height:560px!important;flex:1 1 auto!important;overflow:hidden!important}

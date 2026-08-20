@@ -1,33 +1,65 @@
-const K='digiexpress.workHealthy.v3',D={enabled:true,interval:45,duration:45,start:'08:00',end:'18:00',groups:['eyes','neck','shoulders','back','wrists','legs'],nextAt:0};
-let s=Object.assign({},D,JSON.parse(localStorage.getItem(K)||localStorage.getItem('digiexpress.workHealthy.v2')||'{}')),active=null,countTimer=null;
-const $=q=>document.querySelector(q),save=()=>localStorage.setItem(K,JSON.stringify(s));
-const ex=[
- ['eyes','20–20 distance reset','Keep your head still. Look at a distant point for about 20 seconds, then return your gaze to the screen and blink slowly.'],
- ['neck','Controlled neck rotation','Sit tall. Turn your head slowly to one side, return to center, then repeat to the other side. Keep the shoulders relaxed.'],
- ['shoulders','Shoulder roll reset','Lift the shoulders gently, roll them backward, then let them settle down. Keep the movement slow and comfortable.'],
- ['back','Seated thoracic extension','Sit supported. Open the chest and upper back over the chair while keeping the lower back controlled.'],
- ['wrists','Wrist extension stretch','Extend one arm and gently move the hand through wrist extension. Keep the elbow straight and avoid forcing the stretch.'],
- ['legs','Standing calf raise','Hold a stable surface. Rise slowly onto the balls of the feet, pause briefly, and lower with control.']
+const K='digiexpress.workHealthy.v4';
+const exercises=[
+  {id:'neck',title:'Neck stretch',text:'Sit upright. Place one hand gently over the side of your head and tilt toward the shoulder until you feel a light stretch. Do not pull or force the neck.',image:'images/neck.jpg',interval:60,duration:30},
+  {id:'shoulders',title:'Shoulder stretch',text:'Sit or stand tall. Bring one arm across the chest and support it with the opposite arm. Keep the shoulder low and relaxed.',image:'images/shoulders.jpg',interval:60,duration:30},
+  {id:'back',title:'Back & chest reset',text:'Move away from the screen, sit tall and gently open the chest and upper back. Keep the movement comfortable and breathe normally.',image:'images/back.jpg',interval:90,duration:40},
+  {id:'wrists',title:'Wrist stretch',text:'Extend one arm in front of you. With the other hand, gently guide the fingers back until you feel a mild stretch through the wrist and forearm.',image:'images/wrists.jpg',interval:60,duration:30},
+  {id:'eyes',title:'Eye relaxation',text:'Look away from the monitor toward a distant point. Relax your focus, blink slowly several times and avoid staring at the screen during the break.',image:'images/eyes.jpg',interval:30,duration:20},
+  {id:'tea',title:'Tea break',text:'Pause your work, sit comfortably and drink a cup of tea slowly. Use the short break to relax your shoulders, eyes and breathing.',image:'images/tea.jpg',interval:120,duration:120}
 ];
-function fullPerson(cls=''){return `<div class="figure ${cls}"><div class="shadow"></div><div class="head"></div><div class="neck"></div><div class="torso"></div><div class="arm arm-l"><i></i><b></b></div><div class="arm arm-r"><i></i><b></b></div><div class="leg leg-l"><i></i><b></b></div><div class="leg leg-r"><i></i><b></b></div></div>`}
-function motion(type){
- if(type==='eyes')return `<div class="motion-scene eyes-scene"><div class="desk-screen"><span></span></div><div class="eye-card"><div class="eye"><i class="pupil"></i></div></div><div class="far-target"></div><div class="scene-note">Shift focus gently between near and far</div></div>`;
- if(type==='wrists')return `<div class="motion-scene wrist-scene"><div class="forearm"><span class="hand"></span></div><div class="support-hand"></div><div class="scene-note">Move only at the wrist · keep the elbow straight</div></div>`;
- if(type==='back')return `<div class="motion-scene back-scene"><div class="chair"><i></i></div>${fullPerson('person-back')}<div class="scene-note">Open through the upper chest · stay supported</div></div>`;
- if(type==='legs')return `<div class="motion-scene legs-scene"><div class="support-rail"></div>${fullPerson('person-calf')}<div class="scene-note">Rise slowly · pause · lower under control</div></div>`;
- if(type==='shoulders')return `<div class="motion-scene shoulder-scene">${fullPerson('person-shoulder')}<div class="scene-note">Up · back · down</div></div>`;
- return `<div class="motion-scene neck-scene">${fullPerson('person-neck')}<div class="scene-note">Slow rotation · shoulders remain still</div></div>`;
+const defaults={enabled:true,start:'08:00',end:'18:00',items:Object.fromEntries(exercises.map(x=>[x.id,{enabled:true,interval:x.interval,duration:x.duration}]))};
+function load(){
+  let raw={};try{raw=JSON.parse(localStorage.getItem(K)||'{}')}catch(_){}
+  if(!Object.keys(raw).length){
+    try{const old=JSON.parse(localStorage.getItem('digiexpress.workHealthy.v3')||localStorage.getItem('digiexpress.workHealthy.v2')||'{}');
+      raw={enabled:old.enabled!==false,start:old.start||'08:00',end:old.end||'18:00',items:{}};
+      exercises.forEach(e=>raw.items[e.id]={enabled:Array.isArray(old.groups)?old.groups.includes(e.id):true,interval:Math.max(1,Number(old.interval)||e.interval),duration:Math.max(10,Number(old.duration)||e.duration)});
+    }catch(_){}
+  }
+  const s={enabled:raw.enabled!==false,start:raw.start||defaults.start,end:raw.end||defaults.end,items:{}};
+  exercises.forEach(e=>{const r=raw.items?.[e.id]||{};s.items[e.id]={enabled:r.enabled!==false,interval:Math.max(1,Number(r.interval)||e.interval),duration:Math.max(10,Number(r.duration)||e.duration)}});
+  return s;
 }
-function render(){for(const id of['interval','duration','start','end'])$('#'+id).value=s[id];$('#enabled').checked=s.enabled;$('#groups').innerHTML=ex.map(e=>`<label><input type="checkbox" data-g="${e[0]}" ${s.groups.includes(e[0])?'checked':''}> ${e[1]}</label>`).join('');$('#library').innerHTML=ex.map(e=>`<div class="tile">${motion(e[0])}<div class="tile-copy"><strong>${e[1]}</strong><p>${e[2]}</p></div></div>`).join('');updateNext()}
-function withinHours(){const n=new Date(),m=n.getHours()*60+n.getMinutes(),tm=x=>{const[a,b]=x.split(':').map(Number);return a*60+b};const a=tm(s.start),b=tm(s.end);return a<=b?(m>=a&&m<=b):(m>=a||m<=b)}
-function schedule(){if(!s.nextAt||s.nextAt<Date.now())s.nextAt=Date.now()+s.interval*60000;save();updateNext();syncHostReminder()}
-function updateNext(){if(!s.enabled){$('#next').textContent='Reminders are disabled.';return}const mins=Math.max(0,Math.ceil((s.nextAt-Date.now())/60000));$('#next').textContent=`Next reminder in about ${mins} minute${mins===1?'':'s'}.`}
-function pick(force){const found=ex.find(e=>e[0]===force);if(found)return found;const list=ex.filter(e=>s.groups.includes(e[0]));return list[Math.floor(Math.random()*list.length)]||ex[0]}
-function showExercise(force){active=pick(force);$('#picture').innerHTML=motion(active[0]);$('#title').textContent=active[1];$('#text').textContent=active[2];$('#modal').classList.remove('hidden');let sec=s.duration;$('#count').textContent=`${sec}s`;clearInterval(countTimer);countTimer=setInterval(()=>{sec--;$('#count').textContent=`${Math.max(0,sec)}s`;if(sec<=0)clearInterval(countTimer)},1000)}
-function syncHostReminder(){try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'DIGIEXPRESS_REMOTE_REMINDER_CONFIG',config:{featureId:'work-healthy',enabled:s.enabled,intervalMinutes:s.interval,start:s.start,end:s.end,durationSeconds:s.duration,groups:s.groups,path:'work-healthy/index.html'}},'*')}catch(_){}}
-function reminderAction(action){try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'DIGIEXPRESS_REMINDER_ACTION',featureId:'work-healthy',action},'*')}catch(_){}if(new URLSearchParams(location.search).get('reminder')==='1')setTimeout(()=>window.close(),80)}
-setInterval(()=>{if(s.enabled&&withinHours()&&Date.now()>=s.nextAt){showExercise();s.nextAt=Date.now()+s.interval*60000;save()}updateNext()},15000);
-$('#save').onclick=()=>{s.interval=Math.max(1,Number($('#interval').value)||45);s.duration=Math.max(15,Number($('#duration').value)||45);s.start=$('#start').value||'08:00';s.end=$('#end').value||'18:00';s.groups=[...document.querySelectorAll('[data-g]:checked')].map(x=>x.dataset.g);s.enabled=$('#enabled').checked;s.nextAt=Date.now()+s.interval*60000;save();render();syncHostReminder()};
-$('#enabled').onchange=()=>{s.enabled=$('#enabled').checked;s.nextAt=Date.now()+s.interval*60000;save();updateNext();syncHostReminder()};$('#showNow').onclick=()=>showExercise();$('#done').onclick=()=>{$('#modal').classList.add('hidden');clearInterval(countTimer);schedule();reminderAction('done')};$('#snooze').onclick=()=>{$('#modal').classList.add('hidden');clearInterval(countTimer);s.nextAt=Date.now()+10*60000;save();updateNext();reminderAction('snooze')};$('#close').onclick=()=>{$('#modal').classList.add('hidden');clearInterval(countTimer);reminderAction('dismiss')};
-const qs=new URLSearchParams(location.search);if(qs.get('reminder')==='1'){document.getElementById('mainApp').classList.add('hidden');const d=Number(qs.get('duration'));if(Number.isFinite(d)&&d>0)s.duration=d;requestAnimationFrame(()=>showExercise(qs.get('exercise')||''))}
-schedule();render();syncHostReminder();
+let state=load(),active=null,countTimer=null;
+const $=q=>document.querySelector(q);const save=()=>localStorage.setItem(K,JSON.stringify(state));
+function featureId(id){return `work-healthy-${id}`}
+function postReminder(ex){
+  const item=state.items[ex.id];
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'DIGIEXPRESS_REMOTE_REMINDER_CONFIG',config:{featureId:featureId(ex.id),enabled:state.enabled&&item.enabled,intervalMinutes:Math.max(1,item.interval),start:state.start,end:state.end,durationSeconds:item.duration,groups:[ex.id],path:'work-healthy/index.html'}},'*')}catch(_){}
+}
+function syncAll(){exercises.forEach(postReminder)}
+function reminderAction(action){
+  const params=new URLSearchParams(location.search);if(params.get('reminder')!=='1')return;
+  const id=active?.id||params.get('exercise')||'neck';
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'DIGIEXPRESS_REMINDER_ACTION',featureId:featureId(id),action},'*')}catch(_){}
+  setTimeout(()=>window.close(),80);
+}
+function card(ex){const it=state.items[ex.id];return `<article class="movement-card" data-id="${ex.id}">
+  <img src="${ex.image}?v=227" alt="Office employee demonstrating ${ex.title}">
+  <div class="movement-copy"><div class="movement-title"><strong>${ex.title}</strong><label class="switch"><input class="movement-enabled" type="checkbox" ${it.enabled?'checked':''}><span></span></label></div><p>${ex.text}</p>
+  <div class="timing"><label>Every <span><input class="movement-interval" type="number" min="1" step="1" value="${it.interval}"> min</span></label><label>Show for <span><input class="movement-duration" type="number" min="10" step="5" value="${it.duration}"> sec</span></label></div>
+  <button class="preview" type="button">Show now</button></div></article>`}
+function render(){
+  $('#enabled').checked=state.enabled;$('#start').value=state.start;$('#end').value=state.end;
+  $('#library').innerHTML=exercises.map(card).join('');
+  $('#library').querySelectorAll('.movement-card').forEach(el=>{
+    const id=el.dataset.id,ex=exercises.find(x=>x.id===id),it=state.items[id];
+    el.querySelector('.movement-enabled').onchange=e=>{it.enabled=e.target.checked;save();postReminder(ex)};
+    el.querySelector('.movement-interval').onchange=e=>{it.interval=Math.max(1,Number(e.target.value)||1);e.target.value=it.interval;save();postReminder(ex)};
+    el.querySelector('.movement-duration').onchange=e=>{it.duration=Math.max(10,Number(e.target.value)||10);e.target.value=it.duration;save();postReminder(ex)};
+    el.querySelector('.preview').onclick=()=>showExercise(id);
+  });
+}
+function showExercise(id){
+  active=exercises.find(x=>x.id===id)||exercises[0];const it=state.items[active.id];
+  $('#picture').innerHTML=`<img src="${active.image}?v=227" alt="${active.title}">`;
+  $('#title').textContent=active.title;$('#text').textContent=active.text;$('#modal').classList.remove('hidden');
+  let sec=it.duration;$('#count').textContent=`${sec}s`;clearInterval(countTimer);countTimer=setInterval(()=>{sec--;$('#count').textContent=`${Math.max(0,sec)}s`;if(sec<=0)clearInterval(countTimer)},1000);
+}
+$('#enabled').onchange=()=>{state.enabled=$('#enabled').checked;save();syncAll()};
+$('#save').onclick=()=>{state.start=$('#start').value||'08:00';state.end=$('#end').value||'18:00';save();syncAll();$('#saved').textContent='Saved';setTimeout(()=>$('#saved').textContent='',1200)};
+$('#done').onclick=()=>{$('#modal').classList.add('hidden');clearInterval(countTimer);reminderAction('done')};
+$('#snooze').onclick=()=>{$('#modal').classList.add('hidden');clearInterval(countTimer);reminderAction('snooze')};
+$('#close').onclick=()=>{$('#modal').classList.add('hidden');clearInterval(countTimer);reminderAction('dismiss')};
+const qs=new URLSearchParams(location.search);if(qs.get('reminder')==='1'){document.getElementById('mainApp').classList.add('hidden');const id=qs.get('exercise')||'neck';const d=Number(qs.get('duration'));if(Number.isFinite(d)&&d>0&&state.items[id])state.items[id].duration=d;requestAnimationFrame(()=>showExercise(id))}
+render();syncAll();
