@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Voice Typing</title>
-<link rel="stylesheet" href="voice.css?v=224">
+<link rel="stylesheet" href="voice.css?v=225">
 </head>
 <body>
 <main class="app">
@@ -17,12 +17,10 @@
     </select>
     <div class="status" id="status"><span class="dot"></span><span>Ready</span></div>
   </section>
-
   <section class="editor-card">
-    <textarea id="output" placeholder="Press the microphone and start speaking…" spellcheck="true"></textarea>
+    <textarea id="output" placeholder="Tap the microphone and start speaking…" spellcheck="true"></textarea>
     <div id="interim" class="interim" aria-live="polite"></div>
   </section>
-
   <section class="controls">
     <button id="micBtn" class="mic" type="button" aria-label="Start voice typing" title="Start voice typing">
       <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5a7 7 0 0 1 7 7v11a7 7 0 0 1-14 0V12a7 7 0 0 1 7-7Zm-3 7v11a3 3 0 0 0 6 0V12a3 3 0 0 0-6 0Zm-9 9h4v2a8 8 0 0 0 16 0v-2h4v2a12 12 0 0 1-10 11.8V40h7v4H15v-4h7v-5.2A12 12 0 0 1 12 23v-2Z"/></svg>
@@ -31,9 +29,9 @@
     <button id="clearBtn" class="secondary" type="button">Clear</button>
     <button id="downloadBtn" class="secondary" type="button">TXT</button>
   </section>
-  <p class="hint" id="hint">Microphone permission is requested by your browser when recognition starts.</p>
+  <p class="hint" id="hint">The first start may ask for microphone permission.</p>
 </main>
 <div id="toast" class="toast" role="status">Copied</div>
-<script src="voice.js?v=224"></script>
+<script src="voice.js?v=225"></script>
 </body>
 </html>

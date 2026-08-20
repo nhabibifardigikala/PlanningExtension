@@ -192,7 +192,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
-- All visible/config/cache-buster version references are synchronized to Config 222.
+- All visible/config/cache-buster version references are synchronized to Config 225.
 
 
 ## v206 PUDO confirmation, Parent Code and template
@@ -245,3 +245,9 @@ Authenticator menu icon is monochrome. Role Assignment suboperations use a fixed
 ## v222 Authenticator + Role navigation
 - Authenticator catalog icon is now a monochrome `2FA` badge.
 - Role Assignment sub-operation navigation now follows the same fixed icon + small label layout as Daily Planner.
+
+
+## v225
+- Voice Typing full-height responsive UI, extension-theme matching and explicit microphone permission preflight.
+- Authenticator remote contract uses a 2FA shield icon, battery countdown, simplified Add UI and visible Cancel.
+- Work Healthy uses professional ergonomic motion guides and registers a generic host reminder schedule so reminders can surface as a centered window even when Chrome is minimized.

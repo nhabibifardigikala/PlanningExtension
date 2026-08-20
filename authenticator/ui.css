@@ -1,9 +1,12 @@
-/* Remote-declarative Authenticator presentation. Safe CSS only; no secrets/codes leave Host origin. */
-:root{
-  --auth-code-size:3.05rem;
-  --auth-card-radius:14px;
-}
-.auth-logo{font-weight:800;letter-spacing:-.06em;font-size:13px;line-height:1}
-.otp{font-size:var(--auth-code-size)!important;font-weight:700!important;letter-spacing:.035em!important;cursor:pointer}
-.otp-countdown{font-variant-numeric:tabular-nums;min-width:34px;text-align:center;font-weight:700}
-.code-card{border-radius:var(--auth-card-radius)!important}
+/* Remote-declarative Authenticator UI v225 */
+.auth-logo{position:relative;width:38px!important;height:38px!important;border:0!important;border-radius:11px!important;background:var(--accent)!important;color:white!important;font-size:0!important;overflow:hidden;box-shadow:0 4px 12px color-mix(in srgb,var(--accent),transparent 72%)}
+.auth-logo::before{content:"2FA";position:absolute;inset:0;display:grid;place-items:center;font:850 11px/1 Inter,system-ui,sans-serif;letter-spacing:.2px;color:#fff}
+.auth-logo::after{content:"";position:absolute;inset:4px;border:1.6px solid rgba(255,255,255,.9);clip-path:polygon(50% 0,92% 17%,88% 70%,50% 100%,12% 70%,8% 17%);border-radius:4px}
+#manualFields{display:none!important}.tab-panel label{font-weight:700}.tab-panel label:first-child{margin-bottom:10px}.tab-panel label:first-child::before{content:"Paste a setup link, migration link, or secret key";font-size:13px}.tab-panel label:first-child{font-size:0}.tab-panel label:first-child textarea{font-size:14px;margin-top:7px}.tab-panel .hint{line-height:1.55}
+#saveAccount,#previewMigrationBtn,#importMigrationBtn{margin-top:4px}.tabs{box-shadow:0 -6px 22px rgba(16,24,40,.05)}
+/* Battery countdown selected by Remote contract. Host updates --battery-level. */
+html[data-countdown-mode="battery"] .otp-countdown{position:relative;width:42px;min-width:42px;height:22px;border:2px solid var(--muted);border-radius:5px;padding:2px;font-size:0;background:transparent;overflow:visible}
+html[data-countdown-mode="battery"] .otp-countdown::before{content:"";display:block;width:calc((100% - 4px) * var(--battery-level,1));height:100%;border-radius:2px;background:var(--accent);transition:width .22s linear}
+html[data-countdown-mode="battery"] .otp-countdown::after{content:"";position:absolute;right:-6px;top:5px;width:4px;height:8px;border-radius:0 2px 2px 0;background:var(--muted)}
+.otp{font-size:calc(1.72rem * var(--auth-code-scale))!important}.toolbar{position:sticky;top:0;z-index:3;background:var(--bg);padding-top:4px}.tab-panel{padding-bottom:18px}
+@media(max-width:620px){.otp{font-size:calc(1.48rem * var(--auth-code-scale))!important}.auth-logo{width:34px!important;height:34px!important}}

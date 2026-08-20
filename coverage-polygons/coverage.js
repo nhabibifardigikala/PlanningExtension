@@ -1,5 +1,5 @@
 
-const DATA='../data/DX_Polygons.xlsx?v=224';
+const DATA='../data/DX_Polygons.xlsx?v=225';
 let rows=[],shown=[],pointHits=[],searchedPoint=null,sortKey='name',sortDir=1;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const map=L.map('map',{zoomControl:true}).setView([32,51],6), polygons=L.layerGroup().addTo(map), points=L.layerGroup().addTo(map);

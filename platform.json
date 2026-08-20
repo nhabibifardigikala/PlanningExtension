@@ -40,10 +40,12 @@
     "activity-log",
     "remote-loader",
     "secure-authenticator-vault",
-    "totp-engine"
+    "totp-engine",
+    "generic-remote-reminder-window",
+    "generic-browser-alarms"
   ],
-  "remoteVersion": 224,
+  "remoteVersion": 225,
   "updateRule": "Business/product changes must be Remote-only. Host updates are reserved for security or browser-runtime compatibility.",
-  "configVersion": 224,
-  "minimumRuntimeVersion": "12.0.9"
+  "configVersion": 225,
+  "minimumRuntimeVersion": "12.1.1"
 }

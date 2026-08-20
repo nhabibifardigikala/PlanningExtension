@@ -31,9 +31,9 @@
     "contractVersion": 1,
     "title": "Authenticator",
     "iconText": "2FA",
-    "countdownMode": "numeric",
+    "countdownMode": "battery",
     "codeFontScale": 2.0,
-    "remoteCss": "authenticator/ui.css?v=224",
+    "remoteCss": "authenticator/ui.css?v=225",
     "labels": {
       "codes": "Codes",
       "add": "Add",
@@ -44,7 +44,9 @@
       "clickCodeToCopy": true,
       "dragReorder": true,
       "showSearch": true,
-      "showLegacyMigration": false
+      "showLegacyMigration": false,
+      "simpleAdd": true,
+      "showAddCancel": true
     }
   }
 }

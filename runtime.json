@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v224. Authenticator uses a simple 2FA icon and numeric lifetime countdown; Role Assignment sub-operation navigation matches Daily Planner bottom navigation.",
-  "configVersion": 224,
-  "minimumRuntimeVersion": "12.0.11",
-  "minimumRuntime": "12.0.11",
+  "notes": "Remote app v225. Voice Typing uses microphone preflight and full-height theme-aware UI. Authenticator uses simple Add UI with battery lifetime display. Work Healthy registers generic background reminder windows.",
+  "configVersion": 225,
+  "minimumRuntimeVersion": "12.1.1",
+  "minimumRuntime": "12.1.1",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.0.11",
+  "recommendedRuntime": "12.1.1",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.0.11",
+  "version": "12.1.1",
   "platformContract": 12,
-  "remoteVersion": 224,
+  "remoteVersion": 225,
   "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.0.9"
+  "runtimeVersion": "12.1.1"
 }
