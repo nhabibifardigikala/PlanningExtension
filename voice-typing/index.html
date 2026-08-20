@@ -4,34 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Voice Typing</title>
-<link rel="stylesheet" href="voice.css?v=225">
+<link rel="stylesheet" href="voice.css?v=226">
 </head>
 <body>
 <main class="app">
-  <section class="toolbar">
-    <select id="language" aria-label="Recognition language">
-      <option value="fa-IR">فارسی</option>
-      <option value="en-US">English (US)</option>
-      <option value="en-GB">English (UK)</option>
-      <option value="ar-SA">العربية</option>
-    </select>
-    <div class="status" id="status"><span class="dot"></span><span>Ready</span></div>
+  <section class="language-bar" aria-label="Recognition language">
+    <button class="lang active" data-lang="fa-IR" type="button">فارسی</button>
+    <button class="lang" data-lang="en-US" type="button">English</button>
+    <button class="lang" data-lang="ar-SA" type="button">العربية</button>
   </section>
-  <section class="editor-card">
-    <textarea id="output" placeholder="Tap the microphone and start speaking…" spellcheck="true"></textarea>
-    <div id="interim" class="interim" aria-live="polite"></div>
-  </section>
-  <section class="controls">
+
+  <section class="recorder-panel">
     <button id="micBtn" class="mic" type="button" aria-label="Start voice typing" title="Start voice typing">
       <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5a7 7 0 0 1 7 7v11a7 7 0 0 1-14 0V12a7 7 0 0 1 7-7Zm-3 7v11a3 3 0 0 0 6 0V12a3 3 0 0 0-6 0Zm-9 9h4v2a8 8 0 0 0 16 0v-2h4v2a12 12 0 0 1-10 11.8V40h7v4H15v-4h7v-5.2A12 12 0 0 1 12 23v-2Z"/></svg>
     </button>
-    <button id="copyBtn" class="secondary" type="button">Copy</button>
-    <button id="clearBtn" class="secondary" type="button">Clear</button>
-    <button id="downloadBtn" class="secondary" type="button">TXT</button>
+    <div class="recorder-copy">
+      <strong id="status">Ready to listen</strong>
+      <span id="hint">Press the microphone and start speaking.</span>
+    </div>
+    <div id="level" class="level" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
   </section>
-  <p class="hint" id="hint">The first start may ask for microphone permission.</p>
+
+  <section class="editor-card">
+    <div class="editor-head"><strong>Transcript</strong><span id="interim"></span></div>
+    <textarea id="output" placeholder="Your speech will appear here…" spellcheck="true"></textarea>
+  </section>
+
+  <section class="controls">
+    <button id="copyBtn" class="secondary" type="button">Copy text</button>
+    <button id="clearBtn" class="secondary" type="button">Clear</button>
+    <button id="downloadBtn" class="secondary" type="button">Download TXT</button>
+  </section>
 </main>
 <div id="toast" class="toast" role="status">Copied</div>
-<script src="voice.js?v=225"></script>
+<script src="voice.js?v=226"></script>
 </body>
 </html>

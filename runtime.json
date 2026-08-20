@@ -17,7 +17,7 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v225. Voice Typing uses microphone preflight and full-height theme-aware UI. Authenticator uses simple Add UI with battery lifetime display. Work Healthy registers generic background reminder windows.",
-  "configVersion": 225,
+  "configVersion": 226,
   "minimumRuntimeVersion": "12.1.1",
   "minimumRuntime": "12.1.1",
   "workflowLanguageVersion": 3,
@@ -26,7 +26,7 @@
   "runtimeUpdatePolicy": "security-only",
   "version": "12.1.1",
   "platformContract": 12,
-  "remoteVersion": 225,
+  "remoteVersion": 226,
   "executionModel": "remote-first-declarative",
   "runtimeVersion": "12.1.1"
 }

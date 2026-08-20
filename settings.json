@@ -30,10 +30,10 @@
   "authenticatorUi": {
     "contractVersion": 1,
     "title": "Authenticator",
-    "iconText": "2FA",
+    "iconText": "Authenticator",
     "countdownMode": "battery",
     "codeFontScale": 2.0,
-    "remoteCss": "authenticator/ui.css?v=225",
+    "remoteCss": "authenticator/ui.css?v=226",
     "labels": {
       "codes": "Codes",
       "add": "Add",
