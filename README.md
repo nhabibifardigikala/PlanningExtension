@@ -192,7 +192,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
-- All visible/config/cache-buster version references are synchronized to Config 221.
+- All visible/config/cache-buster version references are synchronized to Config 222.
 
 
 ## v206 PUDO confirmation, Parent Code and template
@@ -241,3 +241,7 @@ Adds the Authenticator feature shell. The actual secret-entry UI and TOTP vault 
 
 ## v221 Authenticator + Role navigation UX
 Authenticator menu icon is monochrome. Role Assignment suboperations use a fixed icon-only bottom navigation.
+
+## v222 Authenticator + Role navigation
+- Authenticator catalog icon is now a monochrome `2FA` badge.
+- Role Assignment sub-operation navigation now follows the same fixed icon + small label layout as Daily Planner.
