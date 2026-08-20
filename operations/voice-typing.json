@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Speech-to-text feature using the browser speech recognition service. Audio is handled by the browser speech API; the Remote page does not upload recordings itself.",
+  "workflow": [],
+  "successMessage": "Voice Typing ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
+}

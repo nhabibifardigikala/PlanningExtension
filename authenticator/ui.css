@@ -1,0 +1,9 @@
+/* Remote-declarative Authenticator presentation. Safe CSS only; no secrets/codes leave Host origin. */
+:root{
+  --auth-code-size:3.05rem;
+  --auth-card-radius:14px;
+}
+.auth-logo{font-weight:800;letter-spacing:-.06em;font-size:13px;line-height:1}
+.otp{font-size:var(--auth-code-size)!important;font-weight:700!important;letter-spacing:.035em!important;cursor:pointer}
+.otp-countdown{font-variant-numeric:tabular-nums;min-width:34px;text-align:center;font-weight:700}
+.code-card{border-radius:var(--auth-card-radius)!important}

@@ -4,8 +4,14 @@
   "appearance": {
     "title": "Appearance",
     "themes": [
-      { "id": "light", "label": "Day" },
-      { "id": "dark", "label": "Night" }
+      {
+        "id": "light",
+        "label": "Day"
+      },
+      {
+        "id": "dark",
+        "label": "Night"
+      }
     ]
   },
   "credentials": {
@@ -20,5 +26,25 @@
   "validation": {
     "title": "Validating username and password",
     "message": "Please wait. Settings are locked during validation."
+  },
+  "authenticatorUi": {
+    "contractVersion": 1,
+    "title": "Authenticator",
+    "iconText": "2FA",
+    "countdownMode": "numeric",
+    "codeFontScale": 2.0,
+    "remoteCss": "authenticator/ui.css?v=224",
+    "labels": {
+      "codes": "Codes",
+      "add": "Add",
+      "settings": "Settings",
+      "copied": "Copied"
+    },
+    "features": {
+      "clickCodeToCopy": true,
+      "dragReorder": true,
+      "showSearch": true,
+      "showLegacyMigration": false
+    }
   }
 }

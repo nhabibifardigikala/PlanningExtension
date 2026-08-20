@@ -857,36 +857,117 @@
       "id": "copy-roles",
       "tabLabel": "Copy",
       "title": "Copy Roles",
-      "description": "Copy every currently assigned Role ID from User A to User B. Existing roles on User B are preserved.",
+      "description": "Copy all roles from a source user to a target user. Supports single copy or an Excel batch. In Excel mode use column A for source user and column B for target personnel code.",
       "uiMode": "form",
       "runLabel": "Copy Roles",
       "inputs": [
         {
-          "name": "sourceUserIdentifier",
-          "label": "User A — source email or personnel code",
-          "type": "text",
-          "placeholder": "name@digikala.com or 100",
+          "name": "inputMode",
+          "label": "Input method",
+          "type": "radio-group",
+          "default": "single",
           "required": true,
-          "help": "All currently assigned roles are read from this user."
+          "options": [
+            {
+              "value": "single",
+              "label": "Single copy"
+            },
+            {
+              "value": "excel",
+              "label": "Excel file"
+            }
+          ]
+        },
+        {
+          "name": "sourceUserIdentifier",
+          "label": "Source user (User A)",
+          "type": "text",
+          "placeholder": "email or personnel code",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          }
         },
         {
           "name": "targetUserIdentifier",
-          "label": "User B — target email or personnel code",
+          "label": "Target personnel code (User B)",
           "type": "text",
-          "placeholder": "name@digikala.com or 200",
-          "required": true,
-          "help": "Roles from User A are added to this user; existing User B roles are preserved."
+          "placeholder": "100",
+          "pattern": "^\\s*\\d+\\s*$",
+          "validationMessage": "Target user must be a numeric personnel code.",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "single"
+          },
+          "help": "Excel batch uses the same rule for User B so it can run through the stable Host batch processor."
+        },
+        {
+          "name": "copyInputFile",
+          "label": "Excel file",
+          "type": "file",
+          "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "showWhen": {
+            "field": "inputMode",
+            "equals": "excel"
+          },
+          "requiredWhen": {
+            "field": "inputMode",
+            "equals": "excel"
+          },
+          "help": "Column A: source email/personnel code. Column B: target personnel code. Header row is optional."
         }
       ],
       "clientProcessor": {
-        "type": "direct-workflow"
+        "type": "single-or-excel-workflow",
+        "modeField": "inputMode",
+        "identifierField": "sourceUserIdentifier",
+        "rolesField": "targetUserIdentifier",
+        "fileField": "copyInputFile",
+        "reportHeaders": [
+          "Source User",
+          "Role ID",
+          "Status",
+          "Message"
+        ],
+        "downloadButtonLabel": "Download Copy Report",
+        "sheetName": "Copy Roles Results",
+        "filename": "copy_roles_results.xlsx",
+        "successFill": "C6EFCE",
+        "failureFill": "FFC7CE",
+        "excel": {
+          "headerAliases": [
+            "source user",
+            "source",
+            "user a",
+            "source email",
+            "source personnel code",
+            "target user",
+            "target",
+            "user b",
+            "target personnel code",
+            "کاربر مبدا",
+            "کاربر مقصد",
+            "کد پرسنلی مقصد"
+          ]
+        },
+        "executionMode": "background",
+        "backgroundPersistent": true,
+        "description": "Remote-only Excel batch reuse of the stable background processor. User B is a personnel code in batch mode."
       },
       "successMessage": "Roles copied from User A to User B.",
       "workflow": [
         {
           "action": "setContext",
           "name": "userIdentifier",
-          "value": "{{sourceUserIdentifier}}"
+          "value": "{{userIdentifier}}"
         },
         {
           "action": "open",
@@ -1391,7 +1472,7 @@
         {
           "action": "setContext",
           "name": "userIdentifier",
-          "value": "{{targetUserIdentifier}}"
+          "value": "{{roleIds}}"
         },
         {
           "action": "open",
