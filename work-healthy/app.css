@@ -18,3 +18,14 @@ body.reminder-mode .hero-picture img{object-fit:cover;background:#e8edf2}
 body.reminder-mode .exercise-actions{padding:10px 12px 12px}
 body.reminder-mode .exercise-actions button{min-width:115px;padding:8px 10px}
 body.reminder-mode #close{width:32px;height:32px;right:10px;top:10px;font-size:18px}
+
+/* v237 explicit extension-theme bridge for reminder windows */
+:root[data-theme="light"]{color-scheme:light;--bg:#f3f4f6;--card:#fff;--panel:#fff;--text:#102030;--muted:#667085;--accent:#f79009;--border:#f79009;--shadow:0 10px 30px rgba(16,24,40,.08)}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d2b56;--panel:#071a33;--text:#fff;--muted:#b6c1d2;--accent:#f79009;--border:#f79009;--shadow:0 14px 38px rgba(0,0,0,.28)}
+body.reminder-mode .modal{background:var(--bg)}
+body.reminder-mode .exercise{border-color:var(--accent);box-shadow:0 18px 55px rgba(0,0,0,.28)}
+body.reminder-mode .exercise-copy{background:var(--card);border-bottom:1px solid color-mix(in srgb,var(--accent) 50%,var(--border))}
+body.reminder-mode .hero-picture{height:255px;background:var(--panel);padding:0}
+body.reminder-mode .hero-picture img{width:100%;height:100%;object-fit:cover;object-position:center center;background:var(--panel);image-rendering:auto}
+body.reminder-mode .exercise-actions{background:var(--card);border-top:1px solid color-mix(in srgb,var(--accent) 50%,var(--border))}
+body.reminder-mode .exercise-actions .primary{background:var(--accent);border-color:var(--accent)}

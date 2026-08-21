@@ -1,4 +1,5 @@
 const K='digiexpress.workHealthy.v4';
+const pageParams=new URLSearchParams(location.search);const forcedTheme=pageParams.get('theme');if(forcedTheme==='dark'||forcedTheme==='light')document.documentElement.dataset.theme=forcedTheme;
 const exercises=[
   {id:'neck',title:'Neck stretch',text:'Sit upright. Place one hand gently over the side of your head and tilt toward the shoulder until you feel a light stretch. Do not pull or force the neck.',image:'images/neck.jpg',interval:60,duration:30},
   {id:'shoulders',title:'Shoulder stretch',text:'Sit or stand tall. Bring one arm across the chest and support it with the opposite arm. Keep the shoulder low and relaxed.',image:'images/shoulders.jpg',interval:60,duration:30},
@@ -35,7 +36,7 @@ function reminderAction(action){
   setTimeout(()=>window.close(),80);
 }
 function card(ex){const it=state.items[ex.id];return `<article class="movement-card" data-id="${ex.id}">
-  <img src="${ex.image}?v=235" alt="Office employee demonstrating ${ex.title}">
+  <img src="${ex.image}?v=237" alt="Office employee demonstrating ${ex.title}">
   <div class="movement-copy"><div class="movement-title"><strong>${ex.title}</strong><label class="switch"><input class="movement-enabled" type="checkbox" ${it.enabled?'checked':''}><span></span></label></div><p>${ex.text}</p>
   <div class="timing"><label>Every <span><input class="movement-interval" type="number" min="1" step="1" value="${it.interval}"> min</span></label><label>Show for <span><input class="movement-duration" type="number" min="10" step="5" value="${it.duration}"> sec</span></label></div>
   <button class="preview" type="button">Show now</button></div></article>`}
@@ -52,7 +53,7 @@ function render(){
 }
 function showExercise(id){
   active=exercises.find(x=>x.id===id)||exercises[0];const it=state.items[active.id];
-  $('#picture').innerHTML=`<img src="${active.image}?v=235" alt="${active.title}">`;
+  $('#picture').innerHTML=`<img src="${active.image}?v=237" alt="${active.title}">`;
   $('#title').textContent=active.title;$('#text').textContent=active.text;$('#modal').classList.remove('hidden');
   let sec=it.duration;$('#count').textContent=`${sec}s`;clearInterval(countTimer);countTimer=setInterval(()=>{sec--;$('#count').textContent=`${Math.max(0,sec)}s`;if(sec<=0)clearInterval(countTimer)},1000);
 }
