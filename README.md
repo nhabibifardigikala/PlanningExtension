@@ -192,7 +192,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
-- All visible/config/cache-buster version references are synchronized to Config 233.
+- All visible/config/cache-buster version references are synchronized to Config 234.
 
 
 ## v206 PUDO confirmation, Parent Code and template
@@ -253,5 +253,9 @@ Authenticator menu icon is monochrome. Role Assignment suboperations use a fixed
 - Work Healthy uses professional ergonomic motion guides and registers a generic host reminder schedule so reminders can surface as a centered window even when Chrome is minimized.
 
 
-## Config 233
+## Config 234
 Voice Typing now exposes the browser-managed microphone capability control at the top-level Operations UI, outside clipped iframe containers.
+
+
+## v234 Voice permission broker fix
+The top-level microphone capability broker markup is now present in the Remote UI. Host 12.1.5 already contains the broker runtime; no Host update is required.

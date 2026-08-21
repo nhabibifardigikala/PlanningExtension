@@ -35,7 +35,7 @@ function reminderAction(action){
   setTimeout(()=>window.close(),80);
 }
 function card(ex){const it=state.items[ex.id];return `<article class="movement-card" data-id="${ex.id}">
-  <img src="${ex.image}?v=233" alt="Office employee demonstrating ${ex.title}">
+  <img src="${ex.image}?v=234" alt="Office employee demonstrating ${ex.title}">
   <div class="movement-copy"><div class="movement-title"><strong>${ex.title}</strong><label class="switch"><input class="movement-enabled" type="checkbox" ${it.enabled?'checked':''}><span></span></label></div><p>${ex.text}</p>
   <div class="timing"><label>Every <span><input class="movement-interval" type="number" min="1" step="1" value="${it.interval}"> min</span></label><label>Show for <span><input class="movement-duration" type="number" min="10" step="5" value="${it.duration}"> sec</span></label></div>
   <button class="preview" type="button">Show now</button></div></article>`}
@@ -52,7 +52,7 @@ function render(){
 }
 function showExercise(id){
   active=exercises.find(x=>x.id===id)||exercises[0];const it=state.items[active.id];
-  $('#picture').innerHTML=`<img src="${active.image}?v=233" alt="${active.title}">`;
+  $('#picture').innerHTML=`<img src="${active.image}?v=234" alt="${active.title}">`;
   $('#title').textContent=active.title;$('#text').textContent=active.text;$('#modal').classList.remove('hidden');
   let sec=it.duration;$('#count').textContent=`${sec}s`;clearInterval(countTimer);countTimer=setInterval(()=>{sec--;$('#count').textContent=`${Math.max(0,sec)}s`;if(sec<=0)clearInterval(countTimer)},1000);
 }
