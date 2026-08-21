@@ -1,5 +1,5 @@
 
-const DATA='../data/DX_Polygons.xlsx?v=231';let polygonsData=[],pointsData=[],displayRows=[];
+const DATA='../data/DX_Polygons.xlsx?v=233';let polygonsData=[],pointsData=[],displayRows=[];
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const map=L.map('map').setView([32,51],6),polyLayer=L.layerGroup().addTo(map),pointLayer=L.layerGroup().addTo(map);
 const TILE_BRIDGE_ORIGIN='https://nhabibifardigikala.github.io';

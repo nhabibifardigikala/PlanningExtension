@@ -403,3 +403,12 @@ html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark!important}
 html[data-theme="light"] #voiceTypingFrame{color-scheme:light!important}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{height:calc(100vh - 145px)!important;min-height:560px!important;flex:1 1 auto!important;overflow:hidden!important}
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded iframe{height:100%!important;min-height:560px!important}
+
+/* Voice Typing top-level capability broker: browser permission controls must not be clipped. */
+.voice-permission-broker{position:fixed;z-index:2147483000;left:16px;right:16px;top:72px;display:none;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--panel);box-shadow:0 14px 38px rgba(16,24,40,.18);overflow:visible!important;clip:auto!important;transform:none!important;opacity:1!important}
+.voice-permission-broker.active{display:flex}
+.voice-permission-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}.voice-permission-copy strong{font-size:13px}.voice-permission-copy small{font-size:11px;color:var(--muted)}
+.voice-permission-broker usermedia{display:block!important;flex:0 0 auto;overflow:visible!important;clip:auto!important;opacity:1!important;transform:none!important}
+.voice-permission-broker usermedia button,.voice-permission-fallback{min-width:150px;min-height:40px;border:1px solid var(--accent);border-radius:10px;background:var(--accent);color:#fff;font-weight:700;padding:9px 14px}
+.voice-permission-fallback.hidden{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{padding-top:72px}

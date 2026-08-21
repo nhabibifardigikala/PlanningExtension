@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v231. Work Healthy reminder layout separates text above the image. Voice Typing is promoted to a top-level local extension page for reliable microphone permission prompts.",
-  "configVersion": 231,
-  "minimumRuntimeVersion": "12.1.3",
-  "minimumRuntime": "12.1.3",
+  "notes": "Remote app v232. Voice Typing stays embedded in Operations; Host 12.1.4 handles Chrome 151+ usermedia permission recovery and stable navigation. Theme follows the main extension.",
+  "configVersion": 233,
+  "minimumRuntimeVersion": "12.1.4",
+  "minimumRuntime": "12.1.4",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.1.3",
+  "recommendedRuntime": "12.1.4",
   "runtimeUpdatePolicy": "security-only",
-  "version": "12.1.3",
+  "version": "233",
   "platformContract": 12,
-  "remoteVersion": 231,
+  "remoteVersion": 232,
   "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.1.3"
+  "runtimeVersion": "12.1.4"
 }
