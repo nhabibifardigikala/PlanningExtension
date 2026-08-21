@@ -17,7 +17,7 @@
     "renderFromRemote": true
   },
   "notes": "Remote app v232. Voice Typing stays embedded in Operations; Host 12.1.4 handles Chrome 151+ usermedia permission recovery and stable navigation. Theme follows the main extension.",
-  "configVersion": 234,
+  "configVersion": 235,
   "minimumRuntimeVersion": "12.1.4",
   "minimumRuntime": "12.1.4",
   "workflowLanguageVersion": 3,
