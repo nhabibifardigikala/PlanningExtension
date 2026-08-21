@@ -192,7 +192,7 @@ PUDO now targets the first and second `.uk-select.es-input` controls by index in
 
 ## v204 PUDO autocomplete commit and version synchronization
 - PUDO Center selection now relies on the site autocomplete ranking and Enter commit after typing the complete center name. This avoids brittle suggestion-DOM matching when the visible label contains a bracketed ID.
-- All visible/config/cache-buster version references are synchronized to Config 237.
+- All visible/config/cache-buster version references are synchronized to Config 238.
 
 
 ## v206 PUDO confirmation, Parent Code and template
@@ -253,7 +253,7 @@ Authenticator menu icon is monochrome. Role Assignment suboperations use a fixed
 - Work Healthy uses professional ergonomic motion guides and registers a generic host reminder schedule so reminders can surface as a centered window even when Chrome is minimized.
 
 
-## Config 237
+## Config 238
 Voice Typing now exposes the browser-managed microphone capability control at the top-level Operations UI, outside clipped iframe containers.
 
 
@@ -265,9 +265,9 @@ The top-level microphone capability broker markup is now present in the Remote U
 Work Healthy uses a consistent male office-worker photo set. Reminder window target is 500x500 and centered on the primary display by Host 12.1.6.
 
 
-## Config 237
+## Config 238
 Voice microphone capability control now uses completely native Chrome styling for `<usermedia>` and its child button. No author CSS is applied to the capability element, preventing Chrome 151+ `InvalidStateError: invalid style`. Host remains 12.1.6.
 
 
-## Config 237
+## Config 238
 Work Healthy uses a consistent higher-resolution male office-photo set. Reminder rendering follows the selected Digiexpress theme and avoids face/body cropping.

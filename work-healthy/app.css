@@ -4,7 +4,7 @@
 @media(max-width:640px){main{padding:10px}.schedule{align-items:flex-start;flex-direction:column}.movement-card{grid-template-columns:160px 1fr}.movement-card>img{min-height:230px}.timing{gap:7px}.movement-copy{padding:12px}.movement-copy p{font-size:11.5px}.hero-picture{height:42vh}}
 @media(max-width:420px){.movement-card{grid-template-columns:1fr}.movement-card>img{height:180px;min-height:0}.hours{width:100%}.hours label{flex:1}.hours input{width:100%}}
 
-/* v235 compact 500x500 reminder presentation */
+/* v238 large reminder presentation */
 body.reminder-mode{min-width:0;background:var(--bg);overflow:hidden}
 body.reminder-mode .modal{padding:10px;background:var(--bg);backdrop-filter:none}
 body.reminder-mode .exercise{width:100%;max-width:none;height:100%;max-height:none;border-radius:16px;overflow:hidden}
@@ -13,8 +13,8 @@ body.reminder-mode .exercise-copy h2{font-size:19px;margin-bottom:5px}
 body.reminder-mode .exercise-copy p{font-size:11.5px;line-height:1.45;max-height:50px;overflow:hidden}
 body.reminder-mode .exercise-kicker{font-size:9px;margin-bottom:3px}
 body.reminder-mode .count{font-size:14px;margin-top:7px;padding:4px 8px}
-body.reminder-mode .hero-picture{height:250px;min-height:0;flex:1 1 auto;background:#e8edf2}
-body.reminder-mode .hero-picture img{object-fit:cover;background:#e8edf2}
+body.reminder-mode .hero-picture{height:min(430px,56vh);min-height:330px;flex:1 1 auto;background:var(--panel);padding:10px}
+body.reminder-mode .hero-picture img{object-fit:contain;object-position:center center;background:var(--panel);border-radius:10px}
 body.reminder-mode .exercise-actions{padding:10px 12px 12px}
 body.reminder-mode .exercise-actions button{min-width:115px;padding:8px 10px}
 body.reminder-mode #close{width:32px;height:32px;right:10px;top:10px;font-size:18px}
@@ -25,7 +25,7 @@ body.reminder-mode #close{width:32px;height:32px;right:10px;top:10px;font-size:1
 body.reminder-mode .modal{background:var(--bg)}
 body.reminder-mode .exercise{border-color:var(--accent);box-shadow:0 18px 55px rgba(0,0,0,.28)}
 body.reminder-mode .exercise-copy{background:var(--card);border-bottom:1px solid color-mix(in srgb,var(--accent) 50%,var(--border))}
-body.reminder-mode .hero-picture{height:255px;background:var(--panel);padding:0}
-body.reminder-mode .hero-picture img{width:100%;height:100%;object-fit:cover;object-position:center center;background:var(--panel);image-rendering:auto}
+body.reminder-mode .hero-picture{height:min(430px,56vh);min-height:330px;background:var(--panel);padding:10px}
+body.reminder-mode .hero-picture img{width:100%;height:100%;object-fit:contain;object-position:center center;background:var(--panel);image-rendering:auto;border-radius:10px}
 body.reminder-mode .exercise-actions{background:var(--card);border-top:1px solid color-mix(in srgb,var(--accent) 50%,var(--border))}
 body.reminder-mode .exercise-actions .primary{background:var(--accent);border-color:var(--accent)}

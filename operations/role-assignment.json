@@ -345,6 +345,87 @@
           }
         },
         {
+          "action": "transformContext",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "value": "{{userIdentifier}}",
+          "transforms": [
+            {
+              "type": "regexReplace",
+              "pattern": "@.*$",
+              "replacement": ""
+            },
+            {
+              "type": "trim"
+            }
+          ],
+          "storeAs": "emailLocalPart",
+          "progress": "Preparing email username fallback…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{emailLocalPart}}",
+          "progress": "Retrying search with email username only…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "ms": 1800,
+          "progress": "Checking username-only search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening matching user from username-only email search…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at",
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{emailLocalPart}}",
+            "matchMode": "startsWith",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
           "action": "navigate",
           "when": {
             "left": "{{userLookup.ok}}",
@@ -1174,6 +1255,87 @@
           }
         },
         {
+          "action": "transformContext",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "value": "{{userIdentifier}}",
+          "transforms": [
+            {
+              "type": "regexReplace",
+              "pattern": "@.*$",
+              "replacement": ""
+            },
+            {
+              "type": "trim"
+            }
+          ],
+          "storeAs": "emailLocalPart",
+          "progress": "Preparing email username fallback…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{emailLocalPart}}",
+          "progress": "Retrying search with email username only…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "ms": 1800,
+          "progress": "Checking username-only search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening matching user from username-only email search…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at",
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{emailLocalPart}}",
+            "matchMode": "startsWith",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
           "action": "navigate",
           "when": {
             "left": "{{userLookup.ok}}",
@@ -1674,6 +1836,87 @@
               "personnel code"
             ],
             "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "transformContext",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "value": "{{userIdentifier}}",
+          "transforms": [
+            {
+              "type": "regexReplace",
+              "pattern": "@.*$",
+              "replacement": ""
+            },
+            {
+              "type": "trim"
+            }
+          ],
+          "storeAs": "emailLocalPart",
+          "progress": "Preparing email username fallback…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{emailLocalPart}}",
+          "progress": "Retrying search with email username only…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "ms": 1800,
+          "progress": "Checking username-only search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening matching user from username-only email search…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at",
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{emailLocalPart}}",
+            "matchMode": "startsWith",
             "actionSelector": "a,button",
             "actionText": "details"
           }
@@ -2278,6 +2521,87 @@
           }
         },
         {
+          "action": "transformContext",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "value": "{{userIdentifier}}",
+          "transforms": [
+            {
+              "type": "regexReplace",
+              "pattern": "@.*$",
+              "replacement": ""
+            },
+            {
+              "type": "trim"
+            }
+          ],
+          "storeAs": "emailLocalPart",
+          "progress": "Preparing email username fallback…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{emailLocalPart}}",
+          "progress": "Retrying search with email username only…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "ms": 1800,
+          "progress": "Checking username-only search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening matching user from username-only email search…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at",
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{emailLocalPart}}",
+            "matchMode": "startsWith",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
           "action": "navigate",
           "when": {
             "left": "{{userLookup.ok}}",
@@ -2778,6 +3102,87 @@
               "personnel code"
             ],
             "matchValue": "{{userIdentifier}}",
+            "actionSelector": "a,button",
+            "actionText": "details"
+          }
+        },
+        {
+          "action": "transformContext",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "value": "{{userIdentifier}}",
+          "transforms": [
+            {
+              "type": "regexReplace",
+              "pattern": "@.*$",
+              "replacement": ""
+            },
+            {
+              "type": "trim"
+            }
+          ],
+          "storeAs": "emailLocalPart",
+          "progress": "Preparing email username fallback…"
+        },
+        {
+          "action": "fill",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "value": "{{emailLocalPart}}",
+          "progress": "Retrying search with email username only…"
+        },
+        {
+          "action": "submitNearestForm",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "selector": "input[name=\"email\"][placeholder=\"Email\"]",
+          "waitForNavigation": false,
+          "options": {}
+        },
+        {
+          "action": "wait",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "ms": 1800,
+          "progress": "Checking username-only search results…"
+        },
+        {
+          "action": "clickNewestTableRowAction",
+          "when": {
+            "left": "{{userLookup.ok}}|{{userIdentifier}}",
+            "operator": "regex",
+            "right": "^false\\|.*@"
+          },
+          "required": false,
+          "storeAs": "userLookup",
+          "progress": "Opening matching user from username-only email search…",
+          "options": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "dateHeaderAliases": [
+              "last login at",
+              "last_login_at",
+              "email"
+            ],
+            "matchHeaderAliases": [
+              "email"
+            ],
+            "matchValue": "{{emailLocalPart}}",
+            "matchMode": "startsWith",
             "actionSelector": "a,button",
             "actionText": "details"
           }
