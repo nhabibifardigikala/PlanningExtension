@@ -42,10 +42,11 @@
     "secure-authenticator-vault",
     "totp-engine",
     "generic-remote-reminder-window",
-    "generic-browser-alarms"
+    "generic-browser-alarms",
+    "top-level-local-microphone-page"
   ],
-  "remoteVersion": 230,
+  "remoteVersion": 231,
   "updateRule": "Business/product changes must be Remote-only. Host updates are reserved for security or browser-runtime compatibility.",
-  "configVersion": 230,
-  "minimumRuntimeVersion": "12.1.1"
+  "configVersion": 231,
+  "minimumRuntimeVersion": "12.1.3"
 }
