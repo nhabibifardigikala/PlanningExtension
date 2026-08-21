@@ -1,4 +1,4 @@
-const DATA='../data/DX_Polygons.xlsx?v=228';
+const DATA='../data/DX_Polygons.xlsx?v=229';
 const TYPE_MAP={Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6};
 let polygons=[];let currentLayers=[];
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
