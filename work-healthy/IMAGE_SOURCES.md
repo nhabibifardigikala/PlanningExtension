@@ -1,5 +1,3 @@
-# Work Healthy image assets — v238
+# Work Healthy image assets — v239
 
-The Work Healthy reminder uses local image assets bundled with the Remote package. Neck, eye-relaxation and water assets were regenerated at larger source resolution for v238. Other movement assets were reprocessed at higher display resolution to avoid browser pixelation in the enlarged reminder window.
-
-For production/company-wide distribution, replace any generated/temporary visual asset with an internally approved licensed image if required by company policy.
+All Work Healthy images are local Remote assets. The v239 set removes dark/black source strips from Shoulder Stretch, Wrist Stretch and Tea Break, keeps the dedicated Drink Water image, and uses theme-matched image matting so the full photo can be shown without black side bands.
