@@ -271,3 +271,7 @@ Voice microphone capability control now uses completely native Chrome styling fo
 
 ## Config 239
 Work Healthy uses a consistent higher-resolution male office-photo set. Reminder rendering follows the selected Digiexpress theme and avoids face/body cropping.
+
+
+## v241 — Flex Capacity post-create verification
+After each row is submitted, the workflow searches Shipping Network Capacity by `Drop Network ID`, checks the first returned row against Excel `Time Slot` (normalized so `11 - 15` equals `11:00 - 15:00`), Excel `End date`, and today's `Created At`. A failed verification causes one full retry. If the second attempt still cannot be verified, the Excel result is `Manual check required` with the mismatch reason.

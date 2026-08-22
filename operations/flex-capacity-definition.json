@@ -4,7 +4,8 @@
   "requiresCredentials": true,
   "requiredHosts": [
     "https://flex.digikala.com/*",
-    "https://auth.mydigikala.com/*"
+    "https://auth.mydigikala.com/*",
+    "https://drop-shipping.digikala.com/*"
   ],
   "description": "Upload a completed capacity template and run the batch operation.",
   "inputs": [
@@ -29,8 +30,8 @@
   "clientProcessor": {
     "type": "excel-batch-workflow",
     "fileField": "capacityFile",
-    "maxRetries": 5,
-    "retryDelayMs": 2000,
+    "maxRetries": 2,
+    "retryDelayMs": 2500,
     "columnMap": {
       "hubNetworkId": "Hub Network ID",
       "hubTimeSlotId": "Hub Time Slot ID",
@@ -50,7 +51,8 @@
       "shippingSize": "Shipping Size",
       "pickupReservable": "Pickup Reservable",
       "deliveryReservable": "Delivery Reservable",
-      "activeForDropShipping": "Active For Drop Shipping"
+      "activeForDropShipping": "Active For Drop Shipping",
+      "dropNetworkId": "Drop Network ID"
     },
     "booleanFields": [
       "saturday",
@@ -66,6 +68,7 @@
     ],
     "validation": {
       "required": [
+        "dropNetworkId",
         "hubNetworkId",
         "hubTimeSlotId",
         "dailyCapacity",
@@ -102,12 +105,13 @@
         "volumeCapacity": "Volume Capacity",
         "weightCapacity": "Weight Capacity",
         "shippingSize": "Shipping Size",
-        "activeForDropShipping": "Active For Drop Shipping"
+        "activeForDropShipping": "Active For Drop Shipping",
+        "dropNetworkId": "Drop Network ID"
       }
     },
     "result": {
       "resultColumn": "Result",
-      "successText": "Done",
+      "successText": "Capacity verified",
       "existingText": "Existing capacity slot",
       "downloadButtonLabel": "Download Result",
       "sheetName": "Results",
@@ -115,9 +119,10 @@
       "successFill": "C6EFCE",
       "failureFill": "FFC7CE",
       "notProcessedText": "Not processed (cancelled)",
-      "confirmationText": "Existing capacity slot",
-      "repeatUntilConfirmation": true,
-      "preserveConfirmationMessage": true
+      "confirmationText": "Capacity verified",
+      "repeatUntilConfirmation": false,
+      "preserveConfirmationMessage": false,
+      "failureText": "Manual check required"
     },
     "tabSession": {
       "enabled": true,
@@ -494,6 +499,96 @@
       "when": {
         "left": "{{context.errorAlert}}",
         "operator": "truthy"
+      }
+    },
+    {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/shipping-network-capacity/",
+      "progress": "Verifying created capacity…",
+      "completeTimeoutMs": 30000
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 750,
+      "progress": "Checking verification session…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "input[placeholder=\"Shipping Network\"]",
+      "timeoutMs": 20000,
+      "error": "Shipping Network search field was not found."
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input[placeholder=\"Shipping Network\"]",
+      "value": "{{dropNetworkId}}",
+      "attempts": 3,
+      "options": {
+        "focusWaitMs": 500,
+        "typingDelayMs": 55,
+        "autocompleteWaitMs": 1200,
+        "pressEnter": true,
+        "commitWaitMs": 900,
+        "outsideWaitMs": 350,
+        "selectorIndex": 0
+      },
+      "error": "Could not select Drop Network ID {{dropNetworkId}} for verification."
+    },
+    {
+      "action": "wait",
+      "ms": 700
+    },
+    {
+      "action": "click",
+      "selector": "button.uk-button.uk-button-primary",
+      "textContains": "search",
+      "afterMs": 1500,
+      "error": "Capacity search button was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 20000,
+      "error": "No capacity rows were returned for Drop Network ID {{dropNetworkId}}."
+    },
+    {
+      "action": "verifyFirstTableRow",
+      "storeAs": "capacityVerification",
+      "required": false,
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "rowIndex": 0,
+        "timeScopeAliases": [
+          "Time Scope",
+          "Time Slot",
+          "time_scope"
+        ],
+        "dateAliases": [
+          "Date"
+        ],
+        "createdAtAliases": [
+          "Created At",
+          "created_at"
+        ],
+        "expectedTimeScope": "{{timeSlotName}}",
+        "expectedDate": "{{endDate}}",
+        "requireCreatedToday": true
+      }
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Manual check required — {{context.capacityVerification.message}}"
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Capacity verified",
+      "when": {
+        "left": "{{context.capacityVerification.ok}}",
+        "equals": "true"
       }
     }
   ],

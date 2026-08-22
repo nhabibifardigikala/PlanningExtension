@@ -83,3 +83,6 @@ body{overscroll-behavior:none}
 
 /* v113 — page headings removed; recurring tasks stay as one card in Task List */
 .planner-header{display:none!important}.page-wrap{padding-top:8px}.recurrence-meta{font-weight:700;color:var(--accent)}
+
+/* v240: parallel tasks sharing the same start time are laid out side-by-side. */
+.timeline-slot.parallel-tasks .timeline-task{min-width:0;padding-inline:5px}.timeline-slot.parallel-tasks .timeline-task .grow{overflow:hidden}.timeline-slot.parallel-tasks .timeline-task strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline-slot.parallel-tasks .timeline-task button{flex:0 0 auto}.timeline-slot.parallel-tasks .timeline-task input{margin-inline:0}
