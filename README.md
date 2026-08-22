@@ -275,3 +275,8 @@ Work Healthy uses a consistent higher-resolution male office-photo set. Reminder
 
 ## v241 — Flex Capacity post-create verification
 After each row is submitted, the workflow searches Shipping Network Capacity by `Drop Network ID`, checks the first returned row against Excel `Time Slot` (normalized so `11 - 15` equals `11:00 - 15:00`), Excel `End date`, and today's `Created At`. A failed verification causes one full retry. If the second attempt still cannot be verified, the Excel result is `Manual check required` with the mismatch reason.
+
+
+## v242 — Flex Capacity verification false-negative fix
+
+Flex Capacity post-create verification remains Remote-owned and continues to use Host 12.2.3. The retry gate now treats a matching first-row Time Scope + End date as proof that the capacity exists. `Created At` no longer triggers an automatic recreate by itself, preventing duplicate capacity creation when the site's Jalali/current-date rendering differs from the browser date. The search-result settle wait was increased before reading the first row. Time Scope normalization still treats values such as `9 - 23`, `09 - 23`, and `09:00 - 23:00` as equivalent; the table Date may include `00:00` after the Jalali date.

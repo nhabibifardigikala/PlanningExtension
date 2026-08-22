@@ -542,7 +542,7 @@
       "action": "click",
       "selector": "button.uk-button.uk-button-primary",
       "textContains": "search",
-      "afterMs": 1500,
+      "afterMs": 2500,
       "error": "Capacity search button was not found."
     },
     {
@@ -574,7 +574,7 @@
         ],
         "expectedTimeScope": "{{timeSlotName}}",
         "expectedDate": "{{endDate}}",
-        "requireCreatedToday": true
+        "requireCreatedToday": false
       }
     },
     {
