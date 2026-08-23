@@ -434,3 +434,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__followUpEmbe
 #operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) #operationBackBtn,#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .settings-heading{flex:0 0 auto}
 #operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .follow-up-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden;margin-top:6px}
 #operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .follow-up-embedded iframe{height:100%!important;min-height:0!important}
+
+/* v244 — keep Follow-up color scheme synchronized with the main extension theme. */
+html[data-theme="dark"] #followUpFrame{color-scheme:dark!important}
+html[data-theme="light"] #followUpFrame{color-scheme:light!important}

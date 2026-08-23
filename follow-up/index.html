@@ -1,7 +1,57 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Follow-up</title><link rel="stylesheet" href="follow-up.css?v=243"></head><body><div class="app"><main class="pages">
-<section class="page active" data-page="create"><form id="form" class="panel form"><input id="id" type="hidden"><label class="full">عنوان پیگیری<input id="title" maxlength="180" required placeholder="موضوع پیگیری"></label><label>تاریخ<input id="date" type="date" required></label><label>مسئول<input id="assignee" placeholder="نام مسئول"></label><label>اولویت<select id="priority"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label><label>دسته‌بندی<input id="category" placeholder="مثلاً عملیات"></label><label class="full">توضیحات<textarea id="description" rows="2" placeholder="توضیح کوتاه"></textarea></label><div class="actions full"><button type="button" id="reset" class="btn ghost">پاک کردن</button><button class="btn primary" id="save">ذخیره</button></div></form></section>
-<section class="page" data-page="list"><div class="panel filters"><label>مسئول<select id="assigneeFilter"><option value="">همه</option></select></label><label>وضعیت<select id="statusFilter"><option value="">همه</option><option value="todo">انجام نشده</option><option value="done">انجام شده</option></select></label><label>از تاریخ<input id="fromDate" type="date"></label><label>تا تاریخ<input id="toDate" type="date"></label></div><div id="list" class="compact-list"></div></section>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Follow-up</title>
+<link rel="stylesheet" href="follow-up.css?v=244">
+</head>
+<body>
+<div class="app">
+<main class="pages">
+<section class="page active" data-page="create">
+  <form id="form" class="panel form">
+    <input id="id" type="hidden">
+    <label class="full"><span data-i18n="titleLabel">عنوان پیگیری</span><input id="title" maxlength="180" required data-i18n-placeholder="titlePlaceholder" placeholder="موضوع پیگیری"></label>
+    <label><span data-i18n="dateLabel">تاریخ</span><div class="date-input-wrap"><input id="date" type="text" inputmode="numeric" autocomplete="off" required><button class="icon-mini date-trigger" id="dateButton" type="button" aria-label="Open date picker">▦</button><div class="date-picker hidden" id="datePicker"></div></div></label>
+    <label><span data-i18n="assigneeLabel">مسئول</span><input id="assignee" data-i18n-placeholder="assigneePlaceholder" placeholder="نام مسئول"></label>
+    <label><span data-i18n="priorityLabel">اولویت</span><select id="priority"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
+    <label><span data-i18n="categoryLabel">دسته‌بندی</span><select id="category"></select></label>
+    <label class="full"><span data-i18n="descriptionLabel">توضیحات</span><textarea id="description" rows="2" data-i18n-placeholder="descriptionPlaceholder" placeholder="توضیح کوتاه"></textarea></label>
+    <div class="actions full"><button type="button" id="reset" class="btn ghost" data-i18n="clear">پاک کردن</button><button class="btn primary" id="save" data-i18n="save">ذخیره</button></div>
+  </form>
+</section>
+
+<section class="page" data-page="list">
+  <div class="panel filters compact-filters">
+    <label><span data-i18n="searchTitle">جستجوی عنوان</span><input id="titleSearch" type="search" autocomplete="off" data-i18n-placeholder="searchTitlePlaceholder" placeholder="بخشی از عنوان را تایپ کنید"></label>
+    <label><span data-i18n="searchAssignee">جستجوی مسئول</span><input id="assigneeSearch" type="search" autocomplete="off" data-i18n-placeholder="searchAssigneePlaceholder" placeholder="بخشی از نام مسئول را تایپ کنید"></label>
+  </div>
+  <div id="list" class="compact-list"></div>
+</section>
+
 <section class="page" data-page="day"><div class="panel day-head"><button id="prevDay">‹</button><div><strong id="dayLabel"></strong><small id="dayWeekday"></small></div><button id="nextDay">›</button></div><div id="dayList" class="date-stack"></div></section>
-<section class="page" data-page="calendar"><div class="panel cal-toolbar"><div><button id="calPrev">‹</button><button id="calToday">امروز</button><button id="calNext">›</button></div><strong id="calLabel"></strong><div><button data-mode="week" class="active">هفته</button><button data-mode="month">ماه</button></div></div><div id="calendar" class="panel calendar"></div></section>
-<section class="page" data-page="settings"><div class="panel settings"><label>نوع تقویم<select id="calendarType"><option value="jalali">شمسی</option><option value="gregorian">میلادی</option></select></label><button id="exportBtn" class="btn primary">Export JSON</button><label class="btn ghost file">Import JSON<input id="importFile" type="file" accept="application/json,.json" hidden></label><button id="deleteAll" class="btn danger">حذف همه پیگیری‌ها</button></div></section>
-</main><nav class="bottom"><button data-target="create" class="active"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg><span>تعریف</span></button><button data-target="list"><svg viewBox="0 0 24 24"><path d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z"/></svg><span>لیست</span></button><button data-target="day"><svg viewBox="0 0 24 24"><path d="M6 2h2v2h8V2h2v2h3v18H3V4h3zm13 8H5v10h14z"/></svg><span>روز</span></button><button data-target="calendar"><svg viewBox="0 0 24 24"><path d="M5 3h2v2h10V3h2v2h2v16H3V5h2zm14 7H5v9h14z"/></svg><span>تقویم</span></button><button data-target="settings"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.5 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 3.1a8 8 0 0 0-1.7 1l-2.5-1-2 3.4 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.5-1a8 8 0 0 0 1.7 1L11 21h4l.3-3.1a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM13 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg><span>تنظیمات</span></button></nav></div><div id="toast" class="toast"></div><script src="follow-up.js?v=243"></script></body></html>
+
+<section class="page" data-page="calendar"><div class="panel cal-toolbar"><div><button id="calPrev">‹</button><button id="calToday" data-i18n="today">امروز</button><button id="calNext">›</button></div><strong id="calLabel"></strong><div><button data-mode="week" class="active" data-i18n="week">هفته</button><button data-mode="month" data-i18n="month">ماه</button></div></div><div id="calendar" class="panel calendar"></div></section>
+
+<section class="page" data-page="settings">
+  <div class="settings-grid">
+    <div class="panel setting-card"><h2 data-i18n="categories">دسته‌بندی‌ها</h2><div class="inline"><input id="newCategory" data-i18n-placeholder="categoryPlaceholder" placeholder="نام دسته‌بندی"><button id="addCategory" type="button" class="btn primary" data-i18n="add">اضافه</button></div><div id="categoryList" class="chips"></div></div>
+    <div class="panel setting-card"><h2 data-i18n="calendar">تقویم</h2><label class="setting-row"><span data-i18n="calendarType">نوع تقویم</span><select id="calendarType"><option value="jalali" data-i18n="jalali">شمسی</option><option value="gregorian" data-i18n="gregorian">میلادی</option></select></label><div id="holidayInfo" class="holiday-info"></div></div>
+    <div class="panel setting-card"><h2 data-i18n="language">زبان</h2><label class="setting-row"><span data-i18n="language">زبان</span><select id="languageSetting"><option value="fa">فارسی</option><option value="en">English</option></select></label></div>
+    <div class="panel setting-card"><h2 data-i18n="dataTransfer">ورود و خروج اطلاعات</h2><div class="import-export"><button id="exportBtn" class="btn primary" type="button">Export JSON</button><label class="btn ghost file-label">Import JSON<input id="importFile" type="file" accept="application/json,.json" hidden></label></div></div>
+    <div class="panel setting-card danger-zone"><h2 data-i18n="dangerZone">حذف اطلاعات</h2><p class="muted" data-i18n="deleteAllHelp">تمام پیگیری‌ها حذف خواهند شد.</p><button id="deleteAll" class="btn danger" type="button" data-i18n="deleteAll">حذف همه پیگیری‌ها</button></div>
+  </div>
+</section>
+</main>
+<nav class="bottom">
+  <button data-target="create" class="active"><svg viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg><span data-i18n="navCreate">تعریف</span></button>
+  <button data-target="list"><svg viewBox="0 0 24 24"><path d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z"/></svg><span data-i18n="navList">لیست</span></button>
+  <button data-target="day"><svg viewBox="0 0 24 24"><path d="M6 2h2v2h8V2h2v2h3v18H3V4h3zm13 8H5v10h14z"/></svg><span data-i18n="navDay">روز</span></button>
+  <button data-target="calendar"><svg viewBox="0 0 24 24"><path d="M5 3h2v2h10V3h2v2h2v16H3V5h2zm14 7H5v9h14z"/></svg><span data-i18n="navCalendar">تقویم</span></button>
+  <button data-target="settings"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.5-2-3.4-2.5 1a8 8 0 0 0-1.7-1L15 3h-4l-.3 3.1a8 8 0 0 0-1.7 1l-2.5-1-2 3.4 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.4 2.5-1a8 8 0 0 0 1.7 1L11 21h4l.3-3.1a8 8 0 0 0 1.7-1l2.5 1 2-3.4zM13 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg><span data-i18n="navSettings">تنظیمات</span></button>
+</nav>
+</div>
+<div id="toast" class="toast"></div>
+<script src="follow-up.js?v=244"></script>
+</body></html>
