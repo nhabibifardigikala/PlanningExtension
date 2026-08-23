@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Compact follow-up tracker with date-grouped items, responsible-person filtering, completion checks, and weekly/monthly calendar.",
+  "workflow": [],
+  "successMessage": "Follow-up ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
+}

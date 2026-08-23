@@ -280,3 +280,9 @@ After each row is submitted, the workflow searches Shipping Network Capacity by 
 ## v242 — Flex Capacity verification false-negative fix
 
 Flex Capacity post-create verification remains Remote-owned and continues to use Host 12.2.3. The retry gate now treats a matching first-row Time Scope + End date as proof that the capacity exists. `Created At` no longer triggers an automatic recreate by itself, preventing duplicate capacity creation when the site's Jalali/current-date rendering differs from the browser date. The search-result settle wait was increased before reading the first row. Time Scope normalization still treats values such as `9 - 23`, `09 - 23`, and `09:00 - 23:00` as equivalent; the table Date may include `00:00` after the Jalali date.
+
+## Config 243
+- Added Remote-only Follow-up feature with compact Create/List/Day/Calendar/Settings navigation.
+- Follow-up list supports responsible-person filtering and date ranges; day view stacks compact follow-ups by date with completion checkboxes.
+- Added Outlook-style weekly/monthly calendar to Follow-up and Daily Planner.
+- Host update is not required for Config 243.

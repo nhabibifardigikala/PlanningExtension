@@ -33,7 +33,7 @@
     "iconText": "Authenticator",
     "countdownMode": "battery",
     "codeFontScale": 2.0,
-    "remoteCss": "authenticator/ui.css?v=242",
+    "remoteCss": "authenticator/ui.css?v=243",
     "labels": {
       "codes": "Codes",
       "add": "Add",

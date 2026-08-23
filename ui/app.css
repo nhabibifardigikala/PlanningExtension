@@ -417,3 +417,20 @@ html[data-theme="light"] #voiceTypingFrame{color-scheme:light!important}
 
 /* v239 Voice navigation: keep the Operations Back button clear of the microphone broker. */
 #operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #operationBackBtn{position:relative!important;z-index:2147483600!important;visibility:visible!important}
+
+
+/* v243 — Follow-up remote embedded feature */
+.follow-up-embedded{display:none;width:100%;min-height:0}
+.follow-up-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .settings-heading{margin-bottom:8px}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .settings-heading p{display:none}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .follow-up-embedded{display:block}
+html:has(#operationView.active #operationInputs [data-field-wrap="__followUpEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__followUpEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__followUpEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__followUpEmbedded"]) .topbar{flex:0 0 auto;padding-bottom:10px}
+#operationView.active:has(#operationInputs [data-field-wrap="__followUpEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) #operationBackBtn,#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .settings-heading{flex:0 0 auto}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .follow-up-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden;margin-top:6px}
+#operationView:has(#operationInputs [data-field-wrap="__followUpEmbedded"]) .follow-up-embedded iframe{height:100%!important;min-height:0!important}
