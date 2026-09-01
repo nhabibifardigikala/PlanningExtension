@@ -339,3 +339,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Each active Excel row repeats the create workflow until the server alert contains `Existing capacity slot` (including messages such as `Existing capacity slot with ID ... has the same date`).
 - The matching alert is the terminal confirmation for that row; processing then continues with the next active row.
 - This is Remote-only and works with Host 12.2.3 or newer.
+
+## Config 254 — Reliable save-response detection
+
+- Replaced the narrow `.uk-alert-danger` lookup with full Flex form body-text inspection after Save.
+- The retry loop stops as soon as the page contains `Existing capacity slot`, regardless of the alert/toast container used by the site.
+- Added meaningful progress labels so the UI no longer appears stuck at a generic `setContext` status.
+- This is Remote-only; Host remains unchanged.

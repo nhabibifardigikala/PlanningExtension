@@ -122,7 +122,7 @@
       "notProcessedText": "Not processed (cancelled)",
       "confirmationText": "Existing capacity slot",
       "repeatUntilConfirmation": true,
-      "preserveConfirmationMessage": true,
+      "preserveConfirmationMessage": false,
       "failureText": "Existing capacity confirmation was not observed"
     },
     "tabSession": {
@@ -589,19 +589,11 @@
       }
     },
     {
-      "action": "setContext",
-      "name": "resultText",
-      "value": "Save status unclear (no alert found).",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
       "action": "read",
-      "selector": ".uk-alert-success",
-      "required": false,
-      "storeAs": "successAlert",
+      "selector": "body",
+      "required": true,
+      "storeAs": "savePageText",
+      "progress": "Reading Flex save response…",
       "when": {
         "left": "{{active}}",
         "equals": "1"
@@ -610,31 +602,11 @@
     {
       "action": "setContext",
       "name": "resultText",
-      "value": "Done",
-      "when": {
-        "left": "{{active}}|{{context.successAlert}}",
-        "operator": "regex",
-        "right": "^1\\|.+$"
-      }
-    },
-    {
-      "action": "read",
-      "selector": ".uk-alert-danger",
-      "required": false,
-      "storeAs": "errorAlert",
+      "value": "{{context.savePageText}}",
+      "progress": "Checking for existing capacity confirmation…",
       "when": {
         "left": "{{active}}",
         "equals": "1"
-      }
-    },
-    {
-      "action": "setContext",
-      "name": "resultText",
-      "value": "{{context.errorAlert}}",
-      "when": {
-        "left": "{{active}}|{{context.errorAlert}}",
-        "operator": "regex",
-        "right": "^1\\|.+$"
       }
     }
   ],
