@@ -318,3 +318,17 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Time Scope mismatch cannot trigger a retry in this operation.
 - The result message exposes both dates and the calculated difference for direct diagnosis.
 - Requires Host 12.2.7 or newer.
+
+## Config 251 — Exact verification network
+
+- Flex control-page autocomplete now selects the suggestion whose trailing parenthesized ID exactly equals Excel `Drop Network ID`.
+- Pressing Enter on the first ranked suggestion is disabled, preventing an unrelated Shipping Network from being checked.
+- This is a Remote-only correction; no Host update is required.
+
+## Config 252 — Date and normalized Time Scope verification
+
+- Flex retry once again requires both the normalized Time Scope and the date threshold to pass.
+- Formatting-only differences such as `11 - 15` versus `11:00 - 15:00` are equal.
+- Real differences such as `11 - 15` versus `11:00 - 18:00` cause a retry.
+- When Time Scope matches, a date difference below seven days is accepted; seven days or more causes a retry.
+- The unrelated exact-ID autocomplete change from Config 251 is removed. No Host update is required.

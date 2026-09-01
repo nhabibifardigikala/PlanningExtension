@@ -740,7 +740,6 @@
         "expectedTimeScope": "{{timeSlotName}}",
         "expectedDate": "{{endDate}}",
         "selectLargestDate": true,
-        "ignoreTimeScopeMismatch": true,
         "retryWhenActualDateAtLeastDaysAfterExpected": 7,
         "requireCreatedToday": false
       },
