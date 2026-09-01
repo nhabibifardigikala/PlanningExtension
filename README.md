@@ -299,3 +299,15 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Flex Capacity accepts a verification date mismatch when the found date is less than seven days after the Excel End date.
 - A found date at least seven days later remains a verification failure and triggers the existing row retry behavior.
 - Requires Host 12.2.4 or newer.
+
+## Config 248 — Host 12.2.5 compatibility
+
+- Requires the distinctly versioned Host 12.2.5 so Chrome cannot retain an earlier package that also used version 12.2.4.
+- Accepted non-exact verification dates now expose their calculated day difference in the result message.
+
+## Config 249 — Largest control-page date
+
+- Flex verification scans the visible control result rows and selects the largest `Date` value.
+- The seven-day retry threshold compares that largest value directly with the Excel `End date`.
+- Date differences between control-page rows are not used.
+- Requires Host 12.2.6 or newer.
