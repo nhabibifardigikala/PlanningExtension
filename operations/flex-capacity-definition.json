@@ -4,8 +4,7 @@
   "requiresCredentials": true,
   "requiredHosts": [
     "https://flex.digikala.com/*",
-    "https://auth.mydigikala.com/*",
-    "https://drop-shipping.digikala.com/*"
+    "https://auth.mydigikala.com/*"
   ],
   "description": "Upload a completed capacity template and run the batch operation.",
   "inputs": [
@@ -113,7 +112,7 @@
     },
     "result": {
       "resultColumn": "Result",
-      "successText": "Done",
+      "successText": "Capacity confirmed",
       "existingText": "Existing capacity slot",
       "downloadButtonLabel": "Download Result",
       "sheetName": "Results",
@@ -121,10 +120,10 @@
       "successFill": "C6EFCE",
       "failureFill": "FFC7CE",
       "notProcessedText": "Not processed (cancelled)",
-      "confirmationText": "Capacity verified",
-      "repeatUntilConfirmation": false,
+      "confirmationText": "Existing capacity slot",
+      "repeatUntilConfirmation": true,
       "preserveConfirmationMessage": true,
-      "failureText": "Manual check required"
+      "failureText": "Existing capacity confirmation was not observed"
     },
     "tabSession": {
       "enabled": true,
@@ -636,135 +635,6 @@
         "left": "{{active}}|{{context.errorAlert}}",
         "operator": "regex",
         "right": "^1\\|.+$"
-      }
-    },
-    {
-      "action": "navigate",
-      "url": "https://drop-shipping.digikala.com/shipping-network-capacity/",
-      "progress": "Verifying created capacity…",
-      "completeTimeoutMs": 30000,
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "ensureLogin",
-      "detectTimeoutMs": 750,
-      "progress": "Checking verification session…",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "waitFor",
-      "selector": "input[placeholder=\"Shipping Network\"]",
-      "timeoutMs": 20000,
-      "error": "Shipping Network search field was not found.",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "autocomplete",
-      "selector": "input[placeholder=\"Shipping Network\"]",
-      "value": "{{dropNetworkId}}",
-      "attempts": 3,
-      "options": {
-        "focusWaitMs": 500,
-        "typingDelayMs": 55,
-        "autocompleteWaitMs": 1200,
-        "pressEnter": true,
-        "commitWaitMs": 900,
-        "outsideWaitMs": 350,
-        "selectorIndex": 0
-      },
-      "error": "Could not select Drop Network ID {{dropNetworkId}} for verification.",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "wait",
-      "ms": 700,
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "click",
-      "selector": "button.uk-button.uk-button-primary",
-      "textContains": "search",
-      "afterMs": 2500,
-      "error": "Capacity search button was not found.",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "waitFor",
-      "selector": "table tbody tr",
-      "timeoutMs": 20000,
-      "error": "No capacity rows were returned for Drop Network ID {{dropNetworkId}}.",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "verifyFirstTableRow",
-      "storeAs": "capacityVerification",
-      "required": false,
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
-        "rowIndex": 0,
-        "timeScopeAliases": [
-          "Time Scope",
-          "Time Slot",
-          "time_scope"
-        ],
-        "dateAliases": [
-          "Date"
-        ],
-        "createdAtAliases": [
-          "Created At",
-          "created_at"
-        ],
-        "expectedTimeScope": "{{timeSlotName}}",
-        "expectedDate": "{{endDate}}",
-        "selectLargestDate": true,
-        "retryWhenActualDateAtLeastDaysAfterExpected": 7,
-        "requireCreatedToday": false
-      },
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "setContext",
-      "name": "resultText",
-      "value": "Manual check required — {{context.capacityVerification.message}}",
-      "when": {
-        "left": "{{active}}",
-        "equals": "1"
-      }
-    },
-    {
-      "action": "setContext",
-      "name": "resultText",
-      "value": "Capacity verified",
-      "when": {
-        "left": "{{active}}|{{context.capacityVerification.ok}}",
-        "operator": "regex",
-        "right": "^1\\|true$"
       }
     }
   ],

@@ -332,3 +332,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Real differences such as `11 - 15` versus `11:00 - 18:00` cause a retry.
 - When Time Scope matches, a date difference below seven days is accepted; seven days or more causes a retry.
 - The unrelated exact-ID autocomplete change from Config 251 is removed. No Host update is required.
+
+## Config 253 — Existing-capacity confirmation only
+
+- Removed all Flex post-create navigation to `drop-shipping.digikala.com/shipping-network-capacity/` and removed date/Time Scope table verification.
+- Each active Excel row repeats the create workflow until the server alert contains `Existing capacity slot` (including messages such as `Existing capacity slot with ID ... has the same date`).
+- The matching alert is the terminal confirmation for that row; processing then continues with the next active row.
+- This is Remote-only and works with Host 12.2.3 or newer.
