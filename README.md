@@ -286,3 +286,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Follow-up list supports responsible-person filtering and date ranges; day view stacks compact follow-ups by date with completion checkboxes.
 - Added Outlook-style weekly/monthly calendar to Follow-up and Daily Planner.
 - Host update is not required for Config 244.
+
+## Config 246 — Remote-only Flex Active filter
+
+- Flex Capacity now gates every remote workflow step by the case-insensitive Excel `Active` column mapping.
+- Rows with `Active=1` run the complete create-and-verify workflow.
+- Rows with `Active=0` perform no navigation, form entry, submission, or verification and return `Skipped Active=0` in the result message.
+- No Host change is required.

@@ -113,7 +113,7 @@
     },
     "result": {
       "resultColumn": "Result",
-      "successText": "Capacity verified",
+      "successText": "Done",
       "existingText": "Existing capacity slot",
       "downloadButtonLabel": "Download Result",
       "sheetName": "Results",
@@ -123,7 +123,7 @@
       "notProcessedText": "Not processed (cancelled)",
       "confirmationText": "Capacity verified",
       "repeatUntilConfirmation": false,
-      "preserveConfirmationMessage": false,
+      "preserveConfirmationMessage": true,
       "failureText": "Manual check required"
     },
     "tabSession": {
@@ -132,44 +132,55 @@
       "reuseForBatch": true,
       "closeOnFinish": true,
       "closeOnCancel": true
-    },
-    "rowFilter": {
-      "column": "active",
-      "acceptedValues": [
-        1,
-        "1",
-        true
-      ],
-      "skipValues": [
-        0,
-        "0",
-        false
-      ],
-      "skipResultText": "Skipped (Active=0)"
     }
   },
   "workflow": [
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Capacity verified (Skipped Active=0)",
+      "when": {
+        "left": "{{active}}",
+        "equals": "0"
+      }
+    },
     {
       "action": "open",
       "url": "https://flex.digikala.com/hubs/capacity-slots/item/0/?_back=https://flex.digikala.com/hubs/capacity-slots/",
       "progress": "Opening Flex Capacity form…",
       "completeTimeoutMs": 30000,
-      "active": false
+      "active": false,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "ensureLogin",
       "detectTimeoutMs": 750,
-      "progress": "Checking session…"
+      "progress": "Checking session…",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "navigate",
       "url": "https://flex.digikala.com/hubs/capacity-slots/item/0/?_back=https://flex.digikala.com/hubs/capacity-slots/",
-      "completeTimeoutMs": 30000
+      "completeTimeoutMs": 30000,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "waitFor",
       "selector": "input.uk-select.es-input",
-      "timeoutMs": 20000
+      "timeoutMs": 20000,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "autocomplete",
@@ -184,11 +195,19 @@
         "commitWaitMs": 1000,
         "outsideWaitMs": 500,
         "selectorIndex": 0
+      },
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
       }
     },
     {
       "action": "wait",
-      "ms": 500
+      "ms": 500,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "autocomplete",
@@ -203,31 +222,59 @@
         "commitWaitMs": 1000,
         "outsideWaitMs": 500,
         "selectorIndex": 1
+      },
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
       }
     },
     {
       "action": "wait",
-      "ms": 500
+      "ms": 500,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "pressGlobal",
-      "key": "Tab"
+      "key": "Tab",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "wait",
-      "ms": 100
+      "ms": 100,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "pressGlobal",
-      "key": "Tab"
+      "key": "Tab",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "wait",
-      "ms": 100
+      "ms": 100,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "pressGlobal",
-      "key": "Tab"
+      "key": "Tab",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "jalaliDate",
@@ -240,6 +287,10 @@
         "outsideX": 100,
         "outsideY": 100,
         "afterOutsideMs": 200
+      },
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
       }
     },
     {
@@ -253,6 +304,10 @@
         "outsideX": 100,
         "outsideY": 100,
         "afterOutsideMs": 200
+      },
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
       }
     },
     {
@@ -260,8 +315,9 @@
       "selector": "input[name=\"saturday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{saturday}}",
-        "equals": "true"
+        "left": "{{active}}|{{saturday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -269,8 +325,9 @@
       "selector": "input[name=\"saturday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{saturday}}",
-        "equals": "false"
+        "left": "{{active}}|{{saturday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -278,8 +335,9 @@
       "selector": "input[name=\"sunday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{sunday}}",
-        "equals": "true"
+        "left": "{{active}}|{{sunday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -287,8 +345,9 @@
       "selector": "input[name=\"sunday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{sunday}}",
-        "equals": "false"
+        "left": "{{active}}|{{sunday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -296,8 +355,9 @@
       "selector": "input[name=\"monday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{monday}}",
-        "equals": "true"
+        "left": "{{active}}|{{monday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -305,8 +365,9 @@
       "selector": "input[name=\"monday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{monday}}",
-        "equals": "false"
+        "left": "{{active}}|{{monday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -314,8 +375,9 @@
       "selector": "input[name=\"tuesday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{tuesday}}",
-        "equals": "true"
+        "left": "{{active}}|{{tuesday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -323,8 +385,9 @@
       "selector": "input[name=\"tuesday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{tuesday}}",
-        "equals": "false"
+        "left": "{{active}}|{{tuesday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -332,8 +395,9 @@
       "selector": "input[name=\"wednesday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{wednesday}}",
-        "equals": "true"
+        "left": "{{active}}|{{wednesday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -341,8 +405,9 @@
       "selector": "input[name=\"wednesday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{wednesday}}",
-        "equals": "false"
+        "left": "{{active}}|{{wednesday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -350,8 +415,9 @@
       "selector": "input[name=\"thursday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{thursday}}",
-        "equals": "true"
+        "left": "{{active}}|{{thursday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -359,8 +425,9 @@
       "selector": "input[name=\"thursday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{thursday}}",
-        "equals": "false"
+        "left": "{{active}}|{{thursday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -368,8 +435,9 @@
       "selector": "input[name=\"friday\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{friday}}",
-        "equals": "true"
+        "left": "{{active}}|{{friday}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -377,24 +445,37 @@
       "selector": "input[name=\"friday\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{friday}}",
-        "equals": "false"
+        "left": "{{active}}|{{friday}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
       "action": "fill",
       "selector": "#form-field-daily_capacity",
-      "value": "{{dailyCapacity}}"
+      "value": "{{dailyCapacity}}",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "fill",
       "selector": "#form-field-volume_capacity",
-      "value": "{{volumeCapacity}}"
+      "value": "{{volumeCapacity}}",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "fill",
       "selector": "#form-field-weight_capacity",
-      "value": "{{weightCapacity}}"
+      "value": "{{weightCapacity}}",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "autocomplete",
@@ -409,19 +490,28 @@
         "commitWaitMs": 1000,
         "outsideWaitMs": 500,
         "selectorIndex": -1
+      },
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
       }
     },
     {
       "action": "wait",
-      "ms": 500
+      "ms": 500,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "setChecked",
       "selector": "input[name=\"delivery_reservable\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{deliveryReservable}}",
-        "equals": "true"
+        "left": "{{active}}|{{deliveryReservable}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -429,8 +519,9 @@
       "selector": "input[name=\"delivery_reservable\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{deliveryReservable}}",
-        "equals": "false"
+        "left": "{{active}}|{{deliveryReservable}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -438,8 +529,9 @@
       "selector": "input[name=\"pickup_reservable\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{pickupReservable}}",
-        "equals": "true"
+        "left": "{{active}}|{{pickupReservable}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -447,8 +539,9 @@
       "selector": "input[name=\"pickup_reservable\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{pickupReservable}}",
-        "equals": "false"
+        "left": "{{active}}|{{pickupReservable}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
@@ -456,8 +549,9 @@
       "selector": "input[name=\"is_active_for_drop_shipping\"][type=\"checkbox\"]",
       "checked": true,
       "when": {
-        "left": "{{activeForDropShipping}}",
-        "equals": "true"
+        "left": "{{active}}|{{activeForDropShipping}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     },
     {
@@ -465,74 +559,113 @@
       "selector": "input[name=\"is_active_for_drop_shipping\"][type=\"checkbox\"]",
       "checked": false,
       "when": {
-        "left": "{{activeForDropShipping}}",
-        "equals": "false"
+        "left": "{{active}}|{{activeForDropShipping}}",
+        "operator": "regex",
+        "right": "^1\\|false$"
       }
     },
     {
       "action": "wait",
-      "ms": 2000
+      "ms": 2000,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "click",
       "selector": "button.form-save-button",
-      "progress": "Saving capacity slot…"
+      "progress": "Saving capacity slot…",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "wait",
-      "ms": 2000
+      "ms": 2000,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "setContext",
       "name": "resultText",
-      "value": "Save status unclear (no alert found)."
+      "value": "Save status unclear (no alert found).",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "read",
       "selector": ".uk-alert-success",
       "required": false,
-      "storeAs": "successAlert"
+      "storeAs": "successAlert",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "setContext",
       "name": "resultText",
       "value": "Done",
       "when": {
-        "left": "{{context.successAlert}}",
-        "operator": "truthy"
+        "left": "{{active}}|{{context.successAlert}}",
+        "operator": "regex",
+        "right": "^1\\|.+$"
       }
     },
     {
       "action": "read",
       "selector": ".uk-alert-danger",
       "required": false,
-      "storeAs": "errorAlert"
+      "storeAs": "errorAlert",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "setContext",
       "name": "resultText",
       "value": "{{context.errorAlert}}",
       "when": {
-        "left": "{{context.errorAlert}}",
-        "operator": "truthy"
+        "left": "{{active}}|{{context.errorAlert}}",
+        "operator": "regex",
+        "right": "^1\\|.+$"
       }
     },
     {
       "action": "navigate",
       "url": "https://drop-shipping.digikala.com/shipping-network-capacity/",
       "progress": "Verifying created capacity…",
-      "completeTimeoutMs": 30000
+      "completeTimeoutMs": 30000,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "ensureLogin",
       "detectTimeoutMs": 750,
-      "progress": "Checking verification session…"
+      "progress": "Checking verification session…",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "waitFor",
       "selector": "input[placeholder=\"Shipping Network\"]",
       "timeoutMs": 20000,
-      "error": "Shipping Network search field was not found."
+      "error": "Shipping Network search field was not found.",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "autocomplete",
@@ -548,24 +681,40 @@
         "outsideWaitMs": 350,
         "selectorIndex": 0
       },
-      "error": "Could not select Drop Network ID {{dropNetworkId}} for verification."
+      "error": "Could not select Drop Network ID {{dropNetworkId}} for verification.",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "wait",
-      "ms": 700
+      "ms": 700,
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "click",
       "selector": "button.uk-button.uk-button-primary",
       "textContains": "search",
       "afterMs": 2500,
-      "error": "Capacity search button was not found."
+      "error": "Capacity search button was not found.",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "waitFor",
       "selector": "table tbody tr",
       "timeoutMs": 20000,
-      "error": "No capacity rows were returned for Drop Network ID {{dropNetworkId}}."
+      "error": "No capacity rows were returned for Drop Network ID {{dropNetworkId}}.",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "verifyFirstTableRow",
@@ -591,20 +740,29 @@
         "expectedTimeScope": "{{timeSlotName}}",
         "expectedDate": "{{endDate}}",
         "requireCreatedToday": false
+      },
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
       }
     },
     {
       "action": "setContext",
       "name": "resultText",
-      "value": "Manual check required — {{context.capacityVerification.message}}"
+      "value": "Manual check required — {{context.capacityVerification.message}}",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
     },
     {
       "action": "setContext",
       "name": "resultText",
       "value": "Capacity verified",
       "when": {
-        "left": "{{context.capacityVerification.ok}}",
-        "equals": "true"
+        "left": "{{active}}|{{context.capacityVerification.ok}}",
+        "operator": "regex",
+        "right": "^1\\|true$"
       }
     }
   ],
