@@ -739,6 +739,7 @@
         ],
         "expectedTimeScope": "{{timeSlotName}}",
         "expectedDate": "{{endDate}}",
+        "retryWhenActualDateAtLeastDaysAfterExpected": 7,
         "requireCreatedToday": false
       },
       "when": {

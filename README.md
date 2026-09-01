@@ -293,3 +293,9 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Rows with `Active=1` run the complete create-and-verify workflow.
 - Rows with `Active=0` perform no navigation, form entry, submission, or verification and return `Skipped Active=0` in the result message.
 - No Host change is required.
+
+## Config 247 — Flex verification date threshold
+
+- Flex Capacity accepts a verification date mismatch when the found date is less than seven days after the Excel End date.
+- A found date at least seven days later remains a verification failure and triggers the existing row retry behavior.
+- Requires Host 12.2.4 or newer.
