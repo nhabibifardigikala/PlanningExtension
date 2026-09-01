@@ -1,9 +1,9 @@
 {
-  "configVersion": 244,
+  "configVersion": 245,
   "minEngineVersion": "12.1.4",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 244",
+    "subtitle": "Operations Toolkit · Config 245",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
     "configVersion": 244
   },

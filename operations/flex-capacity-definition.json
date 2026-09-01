@@ -52,7 +52,8 @@
       "pickupReservable": "Pickup Reservable",
       "deliveryReservable": "Delivery Reservable",
       "activeForDropShipping": "Active For Drop Shipping",
-      "dropNetworkId": "Drop Network ID"
+      "dropNetworkId": "Drop Network ID",
+      "active": "Active"
     },
     "booleanFields": [
       "saturday",
@@ -106,7 +107,8 @@
         "weightCapacity": "Weight Capacity",
         "shippingSize": "Shipping Size",
         "activeForDropShipping": "Active For Drop Shipping",
-        "dropNetworkId": "Drop Network ID"
+        "dropNetworkId": "Drop Network ID",
+        "active": "Active"
       }
     },
     "result": {
@@ -130,6 +132,20 @@
       "reuseForBatch": true,
       "closeOnFinish": true,
       "closeOnCancel": true
+    },
+    "rowFilter": {
+      "column": "active",
+      "acceptedValues": [
+        1,
+        "1",
+        true
+      ],
+      "skipValues": [
+        0,
+        "0",
+        false
+      ],
+      "skipResultText": "Skipped (Active=0)"
     }
   },
   "workflow": [
