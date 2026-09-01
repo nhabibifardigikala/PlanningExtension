@@ -311,3 +311,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - The seven-day retry threshold compares that largest value directly with the Excel `End date`.
 - Date differences between control-page rows are not used.
 - Requires Host 12.2.6 or newer.
+
+## Config 250 — Date-only Flex retry decision
+
+- Flex retry is decided only from the largest control-page `Date` versus the Excel `End date`.
+- Time Scope mismatch cannot trigger a retry in this operation.
+- The result message exposes both dates and the calculated difference for direct diagnosis.
+- Requires Host 12.2.7 or newer.
