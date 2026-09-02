@@ -333,16 +333,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - When Time Scope matches, a date difference below seven days is accepted; seven days or more causes a retry.
 - The unrelated exact-ID autocomplete change from Config 251 is removed. No Host update is required.
 
-## Config 253 — Existing-capacity confirmation only
+## Config 255 — v252 rollback with control removal
 
-- Removed all Flex post-create navigation to `drop-shipping.digikala.com/shipping-network-capacity/` and removed date/Time Scope table verification.
-- Each active Excel row repeats the create workflow until the server alert contains `Existing capacity slot` (including messages such as `Existing capacity slot with ID ... has the same date`).
-- The matching alert is the terminal confirmation for that row; processing then continues with the next active row.
-- This is Remote-only and works with Host 12.2.3 or newer.
-
-## Config 254 — Reliable save-response detection
-
-- Replaced the narrow `.uk-alert-danger` lookup with full Flex form body-text inspection after Save.
-- The retry loop stops as soon as the page contains `Existing capacity slot`, regardless of the alert/toast container used by the site.
-- Added meaningful progress labels so the UI no longer appears stuck at a generic `setContext` status.
-- This is Remote-only; Host remains unchanged.
+- Built directly from the user-provided, known-working Config 252 package.
+- Removed all navigation and verification steps for `drop-shipping.digikala.com/shipping-network-capacity/`.
+- Active rows repeat only until the Flex response contains `Existing capacity slot`.
+- Inactive rows emit the same internal row-completion marker immediately, preventing the batch from looping at `setContext`.
+- No Host update is required; Host 12.2.3 or newer is sufficient.

@@ -112,7 +112,7 @@
     },
     "result": {
       "resultColumn": "Result",
-      "successText": "Capacity confirmed",
+      "successText": "Done",
       "existingText": "Existing capacity slot",
       "downloadButtonLabel": "Download Result",
       "sheetName": "Results",
@@ -120,9 +120,9 @@
       "successFill": "C6EFCE",
       "failureFill": "FFC7CE",
       "notProcessedText": "Not processed (cancelled)",
-      "confirmationText": "Existing capacity slot",
+      "confirmationText": "Flex row complete",
       "repeatUntilConfirmation": true,
-      "preserveConfirmationMessage": false,
+      "preserveConfirmationMessage": true,
       "failureText": "Existing capacity confirmation was not observed"
     },
     "tabSession": {
@@ -137,11 +137,12 @@
     {
       "action": "setContext",
       "name": "resultText",
-      "value": "Capacity verified (Skipped Active=0)",
+      "value": "Flex row complete - Skipped (Active=0)",
       "when": {
         "left": "{{active}}",
         "equals": "0"
-      }
+      },
+      "progress": "Skipping inactive Excel row…"
     },
     {
       "action": "open",
@@ -589,11 +590,19 @@
       }
     },
     {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Save status unclear (no alert found).",
+      "when": {
+        "left": "{{active}}",
+        "equals": "1"
+      }
+    },
+    {
       "action": "read",
-      "selector": "body",
-      "required": true,
-      "storeAs": "savePageText",
-      "progress": "Reading Flex save response…",
+      "selector": ".uk-alert-success",
+      "required": false,
+      "storeAs": "successAlert",
       "when": {
         "left": "{{active}}",
         "equals": "1"
@@ -602,11 +611,42 @@
     {
       "action": "setContext",
       "name": "resultText",
-      "value": "{{context.savePageText}}",
-      "progress": "Checking for existing capacity confirmation…",
+      "value": "Done",
+      "when": {
+        "left": "{{active}}|{{context.successAlert}}",
+        "operator": "regex",
+        "right": "^1\\|.+$"
+      }
+    },
+    {
+      "action": "read",
+      "selector": ".uk-alert-danger",
+      "required": false,
+      "storeAs": "errorAlert",
       "when": {
         "left": "{{active}}",
         "equals": "1"
+      }
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "{{context.errorAlert}}",
+      "when": {
+        "left": "{{active}}|{{context.errorAlert}}",
+        "operator": "regex",
+        "right": "^1\\|.+$"
+      }
+    },
+    {
+      "action": "setContext",
+      "name": "resultText",
+      "value": "Flex row complete - {{context.errorAlert}}",
+      "progress": "Existing capacity confirmed; continuing to next row…",
+      "when": {
+        "left": "{{active}}|{{context.errorAlert}}",
+        "operator": "regex",
+        "right": "^1\\|[\\s\\S]*Existing capacity slot"
       }
     }
   ],
