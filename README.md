@@ -340,3 +340,11 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Active rows repeat only until the Flex response contains `Existing capacity slot`.
 - Inactive rows emit the same internal row-completion marker immediately, preventing the batch from looping at `setContext`.
 - No Host update is required; Host 12.2.3 or newer is sufficient.
+
+## Config 256 — Convert Lat & Long
+
+- Added the `Convert Lat & Long` operation with a downloadable Excel template.
+- Input columns are `Name` and `coordinates`; each coordinate point is interpreted as `[latitude, longitude]` and emitted as `longitude latitude` in a closed WKT polygon.
+- Output is `output_wkt.csv` with fully quoted UTF-8 columns `WKT`, `name`, and `description`.
+- Invalid input rows prevent partial CSV creation and are reported with their Excel row numbers.
+- Requires Host 12.2.8 or newer for the generic `excel-wkt-csv` client processor.

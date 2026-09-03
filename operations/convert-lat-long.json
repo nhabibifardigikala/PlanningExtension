@@ -1,0 +1,37 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Convert latitude/longitude polygon arrays from Excel into fully quoted WKT CSV rows.",
+  "inputs": [
+    {
+      "name": "templateDownload",
+      "label": "Input Template",
+      "type": "download",
+      "buttonLabel": "Download Template",
+      "asset": "templates/ConvertLatLongTemplate.xlsx",
+      "filename": "ConvertLatLongTemplate.xlsx",
+      "help": "Download the template and keep the Name and coordinates column headers unchanged."
+    },
+    {
+      "name": "inputFile",
+      "label": "Upload Excel",
+      "type": "file",
+      "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "required": true,
+      "help": "coordinates must contain an array of [latitude, longitude] points."
+    }
+  ],
+  "clientProcessor": {
+    "type": "excel-wkt-csv",
+    "fileField": "inputFile",
+    "nameHeaders": ["Name", "name"],
+    "coordinateHeaders": ["coordinates", "Coordinates"],
+    "outputHeaders": ["WKT", "name", "description"],
+    "filename": "output_wkt.csv"
+  },
+  "workflow": [],
+  "successMessage": "WKT CSV created.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
+}
