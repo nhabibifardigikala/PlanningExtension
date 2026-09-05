@@ -348,3 +348,8 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Output is `output_wkt.csv` with fully quoted UTF-8 columns `WKT`, `name`, and `description`.
 - Invalid input rows prevent partial CSV creation and are reported with their Excel row numbers.
 - Requires Host 12.2.8 or newer for the generic `excel-wkt-csv` client processor.
+
+## Config 257 — Nested coordinate compatibility
+
+- Requires Host 12.2.9 so nested polygon coordinates such as `[[[lat, lon], ...]]` are parsed recursively.
+- No business behavior or other operation was changed.

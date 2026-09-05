@@ -1,11 +1,11 @@
 {
-  "configVersion": 256,
-  "minEngineVersion": "12.2.8",
+  "configVersion": 257,
+  "minEngineVersion": "12.2.9",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 256",
+    "subtitle": "Operations Toolkit · Config 257",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 256
+    "configVersion": 257
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -498,7 +498,7 @@
       "accessHeaders": [
         "Convert Lat & Long"
       ],
-      "config": "operations/convert-lat-long.json?v=256",
+      "config": "operations/convert-lat-long.json?v=257",
       "iconSvgPath": "M8 6h25l7 7v29H8V6Zm23 3v7h7M14 23h20M14 29h20M14 35h13M18 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z",
       "description": "Upload an Excel file containing Name and coordinates columns, convert latitude/longitude polygons to WKT, and download a quoted UTF-8 CSV.",
       "runLabel": "Convert & Download CSV",
