@@ -404,3 +404,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Full-page mode uses a responsive two-column process layout, richer step previews and expanded spacing while keeping the same data and access model.
 - Processes reads the selected Digiexpress light/dark theme from the parent Remote UI; the separate-tab URL carries the same theme.
 - Host remains 12.2.9.
+
+
+## Config 264 — Processes full-page theme sync
+- Processes full-page view now follows the active Digiexpress light/dark theme.
+- The embedded Processes iframe broadcasts theme changes to separately opened Processes tabs over a same-origin BroadcastChannel.
+- The last effective theme is also stored in Remote-origin localStorage for reliable reload behavior.
+- Remote-only change; Host 12.2.9 remains unchanged.

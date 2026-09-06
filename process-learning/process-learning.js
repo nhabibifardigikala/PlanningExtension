@@ -38,17 +38,49 @@ function getEffectiveTheme() {
   return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-function applyHostTheme() {
-  const theme = getEffectiveTheme();
+const THEME_CHANNEL_NAME = 'digiexpress-theme-sync-v1';
+let themeChannel = null;
+try { themeChannel = new BroadcastChannel(THEME_CHANNEL_NAME); } catch (_) {}
+
+function setTheme(theme, { broadcast = false } = {}) {
+  if (theme !== 'dark' && theme !== 'light') return;
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
+  try { localStorage.setItem('digiexpressEffectiveTheme', theme); } catch (_) {}
+  if (broadcast && themeChannel) {
+    try { themeChannel.postMessage({ type: 'theme', theme, ts: Date.now() }); } catch (_) {}
+  }
 }
 
-applyHostTheme();
-if (FULL_PAGE) document.documentElement.classList.add('full-page');
+function applyHostTheme({ broadcast = false } = {}) {
+  const theme = getEffectiveTheme();
+  setTheme(theme, { broadcast });
+}
+
+if (FULL_PAGE) {
+  document.documentElement.classList.add('full-page');
+  const queryTheme = new URLSearchParams(location.search).get('theme');
+  let savedTheme = '';
+  try { savedTheme = localStorage.getItem('digiexpressEffectiveTheme') || ''; } catch (_) {}
+  setTheme((queryTheme === 'dark' || queryTheme === 'light') ? queryTheme : savedTheme || getEffectiveTheme());
+} else {
+  applyHostTheme({ broadcast: true });
+}
+
+if (themeChannel) {
+  themeChannel.addEventListener('message', (event) => {
+    const theme = event?.data?.theme;
+    if (theme !== 'dark' && theme !== 'light') return;
+    if (FULL_PAGE) setTheme(theme);
+  });
+}
+
 try {
   if (window.parent !== window && window.parent.document?.documentElement) {
-    new MutationObserver(applyHostTheme).observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    new MutationObserver(() => applyHostTheme({ broadcast: true })).observe(
+      window.parent.document.documentElement,
+      { attributes: true, attributeFilter: ['data-theme'] }
+    );
   }
 } catch (_) {}
 
@@ -628,7 +660,7 @@ if (els.openFullBtn) {
       const url = new URL(location.href);
       url.searchParams.set('full', '1');
       url.searchParams.set('theme', theme);
-      url.searchParams.set('v', '263');
+      url.searchParams.set('v', '264');
       window.open(url.toString(), '_blank', 'noopener,noreferrer');
     });
   }
