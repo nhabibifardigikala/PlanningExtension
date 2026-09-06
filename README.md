@@ -386,3 +386,12 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Fixes a startup exception after the Processes header controls were removed in Config 260.
 - Removed hard dependency on the deleted refresh button; loading, Google Sheets timeout/cache fallback, retry, search and filters now initialize normally.
 - Remote-only update. Host 12.2.9 remains unchanged.
+
+
+## Config 262 — Processes cache-buster synchronization
+
+- Fixes stale Processes assets being loaded after Config 260/261.
+- The embedded iframe, operation config, CSS and JavaScript now all use the same `v=262` cache-buster.
+- `app.json` top-level and visible config versions are synchronized to 262.
+- Existing timeout/cache/fallback behavior is retained.
+- Remote-only update. Host 12.2.9 remains unchanged.
