@@ -183,8 +183,8 @@ function setStatus(type, text) {
 
 function setLoading(isLoading) {
   els.loadingState.hidden = !isLoading;
-  els.refreshBtn.classList.toggle('spinning', isLoading);
-  els.refreshBtn.disabled = isLoading;
+  els.refreshBtn?.classList.toggle('spinning', isLoading);
+  if (els.refreshBtn) els.refreshBtn.disabled = isLoading;
 }
 
 function getCache() {
@@ -579,7 +579,7 @@ els.clearSearch.addEventListener('click', () => {
   renderAll();
 });
 
-els.refreshBtn.addEventListener('click', () => loadData({ force: true }));
+els.refreshBtn?.addEventListener('click', () => loadData({ force: true }));
 els.retryBtn.addEventListener('click', () => loadData({ force: true }));
 els.openSheetBtn.addEventListener('click', () => window.open(SHEET_URL, '_blank', 'noopener,noreferrer'));
 

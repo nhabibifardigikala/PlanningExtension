@@ -379,3 +379,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Embedded UI uses the same Digiexpress light/dark palette and follows the extension-selected color scheme through the iframe color-scheme bridge.
 - Persian UI uses the remotely loaded Vazirmatn webfont so it does not depend on a locally installed font.
 - Host remains unchanged at 12.2.9.
+
+
+## Config 261 — Processes loading fix
+
+- Fixes a startup exception after the Processes header controls were removed in Config 260.
+- Removed hard dependency on the deleted refresh button; loading, Google Sheets timeout/cache fallback, retry, search and filters now initialize normally.
+- Remote-only update. Host 12.2.9 remains unchanged.
