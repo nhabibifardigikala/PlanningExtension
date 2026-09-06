@@ -2,9 +2,9 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Search and review Systems & Methods processes and their step-by-step instructions from Google Sheets.",
+  "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
   "workflow": [],
-  "successMessage": "Process Learning ready.",
+  "successMessage": "Processes ready.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote"
 }

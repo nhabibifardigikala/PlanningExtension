@@ -1,11 +1,11 @@
 {
-  "configVersion": 259,
+  "configVersion": 260,
   "minEngineVersion": "12.2.9",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 259",
+    "subtitle": "Operations Toolkit · Config 260",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 259
+    "configVersion": 260
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -525,16 +525,17 @@
     },
     {
       "id": "process-learning",
-      "title": "Process Learning",
-      "subtitle": "راهنمای فرآیندها",
+      "title": "Processes",
+      "subtitle": "Process guidance and step-by-step instructions",
       "accessHeaders": [
+        "Processes",
         "Process Learning",
         "راهنمای فرآیندها"
       ],
-      "config": "operations/process-learning.json?v=259",
+      "config": "operations/process-learning.json?v=260",
       "iconSvgPath": "M8 5h26a4 4 0 0 1 4 4v30H12a4 4 0 0 1-4-4V5Zm4 6v24h22V11H12Zm5 5h12v4H17v-4Zm0 8h12v4H17v-4Zm0 8h8v4h-8v-4Z",
-      "description": "Search and review Systems & Methods processes with step-by-step guidance from Google Sheets.",
-      "runLabel": "Open Process Learning",
+      "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
+      "runLabel": "Open Processes",
       "uiMode": "form",
       "inputs": [
         {

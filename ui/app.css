@@ -452,3 +452,6 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) #processLearningEmbedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden}
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) #processLearningEmbedded iframe{height:100%!important;min-height:0!important}
 @media(max-width:700px){.process-learning-embedded{height:calc(100vh - 150px);min-height:0}}
+
+html[data-theme="dark"] #processLearningFrame{color-scheme:dark!important}
+html[data-theme="light"] #processLearningFrame{color-scheme:light!important}

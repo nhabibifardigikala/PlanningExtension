@@ -369,3 +369,13 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - The last successful dataset is cached in Remote-origin `localStorage`; the built-in sample remains the final offline fallback.
 - Host 12.2.9 remains unchanged and is the minimum Host for this package because Config 257 Convert Lat & Long requires its nested-coordinate parser.
 - Release policy: ordinary product/business/UI/data-source changes must increment Remote config only. Host updates are reserved for security, Chrome/Manifest compatibility, or a genuinely unavailable privileged browser primitive.
+
+
+## Config 260 — Processes UI alignment
+
+- Renamed the operation to `Processes`.
+- Removed the internal Process Learning title, Systems & Methods subtitle, quick-guide hero, and process-count hero from the embedded page.
+- Main catalog subtitle/description is English-only.
+- Embedded UI uses the same Digiexpress light/dark palette and follows the extension-selected color scheme through the iframe color-scheme bridge.
+- Persian UI uses the remotely loaded Vazirmatn webfont so it does not depend on a locally installed font.
+- Host remains unchanged at 12.2.9.

@@ -24,13 +24,6 @@ const FALLBACK_ROWS = [
 ];
 
 
-window.addEventListener('message', event => {
-  if (event.source !== parent) return;
-  const data = event.data || {};
-  if (data.type === 'DIGIEXPRESS_THEME') {
-    document.documentElement.dataset.theme = data.theme === 'dark' ? 'dark' : 'light';
-  }
-});
 
 const state = {
   rows: [],
@@ -183,9 +176,9 @@ function extractUrl(value) {
 
 function setStatus(type, text) {
   state.source = type;
-  els.statusPill.classList.remove('live', 'cached', 'error');
-  if (type !== 'loading') els.statusPill.classList.add(type);
-  els.statusText.textContent = text;
+  els.statusPill?.classList.remove('live', 'cached', 'error');
+  if (type !== 'loading') els.statusPill?.classList.add(type);
+  if (els.statusText) els.statusText.textContent = text;
 }
 
 function setLoading(isLoading) {
@@ -569,7 +562,7 @@ function renderProcesses() {
 function renderAll() {
   renderFilters();
   renderProcesses();
-  els.processCount.textContent = String(state.processes.length);
+  if (els.processCount) els.processCount.textContent = String(state.processes.length);
   els.clearSearch.hidden = !state.query;
   if (state.processes.length > 0) els.errorState.hidden = true;
 }
