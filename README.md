@@ -395,3 +395,12 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - `app.json` top-level and visible config versions are synchronized to 262.
 - Existing timeout/cache/fallback behavior is retained.
 - Remote-only update. Host 12.2.9 remains unchanged.
+
+
+## Config 263 — Processes UX / full-page view
+- Processes category filters use the Digiexpress orange accent.
+- Processes requests the Yekan Bakh FaNum font family with safe fallbacks; licensed webfont assets can be attached without any Host change.
+- Added a Remote-only full-page button that opens Processes in a separate large browser tab.
+- Full-page mode uses a responsive two-column process layout, richer step previews and expanded spacing while keeping the same data and access model.
+- Processes reads the selected Digiexpress light/dark theme from the parent Remote UI; the separate-tab URL carries the same theme.
+- Host remains 12.2.9.

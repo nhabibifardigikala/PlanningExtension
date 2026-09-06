@@ -5,16 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
   <title>Processes</title>
-  <link rel="stylesheet" href="process-learning.css?v=262" />
+  <link rel="stylesheet" href="process-learning.css?v=263" />
 </head>
 <body>
   <div class="app-shell">
 <section class="controls" aria-label="جستجو و فیلتر">
+      <div class="controls-top">
       <label class="search-box" for="searchInput">
         <span class="search-icon" aria-hidden="true">⌕</span>
         <input id="searchInput" type="search" autocomplete="off" placeholder="جستجو در فرآیندها و مراحل…" />
         <button id="clearSearch" class="clear-search" type="button" aria-label="پاک کردن جستجو" hidden>×</button>
       </label>
+        <button id="openFullBtn" class="open-full-btn" type="button" title="نمایش Processes در تب جدا">
+          <span class="open-full-icon" aria-hidden="true">↗</span>
+          <span>نمایش بزرگ</span>
+        </button>
+      </div>
       <div class="filters-wrap">
         <div class="section-label">کتگوری‌ها</div>
         <div id="categoryFilters" class="category-filters" role="list" aria-label="فیلتر کتگوری"></div>
@@ -50,6 +56,6 @@
     </footer>
   </div>
 
-  <script src="process-learning.js?v=262"></script>
+  <script src="process-learning.js?v=263"></script>
 </body>
 </html>

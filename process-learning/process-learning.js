@@ -25,6 +25,33 @@ const FALLBACK_ROWS = [
 
 
 
+
+const FULL_PAGE = new URLSearchParams(location.search).get('full') === '1';
+
+function getEffectiveTheme() {
+  try {
+    const parentTheme = window.parent !== window ? window.parent.document.documentElement.dataset.theme : '';
+    if (parentTheme === 'dark' || parentTheme === 'light') return parentTheme;
+  } catch (_) {}
+  const queryTheme = new URLSearchParams(location.search).get('theme');
+  if (queryTheme === 'dark' || queryTheme === 'light') return queryTheme;
+  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyHostTheme() {
+  const theme = getEffectiveTheme();
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+}
+
+applyHostTheme();
+if (FULL_PAGE) document.documentElement.classList.add('full-page');
+try {
+  if (window.parent !== window && window.parent.document?.documentElement) {
+    new MutationObserver(applyHostTheme).observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+} catch (_) {}
+
 const state = {
   rows: [],
   processes: [],
@@ -41,6 +68,7 @@ const els = {
   refreshBtn: document.getElementById('refreshBtn'),
   retryBtn: document.getElementById('retryBtn'),
   openSheetBtn: document.getElementById('openSheetBtn'),
+  openFullBtn: document.getElementById('openFullBtn'),
   loadingState: document.getElementById('loadingState'),
   errorState: document.getElementById('errorState'),
   emptyState: document.getElementById('emptyState'),
@@ -528,6 +556,15 @@ function createProcessCard(process, autoOpen = false) {
   meta.append(category, count);
   main.append(title, meta);
 
+  const preview = document.createElement('div');
+  preview.className = 'process-preview';
+  process.steps.slice(0, 3).forEach(step => {
+    const item = document.createElement('span');
+    item.textContent = `${step.stepNumber}. ${step.stepTitle}`;
+    preview.appendChild(item);
+  });
+  main.appendChild(preview);
+
   const chevron = document.createElement('span');
   chevron.className = 'chevron';
   chevron.textContent = '⌄';
@@ -582,5 +619,19 @@ els.clearSearch.addEventListener('click', () => {
 els.refreshBtn?.addEventListener('click', () => loadData({ force: true }));
 els.retryBtn.addEventListener('click', () => loadData({ force: true }));
 els.openSheetBtn.addEventListener('click', () => window.open(SHEET_URL, '_blank', 'noopener,noreferrer'));
+if (els.openFullBtn) {
+  if (FULL_PAGE) {
+    els.openFullBtn.hidden = true;
+  } else {
+    els.openFullBtn.addEventListener('click', () => {
+      const theme = getEffectiveTheme();
+      const url = new URL(location.href);
+      url.searchParams.set('full', '1');
+      url.searchParams.set('theme', theme);
+      url.searchParams.set('v', '263');
+      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+    });
+  }
+}
 
 loadData();

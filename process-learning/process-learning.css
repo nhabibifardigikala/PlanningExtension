@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap");
-
 :root {
   --bg: #f3f4f6;
   --surface: #ffffff;
@@ -29,7 +27,7 @@ html, body {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: "Vazirmatn", sans-serif;
+  font-family: "Yekan Bakh FaNum", "YekanBakhFaNum", "Yekan Bakh", Tahoma, Arial, sans-serif;
   font-size: 14px;
   font-feature-settings: "ss01" 1;
 }
@@ -212,8 +210,8 @@ button { -webkit-tap-highlight-color: transparent; }
   cursor: pointer;
   transition: all .18s ease;
 }
-.filter-chip:hover { border-color: #c9c9f2; transform: translateY(-1px); }
-.filter-chip.active { background: linear-gradient(135deg, var(--primary), #7070e5); border-color: var(--primary); color: white; box-shadow: 0 6px 16px rgba(91,91,214,.22); }
+.filter-chip:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); transform: translateY(-1px); }
+.filter-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(247,144,9,.22); }
 
 .process-list { display: flex; flex-direction: column; gap: 11px; }
 .process-card {
@@ -332,7 +330,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .state-icon.neutral { background: var(--primary-soft); color: var(--primary); }
 .error-state { border-color: #f0d2d9; background: #fffafb; }
 .loader { width: 30px; height: 30px; border: 3px solid #e4e4fa; border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
-.primary-btn { margin-top: 6px; border: 0; border-radius: 11px; padding: 9px 15px; background: linear-gradient(135deg, var(--primary), #7070e5); color: white; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 14px rgba(91,91,214,.18); }
+.primary-btn { margin-top: 6px; border: 0; border-radius: 11px; padding: 9px 15px; background: var(--primary); color: white; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 14px rgba(91,91,214,.18); }
 
 .footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 17px; padding: 0 3px; color: #8f97a9; font-size: 10px; }
 .text-btn { border: 0; background: transparent; color: var(--primary-strong); padding: 4px 0; cursor: pointer; font-size: 11px; font-weight: 700; }
@@ -377,3 +375,52 @@ button { -webkit-tap-highlight-color: transparent; }
   .category-badge { background: var(--primary-soft); color: var(--primary); }
   .detail-value { color: var(--text); }
 }
+
+
+/* Config 263: Processes UX */
+.controls-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:stretch}
+.open-full-btn{min-width:118px;border:1px solid var(--primary);border-radius:14px;padding:0 14px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;font-weight:800;box-shadow:0 5px 14px rgba(247,144,9,.16);transition:transform .18s ease,box-shadow .18s ease}
+.open-full-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(247,144,9,.22)}
+.open-full-icon{font-size:17px;line-height:1}
+.process-preview{display:none;margin-top:10px;gap:6px;flex-wrap:wrap}
+.process-preview span{display:inline-flex;padding:5px 8px;border-radius:8px;background:var(--surface-soft);border:1px solid color-mix(in srgb,var(--border) 35%,transparent);color:var(--muted);font-size:10px;line-height:1.6}
+.process-card{position:relative}
+.process-card::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:transparent;transition:background .2s ease}
+.process-card:hover::after,.process-card.open::after{background:var(--primary)}
+.process-header:hover{background:color-mix(in srgb,var(--primary-soft) 35%,transparent)}
+.category-badge{border:1px solid color-mix(in srgb,var(--primary) 22%,transparent)}
+.step-number{border-color:color-mix(in srgb,var(--primary) 60%,#fff);color:var(--primary)}
+.timeline::before{background:linear-gradient(var(--primary),color-mix(in srgb,var(--primary) 18%,transparent))}
+.step-card:hover{border-color:var(--primary);background:color-mix(in srgb,var(--primary-soft) 30%,var(--surface-soft))}
+
+:root[data-theme="dark"]{
+  --bg:#07172c;--surface:#0d2b56;--surface-soft:#071a33;--text:#fff;--muted:#b6c1d2;--border:#F79009;--primary:#F79009;--primary-strong:#F79009;--primary-soft:#3b2b13;--blue:#F79009;--blue-soft:#3b2b13;--cyan:#F79009;--cyan-soft:#3b2b13;--green:#22c55e;--green-soft:#113d31;--orange:#F79009;--orange-soft:#3b2b13;--pink:#F79009;--pink-soft:#3b2b13;--danger:#ff5b52;--danger-soft:#4a2024;--shadow:0 12px 34px rgba(0,0,0,.24);--shadow-soft:0 5px 18px rgba(0,0,0,.18)
+}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"] .search-box input,:root[data-theme="dark"] .process-main h2,:root[data-theme="dark"] .step-title,:root[data-theme="dark"] .state-card strong{color:var(--text)}
+:root[data-theme="dark"] .filter-chip,:root[data-theme="dark"] .state-card{background:var(--surface);border-color:var(--border);color:var(--muted)}
+:root[data-theme="dark"] .category-badge{background:var(--primary-soft);color:var(--primary)}
+:root[data-theme="dark"] .detail-value{color:var(--text)}
+
+html.full-page body{min-width:0}
+html.full-page .app-shell{max-width:1440px;margin:0 auto;padding:28px 32px 40px}
+html.full-page .controls{position:sticky;top:0;z-index:20;padding:10px 0 14px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}
+html.full-page .controls-top{grid-template-columns:minmax(420px,760px) auto}
+html.full-page .filters-wrap{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px;margin-top:12px}
+html.full-page .filters-wrap .section-label{margin:0;white-space:nowrap}
+html.full-page .process-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+html.full-page .process-card{border-radius:18px}
+html.full-page .process-header{grid-template-columns:52px minmax(0,1fr) 30px;padding:18px;gap:14px}
+html.full-page .process-icon{width:52px;height:52px;border-radius:15px}
+html.full-page .process-main h2{font-size:16px;margin-bottom:7px}
+html.full-page .process-preview{display:flex}
+html.full-page .steps-wrap{padding:4px 18px 18px}
+html.full-page .step-item{grid-template-columns:42px minmax(0,1fr);gap:12px}
+html.full-page .step-number{width:42px;height:42px}
+html.full-page .step-card{padding:14px}
+html.full-page .step-title{font-size:14px}
+html.full-page .detail-row{grid-template-columns:82px minmax(0,1fr)}
+html.full-page .footer{margin-top:24px}
+
+@media (max-width:900px){html.full-page .app-shell{padding:20px 16px 30px}html.full-page .process-list{grid-template-columns:1fr}html.full-page .controls-top{grid-template-columns:1fr}html.full-page .filters-wrap{display:block}.open-full-btn{min-height:46px}}
+@media (max-width:520px){.controls-top{grid-template-columns:1fr}.open-full-btn{min-height:44px}.app-shell{padding:14px 12px 18px}}
