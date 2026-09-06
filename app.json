@@ -1,11 +1,11 @@
 {
-  "configVersion": 257,
+  "configVersion": 259,
   "minEngineVersion": "12.2.9",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 257",
+    "subtitle": "Operations Toolkit · Config 259",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 257
+    "configVersion": 259
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -520,6 +520,31 @@
           "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           "required": true,
           "help": "coordinates must contain an array of [latitude, longitude] points."
+        }
+      ]
+    },
+    {
+      "id": "process-learning",
+      "title": "Process Learning",
+      "subtitle": "راهنمای فرآیندها",
+      "accessHeaders": [
+        "Process Learning",
+        "راهنمای فرآیندها"
+      ],
+      "config": "operations/process-learning.json?v=259",
+      "iconSvgPath": "M8 5h26a4 4 0 0 1 4 4v30H12a4 4 0 0 1-4-4V5Zm4 6v24h22V11H12Zm5 5h12v4H17v-4Zm0 8h12v4H17v-4Zm0 8h8v4h-8v-4Z",
+      "description": "Search and review Systems & Methods processes with step-by-step guidance from Google Sheets.",
+      "runLabel": "Open Process Learning",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__processLearningEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
         }
       ]
     },

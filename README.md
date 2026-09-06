@@ -353,3 +353,19 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 
 - Requires Host 12.2.9 so nested polygon coordinates such as `[[[lat, lon], ...]]` are parsed recursively.
 - No business behavior or other operation was changed.
+
+
+## Config 258 — Process Learning (superseded)
+
+- Introduced the Process Learning / راهنمای فرآیندها embedded module.
+- This intermediate build used a Host-specific data bridge and must not be deployed. It is superseded by Config 259.
+- Access headers: `Process Learning` or `راهنمای فرآیندها`.
+
+
+## Config 259 — Process Learning Remote-only
+
+- Process Learning no longer requires Host 12.3.0.
+- Google Sheets data is loaded directly by the Remote module through the Google Visualization JSONP response handler, so cross-origin CSV fetch permissions are not required.
+- The last successful dataset is cached in Remote-origin `localStorage`; the built-in sample remains the final offline fallback.
+- Host 12.2.9 remains unchanged and is the minimum Host for this package because Config 257 Convert Lat & Long requires its nested-coordinate parser.
+- Release policy: ordinary product/business/UI/data-source changes must increment Remote config only. Host updates are reserved for security, Chrome/Manifest compatibility, or a genuinely unavailable privileged browser primitive.

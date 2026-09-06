@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>راهنمای فرآیندها</title>
+  <link rel="stylesheet" href="process-learning.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">ف</div>
+        <div>
+          <h1>راهنمای فرآیندها</h1>
+          <p>Systems &amp; Methods</p>
+        </div>
+      </div>
+      <button id="refreshBtn" class="icon-btn" type="button" title="به‌روزرسانی داده‌ها" aria-label="به‌روزرسانی داده‌ها">
+        <span aria-hidden="true">↻</span>
+      </button>
+    </header>
+
+    <section class="hero-card" aria-label="وضعیت داده‌ها">
+      <div class="hero-copy">
+        <span class="eyebrow">آموزش سریع و مرحله‌به‌مرحله</span>
+        <strong id="processCount">—</strong>
+        <span>فرآیند در دسترس</span>
+      </div>
+      <div class="status-pill" id="statusPill">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">در حال دریافت داده…</span>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="جستجو و فیلتر">
+      <label class="search-box" for="searchInput">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" autocomplete="off" placeholder="جستجو در فرآیندها و مراحل…" />
+        <button id="clearSearch" class="clear-search" type="button" aria-label="پاک کردن جستجو" hidden>×</button>
+      </label>
+      <div class="filters-wrap">
+        <div class="section-label">کتگوری‌ها</div>
+        <div id="categoryFilters" class="category-filters" role="list" aria-label="فیلتر کتگوری"></div>
+      </div>
+    </section>
+
+    <main>
+      <div id="loadingState" class="state-card">
+        <div class="loader" aria-hidden="true"></div>
+        <strong>در حال بارگذاری فرآیندها</strong>
+        <span>داده‌ها از Google Sheet دریافت می‌شوند.</span>
+      </div>
+
+      <div id="errorState" class="state-card error-state" hidden>
+        <div class="state-icon" aria-hidden="true">!</div>
+        <strong>دریافت داده ناموفق بود</strong>
+        <span id="errorMessage">لطفاً اتصال اینترنت و عمومی بودن Google Sheet را بررسی کنید.</span>
+        <button id="retryBtn" class="primary-btn" type="button">تلاش دوباره</button>
+      </div>
+
+      <div id="emptyState" class="state-card" hidden>
+        <div class="state-icon neutral" aria-hidden="true">⌕</div>
+        <strong>نتیجه‌ای پیدا نشد</strong>
+        <span>عبارت جستجو یا کتگوری انتخاب‌شده را تغییر دهید.</span>
+      </div>
+
+      <div id="processList" class="process-list" aria-live="polite"></div>
+    </main>
+
+    <footer class="footer">
+      <span>منبع: Google Sheets</span>
+      <button id="openSheetBtn" class="text-btn" type="button">باز کردن شیت ↗</button>
+    </footer>
+  </div>
+
+  <script src="process-learning.js"></script>
+</body>
+</html>
