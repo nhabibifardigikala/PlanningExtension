@@ -472,10 +472,23 @@ function createDetailRow(label, value, isSource = false) {
   valueEl.className = 'detail-value';
 
   if (isSource) {
-    const tag = document.createElement('span');
-    tag.className = 'source-tag';
-    tag.textContent = value || '—';
-    valueEl.appendChild(tag);
+    const sourceUrl = extractUrl(value);
+    if (sourceUrl) {
+      const link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'source-link-btn';
+      link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>باز کردن منبع</span>';
+      link.addEventListener('click', event => {
+        event.stopPropagation();
+        window.open(sourceUrl, '_blank', 'noopener,noreferrer');
+      });
+      valueEl.appendChild(link);
+    } else {
+      const tag = document.createElement('span');
+      tag.className = 'source-tag';
+      tag.textContent = value || '—';
+      valueEl.appendChild(tag);
+    }
   } else {
     valueEl.textContent = value || 'توضیحی ثبت نشده است.';
   }
@@ -484,17 +497,18 @@ function createDetailRow(label, value, isSource = false) {
   return row;
 }
 
-function createStep(step, currentProcess, processIndex, ancestry = new Set()) {
+function createStep(step, currentProcess, processIndex, ancestry = new Set(), displayNumber = null) {
   const item = document.createElement('div');
   item.className = 'step-item';
 
   const number = document.createElement('div');
   number.className = 'step-number';
-  number.textContent = step.stepNumber;
+  number.textContent = displayNumber || step.stepNumber;
 
-  const card = document.createElement('button');
-  card.type = 'button';
+  const card = document.createElement('div');
   card.className = 'step-card';
+  card.setAttribute('role', 'button');
+  card.tabIndex = 0;
 
   const top = document.createElement('div');
   top.className = 'step-top';
@@ -510,9 +524,7 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set()) {
 
   const action = document.createElement('span');
   action.className = 'step-action';
-  action.innerHTML = url
-    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16 16 8M10 8h6v6"/></svg>'
-    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+  action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
   action.setAttribute('aria-hidden', 'true');
   top.append(title, action);
 
@@ -524,7 +536,7 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set()) {
   } else if (isCycle) {
     subline.textContent = 'ارجاع چرخه‌ای به همین فرآیند';
   } else {
-    subline.textContent = url ? 'لینک این مرحله در تب جدید باز می‌شود' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
+    subline.textContent = url ? 'منبع این مرحله از داخل جزئیات قابل باز کردن است' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
   }
 
   const detail = document.createElement('div');
@@ -543,20 +555,27 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set()) {
     const nextAncestry = new Set(ancestry);
     nextAncestry.add(normalize(currentProcess.name));
     nextAncestry.add(nestedKey);
-    nestedProcess.steps.forEach(child => nestedTimeline.appendChild(createStep(child, nestedProcess, processIndex, nextAncestry)));
+    const parentNumber = displayNumber || step.stepNumber;
+    nestedProcess.steps.forEach((child, childIndex) => {
+      const childNumber = `${parentNumber}-${childIndex + 1}`;
+      nestedTimeline.appendChild(createStep(child, nestedProcess, processIndex, nextAncestry, childNumber));
+    });
     nested.append(nestedHead, nestedTimeline);
     detail.appendChild(nested);
   }
 
   card.append(top, subline, detail);
-  card.addEventListener('click', event => {
-    event.stopPropagation();
-    if (url && !nestedProcess) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-      return;
-    }
+  const toggleStep = event => {
+    event?.stopPropagation();
     card.classList.toggle('expanded');
     action.classList.toggle('expanded', card.classList.contains('expanded'));
+  };
+  card.addEventListener('click', toggleStep);
+  card.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleStep(event);
+    }
   });
 
   item.append(number, card);
@@ -684,7 +703,7 @@ if (els.openFullBtn) {
       const url = new URL(location.href);
       url.searchParams.set('full', '1');
       url.searchParams.set('theme', theme);
-      url.searchParams.set('v', '265');
+      url.searchParams.set('v', '266');
       window.open(url.toString(), '_blank', 'noopener,noreferrer');
     });
   }
