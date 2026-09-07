@@ -497,7 +497,7 @@ function createDetailRow(label, value, isSource = false) {
   return row;
 }
 
-function createStep(step, currentProcess, processIndex, ancestry = new Set(), displayNumber = null) {
+function createStep(step, currentProcess, processIndex, ancestry = new Set(), displayNumber = null, nestingDepth = 0) {
   const item = document.createElement('div');
   item.className = 'step-item';
 
@@ -536,13 +536,18 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
   } else if (isCycle) {
     subline.textContent = 'ارجاع چرخه‌ای به همین فرآیند';
   } else {
-    subline.textContent = url ? 'منبع این مرحله از داخل جزئیات قابل باز کردن است' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
+    subline.textContent = nestingDepth > 0 && url ? 'برای باز کردن این مرحله کلیک کنید' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
   }
 
   const detail = document.createElement('div');
   detail.className = 'step-detail';
-  if (step.source) detail.appendChild(createDetailRow('منبع', step.source, true));
+  const isNestedStep = nestingDepth > 0;
+  if (!isNestedStep && step.source) detail.appendChild(createDetailRow('منبع', step.source, true));
   if (step.description) detail.appendChild(createDetailRow('توضیحات', step.description));
+  if (isNestedStep && url) {
+    card.classList.add('nested-source-link');
+    card.setAttribute('aria-label', `${step.stepTitle} - باز کردن لینک مرحله`);
+  }
 
   if (nestedProcess && !isCycle) {
     const nested = document.createElement('div');
@@ -558,23 +563,27 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
     const parentNumber = displayNumber || step.stepNumber;
     nestedProcess.steps.forEach((child, childIndex) => {
       const childNumber = `${parentNumber}-${childIndex + 1}`;
-      nestedTimeline.appendChild(createStep(child, nestedProcess, processIndex, nextAncestry, childNumber));
+      nestedTimeline.appendChild(createStep(child, nestedProcess, processIndex, nextAncestry, childNumber, nestingDepth + 1));
     });
     nested.append(nestedHead, nestedTimeline);
     detail.appendChild(nested);
   }
 
   card.append(top, subline, detail);
-  const toggleStep = event => {
+  const activateStep = event => {
     event?.stopPropagation();
+    if (nestingDepth > 0 && url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
     card.classList.toggle('expanded');
     action.classList.toggle('expanded', card.classList.contains('expanded'));
   };
-  card.addEventListener('click', toggleStep);
+  card.addEventListener('click', activateStep);
   card.addEventListener('keydown', event => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      toggleStep(event);
+      activateStep(event);
     }
   });
 

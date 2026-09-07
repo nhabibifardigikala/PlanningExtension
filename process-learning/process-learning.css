@@ -422,7 +422,7 @@ html.full-page .footer{margin-top:24px}
 html[data-theme="dark"] .process-icon{background:rgba(247,144,9,.12);border-color:rgba(247,144,9,.30)}
 
 
-/* Config 266 nested step readability and source-link behavior */
+/* Config 267 nested step readability and source-link behavior */
 .source-link-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(247,144,9,.28);background:var(--primary-soft);color:var(--primary);border-radius:8px;padding:6px 9px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:background .18s ease,border-color .18s ease,transform .18s ease}
 .source-link-btn:hover{background:color-mix(in srgb,var(--primary-soft) 65%,var(--surface));border-color:var(--primary);transform:translateY(-1px)}
 .source-link-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
@@ -435,3 +435,7 @@ html.full-page .nested-timeline .step-item{grid-template-columns:42px minmax(0,1
 html.full-page .nested-timeline .step-number{width:42px;height:42px;font-size:12px}
 html.full-page .nested-timeline .step-card{padding:14px}
 html.full-page .nested-timeline .step-title{font-size:14px}
+
+/* Config 267: nested steps open their source directly; no source CTA inside nested details. */
+.step-card.nested-source-link{cursor:pointer}
+.step-card.nested-source-link .step-action{color:var(--primary);border-color:rgba(247,144,9,.28);background:var(--primary-soft)}

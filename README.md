@@ -413,7 +413,7 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Remote-only change; Host 12.2.9 remains unchanged.
 
 
-## Config 266 — Processes nested steps and theme fidelity
+## Config 267 — Processes nested steps and theme fidelity
 - Processes no longer infers Digiexpress theme from the operating-system color scheme. The Remote shell exposes explicit light/dark iframe instances and shows the one matching the extension's `data-theme`.
 - A separately opened Processes tab inherits the active iframe theme and follows later extension theme switches through the Remote BroadcastChannel.
 - When a step title exactly matches another process title (normalized Persian text), that process is rendered as a nested sub-process with its own ordered steps. Same-category matches are preferred; cycle protection prevents recursive loops.
@@ -421,8 +421,15 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Host remains 12.2.9.
 
 
-## Config 266 — Nested subprocess numbering and source links
+## Config 267 — Nested subprocess numbering and source links
 - Nested subprocess steps use hierarchical numbers such as `1-1`, `1-2`, and deeper levels such as `1-1-1`.
 - Step source URLs are no longer printed in detail views; a dedicated `باز کردن منبع` control opens the resource on click.
 - Nested step typography and number badges match primary steps at each layout size.
 - Remote-only release; Host 12.2.9 remains unchanged.
+
+
+## Config 267 — Nested step direct links
+- Nested subprocess steps no longer render a separate source action.
+- When a nested step has a valid source URL, clicking the nested step itself opens that URL in a new tab.
+- Hierarchical numbering and typography remain unchanged.
+- Host remains 12.2.9; Remote-only release.
