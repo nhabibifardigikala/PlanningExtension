@@ -1,11 +1,11 @@
 {
-  "configVersion": 271,
+  "configVersion": 272,
   "minEngineVersion": "12.3.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 271",
+    "subtitle": "Operations Toolkit · Config 272",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 271
+    "configVersion": 272
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -544,7 +544,7 @@
         "راهنمای فرآیندها"
       ],
       "config": "operations/process-learning.json?v=270",
-      "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM8 28a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm32 0a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM21.5 15h5v6.5H38v5H10v-5h11.5V15ZM10.5 24h5v5h-5v-5Zm22 0h5v5h-5v-5Z",
+      "iconSvgPath": "M19 4h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H19a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4ZM7 32h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4ZM31 32h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H31a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4ZM22 16h4v6h12v7h-4v-3H14v3h-4v-7h12v-6Z",
       "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
       "runLabel": "Open Processes",
       "uiMode": "form",
@@ -641,7 +641,7 @@
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
     "html": "ui/app.html?v=271",
-    "css": "ui/app.css?v=271",
+    "css": "ui/app.css?v=272",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=271"
   },
@@ -681,9 +681,9 @@
   "runtimeVersion": "12.3.1",
   "remoteUI": {
     "html": "ui/app.html?v=271",
-    "css": "ui/app.css?v=271"
+    "css": "ui/app.css?v=272"
   },
-  "version": 271,
+  "version": 272,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
