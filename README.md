@@ -449,3 +449,9 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Parent Determination controls align with Digiexpress button/filter styling.
 - Sync IATA, Convert Lat & Long and Flex Capacity Definition catalog icons were refreshed.
 - Requires Host 12.3.1 for weekly automatic credential validation, generic raw-value multi-autocomplete, and Home/Back navigation history.
+
+
+## Config 270 — approved icon refresh and Smart Sidebar
+- Sync IATA uses larger IATA lettering with bidirectional arrows.
+- Processes uses a clearer process-network icon.
+- A ~1 cm right-edge hover sidebar shows only frequently used operation icons, ranked by local usage.

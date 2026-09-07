@@ -1,11 +1,11 @@
 {
-  "configVersion": 269,
-  "minEngineVersion": "12.3.1",
+  "configVersion": 270,
+  "minEngineVersion": "12.3.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 269",
+    "subtitle": "Operations Toolkit · Config 270",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 269
+    "configVersion": 270
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -58,7 +58,18 @@
           "help": "Comma-separated IDs. These Shipping Polygons will not be checked or modified."
         }
       ],
-      "iconText": "IATA"
+      "iconSvgLayers": [
+        {
+          "path": "M10 14c5-7 12-9 20-6l-3-4 4-2 7 10-11 4-1-4 5-2c-6-2-12 0-16 6z",
+          "fill": "currentColor"
+        },
+        {
+          "path": "M38 34c-5 7-12 9-20 6l3 4-4 2-7-10 11-4 1 4-5 2c6 2 12 0 16-6z",
+          "fill": "currentColor"
+        }
+      ],
+      "iconTextOverlay": "IATA",
+      "iconTextOverlaySize": 12
     },
     {
       "id": "pudo-auto-config",
@@ -532,8 +543,8 @@
         "Process Learning",
         "راهنمای فرآیندها"
       ],
-      "config": "operations/process-learning.json?v=269",
-      "iconSvgPath": "M6 8h12v8H6V8Zm24 0h12v8H30V8ZM18 11h8v4h4M26 13v18h4M30 28h12v8H30v-8ZM6 28h12v8H6v-8Zm12 4h8",
+      "config": "operations/process-learning.json?v=270",
+      "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM8 28a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm32 0a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM21.5 15h5v6.5H38v5H10v-5h11.5V15ZM10.5 24h5v5h-5v-5Zm22 0h5v5h-5v-5Z",
       "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
       "runLabel": "Open Processes",
       "uiMode": "form",
