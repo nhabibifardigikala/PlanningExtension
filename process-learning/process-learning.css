@@ -446,3 +446,24 @@ html.full-page .nested-timeline .step-title{font-size:14px}
 .step-card.direct-source-link:hover .step-action{background:color-mix(in srgb,var(--primary-soft) 65%,var(--surface));border-color:var(--primary)}
 .step-action.is-hidden{display:none}
 .step-subline[hidden]{display:none}
+
+
+/* Config 269: unified nested-step appearance and compact full-page control */
+.controls-top{display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:8px;align-items:center}
+.open-full-btn{width:38px;height:38px;min-width:38px;min-height:38px;padding:0;border-radius:8px;display:grid;place-items:center;background:var(--primary);border:1px solid var(--primary);color:#fff;box-shadow:none}
+.open-full-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.open-full-btn:hover{transform:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 16%,transparent)}
+html.full-page .controls-top{grid-template-columns:minmax(420px,760px) 38px}
+.nested-process{margin-top:9px;padding:0;background:transparent;border:0;border-radius:0}
+.nested-process-head,.nested-hint{display:none!important}
+.nested-timeline{display:flex;flex-direction:column;gap:9px;padding-inline-start:0}
+.nested-timeline .step-item{grid-template-columns:38px minmax(0,1fr);gap:10px}
+.nested-timeline .step-number{width:38px;height:38px;border-radius:12px;font-size:12px;border-width:2px}
+.nested-timeline .step-card{padding:11px 11px 10px;border-radius:13px;background:var(--surface-soft)}
+.nested-timeline .step-title{font-size:13px;line-height:1.85;font-weight:800}
+html.full-page .nested-timeline .step-item{grid-template-columns:42px minmax(0,1fr);gap:12px}
+html.full-page .nested-timeline .step-number{width:42px;height:42px;font-size:12px}
+html.full-page .nested-timeline .step-card{padding:14px}
+html.full-page .nested-timeline .step-title{font-size:14px}
+@media(max-width:900px){html.full-page .controls-top{grid-template-columns:minmax(0,1fr) 38px}.open-full-btn{min-height:38px}}
+@media(max-width:520px){.controls-top{grid-template-columns:minmax(0,1fr) 38px}.open-full-btn{min-height:38px}}

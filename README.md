@@ -440,3 +440,12 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Raw source URLs and the separate “باز کردن منبع” action are no longer rendered for normal or nested leaf steps.
 - Subprocess steps still expand/collapse their nested hierarchy; description-only steps still expand their description.
 - Host remains 12.2.9; this is a Remote-only release.
+
+
+## Config 269 — navigation, Processes UX, Capacity input/background reliability
+- Processes nested steps now use the same visual treatment as primary steps; nested labels/count badges were removed.
+- Processes uses a compact icon-only full-page button beside Search and a flow-style catalog icon.
+- Capacity Report accepts selected center names and raw numeric center IDs separated by spaces; report submission uses native form submission for background-tab reliability.
+- Parent Determination controls align with Digiexpress button/filter styling.
+- Sync IATA, Convert Lat & Long and Flex Capacity Definition catalog icons were refreshed.
+- Requires Host 12.3.1 for weekly automatic credential validation, generic raw-value multi-autocomplete, and Home/Back navigation history.

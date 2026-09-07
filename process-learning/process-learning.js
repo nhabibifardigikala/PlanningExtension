@@ -522,7 +522,7 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
   const subline = document.createElement('div');
   subline.className = 'step-subline';
   if (hasNested) {
-    subline.innerHTML = `<span class="nested-hint">زیرمرحله · ${nestedProcess.steps.length} مرحله</span>`;
+    subline.hidden = true;
     card.classList.add('has-nested');
   } else if (isCycle) {
     subline.textContent = 'ارجاع چرخه‌ای به همین فرآیند';
@@ -539,9 +539,6 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
   if (hasNested) {
     const nested = document.createElement('div');
     nested.className = 'nested-process';
-    const nestedHead = document.createElement('div');
-    nestedHead.className = 'nested-process-head';
-    nestedHead.innerHTML = `<span class="nested-mark" aria-hidden="true"></span><strong>${nestedProcess.name}</strong><span>${nestedProcess.steps.length} مرحله</span>`;
     const nestedTimeline = document.createElement('div');
     nestedTimeline.className = 'nested-timeline';
     const nextAncestry = new Set(ancestry);
@@ -552,7 +549,7 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
       const childNumber = `${parentNumber}-${childIndex + 1}`;
       nestedTimeline.appendChild(createStep(child, nestedProcess, processIndex, nextAncestry, childNumber, nestingDepth + 1));
     });
-    nested.append(nestedHead, nestedTimeline);
+    nested.append(nestedTimeline);
     detail.appendChild(nested);
   }
 
@@ -700,7 +697,7 @@ if (els.openFullBtn) {
       const url = new URL(location.href);
       url.searchParams.set('full', '1');
       url.searchParams.set('theme', theme);
-      url.searchParams.set('v', '266');
+      url.searchParams.set('v', '269');
       window.open(url.toString(), '_blank', 'noopener,noreferrer');
     });
   }

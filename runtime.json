@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Remote app v232. Voice Typing stays embedded in Operations; Host 12.1.4 handles Chrome 151+ usermedia permission recovery and stable navigation. Theme follows the main extension.",
-  "configVersion": 244,
-  "minimumRuntimeVersion": "12.1.4",
-  "minimumRuntime": "12.1.4",
+  "notes": "Config 269. Weekly automatic credential validation and generic raw-value multi-autocomplete require Host 12.3.1; normal product changes remain Remote-first.",
+  "configVersion": 269,
+  "minimumRuntimeVersion": "12.3.1",
+  "minimumRuntime": "12.3.1",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.1.4",
+  "recommendedRuntime": "12.3.1",
   "runtimeUpdatePolicy": "security-only",
-  "version": "234",
+  "version": "269",
   "platformContract": 12,
-  "remoteVersion": 232,
+  "remoteVersion": 269,
   "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.1.4"
+  "runtimeVersion": "12.3.1"
 }

@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Select one or more Distribution Centers by name and choose the Jalali date range.",
+  "description": "Select Distribution Centers by name or enter numeric center IDs separated by spaces, then choose the Jalali date range.",
   "runLabel": "Run capacity report",
   "inputs": [
     {
@@ -10,13 +10,13 @@
       "label": "Distribution Centers",
       "type": "remote-multi-autocomplete",
       "required": true,
-      "placeholder": "Type a center name and press Enter…",
+      "placeholder": "Type a center name, or enter center IDs separated by spaces…",
       "minChars": 2,
       "debounceMs": 500,
       "maxResults": 500,
       "showId": true,
-      "selectionMessage": "Select at least one Distribution Center from the list.",
-      "help": "Type a center name, use ↑/↓ to move through results and Enter to add it. Repeat to add more centers.",
+      "selectionMessage": "Select a Distribution Center from the list, or enter numeric center IDs separated by spaces and press Enter.",
+      "help": "Search by Distribution Center name and press Enter, or paste/type one or more numeric center IDs separated by spaces and press Enter.",
       "source": {
         "format": "csv",
         "url": "https://docs.google.com/spreadsheets/d/1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k/gviz/tq?sheet=Distribution%20Centers%20(LG)&headers=3&tqx=out:csv&tq=select%20A%2CB%20label%20A%20%27id%27%2CB%20%27name%27",
@@ -30,7 +30,11 @@
         "idColumn": "id",
         "nameColumn": "name"
       },
-      "showSelectedId": false
+      "showSelectedId": false,
+      "allowRawValues": true,
+      "rawPattern": "^\\d+$",
+      "rawSeparatorRegex": "\\s+",
+      "rawLabelMode": "value"
     },
     {
       "name": "fromDate",
@@ -154,14 +158,18 @@
       }
     },
     {
-      "action": "clickAndWait",
+      "action": "submitNearestForm",
       "selector": "button.uk-button.uk-button-primary[type=\"submit\"]",
-      "textContains": "search",
-      "successSelector": "a[href=\"/dc-capacity/\"].uk-button.uk-button-gray",
-      "attempts": 3,
+      "waitForNavigation": false,
+      "progress": "Submitting report search in background…",
+      "error": "Capacity report form could not be submitted."
+    },
+    {
+      "action": "waitFor",
+      "selector": "a[href=\"/dc-capacity/\"].uk-button.uk-button-gray",
       "timeoutMs": 60000,
       "intervalMs": 250,
-      "progress": "Searching and waiting for results…",
+      "progress": "Waiting for report results…",
       "error": "Search did not complete: CLEAR button did not appear."
     },
     {

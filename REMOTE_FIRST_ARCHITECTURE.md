@@ -27,3 +27,7 @@ For normal product changes, publish Remote only. Keep `minimumRuntimeVersion` at
 ## Permanent release rule (Config 259+)
 
 The deployed Host baseline is 12.2.9 and must not be incremented for normal feature releases. New operations, UI, workflows, selectors, data sources, transformations, caches, labels, reports, and business rules are Remote-only. A Host update is permitted only when the requested behavior cannot be implemented with the existing Remote/web capabilities or the existing generic Host contract, or when required for a security or Chrome/Manifest platform fix.
+
+
+## Host 12.3.1 justified exception
+Config 269 requires a Host update only for generic platform behavior that cannot be delivered by Remote HTML/JSON alone: seven-day credential freshness with automatic validation on open, reusable raw-value support in multi-autocomplete controls, and local Home/Back view history. Capacity selectors, submission rules, icons, and UI remain Remote-owned.

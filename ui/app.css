@@ -454,3 +454,13 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
 @media(max-width:700px){.process-learning-embedded{height:calc(100vh - 150px);min-height:0}}
 
 
+
+
+/* Config 269: consistent Home + Back icon navigation */
+.view-nav{display:flex;align-items:center;gap:7px;margin:2px 0 10px}
+.nav-icon-button{width:36px;height:36px;display:grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer;transition:border-color .15s ease,background .15s ease,color .15s ease}
+.nav-icon-button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent)}
+.nav-icon-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Config 269: compact IATA wordmark icon */
+.op-card[data-op="sync-iata"] .op-icon span{font-size:13px!important;font-weight:900;letter-spacing:-.3px;line-height:1}

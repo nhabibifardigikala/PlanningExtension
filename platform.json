@@ -45,8 +45,8 @@
     "generic-browser-alarms",
     "embedded-local-microphone-permission-runtime"
   ],
-  "remoteVersion": 232,
-  "updateRule": "Business/product changes must be Remote-only. Host updates are reserved for security or browser-runtime compatibility.",
-  "configVersion": 244,
-  "minimumRuntimeVersion": "12.1.4"
+  "remoteVersion": 269,
+  "updateRule": "Business/product changes remain Remote-only. Host 12.3.1 is a justified generic runtime update for weekly credential freshness, raw-value multi-autocomplete, and view-history navigation.",
+  "configVersion": 269,
+  "minimumRuntimeVersion": "12.3.1"
 }
