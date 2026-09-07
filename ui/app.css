@@ -465,8 +465,10 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
 /* Config 269: compact IATA wordmark icon */
 .op-card[data-op="sync-iata"] .op-icon span{font-size:13px!important;font-weight:900;letter-spacing:-.3px;line-height:1}
 
-/* v270 — Smart edge sidebar: usage-ranked operation shortcuts. */
-.smart-sidebar{position:fixed;z-index:950;right:0;top:92px;width:38px;max-height:calc(100vh - 120px);padding:7px 4px;background:color-mix(in srgb,var(--navy) 94%,transparent);border:1px solid color-mix(in srgb,var(--accent) 42%,transparent);border-right:0;border-radius:12px 0 0 12px;box-shadow:-8px 10px 24px #0003;transform:translateX(34px);opacity:.2;transition:transform .18s ease,opacity .18s ease;overflow:hidden}
-.smart-sidebar:hover,.smart-sidebar:focus-within{transform:translateX(0);opacity:1}
-.smart-sidebar-items{display:flex;flex-direction:column;align-items:center;gap:6px;overflow-y:auto;max-height:calc(100vh - 140px);scrollbar-width:none}.smart-sidebar-items::-webkit-scrollbar{display:none}
+/* v271 — reliable right-edge hover target for the usage-ranked Smart Sidebar. */
+.smart-sidebar{position:fixed;z-index:950;right:0;top:72px;bottom:18px;width:14px;padding:0;background:transparent;border:0;box-shadow:none;overflow:visible;opacity:1;transform:none;pointer-events:auto}
+.smart-sidebar::before{content:"";position:absolute;inset:0;display:block;background:transparent}
+.smart-sidebar-items{position:absolute;right:0;top:20px;width:38px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:6px;padding:7px 4px;overflow-y:auto;max-height:calc(100vh - 130px);scrollbar-width:none;background:color-mix(in srgb,var(--navy) 94%,transparent);border:1px solid color-mix(in srgb,var(--accent) 42%,transparent);border-right:0;border-radius:12px 0 0 12px;box-shadow:-8px 10px 24px #0003;transform:translateX(40px);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease}
+.smart-sidebar:hover .smart-sidebar-items,.smart-sidebar:focus-within .smart-sidebar-items{transform:translateX(0);opacity:1;pointer-events:auto}
+.smart-sidebar-items::-webkit-scrollbar{display:none}
 .smart-op{width:29px;height:29px;min-height:29px;border:0;border-radius:7px;background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer;padding:3px;transition:background .15s ease,transform .15s ease}.smart-op:hover,.smart-op:focus-visible{background:var(--accent);color:#071a33;transform:scale(1.06);outline:none}.smart-op svg{width:23px;height:23px;fill:currentColor}.smart-op .smart-text{font-size:8px;font-weight:900;line-height:1}

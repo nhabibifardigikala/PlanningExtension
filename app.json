@@ -1,11 +1,11 @@
 {
-  "configVersion": 270,
+  "configVersion": 271,
   "minEngineVersion": "12.3.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 270",
+    "subtitle": "Operations Toolkit · Config 271",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 270
+    "configVersion": 271
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -633,17 +633,17 @@
       ]
     }
   ],
-  "publishedAt": "2026-09-07T21:40:00+04:00",
+  "publishedAt": "2026-09-07T22:10:00+04:00",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=269",
-    "css": "ui/app.css?v=269",
+    "html": "ui/app.html?v=271",
+    "css": "ui/app.css?v=271",
     "contractVersion": 5,
-    "dashboardCss": "ui/dashboard.css?v=269"
+    "dashboardCss": "ui/dashboard.css?v=271"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,
@@ -677,13 +677,13 @@
       "feature-flags"
     ]
   },
-  "runtime": "runtime.json?v=269",
+  "runtime": "runtime.json?v=271",
   "runtimeVersion": "12.3.1",
   "remoteUI": {
-    "html": "ui/app.html?v=269",
-    "css": "ui/app.css?v=269"
+    "html": "ui/app.html?v=271",
+    "css": "ui/app.css?v=271"
   },
-  "version": 269,
+  "version": 271,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

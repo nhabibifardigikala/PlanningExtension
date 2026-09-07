@@ -455,3 +455,9 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Sync IATA uses larger IATA lettering with bidirectional arrows.
 - Processes uses a clearer process-network icon.
 - A ~1 cm right-edge hover sidebar shows only frequently used operation icons, ranked by local usage.
+
+
+## Config 271 — Smart Sidebar edge-hover fix
+- Keeps a persistent transparent 14px hit area on the right edge while the visible 38px sidebar remains off-canvas.
+- Hovering the edge reveals the sidebar without a click; moving onto the revealed sidebar keeps it open.
+- Usage ranking remains local and unchanged. Host 12.3.2 remains unchanged.
