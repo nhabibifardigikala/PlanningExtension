@@ -460,7 +460,7 @@ function renderFilters() {
   });
 }
 
-function createDetailRow(label, value, isSource = false) {
+function createDetailRow(label, value) {
   const row = document.createElement('div');
   row.className = 'detail-row';
 
@@ -470,28 +470,7 @@ function createDetailRow(label, value, isSource = false) {
 
   const valueEl = document.createElement('span');
   valueEl.className = 'detail-value';
-
-  if (isSource) {
-    const sourceUrl = extractUrl(value);
-    if (sourceUrl) {
-      const link = document.createElement('button');
-      link.type = 'button';
-      link.className = 'source-link-btn';
-      link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>باز کردن منبع</span>';
-      link.addEventListener('click', event => {
-        event.stopPropagation();
-        window.open(sourceUrl, '_blank', 'noopener,noreferrer');
-      });
-      valueEl.appendChild(link);
-    } else {
-      const tag = document.createElement('span');
-      tag.className = 'source-tag';
-      tag.textContent = value || '—';
-      valueEl.appendChild(tag);
-    }
-  } else {
-    valueEl.textContent = value || 'توضیحی ثبت نشده است.';
-  }
+  valueEl.textContent = value || 'توضیحی ثبت نشده است.';
 
   row.append(labelEl, valueEl);
   return row;
@@ -521,35 +500,43 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
   const nestedProcess = resolveNestedProcess(step, currentProcess, processIndex);
   const nestedKey = nestedProcess ? normalize(nestedProcess.name) : '';
   const isCycle = nestedProcess && ancestry.has(nestedKey);
+  const hasNested = Boolean(nestedProcess && !isCycle);
+  const hasDescription = Boolean(String(step.description || '').trim());
+  const opensDirectly = !hasNested && Boolean(url);
 
   const action = document.createElement('span');
   action.className = 'step-action';
-  action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+  if (opensDirectly) {
+    action.classList.add('direct-link-action');
+    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+    card.classList.add('direct-source-link');
+    card.setAttribute('aria-label', `${step.stepTitle} - باز کردن لینک مرحله`);
+  } else if (hasNested || hasDescription || isCycle) {
+    action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+  } else {
+    action.classList.add('is-hidden');
+  }
   action.setAttribute('aria-hidden', 'true');
   top.append(title, action);
 
   const subline = document.createElement('div');
   subline.className = 'step-subline';
-  if (nestedProcess && !isCycle) {
+  if (hasNested) {
     subline.innerHTML = `<span class="nested-hint">زیرمرحله · ${nestedProcess.steps.length} مرحله</span>`;
     card.classList.add('has-nested');
   } else if (isCycle) {
     subline.textContent = 'ارجاع چرخه‌ای به همین فرآیند';
+  } else if (hasDescription && !url) {
+    subline.textContent = 'مشاهده جزئیات مرحله';
   } else {
-    subline.textContent = nestingDepth > 0 && url ? 'برای باز کردن این مرحله کلیک کنید' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
+    subline.hidden = true;
   }
 
   const detail = document.createElement('div');
   detail.className = 'step-detail';
-  const isNestedStep = nestingDepth > 0;
-  if (!isNestedStep && step.source) detail.appendChild(createDetailRow('منبع', step.source, true));
-  if (step.description) detail.appendChild(createDetailRow('توضیحات', step.description));
-  if (isNestedStep && url) {
-    card.classList.add('nested-source-link');
-    card.setAttribute('aria-label', `${step.stepTitle} - باز کردن لینک مرحله`);
-  }
+  if (hasDescription && !opensDirectly) detail.appendChild(createDetailRow('توضیحات', step.description));
 
-  if (nestedProcess && !isCycle) {
+  if (hasNested) {
     const nested = document.createElement('div');
     nested.className = 'nested-process';
     const nestedHead = document.createElement('div');
@@ -572,10 +559,11 @@ function createStep(step, currentProcess, processIndex, ancestry = new Set(), di
   card.append(top, subline, detail);
   const activateStep = event => {
     event?.stopPropagation();
-    if (nestingDepth > 0 && url) {
+    if (opensDirectly) {
       window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
+    if (!hasNested && !hasDescription && !isCycle) return;
     card.classList.toggle('expanded');
     action.classList.toggle('expanded', card.classList.contains('expanded'));
   };

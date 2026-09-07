@@ -433,3 +433,10 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - When a nested step has a valid source URL, clicking the nested step itself opens that URL in a new tab.
 - Hierarchical numbering and typography remain unchanged.
 - Host remains 12.2.9; Remote-only release.
+
+
+## Config 268 — Direct source links for all leaf steps
+- Any step without a subprocess and with a valid source URL now opens that URL directly when the step card is clicked.
+- Raw source URLs and the separate “باز کردن منبع” action are no longer rendered for normal or nested leaf steps.
+- Subprocess steps still expand/collapse their nested hierarchy; description-only steps still expand their description.
+- Host remains 12.2.9; this is a Remote-only release.
