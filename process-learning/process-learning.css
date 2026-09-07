@@ -201,7 +201,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .filter-chip {
   flex: 0 0 auto;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 8px 13px;
   background: var(--surface);
   color: #606a80;
@@ -349,34 +349,6 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #07172c;
-    --surface: #0d2b56;
-    --surface-soft: #071a33;
-    --text: #ffffff;
-    --muted: #b6c1d2;
-    --border: #F79009;
-    --primary: #F79009;
-    --primary-strong: #F79009;
-    --primary-soft: #3b2b13;
-    --blue: #F79009; --blue-soft: #3b2b13;
-    --cyan: #F79009; --cyan-soft: #3b2b13;
-    --green: #22c55e; --green-soft: #113d31;
-    --orange: #F79009; --orange-soft: #3b2b13;
-    --pink: #F79009; --pink-soft: #3b2b13;
-    --danger: #ff5b52; --danger-soft: #4a2024;
-    --shadow: 0 12px 34px rgba(0,0,0,.24);
-    --shadow-soft: 0 5px 18px rgba(0,0,0,.18);
-  }
-  .search-box input, .process-main h2, .step-title, .state-card strong { color: var(--text); }
-  .filter-chip, .state-card { background: var(--surface); border-color: var(--border); color: var(--muted); }
-  .step-card:hover { background: var(--surface-soft); }
-  .category-badge { background: var(--primary-soft); color: var(--primary); }
-  .detail-value { color: var(--text); }
-}
-
-
 /* Config 263: Processes UX */
 .controls-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:stretch}
 .open-full-btn{min-width:118px;border:1px solid var(--primary);border-radius:14px;padding:0 14px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;font-weight:800;box-shadow:0 5px 14px rgba(247,144,9,.16);transition:transform .18s ease,box-shadow .18s ease}
@@ -424,3 +396,27 @@ html.full-page .footer{margin-top:24px}
 
 @media (max-width:900px){html.full-page .app-shell{padding:20px 16px 30px}html.full-page .process-list{grid-template-columns:1fr}html.full-page .controls-top{grid-template-columns:1fr}html.full-page .filters-wrap{display:block}.open-full-btn{min-height:46px}}
 @media (max-width:520px){.controls-top{grid-template-columns:1fr}.open-full-btn{min-height:44px}.app-shell{padding:14px 12px 18px}}
+
+
+/* Config 265 UX refinements */
+.filter-chip{border-radius:8px!important}
+.process-icon{border-radius:12px;background:linear-gradient(145deg,#fff7ed,#ffedd5);color:var(--primary);border:1px solid rgba(247,144,9,.22);box-shadow:0 4px 14px rgba(247,144,9,.10)}
+.process-icon svg{width:23px;height:23px;stroke-width:1.8}
+.chevron{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:var(--primary-soft);border:1px solid rgba(247,144,9,.25);color:var(--primary);transition:transform .2s ease,background .2s ease,color .2s ease}
+.chevron svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+.process-card.open .chevron{transform:none;background:var(--primary);color:#fff;border-color:var(--primary)}
+.process-card.open .chevron svg{transform:rotate(90deg)}
+.step-action{width:25px;height:25px;border-radius:7px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center}
+.step-action svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s ease}
+.step-action.expanded svg{transform:rotate(180deg)}
+.nested-hint{display:inline-flex;align-items:center;gap:5px;color:var(--primary);font-weight:800;background:var(--primary-soft);border-radius:7px;padding:3px 7px}
+.nested-process{margin-top:12px;padding:11px;border-radius:11px;background:color-mix(in srgb,var(--primary-soft) 55%,var(--surface));border:1px solid rgba(247,144,9,.20)}
+.nested-process-head{display:flex;align-items:center;gap:7px;margin-bottom:10px;color:var(--text)}
+.nested-process-head strong{font-size:12px}.nested-process-head>span:last-child{font-size:10px;color:var(--muted);margin-inline-start:auto}
+.nested-mark{width:4px;height:18px;border-radius:3px;background:var(--primary)}
+.nested-timeline{display:flex;flex-direction:column;gap:8px;padding-inline-start:4px}
+.nested-timeline .step-item{grid-template-columns:30px minmax(0,1fr);gap:8px}
+.nested-timeline .step-number{width:30px;height:30px;border-radius:9px;font-size:10px;border-width:1.5px}
+.nested-timeline .step-card{padding:9px 10px}
+.nested-timeline .step-title{font-size:12px}
+html[data-theme="dark"] .process-icon{background:rgba(247,144,9,.12);border-color:rgba(247,144,9,.30)}

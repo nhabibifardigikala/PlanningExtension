@@ -26,19 +26,10 @@ const FALLBACK_ROWS = [
 
 
 
-const FULL_PAGE = new URLSearchParams(location.search).get('full') === '1';
-
-function getEffectiveTheme() {
-  try {
-    const parentTheme = window.parent !== window ? window.parent.document.documentElement.dataset.theme : '';
-    if (parentTheme === 'dark' || parentTheme === 'light') return parentTheme;
-  } catch (_) {}
-  const queryTheme = new URLSearchParams(location.search).get('theme');
-  if (queryTheme === 'dark' || queryTheme === 'light') return queryTheme;
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-const THEME_CHANNEL_NAME = 'digiexpress-theme-sync-v1';
+const params = new URLSearchParams(location.search);
+const FULL_PAGE = params.get('full') === '1';
+const URL_THEME = ['light','dark'].includes(params.get('theme')) ? params.get('theme') : '';
+const THEME_CHANNEL_NAME = 'digiexpress-theme-sync-v2';
 let themeChannel = null;
 try { themeChannel = new BroadcastChannel(THEME_CHANNEL_NAME); } catch (_) {}
 
@@ -52,37 +43,42 @@ function setTheme(theme, { broadcast = false } = {}) {
   }
 }
 
-function applyHostTheme({ broadcast = false } = {}) {
-  const theme = getEffectiveTheme();
-  setTheme(theme, { broadcast });
+function savedTheme() {
+  try {
+    const value = localStorage.getItem('digiexpressEffectiveTheme') || '';
+    return value === 'dark' || value === 'light' ? value : '';
+  } catch (_) { return ''; }
 }
 
 if (FULL_PAGE) {
   document.documentElement.classList.add('full-page');
-  const queryTheme = new URLSearchParams(location.search).get('theme');
-  let savedTheme = '';
-  try { savedTheme = localStorage.getItem('digiexpressEffectiveTheme') || ''; } catch (_) {}
-  setTheme((queryTheme === 'dark' || queryTheme === 'light') ? queryTheme : savedTheme || getEffectiveTheme());
+  setTheme(URL_THEME || savedTheme() || 'light');
 } else {
-  applyHostTheme({ broadcast: true });
+  // Embedded instances receive an explicit theme from the Remote shell URL.
+  // Never infer the extension theme from the operating system.
+  setTheme(URL_THEME || savedTheme() || 'light');
 }
 
 if (themeChannel) {
-  themeChannel.addEventListener('message', (event) => {
+  themeChannel.addEventListener('message', event => {
     const theme = event?.data?.theme;
-    if (theme !== 'dark' && theme !== 'light') return;
-    if (FULL_PAGE) setTheme(theme);
+    if (FULL_PAGE && (theme === 'dark' || theme === 'light')) setTheme(theme);
   });
 }
 
-try {
-  if (window.parent !== window && window.parent.document?.documentElement) {
-    new MutationObserver(() => applyHostTheme({ broadcast: true })).observe(
-      window.parent.document.documentElement,
-      { attributes: true, attributeFilter: ['data-theme'] }
-    );
-  }
-} catch (_) {}
+// The Remote shell contains one light and one dark iframe and shows only the
+// one matching Digiexpress' data-theme. The visible iframe broadcasts its
+// explicit URL theme, allowing an already-open full-page tab to follow changes.
+if (!FULL_PAGE && URL_THEME && themeChannel) {
+  let wasVisible = false;
+  const publishIfVisible = () => {
+    const visible = document.documentElement.clientWidth > 0 && document.documentElement.clientHeight > 0;
+    if (visible && !wasVisible) setTheme(URL_THEME, { broadcast: true });
+    wasVisible = visible;
+  };
+  publishIfVisible();
+  setInterval(publishIfVisible, 350);
+}
 
 const state = {
   rows: [],
@@ -225,6 +221,24 @@ function groupProcesses(rows) {
       return a.stepNumber.localeCompare(b.stepNumber, 'fa');
     })
   }));
+}
+
+
+function buildProcessIndex(processes) {
+  const map = new Map();
+  processes.forEach(process => {
+    const key = normalize(process.name);
+    if (!key) return;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(process);
+  });
+  return map;
+}
+
+function resolveNestedProcess(step, currentProcess, index) {
+  const matches = index.get(normalize(step.stepTitle)) || [];
+  if (!matches.length) return null;
+  return matches.find(item => item.category === currentProcess.category) || matches[0];
 }
 
 function extractUrl(value) {
@@ -470,7 +484,7 @@ function createDetailRow(label, value, isSource = false) {
   return row;
 }
 
-function createStep(step) {
+function createStep(step, currentProcess, processIndex, ancestry = new Set()) {
   const item = document.createElement('div');
   item.className = 'step-item';
 
@@ -490,30 +504,59 @@ function createStep(step) {
   title.textContent = step.stepTitle;
 
   const url = extractUrl(step.source);
+  const nestedProcess = resolveNestedProcess(step, currentProcess, processIndex);
+  const nestedKey = nestedProcess ? normalize(nestedProcess.name) : '';
+  const isCycle = nestedProcess && ancestry.has(nestedKey);
+
   const action = document.createElement('span');
   action.className = 'step-action';
-  action.textContent = url ? '↗' : '⌄';
+  action.innerHTML = url
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16 16 8M10 8h6v6"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
   action.setAttribute('aria-hidden', 'true');
   top.append(title, action);
 
   const subline = document.createElement('div');
   subline.className = 'step-subline';
-  subline.textContent = url ? 'لینک این مرحله در تب جدید باز می‌شود' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
+  if (nestedProcess && !isCycle) {
+    subline.innerHTML = `<span class="nested-hint">زیرمرحله · ${nestedProcess.steps.length} مرحله</span>`;
+    card.classList.add('has-nested');
+  } else if (isCycle) {
+    subline.textContent = 'ارجاع چرخه‌ای به همین فرآیند';
+  } else {
+    subline.textContent = url ? 'لینک این مرحله در تب جدید باز می‌شود' : (step.source ? `منبع: ${step.source}` : 'مشاهده جزئیات مرحله');
+  }
 
   const detail = document.createElement('div');
   detail.className = 'step-detail';
   if (step.source) detail.appendChild(createDetailRow('منبع', step.source, true));
-  detail.appendChild(createDetailRow('توضیحات', step.description));
+  if (step.description) detail.appendChild(createDetailRow('توضیحات', step.description));
+
+  if (nestedProcess && !isCycle) {
+    const nested = document.createElement('div');
+    nested.className = 'nested-process';
+    const nestedHead = document.createElement('div');
+    nestedHead.className = 'nested-process-head';
+    nestedHead.innerHTML = `<span class="nested-mark" aria-hidden="true"></span><strong>${nestedProcess.name}</strong><span>${nestedProcess.steps.length} مرحله</span>`;
+    const nestedTimeline = document.createElement('div');
+    nestedTimeline.className = 'nested-timeline';
+    const nextAncestry = new Set(ancestry);
+    nextAncestry.add(normalize(currentProcess.name));
+    nextAncestry.add(nestedKey);
+    nestedProcess.steps.forEach(child => nestedTimeline.appendChild(createStep(child, nestedProcess, processIndex, nextAncestry)));
+    nested.append(nestedHead, nestedTimeline);
+    detail.appendChild(nested);
+  }
 
   card.append(top, subline, detail);
   card.addEventListener('click', event => {
     event.stopPropagation();
-    if (url) {
+    if (url && !nestedProcess) {
       window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
     card.classList.toggle('expanded');
-    action.textContent = card.classList.contains('expanded') ? '⌃' : '⌄';
+    action.classList.toggle('expanded', card.classList.contains('expanded'));
   });
 
   item.append(number, card);
@@ -522,39 +565,19 @@ function createStep(step) {
 
 function getProcessIcon(process) {
   const text = normalize(`${process.name} ${process.category}`);
-
   if (text.includes('پرنت') || text.includes('ساختار') || text.includes('والد')) {
-    return {
-      className: 'icon-hierarchy',
-      svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="5" rx="1.5"></rect><rect x="3" y="16" width="6" height="5" rx="1.5"></rect><rect x="15" y="16" width="6" height="5" rx="1.5"></rect><path d="M12 8v4M6 16v-4h12v4"></path></svg>'
-    };
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v5M6 20v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4"/><rect x="9" y="2.5" width="6" height="5" rx="1.7"/><rect x="3" y="18" width="6" height="3.5" rx="1.3"/><rect x="15" y="18" width="6" height="3.5" rx="1.3"/></svg>';
   }
-
   if (text.includes('محاسبه') || text.includes('فاصله') || text.includes('دیستنس')) {
-    return {
-      className: 'icon-calculator',
-      svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.2"></rect><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"></path></svg>'
-    };
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/></svg>';
   }
-
-  if (text.includes('آدرس') || text.includes('نام')) {
-    return {
-      className: 'icon-location',
-      svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10S5 15 5 10a7 7 0 1 1 14 0Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>'
-    };
+  if (text.includes('آدرس') || text.includes('نام') || text.includes('مرکز')) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10.2c0 5.2-8 10.3-8 10.3S4 15.4 4 10.2a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
   }
-
   if (text.includes('ساعت') || text.includes('تایم') || text.includes('زمان')) {
-    return {
-      className: 'icon-clock',
-      svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5v5l3.5 2"></path></svg>'
-    };
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
   }
-
-  return {
-    className: 'icon-checklist',
-    svg: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="m8.5 9 1.2 1.2L12 8M13.5 10H16M8.5 14l1.2 1.2L12 13M13.5 15H16"></path></svg>'
-  };
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8M9 2.5h6a1.5 1.5 0 0 1 1.5 1.5v1H7.5V4A1.5 1.5 0 0 1 9 2.5Z"/><rect x="5" y="5" width="14" height="16" rx="3"/><path d="m8.5 11 1.5 1.5 3-3M14.5 11H16M8.5 16l1.5 1.5 3-3M14.5 16H16"/></svg>';
 }
 
 function createProcessCard(process, autoOpen = false) {
@@ -567,9 +590,8 @@ function createProcessCard(process, autoOpen = false) {
   header.setAttribute('aria-expanded', String(autoOpen));
 
   const icon = document.createElement('div');
-  const iconData = getProcessIcon(process);
-  icon.className = `process-icon ${iconData.className}`;
-  icon.innerHTML = iconData.svg;
+  icon.className = 'process-icon';
+  icon.innerHTML = getProcessIcon(process);
   icon.setAttribute('aria-hidden', 'true');
 
   const main = document.createElement('div');
@@ -599,7 +621,7 @@ function createProcessCard(process, autoOpen = false) {
 
   const chevron = document.createElement('span');
   chevron.className = 'chevron';
-  chevron.textContent = '⌄';
+  chevron.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 5 5-5 5"/></svg>';
   chevron.setAttribute('aria-hidden', 'true');
   header.append(icon, main, chevron);
 
@@ -607,7 +629,9 @@ function createProcessCard(process, autoOpen = false) {
   stepsWrap.className = 'steps-wrap';
   const timeline = document.createElement('div');
   timeline.className = 'timeline';
-  process.steps.forEach(step => timeline.appendChild(createStep(step)));
+  const processIndex = buildProcessIndex(state.processes);
+  const ancestry = new Set([normalize(process.name)]);
+  process.steps.forEach(step => timeline.appendChild(createStep(step, process, processIndex, ancestry)));
   stepsWrap.appendChild(timeline);
 
   header.addEventListener('click', () => {
@@ -656,11 +680,11 @@ if (els.openFullBtn) {
     els.openFullBtn.hidden = true;
   } else {
     els.openFullBtn.addEventListener('click', () => {
-      const theme = getEffectiveTheme();
+      const theme = document.documentElement.dataset.theme || URL_THEME || savedTheme() || 'light';
       const url = new URL(location.href);
       url.searchParams.set('full', '1');
       url.searchParams.set('theme', theme);
-      url.searchParams.set('v', '264');
+      url.searchParams.set('v', '265');
       window.open(url.toString(), '_blank', 'noopener,noreferrer');
     });
   }

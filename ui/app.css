@@ -441,7 +441,7 @@ html[data-theme="light"] #followUpFrame{color-scheme:light!important}
 
 /* Process Learning embedded operation */
 .process-learning-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
-.process-learning-embedded iframe{display:block;width:100%;height:100%;min-height:0;border:0;background:transparent;color-scheme:light dark}
+.process-learning-embedded iframe{width:100%;height:100%;min-height:0;border:0;background:transparent}.process-learning-theme-frame{display:none!important}html[data-theme="light"] #processLearningFrameLight{display:block!important;color-scheme:light!important}html[data-theme="dark"] #processLearningFrameDark{display:block!important;color-scheme:dark!important}
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) > .settings-card{display:none!important}
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) #capacityStats{display:none!important}
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) #processLearningEmbedded{display:block!important}
@@ -453,5 +453,4 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) #processLearningEmbedded iframe{height:100%!important;min-height:0!important}
 @media(max-width:700px){.process-learning-embedded{height:calc(100vh - 150px);min-height:0}}
 
-html[data-theme="dark"] #processLearningFrame{color-scheme:dark!important}
-html[data-theme="light"] #processLearningFrame{color-scheme:light!important}
+

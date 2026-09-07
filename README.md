@@ -411,3 +411,11 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - The embedded Processes iframe broadcasts theme changes to separately opened Processes tabs over a same-origin BroadcastChannel.
 - The last effective theme is also stored in Remote-origin localStorage for reliable reload behavior.
 - Remote-only change; Host 12.2.9 remains unchanged.
+
+
+## Config 265 — Processes nested steps and theme fidelity
+- Processes no longer infers Digiexpress theme from the operating-system color scheme. The Remote shell exposes explicit light/dark iframe instances and shows the one matching the extension's `data-theme`.
+- A separately opened Processes tab inherits the active iframe theme and follows later extension theme switches through the Remote BroadcastChannel.
+- When a step title exactly matches another process title (normalized Persian text), that process is rendered as a nested sub-process with its own ordered steps. Same-category matches are preferred; cycle protection prevents recursive loops.
+- Process expand controls and process icons use refined orange SVG UI elements; category chips use a smaller corner radius.
+- Host remains 12.2.9.
