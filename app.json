@@ -1,11 +1,11 @@
 {
-  "configVersion": 270,
+  "configVersion": 274,
   "minEngineVersion": "12.3.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 270",
+    "subtitle": "Operations Toolkit · Config 274",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 270
+    "configVersion": 274
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -544,7 +544,7 @@
         "راهنمای فرآیندها"
       ],
       "config": "operations/process-learning.json?v=270",
-      "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM8 28a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm32 0a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM21.5 15h5v6.5H38v5H10v-5h11.5V15ZM10.5 24h5v5h-5v-5Zm22 0h5v5h-5v-5Z",
+      "iconSvgPath": "M8 5a5 5 0 1 0 0 10A5 5 0 0 0 8 5Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm16 13a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm16-3a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM19 35a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm-9-23v7.5c0 2.5 2 4.5 4.5 4.5H19v-4l7 5.5-7 5.5v-4h-4.5A7.5 7.5 0 0 1 7 22.5V15h3Zm19 10h6v-4l7 5.5-7 5.5v-4h-6v-3ZM22 31h4v5.5a6.5 6.5 0 0 1-6.5 6.5H19v-3h.5a3.5 3.5 0 0 0 3.5-3.5V31Z",
       "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
       "runLabel": "Open Processes",
       "uiMode": "form",
@@ -633,17 +633,17 @@
       ]
     }
   ],
-  "publishedAt": "2026-09-07T21:40:00+04:00",
+  "publishedAt": "2026-09-07T22:10:00+04:00",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=269",
-    "css": "ui/app.css?v=269",
+    "html": "ui/app.html?v=271",
+    "css": "ui/app.css?v=273",
     "contractVersion": 5,
-    "dashboardCss": "ui/dashboard.css?v=269"
+    "dashboardCss": "ui/dashboard.css?v=271"
   },
   "runtimeContract": {
     "workflowContractVersion": 2,
@@ -677,13 +677,13 @@
       "feature-flags"
     ]
   },
-  "runtime": "runtime.json?v=269",
+  "runtime": "runtime.json?v=271",
   "runtimeVersion": "12.3.1",
   "remoteUI": {
-    "html": "ui/app.html?v=269",
-    "css": "ui/app.css?v=269"
+    "html": "ui/app.html?v=271",
+    "css": "ui/app.css?v=273"
   },
-  "version": 269,
+  "version": 273,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
