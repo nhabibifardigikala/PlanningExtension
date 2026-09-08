@@ -1,11 +1,11 @@
 {
-  "configVersion": 274,
+  "configVersion": 275,
   "minEngineVersion": "12.3.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 274",
+    "subtitle": "Operations Toolkit · Config 275",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 274
+    "configVersion": 275
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -681,9 +681,9 @@
   "runtimeVersion": "12.3.1",
   "remoteUI": {
     "html": "ui/app.html?v=271",
-    "css": "ui/app.css?v=273"
+    "css": "ui/app.css?v=275"
   },
-  "version": 273,
+  "version": 275,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

@@ -577,3 +577,33 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
   text-align:center!important;
 }
 .smart-op *{pointer-events:none!important}
+
+/* v275 — Smart Sidebar hover continuity + closer edge placement.
+   The rail overlaps the persistent edge hit-zone so the pointer can travel
+   from the viewport edge onto the rail without crossing a dead gap. */
+.smart-sidebar{
+  right:0!important;
+  width:24px!important;
+  overflow:visible!important;
+}
+.smart-sidebar-items{
+  right:12px!important;
+}
+/* Keep a continuous hover bridge between the edge sensor and the rail. */
+.smart-sidebar::after{
+  content:"";
+  position:absolute;
+  top:0;
+  right:0;
+  width:56px;
+  height:100%;
+  background:transparent;
+  pointer-events:none;
+}
+.smart-sidebar:hover .smart-sidebar-items,
+.smart-sidebar:focus-within .smart-sidebar-items,
+.smart-sidebar-items:hover{
+  transform:translateX(0)!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
