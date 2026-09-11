@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Capacity Report</title>
-  <link rel="stylesheet" href="capacity-report.css?v=281">
+  <link rel="stylesheet" href="capacity-report.css?v=282">
 </head>
 <body>
   <main class="app" id="app">
@@ -29,12 +29,13 @@
         </div>
 
         <div class="field hidden" id="flexCenterField">
-          <label for="flexCenterInput">Distribution Center</label>
+          <label for="flexCenterInput">Distribution Centers</label>
+          <div class="chips" id="flexChips"></div>
           <div class="autocomplete">
-            <input id="flexCenterInput" type="text" autocomplete="off" placeholder="Search one Distribution Center">
+            <input id="flexCenterInput" type="text" autocomplete="off" placeholder="Search and add Distribution Centers one by one">
             <div class="menu hidden" id="flexMenu"></div>
           </div>
-          <small>Flex accepts exactly one Distribution Center.</small>
+          <small>Flex supports multiple centers. Each selected center is queried in a separate report run.</small>
         </div>
 
         <div class="date-row">
@@ -78,6 +79,6 @@
 
     <section id="result" class="result hidden" aria-live="polite"></section>
   </main>
-  <script src="capacity-report.js?v=281"></script>
+  <script src="capacity-report.js?v=282"></script>
 </body>
 </html>

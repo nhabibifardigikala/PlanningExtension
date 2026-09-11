@@ -1,11 +1,11 @@
 {
-  "configVersion": 281,
-  "minEngineVersion": "12.3.5",
+  "configVersion": 282,
+  "minEngineVersion": "12.3.6",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 281",
+    "subtitle": "Operations Toolkit · Config 282",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 281
+    "configVersion": 282
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -136,8 +136,8 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=281",
-      "description": "Choose DK or Flex. DK supports multi-center reporting and optional aggregation; Flex charts Shipping Reserved Capacity by Date with a separate chart for each Time Slot.",
+      "config": "operations/capacity-report.json?v=282",
+      "description": "Choose DK or Flex. Both sources support multiple Distribution Centers. Each center is queried independently; DK can optionally aggregate all centers and time scopes into one chart.",
       "runLabel": "Open Capacity Report"
     },
     {
@@ -665,7 +665,7 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=281",
+    "html": "ui/app.html?v=282",
     "css": "ui/app.css?v=280",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=271"

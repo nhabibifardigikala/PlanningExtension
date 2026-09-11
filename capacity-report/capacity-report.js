@@ -1,9 +1,9 @@
 (() => {
-  const VERSION = 281;
+  const VERSION = 282;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
-  const state = { centers: [], flexCenter: null, allCenters: [], source: 'dk', busy: false };
+  const state = { centers: [], flexCenters: [], allCenters: [], source: 'dk', busy: false };
   const $ = id => document.getElementById(id);
   const qs = (s, root=document) => root.querySelector(s);
   const qsa = (s, root=document) => [...root.querySelectorAll(s)];
@@ -118,8 +118,9 @@
     const query = input.value.trim();
     if (query.length < 1) { menu.classList.add('hidden'); return; }
     loadCenters().then(list => {
-      const selectedIds = new Set(state.centers.map(x=>String(x.id)));
-      const found = list.filter(x => matchesCenter(x, query) && (mode !== 'dk' || !selectedIds.has(String(x.id))))
+      const selected = mode === 'dk' ? state.centers : state.flexCenters;
+      const selectedIds = new Set(selected.map(x=>String(x.id)));
+      const found = list.filter(x => matchesCenter(x, query) && !selectedIds.has(String(x.id)))
         .sort((a,b)=>rank(a,query)-rank(b,query) || a.name.localeCompare(b.name)).slice(0,30);
       if (!found.length) { menu.innerHTML = '<div class="empty">No matching Distribution Center</div>'; menu.classList.remove('hidden'); return; }
       menu.innerHTML = found.map((x,i)=>`<button type="button" data-id="${esc(x.id)}" data-name="${esc(x.name)}" class="${i===0?'active':''}"><span>${esc(x.name)}</span><small>ID ${esc(x.id)}</small></button>`).join('');
@@ -133,16 +134,21 @@
       if (!state.centers.some(x => String(x.id) === String(id))) state.centers.push({id:String(id),name:String(name||id)});
       $('dkCentersInput').value = ''; $('dkMenu').classList.add('hidden'); renderChips();
     } else {
-      state.flexCenter = {id:String(id),name:String(name||id)};
-      $('flexCenterInput').value = state.flexCenter.name;
-      $('flexCenterInput').dataset.selectedId = state.flexCenter.id;
+      if (!state.flexCenters.some(x => String(x.id) === String(id))) state.flexCenters.push({id:String(id),name:String(name||id)});
+      $('flexCenterInput').value = '';
       $('flexMenu').classList.add('hidden');
+      renderFlexChips();
     }
   }
 
   function renderChips() {
-    $('dkChips').innerHTML = state.centers.map((x,i)=>`<span class="chip"><span>${esc(x.name)}</span><small>${x.name===x.id?'':`ID ${esc(x.id)}`}</small><button type="button" data-remove="${i}" aria-label="Remove">×</button></span>`).join('');
-    qsa('[data-remove]', $('dkChips')).forEach(b => b.onclick = () => { state.centers.splice(Number(b.dataset.remove),1); renderChips(); });
+    $('dkChips').innerHTML = state.centers.map((x,i)=>`<span class="chip"><span>${esc(x.name)}</span><small>${x.name===x.id?'':`ID ${esc(x.id)}`}</small><button type="button" data-remove-dk="${i}" aria-label="Remove">×</button></span>`).join('');
+    qsa('[data-remove-dk]', $('dkChips')).forEach(b => b.onclick = () => { state.centers.splice(Number(b.dataset.removeDk),1); renderChips(); });
+  }
+
+  function renderFlexChips() {
+    $('flexChips').innerHTML = state.flexCenters.map((x,i)=>`<span class="chip"><span>${esc(x.name)}</span><small>${x.name===x.id?'':`ID ${esc(x.id)}`}</small><button type="button" data-remove-flex="${i}" aria-label="Remove">×</button></span>`).join('');
+    qsa('[data-remove-flex]', $('flexChips')).forEach(b => b.onclick = () => { state.flexCenters.splice(Number(b.dataset.removeFlex),1); renderFlexChips(); });
   }
 
   function addRawDkIds(raw) {
@@ -161,7 +167,7 @@
       if(!dkM.classList.contains('hidden')&&first){e.preventDefault();selectCenter('dk',first.dataset.id,first.dataset.name);return;}
       if(addRawDkIds(dkI.value))e.preventDefault();
     });
-    fxI.addEventListener('input',()=>{state.flexCenter=null;fxI.dataset.selectedId='';renderCenterMenu(fxI,fxM,'flex')});
+    fxI.addEventListener('input',()=>renderCenterMenu(fxI,fxM,'flex'));
     fxI.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=qs('button',fxM);if(first&&!fxM.classList.contains('hidden')){e.preventDefault();selectCenter('flex',first.dataset.id,first.dataset.name);}}});
     document.addEventListener('click',e=>{if(!e.target.closest('.autocomplete')){dkM.classList.add('hidden');fxM.classList.add('hidden');}});
   }
@@ -210,11 +216,11 @@
   }
 
   function aggregateRows(headers, rows) {
-    const di=headerIndex(headers,aliases.date), ti=headerIndex(headers,aliases.time), ci=headerIndex(headers,aliases.capacity), ri=headerIndex(headers,aliases.reserved);
+    const di=headerIndex(headers,aliases.date), ci=headerIndex(headers,aliases.capacity), ri=headerIndex(headers,aliases.reserved);
     const map=new Map();
-    for(const row of rows){const date=di>=0?String(row[di]??'').trim():'';const time=ti>=0?String(row[ti]??'').trim():'All';const key=`${date}\u0000${time}`;if(!map.has(key))map.set(key,{date,time,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(key);const c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}}
-    const outHeaders=['Date','Time Scope','Capacity','Capacity Reserved'];
-    const outRows=[...map.values()].map(o=>[o.date,o.time,o.hasC?o.capacity:'',o.hasR?o.reserved:'']);
+    for(const row of rows){const date=di>=0?String(row[di]??'').trim():'';const key=date||'Unknown date';if(!map.has(key))map.set(key,{date:key,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(key);const c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}}
+    const outHeaders=['Date','Capacity','Capacity Reserved'];
+    const outRows=[...map.values()].map(o=>[o.date,o.hasC?o.capacity:'',o.hasR?o.reserved:'']);
     return {headers:outHeaders,rows:outRows};
   }
 
@@ -266,7 +272,7 @@
         partitions.push({id:'',label,rows:rr,groups:groupRows(headers,rr)});
       }
     }
-    return {source,aggregate,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenter:input.flexCenter||null,totalRows:rows.length};
+    return {source,aggregate,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:input.flexCenters||(input.flexCenter?[input.flexCenter]:[]),flexCenter:input.flexCenter||null,totalRows:rows.length};
   }
 
   function metricData(model, group) {
@@ -299,14 +305,14 @@
     const series = source==='flex' ? [{key:'reserved',cls:'reserved',label:'Shipping Reserved Capacity'}] : [{key:'capacity',cls:'capacity',label:'Capacity'},{key:'reserved',cls:'reserved',label:'Capacity Reserved'}];
     const values=[];for(const d of data)for(const s of series)if(d[s.key]!=null)values.push(d[s.key]);if(!values.length)return '<div class="empty-state">No numeric capacity values.</div>';
     let min=Math.min(...values),max=Math.max(...values);if(min===max){min-=1;max+=1}
-    const W=Math.max(560,data.length*38),H=270,p={l:52,r:18,t:16,b:58};
+    const W=1000,H=330,p={l:58,r:22,t:18,b:104};
     const x=i=>p.l+(data.length===1?(W-p.l-p.r)/2:i*(W-p.l-p.r)/(data.length-1));const y=v=>p.t+(max-v)/(max-min)*(H-p.t-p.b);
     let grid='';for(let k=0;k<5;k++){const yy=p.t+k*(H-p.t-p.b)/4,v=max-k*(max-min)/4;grid+=`<line class="grid-line" x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}"/><text class="axis-text" x="${p.l-7}" y="${yy+3}" text-anchor="end">${Math.round(v)}</text>`}
     const paths=series.map(s=>{let d='';let started=false;data.forEach((o,i)=>{const v=o[s.key];if(v==null)return;d+=`${started?'L':'M'} ${x(i)} ${y(v)} `;started=true});return d?`<path class="line-${s.cls}" d="${d.trim()}"/>`:''}).join('');
     const pts=series.map(s=>data.map((o,i)=>o[s.key]==null?'':`<circle class="point-${s.cls}" cx="${x(i)}" cy="${y(o[s.key])}" r="3"><title>${esc(s.label)} • ${esc(o.date)}: ${fmt(o[s.key])}</title></circle>`).join('')).join('');
-    const step=Math.max(1,Math.ceil(data.length/12));const labels=data.map((o,i)=>i%step?'':`<text class="axis-text" x="${x(i)}" y="${H-28}" text-anchor="middle" transform="rotate(45 ${x(i)} ${H-28})">${esc(o.date)}</text>`).join('');
+    const labelY=H-12;const labels=data.map((o,i)=>`<text class="axis-text axis-date" x="${x(i)}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${x(i)} ${labelY})">${esc(o.date)}</text>`).join('');
     const legend=`<div class="legend">${series.map(s=>`<span><i class="${s.cls}"></i>${esc(s.label)}</span>`).join('')}</div>`;
-    return `${legend}<div class="chart"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${grid}${paths}${pts}${labels}</svg></div>`;
+    return `${legend}<div class="chart"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity trend by date">${grid}${paths}${pts}${labels}</svg></div>`;
   }
 
   function renderModel(model, dashboard=false) {
@@ -319,7 +325,7 @@
       const idText=model.source==='flex'?'':(part.id&&part.id!=='aggregate'?`ID ${esc(part.id)}`:'');
       sec.innerHTML=`<div class="report-title"><div><strong>${esc(part.label)}</strong>${idText?`<small>${idText}</small>`:''}</div><small>${part.rows.length} rows</small></div><div class="group-list"></div>`;cards.appendChild(sec);
       const gl=qs('.group-list',sec);
-      for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=model.source==='flex'?`<div class="metrics flex-metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Shipping Reserved Capacity',m.reserved)}</div>`:`<div class="metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Capacity Reserved',m.reserved)}</div>`;const groupTitle=model.source==='flex'?`Time Slot: ${group.label}`:group.label;g.innerHTML=`<div class="group-title">${esc(groupTitle)}</div>${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
+      for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=model.source==='flex'?`<div class="metrics flex-metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Shipping Reserved Capacity',m.reserved)}</div>`:`<div class="metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Capacity Reserved',m.reserved)}</div>`;const groupTitle=model.aggregate?'':(model.source==='flex'?`Time Slot: ${group.label}`:group.label);g.innerHTML=`${groupTitle?`<div class="group-title">${esc(groupTitle)}</div>`:''}${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
     }
     $('downloadExcel').onclick=()=>downloadModelXlsx(model);
     const db=$('openDashboard');if(db)db.onclick=()=>{try{localStorage.setItem(CACHE_KEY,JSON.stringify(model));}catch(_){}const u=new URL(location.href);u.searchParams.set('dashboard','1');u.searchParams.set('theme',theme);window.open(u.href,'_blank','noopener,noreferrer')};
@@ -345,6 +351,26 @@
   }
   function downloadModelXlsx(model){const x=exportRows(model);if(!x.rows.length){setStatus('No rows are available for Excel export.','error');return}const blob=makeXlsx(x.headers,x.rows,'Capacity Report'),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`capacity_report_${model.source}_${model.fromDate}_${model.toDate}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 
+  function combineModels(models, input) {
+    if(!models.length) throw new Error('No Capacity Report result was returned.');
+    const source=input.reportSource;
+    if(source==='dk'){
+      const headers=models[0].headers||[];
+      const allRows=models.flatMap(m=>m.rows||[]);
+      if(input.aggregateCapacities){
+        const agg=aggregateRows(headers,allRows);
+        const partitions=[{id:'aggregate',label:'Aggregated capacities',rows:agg.rows,groups:groupRows(agg.headers,agg.rows)}];
+        return {source:'dk',aggregate:true,headers:agg.headers,rows:agg.rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:agg.rows.length};
+      }
+      const partitions=models.flatMap(m=>m.partitions||[]);
+      return {source:'dk',aggregate:false,headers,rows:allRows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:allRows.length};
+    }
+    const headers=['Coverage Polygon','Time Slot','Date','Shipping Reserved Capacity'];
+    const rows=models.flatMap(m=>m.rows||[]);
+    const partitions=models.flatMap(m=>m.partitions||[]);
+    return {source:'flex',aggregate:false,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:[],flexCenters:input.flexCenters||[],totalRows:rows.length};
+  }
+
   async function run() {
     if(state.busy)return;
     const from=latinDigits($('fromDate').value).replace(/\D/g,''),to=latinDigits($('toDate').value).replace(/\D/g,'');
@@ -353,14 +379,30 @@
     if(state.source==='dk'){
       if($('dkCentersInput').value.trim() && !addRawDkIds($('dkCentersInput').value)){setStatus('Select the Distribution Center from the list, or press Enter after numeric IDs.','error');return}
       if(!state.centers.length){setStatus('Select at least one Distribution Center for DK.','error');return}
-    } else if(!state.flexCenter){setStatus('Select exactly one Distribution Center for Flex.','error');return}
-    setBusy(true);setStatus(state.source==='dk'?'Running DK capacity report…':'Running Flex capacity report…');$('result').classList.add('hidden');
+    } else {
+      if($('flexCenterInput').value.trim()){setStatus('Select the Flex Distribution Center from the suggestion list before running.','error');return}
+      if(!state.flexCenters.length){setStatus('Select at least one Distribution Center for Flex.','error');return}
+    }
+    setBusy(true);$('result').classList.add('hidden');
     if(state.source==='dk' && state.centers.some(x=>x.name===x.id)){
       try{const list=await loadCenters();const byId=new Map(list.map(x=>[String(x.id),x.name]));state.centers=state.centers.map(x=>({...x,name:byId.get(String(x.id))||x.name}));renderChips();}catch(_){}
     }
-    const input={reportSource:state.source,dcId:state.centers.map(x=>x.id).join(' '),dcNames:state.centers.map(x=>x.name).join(' | '),flexDcId:state.flexCenter?.id||'',flexDcName:state.flexCenter?.name||'',fromDate:from,toDate:to,aggregateCapacities:!!$('aggregateCapacities').checked,centers:state.centers.map(x=>({...x})),flexCenter:state.flexCenter?{...state.flexCenter}:null};
-    try{const result=await requestHostOperation(input);const model=buildModel(result,input);localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed. ${model.totalRows} rows processed.`,'ok')}
-    catch(e){setStatus(e.message||String(e),'error')}
+    const selected=state.source==='dk'?state.centers:state.flexCenters;
+    const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};
+    const models=[];
+    try{
+      for(let i=0;i<selected.length;i++){
+        const center=selected[i];
+        setStatus(`Running ${state.source==='dk'?'DK':'Flex'} report ${i+1}/${selected.length}: ${center.name}…`);
+        const input=state.source==='dk'
+          ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:''}
+          : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexDcId:center.id,flexDcName:center.name};
+        const result=await requestHostOperation(input,240000);
+        models.push(buildModel(result,input));
+      }
+      const model=combineModels(models,baseInput);
+      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed. ${model.totalRows} rows processed across ${selected.length} Distribution Center${selected.length===1?'':'s'}.`,'ok');
+    } catch(e){setStatus(e.message||String(e),'error')}
     finally{setBusy(false)}
   }
 

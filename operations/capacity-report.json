@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report with DK and Flex sources. Flex uses the exact capacity-slots result table and retains only Coverage Polygon, Time Slot, Date and Shipping Reserved Capacity.",
+  "description": "Remote-owned Capacity Report with DK and Flex sources. DK runs each selected center independently in a background tab, forces 1000-row paging before filters, and can aggregate across centers and time scopes. Flex runs each selected center independently and charts Shipping Reserved Capacity by Date per Time Slot.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -61,31 +61,28 @@
       "error": "DK Distribution Center field was not found."
     },
     {
-      "action": "fill",
+      "action": "autocomplete",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
       "value": "{{dcId}}",
+      "attempts": 5,
+      "options": {
+        "focusWaitMs": 450,
+        "clearWaitMs": 250,
+        "typingDelayMs": 110,
+        "autocompleteWaitMs": 1800,
+        "pressEnter": true,
+        "keyDelayMs": 90,
+        "commitWaitMs": 1200,
+        "outsideSelector": "#form-field-from, #form-field-from_date, input[data-name=\"from_date\"]",
+        "outsideWaitMs": 700,
+        "selectorIndex": 0
+      },
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Setting DK Distribution Centers…"
-    },
-    {
-      "action": "wait",
-      "ms": 1000,
-      "when": {
-        "left": "{{reportSource}}",
-        "equals": "dk"
-      }
-    },
-    {
-      "action": "clickOutside",
-      "center": true,
-      "when": {
-        "left": "{{reportSource}}",
-        "equals": "dk"
-      },
-      "progress": "Applying DK Distribution Centers…"
+      "progress": "Selecting DK Distribution Center in background…",
+      "error": "Could not select the DK Distribution Center in the background tab."
     },
     {
       "action": "read",
@@ -148,13 +145,21 @@
     {
       "action": "submitNearestForm",
       "selector": "button.uk-button.uk-button-primary[type=\"submit\"]",
-      "waitForNavigation": false,
+      "waitForNavigation": true,
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Searching DK Capacity Report…",
-      "error": "DK Capacity Report search could not be submitted."
+      "progress": "Submitting DK search from the background tab…",
+      "error": "DK Capacity Report search could not be submitted.",
+      "completeTimeoutMs": 60000,
+      "options": {
+        "submitMode": "native-form",
+        "submitSelector": "button.uk-button.uk-button-primary[type=\"submit\"]",
+        "hiddenFields": {
+          "per_page": "1000"
+        }
+      }
     },
     {
       "action": "waitFor",
@@ -369,5 +374,5 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 3
+  "remoteBehaviorVersion": 4
 }
