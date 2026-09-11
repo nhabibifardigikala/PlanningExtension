@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 282;
+  const VERSION = 283;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -385,7 +385,17 @@
     }
     setBusy(true);$('result').classList.add('hidden');
     if(state.source==='dk' && state.centers.some(x=>x.name===x.id)){
-      try{const list=await loadCenters();const byId=new Map(list.map(x=>[String(x.id),x.name]));state.centers=state.centers.map(x=>({...x,name:byId.get(String(x.id))||x.name}));renderChips();}catch(_){}
+      try{
+        const list=await loadCenters();
+        const byId=new Map(list.map(x=>[String(x.id),x.name]));
+        state.centers=state.centers.map(x=>({...x,name:byId.get(String(x.id))||x.name}));
+        renderChips();
+      }catch(_){}
+      if(state.centers.some(x=>x.name===x.id)){
+        setStatus('One or more numeric Distribution Center IDs could not be resolved to an exact center name. Please select them from the list and try again.','error');
+        setBusy(false);
+        return;
+      }
     }
     const selected=state.source==='dk'?state.centers:state.flexCenters;
     const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};

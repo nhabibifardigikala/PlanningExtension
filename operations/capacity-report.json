@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report with DK and Flex sources. DK runs each selected center independently in a background tab, forces 1000-row paging before filters, and can aggregate across centers and time scopes. Flex runs each selected center independently and charts Shipping Reserved Capacity by Date per Time Slot.",
+  "description": "Remote-owned Capacity Report with exact Distribution Center matching. DK runs each selected center independently in a background tab, forces 1000-row paging before filters, waits directly for result rows after native form submission, and can aggregate across centers/time scopes. Flex runs each selected center independently and charts Shipping Reserved Capacity by Date per Time Slot.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -63,26 +63,50 @@
     {
       "action": "autocomplete",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
-      "value": "{{dcId}}",
-      "attempts": 5,
+      "value": "{{dcName}}",
+      "attempts": 3,
       "options": {
         "focusWaitMs": 450,
         "clearWaitMs": 250,
-        "typingDelayMs": 110,
-        "autocompleteWaitMs": 1800,
-        "pressEnter": true,
-        "keyDelayMs": 90,
-        "commitWaitMs": 1200,
+        "typingDelayMs": 80,
+        "autocompleteWaitMs": 900,
+        "exactMatch": true,
+        "exactMatchSelector": "[role=\"option\"], .es-list li, .es-list-item, .es-item, .autocomplete-suggestion, .easy-autocomplete-container li, .ui-menu-item, .ui-autocomplete li",
+        "exactMatchTimeoutMs": 7000,
+        "verifyExactValue": false,
+        "matchTransforms": [
+          {
+            "type": "normalizeUnicode",
+            "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "[يى]",
+            "flags": "g",
+            "replacement": "ی"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "ك",
+            "flags": "g",
+            "replacement": "ک"
+          },
+          "stripTrailingBrackets",
+          "collapseWhitespace",
+          "trim",
+          "caseFold"
+        ],
+        "exactMatchCommitWaitMs": 900,
         "outsideSelector": "#form-field-from, #form-field-from_date, input[data-name=\"from_date\"]",
-        "outsideWaitMs": 700,
+        "outsideWaitMs": 500,
         "selectorIndex": 0
       },
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Selecting DK Distribution Center in background…",
-      "error": "Could not select the DK Distribution Center in the background tab."
+      "progress": "Selecting the exact DK Distribution Center…",
+      "error": "The exact DK Distribution Center could not be selected. A similar center will not be substituted."
     },
     {
       "action": "read",
@@ -145,52 +169,52 @@
     {
       "action": "submitNearestForm",
       "selector": "button.uk-button.uk-button-primary[type=\"submit\"]",
-      "waitForNavigation": true,
+      "waitForNavigation": false,
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Submitting DK search from the background tab…",
+      "progress": "Submitting DK search in the background…",
       "error": "DK Capacity Report search could not be submitted.",
-      "completeTimeoutMs": 60000,
+      "completeTimeoutMs": 30000,
       "options": {
         "submitMode": "native-form",
         "submitSelector": "button.uk-button.uk-button-primary[type=\"submit\"]",
         "hiddenFields": {
           "per_page": "1000"
         }
-      }
+      },
+      "stepAttempts": 1
     },
     {
-      "action": "waitFor",
-      "selector": "a[href=\"/dc-capacity/\"].uk-button.uk-button-gray",
-      "timeoutMs": 60000,
-      "intervalMs": 250,
+      "action": "wait",
+      "ms": 1200,
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Waiting for DK results…",
-      "error": "DK Capacity search did not complete."
+      "progress": "Waiting for DK result page…"
     },
     {
       "action": "waitFor",
       "selector": "table tbody tr",
-      "timeoutMs": 30000,
-      "intervalMs": 400,
+      "timeoutMs": 60000,
+      "intervalMs": 350,
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "error": "No DK capacity rows appeared."
+      "error": "DK search completed but no capacity rows were available for the selected Distribution Center/date range.",
+      "stepAttempts": 1,
+      "progress": "Waiting for DK capacity rows…"
     },
     {
       "action": "extractPaginatedTable",
       "nextSelector": "a[aria-label=\"Next page\"]",
       "timeoutMs": 30000,
-      "stableMs": 1500,
-      "pollMs": 400,
-      "afterPageMs": 1000,
+      "stableMs": 900,
+      "pollMs": 300,
+      "afterPageMs": 700,
       "dedupe": false,
       "maxPages": 1000,
       "pageProgress": "Extracting DK capacity page {{page}}…",
@@ -198,7 +222,10 @@
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Extracting DK capacity data…"
+      "progress": "Extracting DK capacity data…",
+      "expectedRowsPerPage": 1000,
+      "allowLastPagePartial": true,
+      "stepAttempts": 1
     },
     {
       "action": "closeTab",
@@ -256,17 +283,42 @@
         "focusWaitMs": 500,
         "typingDelayMs": 45,
         "autocompleteWaitMs": 1100,
-        "pressEnter": true,
         "commitWaitMs": 900,
         "outsideWaitMs": 350,
-        "selectorIndex": 0
+        "selectorIndex": 0,
+        "exactMatch": true,
+        "exactMatchSelector": "[role=\"option\"], .es-list li, .es-list-item, .es-item, .autocomplete-suggestion, .easy-autocomplete-container li, .ui-menu-item, .ui-autocomplete li",
+        "exactMatchTimeoutMs": 7000,
+        "verifyExactValue": false,
+        "matchTransforms": [
+          {
+            "type": "normalizeUnicode",
+            "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "[يى]",
+            "flags": "g",
+            "replacement": "ی"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "ك",
+            "flags": "g",
+            "replacement": "ک"
+          },
+          "stripTrailingBrackets",
+          "collapseWhitespace",
+          "trim",
+          "caseFold"
+        ]
       },
       "when": {
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Selecting the closest Flex Distribution Center…",
-      "error": "Could not select the Flex Distribution Center."
+      "progress": "Selecting the exact Flex Distribution Center…",
+      "error": "The exact Flex Distribution Center could not be selected. A similar center will not be substituted."
     },
     {
       "action": "jalaliDate",
@@ -374,5 +426,5 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 4
+  "remoteBehaviorVersion": 5
 }
