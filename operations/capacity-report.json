@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report with exact Distribution Center matching. DK runs each selected center independently in a background tab, forces 1000-row paging before filters, waits directly for result rows after native form submission, and can aggregate across centers/time scopes. Flex runs each selected center independently and charts Shipping Reserved Capacity by Date per Time Slot.",
+  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex searches each selected Distribution Center by its name and runs each center independently.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -63,50 +63,26 @@
     {
       "action": "autocomplete",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
-      "value": "{{dcName}}",
+      "value": "{{dcId}}",
       "attempts": 3,
       "options": {
         "focusWaitMs": 450,
         "clearWaitMs": 250,
-        "typingDelayMs": 80,
-        "autocompleteWaitMs": 900,
-        "exactMatch": true,
-        "exactMatchSelector": "[role=\"option\"], .es-list li, .es-list-item, .es-item, .autocomplete-suggestion, .easy-autocomplete-container li, .ui-menu-item, .ui-autocomplete li",
-        "exactMatchTimeoutMs": 7000,
-        "verifyExactValue": false,
-        "matchTransforms": [
-          {
-            "type": "normalizeUnicode",
-            "form": "NFKC"
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "[يى]",
-            "flags": "g",
-            "replacement": "ی"
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "ك",
-            "flags": "g",
-            "replacement": "ک"
-          },
-          "stripTrailingBrackets",
-          "collapseWhitespace",
-          "trim",
-          "caseFold"
-        ],
-        "exactMatchCommitWaitMs": 900,
+        "typingDelayMs": 90,
+        "autocompleteWaitMs": 1400,
+        "pressEnter": true,
+        "keyDelayMs": 80,
+        "commitWaitMs": 1000,
         "outsideSelector": "#form-field-from, #form-field-from_date, input[data-name=\"from_date\"]",
-        "outsideWaitMs": 500,
+        "outsideWaitMs": 550,
         "selectorIndex": 0
       },
       "when": {
         "left": "{{reportSource}}",
         "equals": "dk"
       },
-      "progress": "Selecting the exact DK Distribution Center…",
-      "error": "The exact DK Distribution Center could not be selected. A similar center will not be substituted."
+      "progress": "Selecting DK Distribution Center by ID…",
+      "error": "Could not select the DK Distribution Center by its numeric ID."
     },
     {
       "action": "read",
@@ -281,44 +257,21 @@
       "attempts": 3,
       "options": {
         "focusWaitMs": 500,
-        "typingDelayMs": 45,
-        "autocompleteWaitMs": 1100,
-        "commitWaitMs": 900,
+        "clearWaitMs": 250,
+        "typingDelayMs": 60,
+        "autocompleteWaitMs": 1500,
+        "pressEnter": true,
+        "keyDelayMs": 80,
+        "commitWaitMs": 1000,
         "outsideWaitMs": 350,
-        "selectorIndex": 0,
-        "exactMatch": true,
-        "exactMatchSelector": "[role=\"option\"], .es-list li, .es-list-item, .es-item, .autocomplete-suggestion, .easy-autocomplete-container li, .ui-menu-item, .ui-autocomplete li",
-        "exactMatchTimeoutMs": 7000,
-        "verifyExactValue": false,
-        "matchTransforms": [
-          {
-            "type": "normalizeUnicode",
-            "form": "NFKC"
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "[يى]",
-            "flags": "g",
-            "replacement": "ی"
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "ك",
-            "flags": "g",
-            "replacement": "ک"
-          },
-          "stripTrailingBrackets",
-          "collapseWhitespace",
-          "trim",
-          "caseFold"
-        ]
+        "selectorIndex": 0
       },
       "when": {
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Selecting the exact Flex Distribution Center…",
-      "error": "The exact Flex Distribution Center could not be selected. A similar center will not be substituted."
+      "progress": "Selecting Flex Distribution Center by name…",
+      "error": "Could not select the Flex Distribution Center by name."
     },
     {
       "action": "jalaliDate",

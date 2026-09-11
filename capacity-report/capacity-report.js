@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 283;
+  const VERSION = 284;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;

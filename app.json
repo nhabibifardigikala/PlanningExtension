@@ -1,11 +1,11 @@
 {
-  "configVersion": 283,
+  "configVersion": 284,
   "minEngineVersion": "12.3.6",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 283",
+    "subtitle": "Operations Toolkit · Config 284",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 283
+    "configVersion": 284
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -136,7 +136,7 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=283",
+      "config": "operations/capacity-report.json?v=284",
       "description": "Choose DK or Flex. Distribution Center matching is exact (not first-suggestion), both sources support multiple centers, and DK can optionally aggregate all centers and time scopes into one chart.",
       "runLabel": "Open Capacity Report"
     },
