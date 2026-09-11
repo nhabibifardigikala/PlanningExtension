@@ -33,3 +33,41 @@ input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,va
 .dashboard-mode body{padding:18px}.dashboard-mode .app{max-width:1500px}.dashboard-mode .report-card{padding:18px}.dashboard-mode .chart svg{height:360px}.dashboard-mode .group-title{font-size:14px}.dashboard-mode .metric>span{font-size:11px}.dashboard-mode .metric-values strong{font-size:14px}
 .empty-state{padding:30px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--border);border-radius:12px}
 @media(max-width:720px){body{padding:7px}.date-row{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.result-toolbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions button{flex:1}.report-form{padding:10px}.chart svg{min-width:480px}}
+
+
+/* Capacity Report Jalali date picker (restored in v279). */
+.jalali-picker-wrap{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 42px;gap:7px}
+.jalali-picker-wrap>input{min-width:0}
+.jalali-picker-toggle{height:42px;border:1px solid var(--border);border-radius:9px;background:var(--card2);color:var(--accent);display:grid;place-items:center;cursor:pointer;transition:border-color .15s,background .15s,transform .12s}
+.jalali-picker-toggle:hover{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+.jalali-picker-toggle svg{width:20px;height:20px;fill:currentColor}
+.jalali-picker{position:absolute;z-index:80;top:calc(100% + 7px);inset-inline:0;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.22);padding:10px;min-width:270px}
+.jalali-cal-head{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;gap:5px;margin-bottom:8px}
+.jalali-cal-head strong{font-size:13px}
+.jalali-cal-head button,.jalali-cal-foot button{border:0;background:var(--accent-soft);color:var(--accent);border-radius:8px;cursor:pointer;font-weight:900;min-height:36px}
+.jalali-cal-head button{font-size:26px;line-height:1}
+.jalali-week,.jalali-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.jalali-week span{text-align:center;font-size:10px;color:var(--muted);padding:4px 0;font-weight:800}
+.jalali-day-pad{display:block;min-height:30px}
+.jalali-days button{border:0;background:transparent;color:var(--text);border-radius:7px;min-height:31px;padding:4px 1px;cursor:pointer;font-size:11px}
+.jalali-days button:hover,.jalali-days button:focus-visible{background:var(--accent-soft);color:var(--accent);outline:none}
+.jalali-days button.selected{background:var(--accent);color:#fff;font-weight:900}
+.jalali-cal-foot{display:flex;justify-content:flex-end;margin-top:8px}
+.jalali-cal-foot button{padding:0 12px;color:var(--text)}
+
+
+/* Flex report presentation (v280): polygon-first cards, per-time-slot trends, and exact Flex output table. */
+.flex-report .report-title>div{display:grid;gap:2px}
+.flex-report .report-title strong{font-size:19px;line-height:1.45;font-weight:900}
+.flex-report .group-title{font-size:13px}
+.flex-metrics{grid-template-columns:minmax(120px,.55fr) minmax(280px,1.45fr)}
+.flex-table-wrap{overflow:auto;margin-top:12px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+.flex-table{width:100%;border-collapse:collapse;min-width:680px;font-size:11px}
+.flex-table th,.flex-table td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.flex-table th{position:sticky;top:0;background:var(--card2);color:var(--muted);font-size:10px;font-weight:900;z-index:1}
+.flex-table tbody tr:last-child td{border-bottom:0}
+.flex-table tbody tr:hover td{background:var(--accent-soft)}
+.flex-table td.numeric{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
+.dashboard-mode .flex-report .report-title strong{font-size:22px}
+.dashboard-mode .flex-report .group-title{font-size:15px}
+@media(max-width:720px){.flex-metrics{grid-template-columns:1fr}.flex-report .report-title strong{font-size:17px}.dashboard-mode .flex-report .report-title strong{font-size:19px}}

@@ -1,11 +1,11 @@
 {
-  "configVersion": 278,
+  "configVersion": 280,
   "minEngineVersion": "12.3.5",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 278",
+    "subtitle": "Operations Toolkit · Config 280",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 278
+    "configVersion": 280
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -137,7 +137,7 @@
         "Capacity Report"
       ],
       "config": "operations/capacity-report.json?v=278",
-      "description": "Choose DK or Flex, select Distribution Centers and a Jalali date range, then review capacity trends with optional DK aggregation.",
+      "description": "Choose DK or Flex. DK supports multi-center reporting and optional aggregation; Flex reports Coverage Polygon, Time Slot, Date and Shipping Reserved Capacity with a separate trend per Time Slot.",
       "runLabel": "Open Capacity Report"
     },
     {
@@ -665,8 +665,8 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=278",
-    "css": "ui/app.css?v=278",
+    "html": "ui/app.html?v=280",
+    "css": "ui/app.css?v=280",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=271"
   },

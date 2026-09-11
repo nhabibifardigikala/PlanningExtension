@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Capacity Report</title>
-  <link rel="stylesheet" href="capacity-report.css?v=278">
+  <link rel="stylesheet" href="capacity-report.css?v=280">
 </head>
 <body>
   <main class="app" id="app">
@@ -40,11 +40,23 @@
         <div class="date-row">
           <div class="field">
             <label for="fromDate">From date (Jalali)</label>
-            <input id="fromDate" inputmode="numeric" maxlength="8" placeholder="14050520">
+            <div class="jalali-picker-wrap">
+              <input id="fromDate" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="14050520" aria-label="From date">
+              <button type="button" class="jalali-picker-toggle" data-picker-for="fromDate" aria-label="Open Persian date picker">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 8h3v3H7v-3Zm7 0h3v3h-3v-3Zm-7 5h3v2H7v-2Z"/></svg>
+              </button>
+              <div class="jalali-picker hidden" data-picker="fromDate"></div>
+            </div>
           </div>
           <div class="field">
             <label for="toDate">To date (Jalali)</label>
-            <input id="toDate" inputmode="numeric" maxlength="8" placeholder="14050520">
+            <div class="jalali-picker-wrap">
+              <input id="toDate" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="14050520" aria-label="To date">
+              <button type="button" class="jalali-picker-toggle" data-picker-for="toDate" aria-label="Open Persian date picker">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 8h3v3H7v-3Zm7 0h3v3h-3v-3Zm-7 5h3v2H7v-2Z"/></svg>
+              </button>
+              <div class="jalali-picker hidden" data-picker="toDate"></div>
+            </div>
           </div>
         </div>
 
@@ -66,6 +78,6 @@
 
     <section id="result" class="result hidden" aria-live="polite"></section>
   </main>
-  <script src="capacity-report.js?v=278"></script>
+  <script src="capacity-report.js?v=280"></script>
 </body>
 </html>

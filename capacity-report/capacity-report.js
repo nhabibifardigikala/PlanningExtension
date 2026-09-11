@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 278;
+  const VERSION = 280;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -13,6 +13,26 @@
   const fmt = v => v == null || !Number.isFinite(Number(v)) ? '—' : Math.round(Number(v)).toLocaleString('en-US');
   const latinDigits = v => String(v ?? '').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
   const validUrl = v => /^https?:\/\//i.test(String(v||''));
+
+
+  const jDiv=(a,b)=>Math.trunc(a/b), jMod=(a,b)=>a-jDiv(a,b)*b;
+  function jalCal(jy){const breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];let gy=jy+621,leapJ=-14,jp=breaks[0],jm=0,jump=0,n=0;if(jy<jp||jy>=breaks[breaks.length-1])return{gy,march:20,leap:1};for(let i=1;i<breaks.length;i++){jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ+=jDiv(jump,33)*8+jDiv(jMod(jump,33),4);jp=jm;}n=jy-jp;leapJ+=jDiv(n,33)*8+jDiv(jMod(n,33)+3,4);if(jMod(jump,33)===4&&jump-n===4)leapJ++;const leapG=jDiv(gy,4)-jDiv((jDiv(gy,100)+1)*3,4)-150,march=20+leapJ-leapG;if(jump-n<6)n=n-jump+jDiv(jump+4,33)*33;let leap=jMod(jMod(n+1,33)-1,4);if(leap===-1)leap=4;return{gy,march,leap};}
+  function g2d(gy,gm,gd){let d=jDiv((gy+jDiv(gm-8,6)+100100)*1461,4)+jDiv(153*jMod(gm+9,12)+2,5)+gd-34840408;d=d-jDiv(jDiv(gy+100100+jDiv(gm-8,6),100)*3,4)+752;return d;}
+  function d2g(jdn){let j=4*jdn+139361631;j=j+jDiv(jDiv(4*jdn+183187720,146097)*3,4)*4-3908;const i=jDiv(jMod(j,1461),4)*5+308;const gd=jDiv(jMod(i,153),5)+1,gm=jMod(jDiv(i,153),12)+1,gy=jDiv(j,1461)-100100+jDiv(8-gm,6);return{gy,gm,gd};}
+  function j2g(jy,jm,jd){const r=jalCal(jy),jdn=g2d(r.gy,3,r.march)+(jm-1)*31-jDiv(jm,7)*(jm-7)+jd-1;return d2g(jdn);}
+  function jalaliWeekOffset(y,m){try{const g=j2g(y,m,1);return(new Date(Date.UTC(g.gy,g.gm-1,g.gd)).getUTCDay()+1)%7;}catch(_){return 0;}}
+  function currentJalaliParts(){try{const parts=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),obj=Object.fromEntries(parts.map(p=>[p.type,p.value]));return{y:Number(obj.year),m:Number(obj.month),d:Number(obj.day)};}catch(_){return{y:1405,m:1,d:1};}}
+  const jalaliMonthDays=(y,m)=>m<=6?31:m<=11?30:(jalCal(y).leap===0?30:29);
+  function setupJalaliPicker(inputId){
+    const input=$(inputId),wrap=input?.closest('.jalali-picker-wrap'),toggle=wrap?.querySelector(`[data-picker-for="${inputId}"]`),pop=wrap?.querySelector(`[data-picker="${inputId}"]`); if(!input||!toggle||!pop)return;
+    const today=currentJalaliParts(); let view={...today};
+    const readView=()=>{const raw=latinDigits(input.value).replace(/\D/g,'');if(/^\d{8}$/.test(raw)){const y=Number(raw.slice(0,4)),m=Number(raw.slice(4,6)),d=Number(raw.slice(6,8));if(m>=1&&m<=12&&d>=1&&d<=jalaliMonthDays(y,m))view={y,m,d};else view={...today};}else view={...today};};
+    const close=()=>pop.classList.add('hidden');
+    const setValue=(y,m,d)=>{input.value=`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));close();};
+    const render=()=>{const days=jalaliMonthDays(view.y,view.m),selected=latinDigits(input.value).replace(/\D/g,''),offset=jalaliWeekOffset(view.y,view.m);pop.innerHTML=`<div class="jalali-cal-head"><button type="button" data-cal-prev aria-label="Previous month">‹</button><strong>${view.y}/${String(view.m).padStart(2,'0')}</strong><button type="button" data-cal-next aria-label="Next month">›</button></div><div class="jalali-week"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div><div class="jalali-days">${'<span class="jalali-day-pad"></span>'.repeat(offset)}${Array.from({length:days},(_,i)=>{const d=i+1,val=`${view.y}${String(view.m).padStart(2,'0')}${String(d).padStart(2,'0')}`;return`<button type="button" data-jday="${d}" class="${selected===val?'selected':''}">${d}</button>`}).join('')}</div><div class="jalali-cal-foot"><button type="button" data-cal-today>Today</button></div>`;pop.querySelector('[data-cal-prev]').onclick=e=>{e.stopPropagation();if(--view.m<1){view.m=12;view.y--;}render();};pop.querySelector('[data-cal-next]').onclick=e=>{e.stopPropagation();if(++view.m>12){view.m=1;view.y++;}render();};pop.querySelector('[data-cal-today]').onclick=e=>{e.stopPropagation();setValue(today.y,today.m,today.d);};pop.querySelectorAll('[data-jday]').forEach(b=>b.onclick=e=>{e.stopPropagation();setValue(view.y,view.m,Number(b.dataset.jday));});};
+    const open=e=>{e?.preventDefault();e?.stopPropagation();readView();render();document.querySelectorAll('.jalali-picker').forEach(x=>{if(x!==pop)x.classList.add('hidden')});pop.classList.remove('hidden');};
+    toggle.addEventListener('click',open); input.addEventListener('dblclick',open); input.addEventListener('keydown',e=>{if((e.altKey&&e.key==='ArrowDown')||e.key==='F4')open(e);else if(e.key==='Escape')close();}); document.addEventListener('click',e=>{if(!wrap.contains(e.target))close();});
+  }
 
   const qp = new URLSearchParams(location.search);
   const theme = qp.get('theme') === 'dark' ? 'dark' : 'light';
@@ -165,7 +185,8 @@
     capacity:['capacity'],
     reserved:['capacity reserved','reserved capacity','capacity_reserved','shipping reserved capacity','shipping_reserved_capacity'],
     dcId:['distribution center id','dc id','distribution_center_id'],
-    dcName:['distribution center','distribution center name','dc name','dc']
+    dcName:['distribution center','distribution center name','dc name','dc'],
+    coveragePolygon:['coverage polygon','coverage_polygon','hub coverage polygon','hub coverage polygons','polygon name','polygon']
   };
 
   function findCenterForRow(headers,row,centers){
@@ -208,7 +229,17 @@
       for(const c of input.centers){const rr=buckets.get(String(c.id))||[];partitions.push({id:c.id,label:c.name,rows:rr,groups:groupRows(headers,rr)});}
       if(input.centers.length>1 && partitions.every(p=>!p.rows.length) && rows.length) throw new Error('DK results could not be separated by Distribution Center.');
     } else {
-      partitions.push({id:input.flexCenter.id,label:input.flexCenter.name,rows,groups:groupRows(headers,rows)});
+      const pi=headerIndex(headers,aliases.coveragePolygon);
+      const polygonBuckets=new Map();
+      for(const row of rows){
+        const label=(pi>=0?String(row[pi]??'').trim():'') || input.flexCenter?.name || 'Coverage Polygon';
+        if(!polygonBuckets.has(label))polygonBuckets.set(label,[]);
+        polygonBuckets.get(label).push(row);
+      }
+      if(!polygonBuckets.size)polygonBuckets.set(input.flexCenter?.name||'Coverage Polygon',rows);
+      for(const [label,rr] of polygonBuckets){
+        partitions.push({id:'',label,rows:rr,groups:groupRows(headers,rr)});
+      }
     }
     return {source,aggregate,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenter:input.flexCenter||null,totalRows:rows.length};
   }
@@ -224,7 +255,23 @@
   function seriesData(model, group) {
     const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=headerIndex(h,aliases.reserved), map=new Map();
     group.rows.forEach((row,index)=>{const date=di>=0?String(row[di]??'').trim():String(index+1);if(!date)return;if(!map.has(date))map.set(date,{date,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(date),c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}});
-    return [...map.values()].map(o=>({date:o.date,capacity:o.hasC?o.capacity:null,reserved:o.hasR?o.reserved:null}));
+    return [...map.values()]
+      .map(o=>({date:o.date,capacity:o.hasC?o.capacity:null,reserved:o.hasR?o.reserved:null}))
+      .sort((a,b)=>{
+        const ak=Number(latinDigits(a.date).replace(/\D/g,'')),bk=Number(latinDigits(b.date).replace(/\D/g,''));
+        if(Number.isFinite(ak)&&Number.isFinite(bk)&&ak!==bk)return ak-bk;
+        return String(a.date).localeCompare(String(b.date),'fa');
+      });
+  }
+
+  function flexTable(model, part) {
+    const h=model.headers, pi=headerIndex(h,aliases.coveragePolygon), ti=headerIndex(h,aliases.time), di=headerIndex(h,aliases.date), ri=headerIndex(h,aliases.reserved);
+    if(!part.rows.length)return '<div class="empty-state">No Flex rows.</div>';
+    const body=part.rows.map(row=>{
+      const polygon=(pi>=0?row[pi]:'')||part.label;
+      return `<tr><td>${esc(polygon)}</td><td>${esc(ti>=0?row[ti]:'')}</td><td>${esc(di>=0?row[di]:'')}</td><td class="numeric">${esc(ri>=0?row[ri]:'')}</td></tr>`;
+    }).join('');
+    return `<div class="flex-table-wrap"><table class="flex-table"><thead><tr><th>Coverage Polygon</th><th>Time Slot</th><th>Date</th><th>Shipping Reserved Capacity</th></tr></thead><tbody>${body}</tbody></table></div>`;
   }
 
   function metricCard(label, stats, cls='') {
@@ -252,9 +299,12 @@
     host.innerHTML=`<div class="result-toolbar"><div><strong>${model.source==='flex'?'Flex':'DK'} Capacity Report${model.aggregate?' • Aggregated':''}</strong><small>${esc(model.fromDate)} → ${esc(model.toDate)} • ${rows} row${rows===1?'':'s'}</small></div><div class="actions"><button class="secondary" id="downloadExcel">Download Excel</button>${dashboard?'':`<button class="secondary" id="openDashboard">Open dashboard</button>`}</div></div><div id="reportCards"></div>`;
     host.classList.remove('hidden');const cards=$('reportCards');
     for(const part of model.partitions){
-      const sec=document.createElement('section');sec.className='report-card';sec.innerHTML=`<div class="report-title"><div><strong>${esc(part.label)}</strong><small>${part.id&&part.id!=='aggregate'?`ID ${esc(part.id)}`:''}</small></div><small>${part.rows.length} rows</small></div><div class="group-list"></div>`;cards.appendChild(sec);
+      const sec=document.createElement('section');sec.className=`report-card${model.source==='flex'?' flex-report':''}`;
+      const idText=model.source==='flex'?'':(part.id&&part.id!=='aggregate'?`ID ${esc(part.id)}`:'');
+      sec.innerHTML=`<div class="report-title"><div><strong>${esc(part.label)}</strong>${idText?`<small>${idText}</small>`:''}</div><small>${part.rows.length} rows</small></div><div class="group-list"></div>`;cards.appendChild(sec);
       const gl=qs('.group-list',sec);
-      for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=model.source==='flex'?`<div class="metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Shipping Reserved Capacity',m.reserved)}</div>`:`<div class="metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Capacity Reserved',m.reserved)}</div>`;g.innerHTML=`<div class="group-title">${esc(group.label)}</div>${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
+      for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=model.source==='flex'?`<div class="metrics flex-metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Shipping Reserved Capacity',m.reserved)}</div>`:`<div class="metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Capacity Reserved',m.reserved)}</div>`;const groupTitle=model.source==='flex'?`Time Slot: ${group.label}`:group.label;g.innerHTML=`<div class="group-title">${esc(groupTitle)}</div>${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
+      if(model.source==='flex')sec.insertAdjacentHTML('beforeend',flexTable(model,part));
     }
     $('downloadExcel').onclick=()=>downloadModelXlsx(model);
     const db=$('openDashboard');if(db)db.onclick=()=>{try{localStorage.setItem(CACHE_KEY,JSON.stringify(model));}catch(_){}const u=new URL(location.href);u.searchParams.set('dashboard','1');u.searchParams.set('theme',theme);window.open(u.href,'_blank','noopener,noreferrer')};
@@ -270,7 +320,10 @@
 
   function exportRows(model){
     if(model.source==='flex'){
-      const di=headerIndex(model.headers,aliases.date),ti=headerIndex(model.headers,aliases.time),ri=headerIndex(model.headers,aliases.reserved);const headers=['Distribution Center','Distribution Center ID','From Date','To Date','Date','Time Scope','Shipping Reserved Capacity'];const rows=[];for(const p of model.partitions)for(const r of p.rows)rows.push([p.label,p.id,model.fromDate,model.toDate,di>=0?r[di]:'',ti>=0?r[ti]:'',ri>=0?r[ri]:'']);return{headers,rows};
+      const pi=headerIndex(model.headers,aliases.coveragePolygon),di=headerIndex(model.headers,aliases.date),ti=headerIndex(model.headers,aliases.time),ri=headerIndex(model.headers,aliases.reserved);
+      const headers=['Coverage Polygon','Time Slot','Date','Shipping Reserved Capacity'],rows=[];
+      for(const p of model.partitions)for(const r of p.rows)rows.push([(pi>=0?r[pi]:'')||p.label,ti>=0?r[ti]:'',di>=0?r[di]:'',ri>=0?r[ri]:'']);
+      return{headers,rows};
     }
     if(model.aggregate){return{headers:['From Date','To Date',...model.headers],rows:model.rows.map(r=>[model.fromDate,model.toDate,...r])}}
     const headers=['Distribution Center','Distribution Center ID','From Date','To Date',...model.headers],rows=[];for(const p of model.partitions)for(const r of p.rows)rows.push([p.label,p.id,model.fromDate,model.toDate,...r]);return{headers,rows};
@@ -306,7 +359,10 @@
   function init(){
     if(initDashboard())return;
     bindAutocomplete();qsa('input[name="source"]').forEach(r=>r.addEventListener('change',()=>setSource(r.value)));setSource('dk');$('runReport').onclick=run;
-    for(const id of['fromDate','toDate'])$(id).addEventListener('input',e=>{e.target.value=latinDigits(e.target.value).replace(/\D/g,'').slice(0,8)});
+    for(const id of['fromDate','toDate']){
+      $(id).addEventListener('input',e=>{e.target.value=latinDigits(e.target.value).replace(/\D/g,'').slice(0,8)});
+      setupJalaliPicker(id);
+    }
     loadCenters().catch(()=>{});
   }
   init();
