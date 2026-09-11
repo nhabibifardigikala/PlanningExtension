@@ -33,18 +33,18 @@
       const requestId=`rs-${Date.now()}-${++seq}`;
       const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('Digiexpress Host did not respond. Update the Host runtime if this continues.'));},timeoutMs);
       pending.set(requestId,{resolve,reject,timer,resultType});
-      parent.postMessage({type,requestId,...payload},'*');
+      const target=(window.parent&&window.parent!==window)?window.parent:window; target.postMessage({type,requestId,...payload}, location.origin);
     });
   }
   window.addEventListener('message',e=>{
-    if(e.source!==parent)return;
+    const expected=(window.parent&&window.parent!==window)?window.parent:window; if(e.source!==expected)return;
     const d=e.data||{}; const p=pending.get(String(d.requestId||''));
     if(!p||d.type!==p.resultType)return;
     clearTimeout(p.timer); pending.delete(String(d.requestId)); p.resolve(d);
   });
 
   async function hostOperation(inputs={}){
-    const r=await requestParent('DIGIEXPRESS_REMOTE_OPERATION_REQUEST',{op:'rejected-shipments',inputs},'DIGIEXPRESS_REMOTE_OPERATION_RESULT',120000);
+    const r=await requestParent('DIGIEXPRESS_REMOTE_OPERATION_REQUEST',{op:'rejected-shipments-data',inputs},'DIGIEXPRESS_REMOTE_OPERATION_RESULT',120000);
     if(!r?.ok)throw new Error(r?.error||'Rejected Shipments extraction failed.');
     return r.result||{};
   }
@@ -132,6 +132,9 @@
     storage:{sync:syncStore}
   };
 
-  // Match the extension theme supplied by the parent iframe URL.
-  const qp=new URLSearchParams(location.search); const t=qp.get('theme'); if(t==='dark'||t==='light')saveSettings({theme:t});
+  // Standalone dashboard: ask the Digiexpress content bridge for the current extension theme.
+  const qp=new URLSearchParams(location.search); const t=qp.get('theme'); if(t==='dark'||t==='light'){saveSettings({theme:t});document.documentElement.dataset.theme=t;}
+  else {
+    requestParent('DIGIEXPRESS_REMOTE_THEME_REQUEST',{},'DIGIEXPRESS_REMOTE_THEME_RESULT',5000).then(r=>{const theme=r?.theme==='dark'?'dark':'light';saveSettings({theme});document.documentElement.dataset.theme=theme;window.dispatchEvent(new CustomEvent('DIGIEXPRESS_THEME_READY',{detail:{theme}}));}).catch(()=>{});
+  }
 })();

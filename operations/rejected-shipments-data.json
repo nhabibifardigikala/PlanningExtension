@@ -1,0 +1,260 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Credential-safe background extraction for the standalone Rejected Shipments dashboard.",
+  "runLabel": "Sync Now",
+  "navigation": {
+    "retryCount": 5,
+    "retryDelayMs": 500,
+    "completeTimeoutMs": 45000
+  },
+  "successMessage": "Rejected Shipments extraction completed.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://drop-shipping.digikala.com/shipment/?status=rejected&order=1&order_by=id&order_type=DESC&per_page=1000",
+      "active": false,
+      "progress": "Opening rejected shipments…"
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 7000,
+      "progress": "Checking Drop Shipping authentication…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table, button",
+      "timeoutMs": 30000,
+      "intervalMs": 300,
+      "progress": "Waiting for Shipments…",
+      "error": "Rejected Shipments page did not become ready."
+    },
+    {
+      "action": "setPageZoom",
+      "zoom": 0.5,
+      "progress": "Preparing shipment table…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "id",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing ID column…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "reference id",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Reference ID…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "user id",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing User ID…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "ready date",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Ready Date…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "status",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Status…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "created at",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Created At…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "service level",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Service Level…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "shipping size id",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Shipping Size…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "destination address",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Destination Address…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "destination shipping point",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Destination Point…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "parcel ids",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Parcel IDs…"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "promise date",
+      "attempts": 3,
+      "options": {
+        "tableSelector": "table",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "loadTimeoutMs": 30000
+      },
+      "progress": "Preparing Promise Date…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/shipment/?status=rejected&order=1&order_by=id&order_type=DESC&per_page=1000",
+      "progress": "Refreshing rejected shipment data…",
+      "completeTimeoutMs": 45000
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 30000,
+      "intervalMs": 400,
+      "progress": "Waiting for rejected shipment rows…",
+      "error": "No rejected shipment rows were found."
+    },
+    {
+      "action": "extractPaginatedTable",
+      "maxPages": 1,
+      "timeoutMs": 30000,
+      "stableMs": 1200,
+      "pollMs": 300,
+      "dedupe": false,
+      "ignoreLastActionColumn": false,
+      "parser": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "svgBoolean": false
+      },
+      "progress": "Extracting latest rejected shipments…",
+      "error": "Rejected shipment rows could not be extracted."
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing extraction tab…"
+    }
+  ],
+  "subOperations": [
+    {
+      "id": "open-reference",
+      "title": "Open shipment",
+      "requiresCredentials": true,
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipment/",
+          "active": true,
+          "progress": "Opening shipment search…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 7000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[name=\"reference_id\"]",
+          "timeoutMs": 30000,
+          "progress": "Waiting for Reference ID search…"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name=\"reference_id\"]",
+          "value": "{{referenceId}}",
+          "progress": "Setting Reference ID…"
+        },
+        {
+          "action": "submitNearestForm",
+          "selector": "input[name=\"reference_id\"]",
+          "waitForNavigation": true,
+          "completeTimeoutMs": 30000,
+          "progress": "Searching shipment…"
+        }
+      ],
+      "successMessage": "Shipment opened."
+    }
+  ],
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
+}

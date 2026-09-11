@@ -5,7 +5,7 @@ let chartFilters = {};
 let serverKpis = null;
 const chartMeta = new WeakMap();
 const $ = id => document.getElementById(id);
-// Digiexpress Remote integration: theme is supplied by the parent iframe URL.
+// Digiexpress Remote integration: theme is supplied by the Host bridge when opened standalone.
 try { const _dxTheme=new URLSearchParams(location.search).get('theme'); if(_dxTheme==='dark'||_dxTheme==='light') document.documentElement.dataset.theme=_dxTheme; } catch(_) {}
 
 
@@ -620,8 +620,9 @@ function initEnhancements(){
   ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart','periodComparisonChart'].forEach(id=>{const c=$(id);if(c)c.addEventListener('dblclick',e=>handleChartDoubleClick(c,e));});
   const heat=$('heatmapChart');if(heat){heat.addEventListener('click',e=>handleHeatmapClick(heat,e));heat.addEventListener('dblclick',e=>handleHeatmapDoubleClick(heat,e));heat.addEventListener('mousemove',e=>handleChartHover(heat,e));heat.addEventListener('mouseleave',hideChartTooltip);}
 }
-async function loadTheme(){const r=await chrome.storage.sync.get({theme:'light'});applyTheme(r.theme||'light');}
+async function loadTheme(){const r=await chrome.storage.sync.get({theme:document.documentElement.dataset.theme||'light'});applyTheme(document.documentElement.dataset.theme||r.theme||'light');}
 function applyTheme(theme){document.documentElement.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀':'☾';setTimeout(()=>renderCharts(),0);}
+window.addEventListener('DIGIEXPRESS_THEME_READY',e=>{const theme=e?.detail?.theme==='dark'?'dark':'light';applyTheme(theme);});
 async function toggleTheme(){const next=document.documentElement.dataset.theme==='dark'?'light':'dark';applyTheme(next);await chrome.storage.sync.set({theme:next});}
 function updateFreshness(ts){const el=$('freshnessIndicator');if(!el)return;const d=parseDate(ts)||new Date();const mins=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));el.textContent=mins<1?'Freshness: now':`Freshness: ${fmt(mins)}m`;el.className=`badge ${mins<=20?'good':mins<=60?'neutral':'bad'}`;el.dataset.ts=d.toISOString();}
 setInterval(()=>{const el=$('freshnessIndicator');if(el?.dataset.ts)updateFreshness(el.dataset.ts);},60000);
