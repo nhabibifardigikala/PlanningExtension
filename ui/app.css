@@ -608,3 +608,19 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
   pointer-events:auto!important;
 }
 
+
+/* Config 278 — Capacity Report is a Remote-owned DK/Flex application. */
+.capacity-report-embedded{display:none!important;width:100%;height:calc(100vh - 150px);min-height:520px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
+.capacity-report-embedded iframe{width:100%;height:100%;min-height:0;border:0;background:transparent}
+.capacity-report-theme-frame{display:none!important}
+html[data-theme="light"] #capacityReportFrameLight{display:block!important;color-scheme:light!important}
+html[data-theme="dark"] #capacityReportFrameDark{display:block!important;color-scheme:dark!important}
+#operationView:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]) .settings-heading{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]) #capacityReportEmbedded{display:block!important;flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden}
+html:has(#operationView.active #operationInputs [data-field-wrap="__capacityReportEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__capacityReportEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__capacityReportEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+#operationView:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]) #operationBackBtn{flex:0 0 auto}
+@media(max-width:700px){.capacity-report-embedded{height:calc(100vh - 125px);min-height:0}}

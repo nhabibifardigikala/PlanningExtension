@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Capacity Report</title>
+  <link rel="stylesheet" href="capacity-report.css?v=278">
+</head>
+<body>
+  <main class="app" id="app">
+    <section class="report-form" id="reportForm">
+      <div class="form-grid">
+        <div class="field source-field">
+          <label>Report source</label>
+          <div class="segmented" role="radiogroup" aria-label="Report source">
+            <label><input type="radio" name="source" value="dk" checked><span>DK</span></label>
+            <label><input type="radio" name="source" value="flex"><span>Flex</span></label>
+          </div>
+        </div>
+
+        <div class="field" id="dkCentersField">
+          <label for="dkCentersInput">Distribution Centers</label>
+          <div class="chips" id="dkChips"></div>
+          <div class="autocomplete">
+            <input id="dkCentersInput" type="text" autocomplete="off" placeholder="Search center name or enter numeric IDs separated by spaces">
+            <div class="menu hidden" id="dkMenu"></div>
+          </div>
+          <small>DK supports multiple centers. Numeric IDs may be pasted with spaces.</small>
+        </div>
+
+        <div class="field hidden" id="flexCenterField">
+          <label for="flexCenterInput">Distribution Center</label>
+          <div class="autocomplete">
+            <input id="flexCenterInput" type="text" autocomplete="off" placeholder="Search one Distribution Center">
+            <div class="menu hidden" id="flexMenu"></div>
+          </div>
+          <small>Flex accepts exactly one Distribution Center.</small>
+        </div>
+
+        <div class="date-row">
+          <div class="field">
+            <label for="fromDate">From date (Jalali)</label>
+            <input id="fromDate" inputmode="numeric" maxlength="8" placeholder="14050520">
+          </div>
+          <div class="field">
+            <label for="toDate">To date (Jalali)</label>
+            <input id="toDate" inputmode="numeric" maxlength="8" placeholder="14050520">
+          </div>
+        </div>
+
+        <label class="aggregate-option" id="aggregateWrap">
+          <input id="aggregateCapacities" type="checkbox">
+          <span>
+            <strong>Aggregate capacities</strong>
+            <small>Combine selected DK centers into one report instead of separate center cards.</small>
+          </span>
+        </label>
+
+        <button id="runReport" class="primary" type="button">
+          <span class="run-icon" aria-hidden="true">↗</span>
+          Run Capacity Report
+        </button>
+        <div id="status" class="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="result" class="result hidden" aria-live="polite"></section>
+  </main>
+  <script src="capacity-report.js?v=278"></script>
+</body>
+</html>

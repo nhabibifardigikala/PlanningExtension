@@ -1,11 +1,11 @@
 {
-  "configVersion": 277,
-  "minEngineVersion": "12.3.4",
+  "configVersion": 278,
+  "minEngineVersion": "12.3.5",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 277",
+    "subtitle": "Operations Toolkit · Config 278",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 277
+    "configVersion": 278
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -131,13 +131,14 @@
     {
       "id": "capacity-report",
       "title": "Capacity Report",
-      "subtitle": "Capacity overview",
+      "subtitle": "DK / Flex capacity analytics",
       "iconSvgPath": "M7 39h34v4H3V7h4v32Zm7-5H9V22h5v12Zm9 0h-5V14h5v20Zm9 0h-5V19h5v15Zm9 0h-5V9h5v25Z",
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=269",
-      "description": "Select one or more Distribution Centers, choose a Jalali date range, and compare capacity trends."
+      "config": "operations/capacity-report.json?v=278",
+      "description": "Choose DK or Flex, select Distribution Centers and a Jalali date range, then review capacity trends with optional DK aggregation.",
+      "runLabel": "Open Capacity Report"
     },
     {
       "id": "rejected-shipments",
@@ -664,8 +665,8 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=271",
-    "css": "ui/app.css?v=273",
+    "html": "ui/app.html?v=278",
+    "css": "ui/app.css?v=278",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=271"
   },
