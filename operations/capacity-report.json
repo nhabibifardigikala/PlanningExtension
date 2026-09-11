@@ -2,14 +2,17 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report with DK and Flex sources. Host only executes the selected browser workflow and returns table data.",
+  "description": "Remote-owned Capacity Report with DK and Flex sources. Flex uses the exact capacity-slots result table and retains only Coverage Polygon, Time Slot, Date and Shipping Reserved Capacity.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
       "name": "__capacityReportEmbedded",
       "label": "",
       "type": "text",
-      "showWhen": {"field": "__never__", "equals": "true"}
+      "showWhen": {
+        "field": "__never__",
+        "equals": "true"
+      }
     }
   ],
   "navigation": {
@@ -22,19 +25,28 @@
       "action": "open",
       "url": "https://lg.digikala.com/dc-capacity/?per_page=1000",
       "active": false,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Opening DK Capacity Report…"
     },
     {
       "action": "ensureLogin",
       "detectTimeoutMs": 5000,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Checking DK authentication…"
     },
     {
       "action": "navigate",
       "url": "https://lg.digikala.com/dc-capacity/?per_page=1000",
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Setting DK rows per page to 1000…"
     },
     {
@@ -42,61 +54,105 @@
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
       "timeoutMs": 20000,
       "intervalMs": 250,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "error": "DK Distribution Center field was not found."
     },
     {
       "action": "fill",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
       "value": "{{dcId}}",
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Setting DK Distribution Centers…"
     },
     {
       "action": "wait",
       "ms": 1000,
-      "when": {"left": "{{reportSource}}", "equals": "dk"}
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      }
     },
     {
       "action": "clickOutside",
       "center": true,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Applying DK Distribution Centers…"
     },
     {
       "action": "read",
       "selector": "input.es-input[placeholder=\"Distribution center\"]",
       "storeAs": "dcFieldValue",
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "error": "DK Distribution Center field was not found."
     },
     {
       "action": "assert",
-      "condition": {"left": "{{dcFieldValue}}", "operator": "truthy"},
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "condition": {
+        "left": "{{dcFieldValue}}",
+        "operator": "truthy"
+      },
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "error": "DK Distribution Center values were not committed."
     },
     {
       "action": "jalaliDate",
       "selector": "#form-field-from, #form-field-from_date, input[data-name=\"from_date\"], input[placeholder=\"from Date\"]",
       "value": "{{fromDate}}",
-      "options": {"slashFormat": true, "waitBeforeOutsideMs": 900, "pressShift": true, "outsideX": 100, "outsideY": 100, "afterOutsideMs": 450},
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "options": {
+        "slashFormat": true,
+        "waitBeforeOutsideMs": 900,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 450
+      },
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Setting DK start date…"
     },
     {
       "action": "jalaliDate",
       "selector": "#form-field-to, #form-field-to_date, input[data-name=\"to_date\"], input[placeholder=\"to Date\"]",
       "value": "{{toDate}}",
-      "options": {"slashFormat": true, "waitBeforeOutsideMs": 900, "pressShift": true, "outsideX": 100, "outsideY": 100, "afterOutsideMs": 650},
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "options": {
+        "slashFormat": true,
+        "waitBeforeOutsideMs": 900,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 650
+      },
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Setting DK end date…"
     },
     {
       "action": "submitNearestForm",
       "selector": "button.uk-button.uk-button-primary[type=\"submit\"]",
       "waitForNavigation": false,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Searching DK Capacity Report…",
       "error": "DK Capacity Report search could not be submitted."
     },
@@ -105,7 +161,10 @@
       "selector": "a[href=\"/dc-capacity/\"].uk-button.uk-button-gray",
       "timeoutMs": 60000,
       "intervalMs": 250,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Waiting for DK results…",
       "error": "DK Capacity search did not complete."
     },
@@ -114,7 +173,10 @@
       "selector": "table tbody tr",
       "timeoutMs": 30000,
       "intervalMs": 400,
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "error": "No DK capacity rows appeared."
     },
     {
@@ -127,32 +189,46 @@
       "dedupe": false,
       "maxPages": 1000,
       "pageProgress": "Extracting DK capacity page {{page}}…",
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Extracting DK capacity data…"
     },
     {
       "action": "closeTab",
-      "when": {"left": "{{reportSource}}", "equals": "dk"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "dk"
+      },
       "progress": "Closing DK report tab…"
     },
-
     {
       "action": "open",
       "url": "https://flex.digikala.com/hubs/capacity-slots/",
       "active": false,
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Opening Flex Capacity Report…"
     },
     {
       "action": "ensureLogin",
       "detectTimeoutMs": 5000,
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Checking Flex authentication…"
     },
     {
       "action": "navigate",
       "url": "https://flex.digikala.com/hubs/capacity-slots/",
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Opening Flex capacity slots…"
     },
     {
@@ -160,7 +236,10 @@
       "selector": "input.uk-select.es-input[placeholder=\"Hub Coverage Polygons\"]",
       "timeoutMs": 20000,
       "intervalMs": 250,
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "error": "Flex Distribution Center field was not found."
     },
     {
@@ -177,7 +256,10 @@
         "outsideWaitMs": 350,
         "selectorIndex": 0
       },
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Selecting the closest Flex Distribution Center…",
       "error": "Could not select the Flex Distribution Center."
     },
@@ -185,43 +267,72 @@
       "action": "jalaliDate",
       "selector": "#form-field-from_date, input[data-name=\"from_date\"]",
       "value": "{{fromDate}}",
-      "options": {"slashFormat": true, "waitBeforeOutsideMs": 700, "pressShift": true, "outsideX": 100, "outsideY": 100, "afterOutsideMs": 400},
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "options": {
+        "slashFormat": true,
+        "waitBeforeOutsideMs": 700,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 400
+      },
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Setting Flex start date…"
     },
     {
       "action": "jalaliDate",
       "selector": "#form-field-to_date, input[data-name=\"to_date\"]",
       "value": "{{toDate}}",
-      "options": {"slashFormat": true, "waitBeforeOutsideMs": 700, "pressShift": true, "outsideX": 100, "outsideY": 100, "afterOutsideMs": 500},
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "options": {
+        "slashFormat": true,
+        "waitBeforeOutsideMs": 700,
+        "pressShift": true,
+        "outsideX": 100,
+        "outsideY": 100,
+        "afterOutsideMs": 500
+      },
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Setting Flex end date…"
     },
     {
       "action": "submitNearestForm",
       "selector": "button.uk-button.uk-button-primary[type=\"submit\"]",
       "waitForNavigation": false,
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Searching Flex Capacity Report…",
       "error": "Flex Capacity Report search could not be submitted."
     },
     {
       "action": "wait",
       "ms": 1600,
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Waiting for Flex results…"
     },
     {
       "action": "waitFor",
-      "selector": "table tbody tr",
+      "selector": "table:has(thead th[data-code=\"coverage_polygon\"]):has(thead th[data-code=\"time_slot\"]) tbody tr",
       "timeoutMs": 45000,
       "intervalMs": 400,
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
-      "error": "No Flex capacity rows appeared."
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
+      "error": "No Flex capacity rows appeared in the capacity-slots result table."
     },
     {
       "action": "extractPaginatedTable",
-      "nextSelector": "a[aria-label=\"Next page\"]",
+      "nextSelector": "a[aria-label=\"Next page\"], a[rel=\"next\"], .uk-pagination-next a",
       "timeoutMs": 30000,
       "stableMs": 1400,
       "pollMs": 400,
@@ -229,18 +340,34 @@
       "dedupe": false,
       "maxPages": 1000,
       "pageProgress": "Extracting Flex capacity page {{page}}…",
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
-      "progress": "Extracting Flex shipping reserved capacity…"
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
+      "progress": "Extracting Flex shipping reserved capacity…",
+      "parser": {
+        "tableSelector": "table:has(thead th[data-code=\"coverage_polygon\"]):has(thead th[data-code=\"time_slot\"])",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "svgBoolean": false
+      },
+      "error": "Flex capacity rows could not be extracted from the capacity-slots result table."
     },
     {
       "action": "closeTab",
-      "when": {"left": "{{reportSource}}", "equals": "flex"},
+      "when": {
+        "left": "{{reportSource}}",
+        "equals": "flex"
+      },
       "progress": "Closing Flex report tab…"
     }
   ],
-  "retryPolicy": {"attempts": 3, "delayMs": 1200},
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1200
+  },
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 2
+  "remoteBehaviorVersion": 3
 }

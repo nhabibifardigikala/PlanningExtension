@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 280;
+  const VERSION = 281;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -175,7 +175,11 @@
 
   function headerIndex(headers, aliases) {
     const hs = headers.map(norm);
-    for (const a of aliases) { const n = norm(a); const i = hs.findIndex(h => h===n || h.includes(n) || n.includes(h)); if (i >= 0) return i; }
+    const as = aliases.map(norm).filter(Boolean);
+    // Prefer exact header matches before any fuzzy matching. This matters on Flex where
+    // "time slot id" appears before "time slot" and several reserved-capacity columns coexist.
+    for (const n of as) { const i = hs.findIndex(h => h === n); if (i >= 0) return i; }
+    for (const n of as) { const i = hs.findIndex(h => h && (h.includes(n) || n.includes(h))); if (i >= 0) return i; }
     return -1;
   }
 
@@ -214,9 +218,30 @@
     return {headers:outHeaders,rows:outRows};
   }
 
+  function normalizeFlexDataset(headers, rows) {
+    const pi=headerIndex(headers,aliases.coveragePolygon);
+    const ti=headerIndex(headers,aliases.time);
+    const di=headerIndex(headers,aliases.date);
+    const ri=headerIndex(headers,['shipping reserved capacity','shipping_reserved_capacity']);
+    const missing=[];
+    if(pi<0)missing.push('coverage polygon');
+    if(ti<0)missing.push('time slot');
+    if(di<0)missing.push('date');
+    if(ri<0)missing.push('shipping reserved capacity');
+    if(missing.length)throw new Error(`Flex result columns were not found: ${missing.join(', ')}.`);
+    const outRows=rows.map(row=>[row[pi]??'',row[ti]??'',row[di]??'',row[ri]??''])
+      .filter(row=>row.some(v=>String(v??'').trim()!==''));
+    return {headers:['Coverage Polygon','Time Slot','Date','Shipping Reserved Capacity'],rows:outRows};
+  }
+
   function buildModel(result, input) {
     let headers = Array.isArray(result.headers)?result.headers:[], rows=Array.isArray(result.rows)?result.rows:[];
     const source=input.reportSource;
+    if(source==='flex'){
+      const normalized=normalizeFlexDataset(headers,rows);
+      headers=normalized.headers;
+      rows=normalized.rows;
+    }
     const aggregate=source==='dk'&&!!input.aggregateCapacities;
     const partitions=[];
     if(source==='dk'&&aggregate){
@@ -245,7 +270,7 @@
   }
 
   function metricData(model, group) {
-    const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=headerIndex(h,aliases.reserved);
+    const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=model.source==='flex'?headerIndex(h,['shipping reserved capacity','shipping_reserved_capacity']):headerIndex(h,aliases.reserved);
     const days=di>=0?new Set(group.rows.map(r=>String(r[di]??'').trim()).filter(Boolean)).size:group.rows.length;
     const c=ci>=0?summary(group.rows.map(r=>num(r[ci]))):summary([]);
     const r=ri>=0?summary(group.rows.map(row=>num(row[ri]))):summary([]);
@@ -253,7 +278,7 @@
   }
 
   function seriesData(model, group) {
-    const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=headerIndex(h,aliases.reserved), map=new Map();
+    const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=model.source==='flex'?headerIndex(h,['shipping reserved capacity','shipping_reserved_capacity']):headerIndex(h,aliases.reserved), map=new Map();
     group.rows.forEach((row,index)=>{const date=di>=0?String(row[di]??'').trim():String(index+1);if(!date)return;if(!map.has(date))map.set(date,{date,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(date),c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}});
     return [...map.values()]
       .map(o=>({date:o.date,capacity:o.hasC?o.capacity:null,reserved:o.hasR?o.reserved:null}))
@@ -264,15 +289,6 @@
       });
   }
 
-  function flexTable(model, part) {
-    const h=model.headers, pi=headerIndex(h,aliases.coveragePolygon), ti=headerIndex(h,aliases.time), di=headerIndex(h,aliases.date), ri=headerIndex(h,aliases.reserved);
-    if(!part.rows.length)return '<div class="empty-state">No Flex rows.</div>';
-    const body=part.rows.map(row=>{
-      const polygon=(pi>=0?row[pi]:'')||part.label;
-      return `<tr><td>${esc(polygon)}</td><td>${esc(ti>=0?row[ti]:'')}</td><td>${esc(di>=0?row[di]:'')}</td><td class="numeric">${esc(ri>=0?row[ri]:'')}</td></tr>`;
-    }).join('');
-    return `<div class="flex-table-wrap"><table class="flex-table"><thead><tr><th>Coverage Polygon</th><th>Time Slot</th><th>Date</th><th>Shipping Reserved Capacity</th></tr></thead><tbody>${body}</tbody></table></div>`;
-  }
 
   function metricCard(label, stats, cls='') {
     return `<div class="metric ${cls}"><span>${esc(label)}</span><div class="metric-values"><div><small>Min</small><strong>${fmt(stats.min)}</strong></div><div><small>Average</small><strong>${fmt(stats.avg)}</strong></div><div><small>Max</small><strong>${fmt(stats.max)}</strong></div></div></div>`;
@@ -304,7 +320,6 @@
       sec.innerHTML=`<div class="report-title"><div><strong>${esc(part.label)}</strong>${idText?`<small>${idText}</small>`:''}</div><small>${part.rows.length} rows</small></div><div class="group-list"></div>`;cards.appendChild(sec);
       const gl=qs('.group-list',sec);
       for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=model.source==='flex'?`<div class="metrics flex-metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Shipping Reserved Capacity',m.reserved)}</div>`:`<div class="metrics"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Capacity Reserved',m.reserved)}</div>`;const groupTitle=model.source==='flex'?`Time Slot: ${group.label}`:group.label;g.innerHTML=`<div class="group-title">${esc(groupTitle)}</div>${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
-      if(model.source==='flex')sec.insertAdjacentHTML('beforeend',flexTable(model,part));
     }
     $('downloadExcel').onclick=()=>downloadModelXlsx(model);
     const db=$('openDashboard');if(db)db.onclick=()=>{try{localStorage.setItem(CACHE_KEY,JSON.stringify(model));}catch(_){}const u=new URL(location.href);u.searchParams.set('dashboard','1');u.searchParams.set('theme',theme);window.open(u.href,'_blank','noopener,noreferrer')};
@@ -320,7 +335,7 @@
 
   function exportRows(model){
     if(model.source==='flex'){
-      const pi=headerIndex(model.headers,aliases.coveragePolygon),di=headerIndex(model.headers,aliases.date),ti=headerIndex(model.headers,aliases.time),ri=headerIndex(model.headers,aliases.reserved);
+      const pi=headerIndex(model.headers,aliases.coveragePolygon),di=headerIndex(model.headers,aliases.date),ti=headerIndex(model.headers,aliases.time),ri=headerIndex(model.headers,['shipping reserved capacity','shipping_reserved_capacity']);
       const headers=['Coverage Polygon','Time Slot','Date','Shipping Reserved Capacity'],rows=[];
       for(const p of model.partitions)for(const r of p.rows)rows.push([(pi>=0?r[pi]:'')||p.label,ti>=0?r[ti]:'',di>=0?r[di]:'',ri>=0?r[ri]:'']);
       return{headers,rows};

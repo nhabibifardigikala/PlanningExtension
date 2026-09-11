@@ -55,19 +55,11 @@ input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,va
 .jalali-cal-foot{display:flex;justify-content:flex-end;margin-top:8px}
 .jalali-cal-foot button{padding:0 12px;color:var(--text)}
 
-
-/* Flex report presentation (v280): polygon-first cards, per-time-slot trends, and exact Flex output table. */
+/* Flex report presentation (v281): same chart-first dashboard language as DK. */
 .flex-report .report-title>div{display:grid;gap:2px}
 .flex-report .report-title strong{font-size:19px;line-height:1.45;font-weight:900}
 .flex-report .group-title{font-size:13px}
 .flex-metrics{grid-template-columns:minmax(120px,.55fr) minmax(280px,1.45fr)}
-.flex-table-wrap{overflow:auto;margin-top:12px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
-.flex-table{width:100%;border-collapse:collapse;min-width:680px;font-size:11px}
-.flex-table th,.flex-table td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
-.flex-table th{position:sticky;top:0;background:var(--card2);color:var(--muted);font-size:10px;font-weight:900;z-index:1}
-.flex-table tbody tr:last-child td{border-bottom:0}
-.flex-table tbody tr:hover td{background:var(--accent-soft)}
-.flex-table td.numeric{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
 .dashboard-mode .flex-report .report-title strong{font-size:22px}
 .dashboard-mode .flex-report .group-title{font-size:15px}
 @media(max-width:720px){.flex-metrics{grid-template-columns:1fr}.flex-report .report-title strong{font-size:17px}.dashboard-mode .flex-report .report-title strong{font-size:19px}}
