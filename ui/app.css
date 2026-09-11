@@ -607,3 +607,13 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
   opacity:1!important;
   pointer-events:auto!important;
 }
+
+/* v276 — Rejected Shipments embedded dashboard */
+.rejected-shipments-embedded{display:none!important;width:100%;height:calc(100vh - 145px);min-height:560px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
+.rejected-shipments-embedded iframe{width:100%;height:100%;min-height:0;border:0;background:transparent}
+.rejected-shipments-theme-frame{display:none!important}
+html[data-theme="light"] #rejectedShipmentsFrameLight{display:block!important;color-scheme:light!important}
+html[data-theme="dark"] #rejectedShipmentsFrameDark{display:block!important;color-scheme:dark!important}
+#operationView:has(#operationInputs [data-field-wrap="__rejectedShipmentsEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__rejectedShipmentsEmbedded"]) .settings-heading,#operationView:has(#operationInputs [data-field-wrap="__rejectedShipmentsEmbedded"]) #capacityStats,#operationView:has(#operationInputs [data-field-wrap="__rejectedShipmentsEmbedded"]) #operationSubTabs{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__rejectedShipmentsEmbedded"]) .rejected-shipments-embedded{display:block!important;flex:1 1 auto;height:calc(100vh - 145px)!important}
+@media(max-width:700px){.rejected-shipments-embedded{height:calc(100vh - 132px)!important;min-height:520px}}

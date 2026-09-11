@@ -1,11 +1,11 @@
 {
-  "configVersion": 275,
-  "minEngineVersion": "12.3.2",
+  "configVersion": 276,
+  "minEngineVersion": "12.3.4",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 275",
+    "subtitle": "Operations Toolkit · Config 276",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 275
+    "configVersion": 276
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -138,6 +138,30 @@
       ],
       "config": "operations/capacity-report.json?v=269",
       "description": "Select one or more Distribution Centers, choose a Jalali date range, and compare capacity trends."
+    },
+    {
+      "id": "rejected-shipments",
+      "title": "Rejected Shipments",
+      "subtitle": "Rejection analytics",
+      "accessHeaders": [
+        "Rejected Shipments"
+      ],
+      "config": "operations/rejected-shipments.json?v=276",
+      "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Zm25-10 4 4 6-7 4 4-10 11-8-8 4-4Z",
+      "description": "Monitor rejected shipments, review trends and drill into rejection details from one dashboard.",
+      "runLabel": "Open Rejected Shipments",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__rejectedShipmentsEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "daily-planner",

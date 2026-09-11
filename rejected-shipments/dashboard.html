@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rejected Shipments Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css?v=276" />
+</head>
+<body>
+  <div id="loadingOverlay" class="loading-overlay"><div><span class="loading-spinner"></span><strong>Loading data…</strong></div></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand icon-only-brand" title="Rejected Shipments Control Center"><div class="brand-mark">RS</div></div>
+      <nav class="icon-nav">
+        <button class="nav-item active" data-section="dashboard" aria-label="Dashboard" title="Dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+        <button class="nav-item" data-section="data" aria-label="Data Explorer" title="Data Explorer"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></button>
+        <button class="nav-item" data-section="alerts" aria-label="Alerts" title="Alerts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></button>
+        <button class="nav-item" data-section="settings" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg></button>
+        <button class="nav-item" data-section="about" aria-label="System Status" title="System Status"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6"/><path d="M12 7h.01"/></svg></button>
+      </nav>
+      <div class="side-status icon-status" title="System status"><span id="healthDot" class="dot"></span><span class="sr-only" id="healthText">Checking…</span><span class="sr-only" id="sideLastSync">—</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Rejected Shipments Dashboard</h1>
+          <p id="pageSubtitle">Incremental monitoring, analytics, and threshold alerts</p>
+        </div>
+        <div class="top-actions">
+          <span id="freshnessIndicator" class="badge neutral" title="Data freshness">Freshness: —</span>
+          <button id="themeToggle" class="btn ghost icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
+          <span id="syncBadge" class="badge neutral">Ready</span>
+          <button id="refreshDataBtn" class="btn ghost">↻ Refresh Dashboard</button>
+          <button id="syncNowBtn" class="btn primary">⟳ Sync Now</button>
+        </div>
+      </header>
+
+      <section id="section-dashboard" class="section active">
+        <div class="saved-views card">
+          <div class="saved-view-main"><strong>Saved Views</strong><select id="savedViewSelect"><option value="">Select a saved view…</option></select></div>
+          <div class="inline"><input id="savedViewName" class="search" placeholder="View name…"><button id="saveViewBtn" class="btn ghost compact">Save View</button><button id="deleteViewBtn" class="btn ghost compact">Delete</button></div>
+        </div>
+        <div class="filters card">
+          <div class="field"><label>From Date (Jalali)</label><input id="filterFrom" type="text" autocomplete="off"></div>
+          <div class="field"><label>To Date (Jalali)</label><input id="filterTo" type="text" autocomplete="off"></div>
+          <div class="field"><label>Service Level</label><select id="filterService"><option value="">All</option></select></div>
+          <div class="field"><label>Destination Point</label><select id="filterDestination"><option value="">All</option></select></div>
+          <div class="field"><label>User ID</label><select id="filterUser"><option value="">All</option></select></div>
+          <div class="field"><label>Shipping Size</label><select id="filterShippingSize"><option value="">All</option></select></div>
+          <button id="resetFilters" class="btn ghost compact">Clear Filters</button><div id="activeChartFilter" class="active-filter" hidden></div>
+        </div>
+
+
+        <article class="card smart-summary-card" id="smartSummaryCard">
+          <div class="smart-summary-icon" aria-hidden="true">✦</div>
+          <div><span class="eyebrow">Smart Summary</span><strong id="smartSummaryText">Waiting for shipment data…</strong></div>
+        </article>
+
+        <div class="kpi-grid kpi-grid-eight">
+          <article class="kpi card"><span>Last 15min Rejected</span><strong id="kpi15m">0</strong><small>Rolling 15 minutes</small></article>
+          <article class="kpi card"><span>Last Hour Rejected</span><strong id="kpi1h">0</strong><small>Rolling 60 minutes</small></article>
+          <article class="kpi card"><span>Current Day Rejected</span><strong id="kpiCurrentDay">0</strong><small>Today by Created At</small></article>
+          <article class="kpi card"><span>Prv Day Rejected</span><strong id="kpiPrevDay">0</strong><small>Previous calendar day</small></article>
+          <article class="kpi card"><span>Current Month Rejected</span><strong id="kpiCurrentMonth">0</strong><small>Current calendar month</small></article>
+          <article class="kpi card"><span>Prv Month Rejected</span><strong id="kpiPrevMonth">0</strong><small>Previous calendar month</small></article>
+          <article class="kpi card"><span>Today DK Rejected</span><strong id="kpiTodayDK">0</strong><small>Digikala Shop user ID</small></article>
+          <article class="kpi card"><span>Today DX Rejected</span><strong id="kpiTodayDX">0</strong><small>Digiexpress user ID</small></article>
+        </div>
+
+        <div class="chart-grid">
+          <article class="card chart-card wide"><div class="card-head"><div><h3>Rejection Trend</h3><p>Based on shipment Created At</p><div class="trend-series-legend"><span><i class="trend-swatch total"></i>All Rejections</span><span><i class="trend-swatch unique"></i>Unique Reference IDs</span></div></div><div class="trend-controls"><select id="trendBucket" title="Time granularity"><option value="quarter" selected>15 Minutes</option><option value="hour">Hourly</option><option value="day">Daily</option><option value="month">Monthly</option></select><select id="trendPointCount" title="Time buckets to display"><option value="20">20</option><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option><option value="all">All</option></select></div></div><canvas id="trendChart" height="240"></canvas></article>
+          <article class="card chart-card"><div class="card-head"><div><h3>Shipping Size</h3><p>Rejected shipments by shipping size</p></div></div><canvas id="shippingSizeChart" height="240"></canvas></article>
+          <article class="card chart-card"><div class="card-head"><div><h3>Top Destination Points</h3><p>Most frequent destinations</p></div></div><canvas id="destinationChart" height="240"></canvas></article>
+          <article class="card chart-card"><div class="card-head"><div><h3>Current Month Daily Trend</h3><p>Daily rejected shipments for the current Jalali month</p></div></div><canvas id="currentMonthDailyChart" height="240"></canvas></article>
+          <article class="card chart-card"><div class="card-head"><div><h3>Period Comparison</h3><p>Current versus previous comparable calendar periods</p></div></div><canvas id="periodComparisonChart" height="240"></canvas></article>
+          <article class="card chart-card heatmap-card"><div class="card-head"><div><h3>Rejection Heatmap</h3><p>Hour × weekday based on Created At</p></div></div><canvas id="heatmapChart" height="330"></canvas></article>
+        </div>
+
+        <div class="advanced-analytics-grid">
+          <article class="card chart-card cumulative-card">
+            <div class="card-head"><div><h3>Cumulative Day Curve</h3><p>Today vs yesterday and 7-day average by hour of day</p></div></div>
+            <div class="chart-legend" aria-label="Cumulative chart legend"><span><i class="legend-dot today"></i>Today</span><span><i class="legend-dot yesterday"></i>Yesterday</span><span><i class="legend-dot average"></i>7-day average</span></div>
+            <canvas id="cumulativeDayChart" height="280"></canvas>
+          </article>
+          <article class="card insight-card">
+            <div class="card-head"><div><h3>Root Cause Snapshot</h3><p>Largest drivers in the current filtered context</p></div></div>
+            <div id="rootCauseSnapshot" class="root-cause-grid"></div>
+          </article>
+          <article class="card insight-card contribution-card">
+            <div class="card-head"><div><h3>Contribution Analysis</h3><p>Share of rejected shipments by the main operational dimensions</p></div></div>
+            <div id="contributionAnalysis" class="contribution-analysis"></div>
+          </article>
+        </div>
+
+        <article class="card table-card">
+          <div class="card-head"><div><h3>Latest Rejected Shipments</h3><p>Sorted by ID descending</p></div><div class="inline"><select id="latestRowCount" title="Rows to display"><option value="20" selected>20 rows</option><option value="100">100 rows</option><option value="200">200 rows</option><option value="500">500 rows</option><option value="1000">1000 rows</option></select><input id="quickSearch" class="search" placeholder="Search table…"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>reference_id</th><th>user_id</th><th>ready_date</th><th>created_at</th><th>shipping_size_id</th><th>destination_address</th><th>destination_shipping_point</th><th>parcel_ids</th><th>promise_date</th></tr></thead><tbody id="latestRows"></tbody></table></div>
+        </article>
+      </section>
+
+      <section id="section-data" class="section">
+        <article class="card">
+          <div class="card-head"><div><h3>Data Explorer</h3><p>Raw data stored in Google Sheet</p></div><div class="inline"><input id="dataSearch" class="search" placeholder="Search…"><select id="pageSize"><option>25</option><option selected>50</option><option>100</option></select></div></div>
+          <div class="table-wrap tall"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+          <div class="pager"><button id="prevPage" class="btn ghost compact">Previous</button><span id="pageInfo">1 / 1</span><button id="nextPage" class="btn ghost compact">Next</button></div>
+        </article>
+      </section>
+
+      <section id="section-alerts" class="section">
+        <div class="two-col">
+          <article class="card form-card">
+            <h3>Alert Rule</h3>
+            <p>Trigger a notification and a repeating alert when new rejected shipments reach the configured threshold within the selected rolling window. The sound continues until the user stops it.</p>
+            <label class="switch-row"><span><b>Enable Alerts</b><small>Evaluated after every automatic or manual sync</small></span><input id="alertEnabled" type="checkbox"></label>
+            <div class="field"><label>Rejected Count Threshold</label><input id="alertThreshold" type="number" min="1" value="10"></div>
+            <div class="field"><label>Rolling Window (minutes)</label><input id="alertWindowMinutes" type="number" min="15" value="60"></div>
+            <div class="inline"><button id="saveAlertBtn" class="btn primary">Save Alert Rule</button><button id="testAlertBtn" class="btn ghost">Test Alert Sound</button><button id="stopAlertBtn" class="btn danger">Stop Alert Sound</button></div>
+          </article>
+          <article class="card status-card">
+            <h3>Rolling Window Status</h3>
+            <div class="gauge"><div id="gaugeFill" class="gauge-fill"></div></div>
+            <strong id="rollingCount">0</strong>
+            <p id="rollingDescription">—</p>
+            <div class="mini-stats"><div><span>Threshold</span><b id="currentThreshold">—</b></div><div><span>Window</span><b id="currentWindow">—</b></div></div>
+          </article>
+        </div>
+        <article class="card table-card alert-history-card">
+          <div class="card-head"><div><h3>Alert History</h3><p>Triggered thresholds and acknowledgement timestamps</p></div><button id="clearAlertHistoryBtn" class="btn ghost compact">Clear History</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Triggered At</th><th>Value</th><th>Threshold</th><th>Window</th><th>Acknowledged At</th></tr></thead><tbody id="alertHistoryRows"><tr><td colspan="5">No alerts recorded.</td></tr></tbody></table></div>
+        </article>
+      </section>
+
+      <section id="section-settings" class="section">
+        <div class="two-col">
+          <article class="card form-card">
+            <h3>Google Sheet Connection</h3>
+            <div class="field"><label>Google Apps Script Web App URL</label><input id="webAppUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"></div>
+            <div class="field"><label>Shared Secret</label><input id="secretToken" type="password" placeholder="••••••••"></div>
+            <p class="hint">The Apps Script is configured to write to the Rejected Shipments spreadsheet.</p>
+          </article>
+          <article class="card form-card">
+            <h3>Synchronization</h3>
+            <div class="field"><label>Extraction Schedule</label><input id="intervalMinutes" type="number" value="15" disabled></div><p class="hint">Extraction runs every 15 minutes on official quarter-hour boundaries (:00, :15, :30, :45). Failed extractions retry every minute until successful. Dashboard data refreshes every 5 minutes and also retries until successful.</p>
+            <label class="switch-row"><span><b>Keep Extraction Tab Open</b><small>Useful for troubleshooting</small></span><input id="keepScrapeTabOpen" type="checkbox"></label><div class="field"><label>DK User ID / Label</label><input id="dkUserMatcher" type="text" value="دیجی کالا شاپ" placeholder="e.g. دیجی کالا شاپ or numeric ID"></div><div class="field"><label>DX User ID / Label</label><input id="dxUserMatcher" type="text" value="دیجی اکسپرس" placeholder="e.g. دیجی اکسپرس or numeric ID"></div>
+            <div class="callout">Sync is incremental: the largest stored ID is read first, and only larger IDs are appended.</div>
+          </article>
+        </div>
+        <div class="savebar"><button id="saveSettingsBtn" class="btn primary">Save All Settings</button><span id="settingsSaved"></span></div>
+      </section>
+
+      <section id="section-about" class="section">
+        <div class="status-grid">
+          <article class="card"><span>Last Sync</span><strong id="statusLastSync">—</strong></article>
+          <article class="card"><span>New Rejections in Last Sync</span><strong id="statusNewCount">—</strong></article>
+          <article class="card"><span>Latest Max ID</span><strong id="statusMaxId">—</strong></article>
+          <article class="card"><span>Pages Read</span><strong id="statusPages">—</strong></article>
+        </div>
+        <article class="card error-card"><h3>Last Error</h3><pre id="statusError">No errors</pre></article>
+        <article class="card"><h3>Latest Extraction Diagnostics</h3><pre id="statusDiagnostics">No diagnostics recorded yet.</pre></article>
+        <article class="card"><h3>Sync Logic</h3><ol><li>Read max(id) from Google Sheet.</li><li>Open Shipments with status=rejected and ID descending.</li><li>Extract only rows with IDs greater than the watermark.</li><li>Stop when the previous ID watermark is reached and append safely to the Sheet.</li><li>Record sync history and evaluate the alert threshold.</li></ol></article>
+      </section>
+    </main>
+  </div>
+  <div id="drilldownBackdrop" class="drawer-backdrop" hidden></div>
+  <aside id="drilldownDrawer" class="drilldown-drawer" aria-hidden="true">
+    <div class="drawer-head"><div><h2 id="drawerTitle">Drill-down</h2><p id="drawerSubtitle">Shipments behind this visual value</p></div><button id="closeDrawerBtn" class="btn ghost compact">✕</button></div>
+    <div class="drawer-count"><strong id="drawerCount">0</strong> shipments</div>
+    <div class="table-wrap drawer-table"><table><thead><tr><th>reference_id</th><th>user_id</th><th>ready_date</th><th>created_at</th><th>shipping_size_id</th><th>destination_shipping_point</th><th>parcel_ids</th><th>promise_date</th></tr></thead><tbody id="drawerRows"></tbody></table></div>
+  </aside>
+  <div id="jalaliPicker" class="jalali-picker" hidden></div>
+  <div id="chartTooltip" class="chart-tooltip" hidden></div>
+  <div id="toast" class="toast"></div>
+  <script src="remote-adapter.js?v=276"></script>
+  <script src="dashboard.js?v=276"></script>
+</body>
+</html>
