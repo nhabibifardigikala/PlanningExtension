@@ -1,11 +1,11 @@
 const DATASETS={
-  delivery:{label:'Delivery',url:'../data/DX_Polygons.xlsx?v=293'},
-  pickup:{label:'Pickup',url:'../data/Pickup_Polygons.xlsx?v=293'}
+  delivery:{label:'Delivery',url:'../data/DX_Polygons.xlsx?v=294'},
+  pickup:{label:'Pickup',url:'../data/Pickup_Polygons.xlsx?v=294'}
 };
 let currentService='delivery';
 let rows=[],shown=[],pointHits=[],searchedPoint=null,sortKey='name',sortDir=1;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const map=L.map('map',{zoomControl:true}).setView([32,51],6), polygons=L.layerGroup().addTo(map), points=L.layerGroup().addTo(map);
+const map=L.map('map',{zoomControl:true}).setView([32,51],6), polygons=L.featureGroup().addTo(map), points=L.layerGroup().addTo(map);
 
 const TILE_TIMEOUT_MS=15000;
 const tilePending=new Map();
