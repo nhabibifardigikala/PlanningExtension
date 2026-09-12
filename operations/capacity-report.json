@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex searches each selected Distribution Center by its name and runs each center independently.",
+  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex searches each selected Distribution Center independently by exact visible name in Hub Coverage Polygons.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -254,24 +254,53 @@
       "action": "autocomplete",
       "selector": "input.uk-select.es-input[placeholder=\"Hub Coverage Polygons\"]",
       "value": "{{flexDcName}}",
-      "attempts": 3,
+      "attempts": 1,
       "options": {
         "focusWaitMs": 500,
         "clearWaitMs": 250,
         "typingDelayMs": 60,
-        "autocompleteWaitMs": 1500,
-        "pressEnter": true,
-        "keyDelayMs": 80,
-        "commitWaitMs": 1000,
+        "autocompleteWaitMs": 1800,
+        "commitWaitMs": 900,
         "outsideWaitMs": 350,
-        "selectorIndex": 0
+        "selectorIndex": 0,
+        "exactMatch": true,
+        "exactMatchSelector": "[role=\"listbox\"] [role=\"option\"], [role=\"option\"], .es-list li, .es-list a, .es-list button, .es-list div, .es-list span, .es-list [data-value], .es-list [data-name], .uk-dropdown li, .uk-dropdown a, .uk-dropdown button, .uk-dropdown span, .easy-autocomplete-container li, .autocomplete-suggestion, .autocomplete-suggestions *, .ui-autocomplete li, .ui-menu-item, .select2-results__option",
+        "exactMatchTimeoutMs": 7000,
+        "verifyExactValue": false,
+        "matchTransforms": [
+          {
+            "type": "normalizeUnicode",
+            "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "[يى]",
+            "flags": "g",
+            "replacement": "ی"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "ك",
+            "flags": "g",
+            "replacement": "ک"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "[\\u200c\\u200e\\u200f\\u202a-\\u202e]",
+            "flags": "g",
+            "replacement": ""
+          },
+          "collapseWhitespace",
+          "trim",
+          "caseFold"
+        ]
       },
       "when": {
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Selecting Flex Distribution Center by name…",
-      "error": "Could not select the Flex Distribution Center by name."
+      "progress": "Selecting exact Flex Distribution Center by name…",
+      "error": "Exact Flex Distribution Center name was not found in Hub Coverage Polygons."
     },
     {
       "action": "jalaliDate",
