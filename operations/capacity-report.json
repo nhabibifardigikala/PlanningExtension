@@ -320,10 +320,10 @@
         "clearWaitMs": 300,
         "typingDelayMs": 80,
         "autocompleteWaitMs": 2200,
-        "commitWaitMs": 900,
+        "commitWaitMs": 1200,
         "outsideWaitMs": 350,
         "selectorIndex": 0,
-        "exactMatch": true,
+        "exactMatch": false,
         "exactMatchSelector": ".es-list li",
         "exactMatchTimeoutMs": 10000,
         "verifyExactValue": false,
@@ -347,14 +347,16 @@
           "collapseWhitespace",
           "trim",
           "caseFold"
-        ]
+        ],
+        "pressEnter": true,
+        "keyDelayMs": 120
       },
       "when": {
         "left": "{{flexSelectionMode}}",
         "equals": "id"
       },
-      "progress": "Selecting the Flex center by numeric ID…",
-      "error": "The Flex Distribution Center ID was not found in Hub Coverage Polygons.",
+      "progress": "Selecting the Flex center by numeric ID and pressing Enter…",
+      "error": "The Flex Distribution Center ID could not be committed after pressing Enter.",
       "stepAttempts": 1,
       "retry": false
     },
