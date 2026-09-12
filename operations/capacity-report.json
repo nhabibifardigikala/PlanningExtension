@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex activates each report tab while selecting the exact visible Hub Coverage Polygons row by center name, then extracts each center independently.",
+  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex supports multiple centers and can select Hub Coverage Polygons either by visible center name or by the numeric Flex option ID shown in brackets.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -302,11 +302,59 @@
         ]
       },
       "when": {
-        "left": "{{reportSource}}",
-        "equals": "flex"
+        "left": "{{flexSelectionMode}}",
+        "equals": "name"
       },
-      "progress": "Selecting the exact Flex center from the visible Hub Coverage Polygons list…",
-      "error": "The exact Flex Distribution Center could not be selected from Hub Coverage Polygons.",
+      "progress": "Selecting the exact Flex center by name…",
+      "error": "The exact Flex Distribution Center name could not be selected from Hub Coverage Polygons. You can use the numeric Flex ID instead.",
+      "stepAttempts": 1,
+      "retry": false
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input[placeholder=\"Hub Coverage Polygons\"]",
+      "value": "{{flexDcId}}",
+      "attempts": 1,
+      "options": {
+        "focusWaitMs": 700,
+        "clearWaitMs": 300,
+        "typingDelayMs": 80,
+        "autocompleteWaitMs": 2200,
+        "commitWaitMs": 900,
+        "outsideWaitMs": 350,
+        "selectorIndex": 0,
+        "exactMatch": true,
+        "exactMatchSelector": ".es-list li",
+        "exactMatchTimeoutMs": 10000,
+        "verifyExactValue": false,
+        "matchTransforms": [
+          {
+            "type": "normalizeUnicode",
+            "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "[\\u061c\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u206f\\ufeff]",
+            "flags": "g",
+            "replacement": ""
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "^\\s*\\[([^\\]]+)\\].*$",
+            "flags": "g",
+            "replacement": "$1"
+          },
+          "collapseWhitespace",
+          "trim",
+          "caseFold"
+        ]
+      },
+      "when": {
+        "left": "{{flexSelectionMode}}",
+        "equals": "id"
+      },
+      "progress": "Selecting the Flex center by numeric ID…",
+      "error": "The Flex Distribution Center ID was not found in Hub Coverage Polygons.",
       "stepAttempts": 1,
       "retry": false
     },
@@ -416,5 +464,5 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 8
+  "remoteBehaviorVersion": 9
 }

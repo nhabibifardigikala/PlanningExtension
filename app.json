@@ -1,11 +1,11 @@
 {
-  "configVersion": 288,
-  "minEngineVersion": "12.3.6",
+  "configVersion": 289,
+  "minEngineVersion": "12.3.7",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 288",
+    "subtitle": "Operations Toolkit · Config 289",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 288
+    "configVersion": 289
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -136,8 +136,8 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=288",
-      "description": "Choose DK or Flex. DK searches by numeric Distribution Center ID. Flex opens the capacity page as the active tab while selecting the exact Hub Coverage Polygons option by visible center name (ignoring the leading [ID]), supports multiple centers, and DK can optionally aggregate all centers and time scopes into one chart.",
+      "config": "operations/capacity-report.json?v=289",
+      "description": "Choose DK or Flex. DK searches by numeric Distribution Center ID. Flex supports multiple centers and can select each Hub Coverage Polygons option either by center name or by its numeric Flex ID (the number shown in brackets). DK can optionally aggregate all centers and time scopes into one chart.",
       "runLabel": "Open Capacity Report"
     },
     {
@@ -658,14 +658,14 @@
       ]
     }
   ],
-  "publishedAt": "2026-09-11T21:24:00+03:30",
+  "publishedAt": "2026-09-12T14:36:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=282",
+    "html": "ui/app.html?v=289",
     "css": "ui/app.css?v=280",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=271"

@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 284;
+  const VERSION = 289;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -117,13 +117,22 @@
   function renderCenterMenu(input, menu, mode) {
     const query = input.value.trim();
     if (query.length < 1) { menu.classList.add('hidden'); return; }
+    const numericQuery = latinDigits(query).trim();
+    if (mode === 'flex' && /^\d+(?:\s+\d+)*$/.test(numericQuery)) {
+      const ids=numericQuery.split(/\s+/).filter(Boolean);
+      menu.innerHTML = `<button type="button" data-flex-raw-ids="${esc(ids.join(' '))}" class="active"><span>${ids.length===1?`Use Flex ID ${esc(ids[0])}`:`Use ${ids.length} Flex IDs`}</span><small>${esc(ids.join(' · '))}</small></button>`;
+      menu.classList.remove('hidden');
+      const btn=qs('[data-flex-raw-ids]',menu);
+      if(btn)btn.onclick=()=>addRawFlexIds(btn.dataset.flexRawIds||'');
+      return;
+    }
     loadCenters().then(list => {
       const selected = mode === 'dk' ? state.centers : state.flexCenters;
-      const selectedIds = new Set(selected.map(x=>String(x.id)));
+      const selectedIds = new Set(selected.filter(x=>x.lookupMode!=='id').map(x=>String(x.id)));
       const found = list.filter(x => matchesCenter(x, query) && !selectedIds.has(String(x.id)))
         .sort((a,b)=>rank(a,query)-rank(b,query) || a.name.localeCompare(b.name)).slice(0,30);
       if (!found.length) { menu.innerHTML = '<div class="empty">No matching Distribution Center</div>'; menu.classList.remove('hidden'); return; }
-      menu.innerHTML = found.map((x,i)=>`<button type="button" data-id="${esc(x.id)}" data-name="${esc(x.name)}" class="${i===0?'active':''}"><span>${esc(x.name)}</span><small>ID ${esc(x.id)}</small></button>`).join('');
+      menu.innerHTML = found.map((x,i)=>`<button type="button" data-id="${esc(x.id)}" data-name="${esc(x.name)}" class="${i===0?'active':''}"><span>${esc(x.name)}</span><small>${mode==='flex'?'Select by name':`ID ${esc(x.id)}`}</small></button>`).join('');
       menu.classList.remove('hidden');
       qsa('button', menu).forEach(btn => btn.onclick = () => selectCenter(mode, btn.dataset.id, btn.dataset.name));
     }).catch(e => { menu.innerHTML = `<div class="empty">${esc(e.message||e)}</div>`; menu.classList.remove('hidden'); });
@@ -134,7 +143,10 @@
       if (!state.centers.some(x => String(x.id) === String(id))) state.centers.push({id:String(id),name:String(name||id)});
       $('dkCentersInput').value = ''; $('dkMenu').classList.add('hidden'); renderChips();
     } else {
-      if (!state.flexCenters.some(x => String(x.id) === String(id))) state.flexCenters.push({id:String(id),name:String(name||id)});
+      const centerName=String(name||id);
+      if (!state.flexCenters.some(x => x.lookupMode==='name' && norm(x.name) === norm(centerName))) {
+        state.flexCenters.push({id:String(id||''),name:centerName,lookupMode:'name',flexId:''});
+      }
       $('flexCenterInput').value = '';
       $('flexMenu').classList.add('hidden');
       renderFlexChips();
@@ -147,8 +159,24 @@
   }
 
   function renderFlexChips() {
-    $('flexChips').innerHTML = state.flexCenters.map((x,i)=>`<span class="chip"><span>${esc(x.name)}</span><small>${x.name===x.id?'':`ID ${esc(x.id)}`}</small><button type="button" data-remove-flex="${i}" aria-label="Remove">×</button></span>`).join('');
+    $('flexChips').innerHTML = state.flexCenters.map((x,i)=>{
+      const byId=x.lookupMode==='id';
+      const title=byId?`Flex ID ${esc(x.flexId||x.id)}`:esc(x.name);
+      const meta=byId?'ID lookup':'Name lookup';
+      return `<span class="chip"><span>${title}</span><small>${meta}</small><button type="button" data-remove-flex="${i}" aria-label="Remove">×</button></span>`;
+    }).join('');
     qsa('[data-remove-flex]', $('flexChips')).forEach(b => b.onclick = () => { state.flexCenters.splice(Number(b.dataset.removeFlex),1); renderFlexChips(); });
+  }
+
+  function addRawFlexIds(raw) {
+    const parts = latinDigits(raw).trim().split(/\s+/).filter(Boolean);
+    if (!parts.length || !parts.every(x=>/^\d+$/.test(x))) return false;
+    for (const id of parts) {
+      if (!state.flexCenters.some(x=>x.lookupMode==='id' && String(x.flexId||x.id)===id)) {
+        state.flexCenters.push({id,name:`Flex ID ${id}`,lookupMode:'id',flexId:id});
+      }
+    }
+    $('flexCenterInput').value=''; $('flexMenu').classList.add('hidden'); renderFlexChips(); return true;
   }
 
   function addRawDkIds(raw) {
@@ -168,7 +196,12 @@
       if(addRawDkIds(dkI.value))e.preventDefault();
     });
     fxI.addEventListener('input',()=>renderCenterMenu(fxI,fxM,'flex'));
-    fxI.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=qs('button',fxM);if(first&&!fxM.classList.contains('hidden')){e.preventDefault();selectCenter('flex',first.dataset.id,first.dataset.name);}}});
+    fxI.addEventListener('keydown',e=>{
+      if(e.key!=='Enter')return;
+      if(addRawFlexIds(fxI.value)){e.preventDefault();return;}
+      const first=qs('button[data-id]',fxM);
+      if(first&&!fxM.classList.contains('hidden')){e.preventDefault();selectCenter('flex',first.dataset.id,first.dataset.name);}
+    });
     document.addEventListener('click',e=>{if(!e.target.closest('.autocomplete')){dkM.classList.add('hidden');fxM.classList.add('hidden');}});
   }
 
@@ -380,8 +413,8 @@
       if($('dkCentersInput').value.trim() && !addRawDkIds($('dkCentersInput').value)){setStatus('Select the Distribution Center from the list, or press Enter after numeric IDs.','error');return}
       if(!state.centers.length){setStatus('Select at least one Distribution Center for DK.','error');return}
     } else {
-      if($('flexCenterInput').value.trim()){setStatus('Select the Flex Distribution Center from the suggestion list before running.','error');return}
-      if(!state.flexCenters.length){setStatus('Select at least one Distribution Center for Flex.','error');return}
+      if($('flexCenterInput').value.trim() && !addRawFlexIds($('flexCenterInput').value)){setStatus('Select the Flex Distribution Center by name, or enter its numeric Flex ID and press Enter.','error');return}
+      if(!state.flexCenters.length){setStatus('Select at least one Distribution Center for Flex, or enter a numeric Flex ID.','error');return}
     }
     setBusy(true);$('result').classList.add('hidden');
     if(state.source==='dk' && state.centers.some(x=>x.name===x.id)){
@@ -403,10 +436,10 @@
     try{
       for(let i=0;i<selected.length;i++){
         const center=selected[i];
-        setStatus(`Running ${state.source==='dk'?'DK':'Flex'} report ${i+1}/${selected.length}: ${center.name}…`);
+        setStatus(`Running ${state.source==='dk'?'DK':'Flex'} report ${i+1}/${selected.length}: ${center.lookupMode==='id'?`Flex ID ${center.flexId||center.id}`:center.name}…`);
         const input=state.source==='dk'
-          ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:''}
-          : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexDcId:center.id,flexDcName:center.name};
+          ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:'',flexSelectionMode:''}
+          : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexSelectionMode:center.lookupMode==='id'?'id':'name',flexDcId:center.lookupMode==='id'?String(center.flexId||center.id):'',flexDcName:center.lookupMode==='id'?'':center.name};
         const result=await requestHostOperation(input,240000);
         models.push(buildModel(result,input));
       }
