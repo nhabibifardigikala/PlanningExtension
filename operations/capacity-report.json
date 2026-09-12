@@ -259,13 +259,13 @@
         "focusWaitMs": 500,
         "clearWaitMs": 250,
         "typingDelayMs": 60,
-        "autocompleteWaitMs": 1800,
+        "autocompleteWaitMs": 2200,
         "commitWaitMs": 900,
         "outsideWaitMs": 350,
         "selectorIndex": 0,
         "exactMatch": true,
-        "exactMatchSelector": "[role=\"listbox\"] [role=\"option\"], [role=\"option\"], .es-list li, .es-list a, .es-list button, .es-list div, .es-list span, .es-list [data-value], .es-list [data-name], .uk-dropdown li, .uk-dropdown a, .uk-dropdown button, .uk-dropdown span, .easy-autocomplete-container li, .autocomplete-suggestion, .autocomplete-suggestions *, .ui-autocomplete li, .ui-menu-item, .select2-results__option",
-        "exactMatchTimeoutMs": 7000,
+        "exactMatchSelector": "body *",
+        "exactMatchTimeoutMs": 10000,
         "verifyExactValue": false,
         "matchTransforms": [
           {
@@ -299,8 +299,10 @@
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Selecting exact Flex Distribution Center by name…",
-      "error": "Exact Flex Distribution Center name was not found in Hub Coverage Polygons."
+      "progress": "Selecting the exact Flex Distribution Center from the visible Hub Coverage Polygons list…",
+      "error": "The exact Flex Distribution Center name was not found in the visible Hub Coverage Polygons list.",
+      "stepAttempts": 1,
+      "retry": false
     },
     {
       "action": "jalaliDate",
@@ -408,5 +410,5 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 5
+  "remoteBehaviorVersion": 6
 }

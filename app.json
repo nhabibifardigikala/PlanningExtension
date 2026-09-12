@@ -1,5 +1,5 @@
 {
-  "configVersion": 285,
+  "configVersion": 286,
   "minEngineVersion": "12.3.6",
   "app": {
     "name": "Digiexpress",
@@ -136,7 +136,7 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=285",
+      "config": "operations/capacity-report.json?v=286",
       "description": "Choose DK or Flex. Distribution Center matching is exact (not first-suggestion), both sources support multiple centers, and DK can optionally aggregate all centers and time scopes into one chart.",
       "runLabel": "Open Capacity Report"
     },
