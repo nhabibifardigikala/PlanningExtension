@@ -264,13 +264,19 @@
         "outsideWaitMs": 350,
         "selectorIndex": 0,
         "exactMatch": true,
-        "exactMatchSelector": "body *",
-        "exactMatchTimeoutMs": 10000,
+        "exactMatchSelector": ".es-list li, .es-list-item, .es-item, [role=\"option\"], .easy-autocomplete-container li, .ui-autocomplete li, .ui-menu-item, .autocomplete-suggestion, ul li",
+        "exactMatchTimeoutMs": 7000,
         "verifyExactValue": false,
         "matchTransforms": [
           {
             "type": "normalizeUnicode",
             "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "^\\s*\\[[^\\]]+\\]\\s*",
+            "flags": "g",
+            "replacement": ""
           },
           {
             "type": "regexReplace",
@@ -299,8 +305,8 @@
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Selecting the exact Flex Distribution Center from the visible Hub Coverage Polygons list…",
-      "error": "The exact Flex Distribution Center name was not found in the visible Hub Coverage Polygons list.",
+      "progress": "Selecting the exact Flex Distribution Center row (ignoring the leading [ID])…",
+      "error": "The exact Flex Distribution Center option was not found. Flex option IDs are ignored; the visible center name must match exactly.",
       "stepAttempts": 1,
       "retry": false
     },
@@ -404,11 +410,11 @@
     }
   ],
   "retryPolicy": {
-    "attempts": 3,
+    "attempts": 1,
     "delayMs": 1200
   },
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 6
+  "remoteBehaviorVersion": 7
 }
