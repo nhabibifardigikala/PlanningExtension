@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex searches each selected Distribution Center independently by exact visible name in Hub Coverage Polygons.",
+  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex activates each report tab while selecting the exact visible Hub Coverage Polygons row by center name, then extracts each center independently.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -214,12 +214,12 @@
     {
       "action": "open",
       "url": "https://flex.digikala.com/hubs/capacity-slots/",
-      "active": false,
+      "active": true,
       "when": {
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Opening Flex Capacity Report…"
+      "progress": "Opening Flex Capacity Report for exact center selection…"
     },
     {
       "action": "ensureLogin",
@@ -256,21 +256,27 @@
       "value": "{{flexDcName}}",
       "attempts": 1,
       "options": {
-        "focusWaitMs": 500,
-        "clearWaitMs": 250,
-        "typingDelayMs": 60,
-        "autocompleteWaitMs": 2200,
+        "focusWaitMs": 700,
+        "clearWaitMs": 300,
+        "typingDelayMs": 80,
+        "autocompleteWaitMs": 3000,
         "commitWaitMs": 900,
         "outsideWaitMs": 350,
         "selectorIndex": 0,
         "exactMatch": true,
-        "exactMatchSelector": ".es-list li, .es-list-item, .es-item, [role=\"option\"], .easy-autocomplete-container li, .ui-autocomplete li, .ui-menu-item, .autocomplete-suggestion, ul li",
-        "exactMatchTimeoutMs": 7000,
-        "verifyExactValue": false,
+        "exactMatchSelector": ".es-list li",
+        "exactMatchTimeoutMs": 10000,
+        "verifyExactValue": true,
         "matchTransforms": [
           {
             "type": "normalizeUnicode",
             "form": "NFKC"
+          },
+          {
+            "type": "regexReplace",
+            "pattern": "[\\u061c\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u206f\\ufeff]",
+            "flags": "g",
+            "replacement": ""
           },
           {
             "type": "regexReplace",
@@ -290,12 +296,6 @@
             "flags": "g",
             "replacement": "ک"
           },
-          {
-            "type": "regexReplace",
-            "pattern": "[\\u200c\\u200e\\u200f\\u202a-\\u202e]",
-            "flags": "g",
-            "replacement": ""
-          },
           "collapseWhitespace",
           "trim",
           "caseFold"
@@ -305,8 +305,8 @@
         "left": "{{reportSource}}",
         "equals": "flex"
       },
-      "progress": "Selecting the exact Flex Distribution Center row (ignoring the leading [ID])…",
-      "error": "The exact Flex Distribution Center option was not found. Flex option IDs are ignored; the visible center name must match exactly.",
+      "progress": "Selecting the exact Flex center from the visible Hub Coverage Polygons list…",
+      "error": "The exact Flex Distribution Center could not be selected from Hub Coverage Polygons.",
       "stepAttempts": 1,
       "retry": false
     },
@@ -416,5 +416,5 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 7
+  "remoteBehaviorVersion": 8
 }
