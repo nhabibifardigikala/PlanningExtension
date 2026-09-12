@@ -263,50 +263,17 @@
         "commitWaitMs": 900,
         "outsideWaitMs": 350,
         "selectorIndex": 0,
-        "exactMatch": true,
-        "exactMatchSelector": ".es-list li",
-        "exactMatchTimeoutMs": 10000,
-        "verifyExactValue": true,
-        "matchTransforms": [
-          {
-            "type": "normalizeUnicode",
-            "form": "NFKC"
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "[\\u061c\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u206f\\ufeff]",
-            "flags": "g",
-            "replacement": ""
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "^\\s*\\[[^\\]]+\\]\\s*",
-            "flags": "g",
-            "replacement": ""
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "[يى]",
-            "flags": "g",
-            "replacement": "ی"
-          },
-          {
-            "type": "regexReplace",
-            "pattern": "ك",
-            "flags": "g",
-            "replacement": "ک"
-          },
-          "collapseWhitespace",
-          "trim",
-          "caseFold"
-        ]
+        "exactMatch": false,
+        "verifyExactValue": false,
+        "pressEnter": true,
+        "keyDelayMs": 120
       },
       "when": {
         "left": "{{flexSelectionMode}}",
         "equals": "name"
       },
-      "progress": "Selecting the exact Flex center by name…",
-      "error": "The exact Flex Distribution Center name could not be selected from Hub Coverage Polygons. You can use the numeric Flex ID instead.",
+      "progress": "Selecting the first Flex suggestion and pressing Enter…",
+      "error": "The first Flex Distribution Center suggestion could not be committed after pressing Enter.",
       "stepAttempts": 1,
       "retry": false
     },
