@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Credential-safe background extraction for the standalone Rejected Shipments dashboard.",
+  "description": "Credential-safe scheduled/manual extraction for the standalone Rejected Shipments dashboard.",
   "runLabel": "Sync Now",
   "navigation": {
     "retryCount": 5,
@@ -23,6 +23,12 @@
       "progress": "Checking Drop Shipping authentication…"
     },
     {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/shipment/?status=rejected&order=1&order_by=id&order_type=DESC&per_page=1000",
+      "progress": "Loading rejected shipments with 1000 rows…",
+      "completeTimeoutMs": 45000
+    },
+    {
       "action": "waitFor",
       "selector": "table, button",
       "timeoutMs": 30000,
@@ -36,154 +42,44 @@
       "progress": "Preparing shipment table…"
     },
     {
-      "action": "ensureTableColumn",
-      "column": "id",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
+      "action": "configureColumns",
+      "columns": {
+        "id": true,
+        "reference_id": true,
+        "user_id": true,
+        "ready_date": true,
+        "status": true,
+        "created_at": true,
+        "service_level": true,
+        "shipping_size_id": true,
+        "destination_address": true,
+        "destination_shipping_point": true,
+        "parcel_ids": true,
+        "promise_date": true
       },
-      "progress": "Preparing ID column…"
+      "options": {
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterEachMs": 220,
+        "maxChanges": 60
+      },
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 1000,
+      "progress": "Selecting required shipment columns…",
+      "error": "Required Rejected Shipments columns could not be selected."
     },
     {
-      "action": "ensureTableColumn",
-      "column": "reference id",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Reference ID…"
+      "action": "clickOutside",
+      "x": 18,
+      "y": 18,
+      "progress": "Applying selected columns…"
     },
     {
-      "action": "ensureTableColumn",
-      "column": "user id",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing User ID…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "ready date",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Ready Date…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "status",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Status…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "created at",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Created At…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "service level",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Service Level…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "shipping size id",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Shipping Size…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "destination address",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Destination Address…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "destination shipping point",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Destination Point…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "parcel ids",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Parcel IDs…"
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "promise date",
-      "attempts": 3,
-      "options": {
-        "tableSelector": "table",
-        "buttonText": "Columns",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "loadTimeoutMs": 30000
-      },
-      "progress": "Preparing Promise Date…"
-    },
-    {
-      "action": "navigate",
-      "url": "https://drop-shipping.digikala.com/shipment/?status=rejected&order=1&order_by=id&order_type=DESC&per_page=1000",
-      "progress": "Refreshing rejected shipment data…",
-      "completeTimeoutMs": 45000
+      "action": "wait",
+      "ms": 1600,
+      "progress": "Waiting for the shipment table to reload…"
     },
     {
       "action": "waitFor",

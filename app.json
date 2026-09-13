@@ -1,11 +1,11 @@
 {
-  "configVersion": 292,
-  "minEngineVersion": "12.3.7",
+  "configVersion": 295,
+  "minEngineVersion": "12.3.8",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 292",
+    "subtitle": "Operations Toolkit · Config 295",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 291
+    "configVersion": 295
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -147,7 +147,7 @@
       "accessHeaders": [
         "Rejected Shipments"
       ],
-      "config": "operations/rejected-shipments.json?v=277",
+      "config": "operations/rejected-shipments.json?v=295",
       "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Zm25-10 4 4 6-7 4 4-10 11-8-8 4-4Z",
       "description": "Open the Rejected Shipments analytics dashboard in a separate browser tab.",
       "runLabel": "Open Rejected Shipments"
@@ -159,7 +159,7 @@
       "accessHeaders": [
         "Rejected Shipments"
       ],
-      "config": "operations/rejected-shipments-data.json?v=277",
+      "config": "operations/rejected-shipments-data.json?v=295",
       "enabled": false,
       "description": "Hidden data bridge used by the standalone Rejected Shipments dashboard.",
       "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Z"

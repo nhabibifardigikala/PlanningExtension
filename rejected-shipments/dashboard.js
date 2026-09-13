@@ -5,6 +5,7 @@ let chartFilters = {};
 let serverKpis = null;
 const chartMeta = new WeakMap();
 const $ = id => document.getElementById(id);
+const SCHEDULED_MODE = new URLSearchParams(location.search).get('scheduled') === '1';
 // Digiexpress Remote integration: theme is supplied by the Host bridge when opened standalone.
 try { const _dxTheme=new URLSearchParams(location.search).get('theme'); if(_dxTheme==='dark'||_dxTheme==='light') document.documentElement.dataset.theme=_dxTheme; } catch(_) {}
 
@@ -29,11 +30,17 @@ chrome.runtime.onMessage.addListener((message) => {
 
 async function init(){
   bindNavigation(); bindActions(); initJalaliPickers(); initEnhancements();
-  // The large overlay is only for the very short bootstrap phase.
   showLoadingOverlay(true);
   const releaseOverlay = setTimeout(()=>showLoadingOverlay(false), 800);
   try{
     await loadSettings();
+    if(SCHEDULED_MODE){
+      const source=new URLSearchParams(location.search).get('source')||'alarm';
+      let result={ok:false,error:'Scheduled sync did not start.'};
+      try{result=await chrome.runtime.sendMessage({type:'syncNow',source});}catch(error){result={ok:false,error:String(error?.message||error)};}
+      try{await chrome.runtime.sendMessage({type:'scheduledTaskDone',ok:result?.ok===true,error:result?.error||''});}catch(_){}
+      return;
+    }
     refreshStatus().catch(()=>{});
     refreshKpisFast().catch(()=>{});
 
@@ -155,6 +162,7 @@ async function loadSettings(){
   settings = await chrome.storage.sync.get({webAppUrl:'',secretToken:'',intervalMinutes:15,alertEnabled:true,alertThreshold:10,alertWindowMinutes:60,keepScrapeTabOpen:false,dkUserMatcher:'دیجی کالا شاپ',dxUserMatcher:'دیجی اکسپرس'});
   for(const key of ['webAppUrl','secretToken','intervalMinutes','alertThreshold','alertWindowMinutes','dkUserMatcher','dxUserMatcher']) if($(key)) $(key).value=settings[key]??'';
   $('alertEnabled').checked=Boolean(settings.alertEnabled); $('keepScrapeTabOpen').checked=Boolean(settings.keepScrapeTabOpen);
+  if(String(settings.webAppUrl||'').trim()) chrome.runtime.sendMessage({type:'ensureSchedule'}).catch(()=>{});
 }
 
 async function saveAllSettings(){
