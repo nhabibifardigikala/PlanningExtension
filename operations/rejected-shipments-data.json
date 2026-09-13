@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Credential-safe scheduled/manual extraction for the standalone Rejected Shipments dashboard.",
+  "description": "Credential-safe Rejected Shipments extraction matching the supplied v4.9 control-center workflow.",
   "runLabel": "Sync Now",
   "navigation": {
     "retryCount": 5,
@@ -13,7 +13,7 @@
   "workflow": [
     {
       "action": "open",
-      "url": "https://drop-shipping.digikala.com/shipment/?status=rejected&order=1&order_by=id&order_type=DESC&per_page=1000",
+      "url": "https://drop-shipping.digikala.com/shipment/?id=&reference_id=&status=rejected&user_id=0&origin_user_address_id=0&destination_user_address_id=0&origin_shipping_point_address_id=0&destination_shipping_point_address_id=0&ready_date=&from_promise_date=&to_promise_date=&crud_tab_id=&order=1&order_by=id&order_type=DESC",
       "active": false,
       "progress": "Opening rejected shipments…"
     },
@@ -24,20 +24,20 @@
     },
     {
       "action": "navigate",
-      "url": "https://drop-shipping.digikala.com/shipment/?status=rejected&order=1&order_by=id&order_type=DESC&per_page=1000",
-      "progress": "Loading rejected shipments with 1000 rows…",
+      "url": "https://drop-shipping.digikala.com/shipment/?id=&reference_id=&status=rejected&user_id=0&origin_user_address_id=0&destination_user_address_id=0&origin_shipping_point_address_id=0&destination_shipping_point_address_id=0&ready_date=&from_promise_date=&to_promise_date=&crud_tab_id=&order=1&order_by=id&order_type=DESC",
+      "progress": "Loading rejected shipments…",
       "completeTimeoutMs": 45000
     },
     {
       "action": "waitFor",
-      "selector": "table, button",
+      "selector": "table",
       "timeoutMs": 30000,
       "intervalMs": 300,
-      "progress": "Waiting for Shipments…",
-      "error": "Rejected Shipments page did not become ready."
+      "progress": "Waiting for shipment table…",
+      "error": "Rejected Shipments table did not become ready."
     },
     {
-      "action": "setPageZoom",
+      "action": "setTabZoom",
       "zoom": 0.5,
       "progress": "Preparing shipment table…"
     },
@@ -58,56 +58,233 @@
         "promise_date": true
       },
       "options": {
+        "exact": true,
         "buttonText": "Columns",
         "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"]",
+        "menuSelector": "ul#adminColumns,[uk-dropdown],.uk-dropdown,[role=\"menu\"],.dropdown-menu,.popover",
+        "checkboxSelector": "input[type=\"checkbox\"]",
+        "aliases": {
+          "id": [
+            "id"
+          ],
+          "reference_id": [
+            "reference id",
+            "reference_id"
+          ],
+          "user_id": [
+            "user id",
+            "user_id"
+          ],
+          "ready_date": [
+            "ready date",
+            "ready_date"
+          ],
+          "status": [
+            "status"
+          ],
+          "created_at": [
+            "created at",
+            "created_at"
+          ],
+          "service_level": [
+            "service level",
+            "service_level"
+          ],
+          "shipping_size_id": [
+            "shipping size id",
+            "shipping_size_id"
+          ],
+          "destination_address": [
+            "destination address",
+            "destination_address"
+          ],
+          "destination_shipping_point": [
+            "destination shipping point",
+            "destination_shipping_point"
+          ],
+          "parcel_ids": [
+            "parcel ids",
+            "parcel_ids"
+          ],
+          "promise_date": [
+            "promise date",
+            "promise_date"
+          ]
+        },
         "menuTimeoutMs": 12000,
-        "afterEachMs": 220,
-        "maxChanges": 60
+        "afterEachMs": 180,
+        "maxChanges": 80
       },
-      "stepAttempts": 3,
+      "storeAs": "columnSelection",
+      "stepAttempts": 4,
       "stepRetryDelayMs": 1000,
-      "progress": "Selecting required shipment columns…",
-      "error": "Required Rejected Shipments columns could not be selected."
+      "progress": "Selecting exactly the 12 required shipment columns…",
+      "retryProgress": "Retrying exact column configuration ({{attempt}}/{{attempts}})…",
+      "error": "The exact Rejected Shipments column set could not be configured."
     },
     {
       "action": "clickOutside",
-      "x": 18,
-      "y": 18,
-      "progress": "Applying selected columns…"
+      "center": true,
+      "progress": "Applying shipment columns…"
     },
     {
       "action": "wait",
-      "ms": 1600,
-      "progress": "Waiting for the shipment table to reload…"
+      "ms": 1000,
+      "progress": "Waiting for column changes…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/shipment/?id=&reference_id=&status=rejected&user_id=0&origin_user_address_id=0&destination_user_address_id=0&origin_shipping_point_address_id=0&destination_shipping_point_address_id=0&ready_date=&from_promise_date=&to_promise_date=&crud_tab_id=&order=1&order_by=id&order_type=DESC&per_page=1000",
+      "completeTimeoutMs": 45000,
+      "progress": "Setting rows per page to 1000…"
     },
     {
       "action": "waitFor",
-      "selector": "table tbody tr",
+      "selector": "select[name=\"per_page\"], table tbody tr",
       "timeoutMs": 30000,
-      "intervalMs": 400,
-      "progress": "Waiting for rejected shipment rows…",
-      "error": "No rejected shipment rows were found."
+      "intervalMs": 300,
+      "progress": "Waiting for 1000-row shipment page…"
+    },
+    {
+      "action": "read",
+      "selector": "select[name=\"per_page\"]",
+      "storeAs": "perPage",
+      "required": true,
+      "error": "Rows-per-page selector was not found."
+    },
+    {
+      "action": "assert",
+      "condition": {
+        "left": "{{perPage}}",
+        "equals": "1000"
+      },
+      "error": "Rows per page did not become 1000."
+    },
+    {
+      "action": "validateTableColumns",
+      "required": [
+        "id",
+        "reference_id",
+        "user_id",
+        "ready_date",
+        "status",
+        "created_at",
+        "service_level",
+        "shipping_size_id",
+        "destination_address",
+        "destination_shipping_point",
+        "parcel_ids",
+        "promise_date"
+      ],
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "aliases": {
+          "id": [
+            "id"
+          ],
+          "reference_id": [
+            "reference id",
+            "reference_id"
+          ],
+          "user_id": [
+            "user id",
+            "user_id"
+          ],
+          "ready_date": [
+            "ready date",
+            "ready_date"
+          ],
+          "status": [
+            "status"
+          ],
+          "created_at": [
+            "created at",
+            "created_at"
+          ],
+          "service_level": [
+            "service level",
+            "service_level"
+          ],
+          "shipping_size_id": [
+            "shipping size id",
+            "shipping_size_id"
+          ],
+          "destination_address": [
+            "destination address",
+            "destination_address"
+          ],
+          "destination_shipping_point": [
+            "destination shipping point",
+            "destination_shipping_point"
+          ],
+          "parcel_ids": [
+            "parcel ids",
+            "parcel_ids"
+          ],
+          "promise_date": [
+            "promise date",
+            "promise_date"
+          ]
+        }
+      },
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 900,
+      "progress": "Verifying rendered shipment columns…",
+      "error": "The rendered shipment table does not contain the exact required columns."
     },
     {
       "action": "extractPaginatedTable",
-      "maxPages": 1,
+      "maxPages": 100,
       "timeoutMs": 30000,
       "stableMs": 1200,
       "pollMs": 300,
-      "dedupe": false,
-      "ignoreLastActionColumn": false,
+      "expectedRowsPerPage": 1000,
+      "allowLastPagePartial": true,
+      "afterPageMs": 700,
+      "dedupe": true,
+      "ignoreLastActionColumn": true,
+      "stopWhen": {
+        "column": "id",
+        "aliases": [
+          "id"
+        ],
+        "operator": "lte",
+        "numeric": true,
+        "value": "{{previousMaxId}}",
+        "includeMatching": false,
+        "firstPageOnlyWhenZero": true,
+        "required": true
+      },
       "parser": {
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
         "svgBoolean": false
       },
-      "progress": "Extracting latest rejected shipments…",
-      "error": "Rejected shipment rows could not be extracted."
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 1200,
+      "progress": "Extracting rejected shipments…",
+      "pageProgress": "Extracting rejected shipment page {{page}}…",
+      "retryProgress": "Repairing extraction and retrying ({{attempt}}/{{attempts}})…",
+      "error": "Rejected shipment rows could not be extracted.",
+      "nextSelector": "a[rel=\"next\"], a[aria-label=\"Next page\"], a[title*=\"Next\"], .uk-pagination-next a"
+    },
+    {
+      "action": "setTabZoom",
+      "zoom": 1,
+      "when": {
+        "left": "{{keepScrapeTabOpen}}",
+        "equals": "true"
+      },
+      "progress": "Restoring shipment tab zoom…"
     },
     {
       "action": "closeTab",
+      "when": {
+        "left": "{{keepScrapeTabOpen}}",
+        "equals": "false"
+      },
       "progress": "Closing extraction tab…"
     }
   ],

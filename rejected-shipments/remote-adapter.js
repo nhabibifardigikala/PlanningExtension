@@ -32,7 +32,7 @@
   function requestParent(type, payload, resultType, timeoutMs=90000){
     return new Promise((resolve,reject)=>{
       const requestId=`rs-${Date.now()}-${++seq}`;
-      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('Digiexpress Host did not respond. Host 12.3.8 or newer is required for scheduled alerts.'));},timeoutMs);
+      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('Digiexpress Host did not respond. Host 12.3.9 or newer is required for the Rejected Shipments control center.'));},timeoutMs);
       pending.set(requestId,{resolve,reject,timer,resultType});
       const target=(window.parent&&window.parent!==window)?window.parent:window;
       const targetOrigin=(target===window)?location.origin:'*';
@@ -65,8 +65,9 @@
   }
   async function ensureSchedule(settings=loadSettings()){
     const enabled=Boolean(String(settings.webAppUrl||'').trim());
-    const r=await requestParent('DIGIEXPRESS_REMOTE_SCHEDULE_REQUEST',{config:{featureId:TASK_FEATURE_ID,path:'rejected-shipments/dashboard.html',enabled,intervalMinutes:15,aligned:true,retryMinutes:1}},'DIGIEXPRESS_REMOTE_SCHEDULE_RESULT',12000);
+    const r=await requestParent('DIGIEXPRESS_REMOTE_SCHEDULE_REQUEST',{config:{featureId:TASK_FEATURE_ID,path:'rejected-shipments/dashboard.html',enabled,intervalMinutes:15,aligned:true,retryMinutes:1,query:{v:'296'}}},'DIGIEXPRESS_REMOTE_SCHEDULE_RESULT',12000);
     if(!r?.ok)throw new Error(r?.error||'Could not configure the 15-minute extraction schedule.');
+    if(r?.config)saveStatus({nextScheduledSync:r.config.nextScheduledAt||'',scheduleEnabled:!!r.config.enabled});
     return r;
   }
   async function scheduledTaskDone(ok,error=''){
@@ -140,13 +141,13 @@
     try{
       const state=await hostHttp(s.webAppUrl,{action:'state',secret:s.secretToken||''});
       const previousMaxId=Math.max(0,Number(state?.maxId)||0);
-      const extracted=await hostOperation({});
+      const extracted=await hostOperation({previousMaxId,keepScrapeTabOpen:Boolean(s.keepScrapeTabOpen)});
       const objects=rowsToObjects(extracted.headers,extracted.rows).filter(r=>numericId(r.id)>previousMaxId).sort((a,b)=>numericId(a.id)-numericId(b.id));
       const publish=await hostHttp(s.webAppUrl,{action:'append',secret:s.secretToken||'',source:'Digiexpress Rejected Shipments',extracted_at:new Date().toISOString(),previous_max_id:previousMaxId,page_count:Number(extracted.pageCount||1),rows:objects});
       const alert=await updateRollingAlert(objects,s);
       const now=new Date().toISOString();
       const result={ok:true,newCount:Number(publish?.appendedCount??objects.length)||0,maxId:Number(publish?.maxId??previousMaxId)||previousMaxId,previousMaxId,pageCount:Number(extracted.pageCount||1),sheet:publish,source,alert};
-      saveStatus({lastSync:now,lastSuccessfulSync:now,lastNewCount:result.newCount,lastMaxId:result.maxId,lastPageCount:result.pageCount,lastError:'',lastDiagnostics:{source:'Digiexpress Host',extractedRows:(extracted.rows||[]).length,newRows:objects.length,headers:extracted.headers||[],alert}});
+      saveStatus({lastSync:now,lastSuccessfulSync:now,lastNewCount:result.newCount,lastMaxId:result.maxId,lastPageCount:result.pageCount,lastError:'',lastDiagnostics:{source:'Rejected Shipments v4.9-compatible Digiexpress workflow',extractedRows:(extracted.rows||[]).length,newRows:objects.length,headers:extracted.headers||[],alert}});
       await dashboardData(20000).catch(()=>null);
       return result;
     }catch(error){saveStatus({lastSync:new Date().toISOString(),lastError:error.message});return {ok:false,error:error.message,source};}
