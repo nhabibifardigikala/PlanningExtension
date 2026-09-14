@@ -5,10 +5,6 @@ let chartFilters = {};
 let serverKpis = null;
 const chartMeta = new WeakMap();
 const $ = id => document.getElementById(id);
-const SCHEDULED_MODE = new URLSearchParams(location.search).get('scheduled') === '1';
-// Digiexpress Remote integration: theme is supplied by the Host bridge when opened standalone.
-try { const _dxTheme=new URLSearchParams(location.search).get('theme'); if(_dxTheme==='dark'||_dxTheme==='light') document.documentElement.dataset.theme=_dxTheme; } catch(_) {}
-
 
 document.addEventListener('DOMContentLoaded', init);
 chrome.runtime.onMessage.addListener((message) => {
@@ -30,17 +26,11 @@ chrome.runtime.onMessage.addListener((message) => {
 
 async function init(){
   bindNavigation(); bindActions(); initJalaliPickers(); initEnhancements();
+  // The large overlay is only for the very short bootstrap phase.
   showLoadingOverlay(true);
   const releaseOverlay = setTimeout(()=>showLoadingOverlay(false), 800);
   try{
     await loadSettings();
-    if(SCHEDULED_MODE){
-      const source=new URLSearchParams(location.search).get('source')||'alarm';
-      let result={ok:false,error:'Scheduled sync did not start.'};
-      try{result=await chrome.runtime.sendMessage({type:'syncNow',source});}catch(error){result={ok:false,error:String(error?.message||error)};}
-      try{await chrome.runtime.sendMessage({type:'scheduledTaskDone',ok:result?.ok===true,error:result?.error||''});}catch(_){}
-      return;
-    }
     refreshStatus().catch(()=>{});
     refreshKpisFast().catch(()=>{});
 
@@ -51,7 +41,7 @@ async function init(){
     }
 
     const cached = await withTimeout(
-      chrome.runtime.sendMessage({type:'getDashboardCache',limit:20000}).catch(()=>null),
+      chrome.runtime.sendMessage({type:'getDashboardCache',limit:50000}).catch(()=>null),
       500,
       null
     );
@@ -60,14 +50,14 @@ async function init(){
       showLoadingOverlay(false);
       applyDashboardPayload(cached, {preserveBadge:false, fromCache:true});
       setSyncState('Cached data','neutral',false);
-      setTimeout(()=>loadDashboardData(true,20000), 0);
+      setTimeout(()=>loadDashboardData(true,50000), 0);
       return;
     }
 
     // No cache: release the full-screen overlay and continue fetching in the background.
     showLoadingOverlay(false);
     setSyncState('Loading in background…','neutral',false);
-    setTimeout(()=>loadDashboardData(true,1000), 0);
+    setTimeout(()=>loadDashboardData(true,50000), 0);
   }catch(err){
     console.error('Dashboard bootstrap failed', err);
     setSyncState('Dashboard error','bad',false);
@@ -153,8 +143,8 @@ function bindActions(){
   $('saveAlertBtn').addEventListener('click', saveAllSettings);
   $('testAlertBtn').addEventListener('click', async()=>{const r=await chrome.runtime.sendMessage({type:'testAlert'});toast(r?.ok?'Test alert started — use Stop Alert Sound to silence it':(r?.error||'Could not start alert sound'));});
   $('stopAlertBtn').addEventListener('click', async()=>{await chrome.runtime.sendMessage({type:'stopAlert'});toast('Alert sound stopped');});
-  ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart','periodComparisonChart'].forEach(id=>{
-    const canvas=$(id); canvas.addEventListener('click',e=>handleChartClick(canvas,e)); canvas.addEventListener('mousemove',e=>handleChartHover(canvas,e)); canvas.addEventListener('mouseleave',hideChartTooltip);
+  ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart'].forEach(id=>{
+    const canvas=$(id); if(!canvas)return; canvas.addEventListener('click',e=>handleChartClick(canvas,e)); canvas.addEventListener('mousemove',e=>handleChartHover(canvas,e)); canvas.addEventListener('mouseleave',hideChartTooltip);
   });
 }
 
@@ -162,7 +152,6 @@ async function loadSettings(){
   settings = await chrome.storage.sync.get({webAppUrl:'',secretToken:'',intervalMinutes:15,alertEnabled:true,alertThreshold:10,alertWindowMinutes:60,keepScrapeTabOpen:false,dkUserMatcher:'دیجی کالا شاپ',dxUserMatcher:'دیجی اکسپرس'});
   for(const key of ['webAppUrl','secretToken','intervalMinutes','alertThreshold','alertWindowMinutes','dkUserMatcher','dxUserMatcher']) if($(key)) $(key).value=settings[key]??'';
   $('alertEnabled').checked=Boolean(settings.alertEnabled); $('keepScrapeTabOpen').checked=Boolean(settings.keepScrapeTabOpen);
-  if(String(settings.webAppUrl||'').trim()) chrome.runtime.sendMessage({type:'ensureSchedule'}).catch(()=>{});
 }
 
 async function saveAllSettings(){
@@ -202,7 +191,7 @@ async function refreshStatus(){
   $('gaugeFill').style.width=`${Math.min(100,(rolling/Math.max(1,threshold))*100)}%`; if($('kpiAlert')) $('kpiAlert').textContent=rolling>=threshold?'Threshold exceeded':'Normal'; if($('kpiAlertSub')) $('kpiAlertSub').textContent=`${fmt(rolling)} / ${fmt(threshold)} in ${fmt(win)} min`;
 }
 
-async function loadDashboardData(preserveBadge=false, limit=20000){
+async function loadDashboardData(preserveBadge=false, limit=50000){
   // Never reopen the full-screen overlay after bootstrap. Background refreshes use the badge only.
   if(!preserveBadge) setSyncState('Loading data…','neutral',true);
   try{
@@ -290,7 +279,7 @@ function renderActiveFilter(){
 function renderKPIs(){
   // KPI calculation deliberately follows the v3.2 behavior that was known-good,
   // but uses timezone-independent Tehran wall-clock serials for rolling windows.
-  const local=computeKpisFromRows(filteredRows);
+  const local=computeKpisFromRows(allRows);
   const server=normalizeKpis(serverKpis);
   const final={...local.values};
   if(local.validCreatedCount===0 && server){Object.assign(final,server);}
@@ -365,8 +354,10 @@ function renderCharts(){
   const yStep=bucket==='month'?1000:(bucket==='day'?200:(bucket==='hour'?50:20));
   const trendRows=rowsForChart('trend');
   const trendAll=groupTime(trendRows,r=>r._created,bucket,()=>1);
-  const uniqueByBucket=groupTimeDistinct(trendRows,r=>r._created,bucket,r=>r.reference_id);
-  const uniqueAligned=trendAll.labels.map(label=>uniqueByBucket.counts.get(label)||0);
+  // Green line = references that are genuinely new in the full loaded dataset.
+  // A reference_id is counted only in the bucket of its earliest rejection; later rejections never count again.
+  const newUniqueByBucket=groupFirstEverRejections(trendRows,allRows,bucket);
+  const uniqueAligned=trendAll.labels.map(label=>newUniqueByBucket.counts.get(label)||0);
   const trendLimit=$('trendPointCount')?.value||'50';
   const start=trendLimit==='all'?0:Math.max(0,trendAll.labels.length-(Number(trendLimit)||50));
   const trend={
@@ -377,7 +368,8 @@ function renderCharts(){
   drawTrendDualLine($('trendChart'),trend.labels,trend.total,trend.unique,{filterType:'trend',showPointValues:true,yStep});
   const monthDaily=currentMonthDailySeries(rowsForChart('monthday'));
   drawLine($('currentMonthDailyChart'),monthDaily.labels,monthDaily.values,{filterType:'monthday',filterValues:monthDaily.filterValues,showPointValues:true,yStep:50,showAllXLabels:true});
-  const dest=topGroups(rowsForChart('destination'),r=>r.destination_shipping_point||'Unknown',8,()=>1);drawBars($('destinationChart'),dest.labels,dest.values,{filterType:'destination',horizontalLabels:true,wrapLabels:true});
+  const destinationRows=rowsForChart('destination').filter(r=>!isDeliveryPointLabel(r.destination_shipping_point));
+  const dest=topGroups(destinationRows,r=>r.destination_shipping_point||'Unknown',8,()=>1);drawBars($('destinationChart'),dest.labels,dest.values,{filterType:'destination',horizontalLabels:true,wrapLabels:true});
   const sizeMap={'1':'Normal','2':'Medium','3':'Large'};
   const sizeRows=rowsForChart('shipping'); const sizeCounts=new Map(); for(const r of sizeRows){const raw=String(r.shipping_size_id||'Unknown');sizeCounts.set(raw,(sizeCounts.get(raw)||0)+1);}
   const sizeEntries=[...sizeCounts.entries()].sort((a,b)=>b[1]-a[1]);
@@ -409,7 +401,7 @@ function currentMonthDailySeries(rows){
 function renderLatestTable(){
   const q=$('quickSearch').value.trim().toLowerCase(), limit=Number($('latestRowCount').value)||20;
   const rows=[...filteredRows].sort((a,b)=>b._id-a._id).filter(r=>!q||Object.values(r).some(v=>String(v).toLowerCase().includes(q))).slice(0,limit);
-  $('latestRows').innerHTML=rows.map(r=>`<tr class="shipment-row" data-reference-id="${escAttr(r.reference_id)}" title="Open shipment by Reference ID">`+LATEST_HEADERS.map(h=>`<td title="${esc(r[h])}">${esc(short(r[h],h.includes('address')?44:32))}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${LATEST_HEADERS.length}">No data available.</td></tr>`;
+  $('latestRows').innerHTML=rows.map(r=>`<tr class="shipment-row" data-reference-id="${escAttr(r.reference_id)}" title="Open shipment by Reference ID">`+LATEST_HEADERS.map(h=>{const v=displayCellValue(h,r[h]);return `<td title="${esc(v)}">${esc(short(v,h.includes('address')?44:32))}</td>`;}).join('')+'</tr>').join('')||`<tr><td colspan="${LATEST_HEADERS.length}">No data available.</td></tr>`;
 }
 
 async function handleShipmentRowClick(e){
@@ -427,7 +419,7 @@ async function handleShipmentRowClick(e){
 function escAttr(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function getDataRows(){const q=$('dataSearch').value.trim().toLowerCase();return [...filteredRows].sort((a,b)=>b._id-a._id).filter(r=>!q||RAW_HEADERS.some(h=>String(r[h]??'').toLowerCase().includes(q)));}
-function renderDataTable(){const rows=getDataRows(),size=Number($('pageSize').value)||50,pages=Math.max(1,Math.ceil(rows.length/size));page=Math.min(page,pages);const slice=rows.slice((page-1)*size,page*size);const t=$('dataTable');t.querySelector('thead').innerHTML='<tr>'+RAW_HEADERS.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';t.querySelector('tbody').innerHTML=slice.map(r=>`<tr class="shipment-row" data-reference-id="${escAttr(r.reference_id)}" title="Open shipment by Reference ID">`+RAW_HEADERS.map(h=>`<td title="${esc(r[h])}">${esc(short(r[h],45))}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${RAW_HEADERS.length}">No data available.</td></tr>`;$('pageInfo').textContent=`${fmt(page)} / ${fmt(pages)} — ${fmt(rows.length)} records`;}
+function renderDataTable(){const rows=getDataRows(),size=Number($('pageSize').value)||50,pages=Math.max(1,Math.ceil(rows.length/size));page=Math.min(page,pages);const slice=rows.slice((page-1)*size,page*size);const t=$('dataTable');t.querySelector('thead').innerHTML='<tr>'+RAW_HEADERS.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';t.querySelector('tbody').innerHTML=slice.map(r=>`<tr class="shipment-row" data-reference-id="${escAttr(r.reference_id)}" title="Open shipment by Reference ID">`+RAW_HEADERS.map(h=>{const v=displayCellValue(h,r[h]);return `<td title="${esc(v)}">${esc(short(v,45))}</td>`;}).join('')+'</tr>').join('')||`<tr><td colspan="${RAW_HEADERS.length}">No data available.</td></tr>`;$('pageInfo').textContent=`${fmt(page)} / ${fmt(pages)} — ${fmt(rows.length)} records`;}
 
 function timeBucketKey(d,bucket){if(!d||isNaN(d))return'';if(bucket==='quarter'){const q=Math.floor(d.getMinutes()/15)*15;return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(q)}`;}if(bucket==='hour')return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:00`;if(bucket==='month')return`${d.getFullYear()}-${pad(d.getMonth()+1)}`;return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
 function groupTime(rows,dateFn,bucket,valueFn){const m=new Map();for(const r of rows){const d=dateFn(r);if(!d||isNaN(d))continue;const k=timeBucketKey(d,bucket);m.set(k,(m.get(k)||0)+(Number(valueFn(r))||0));}const keys=[...m.keys()].sort();return{labels:keys,values:keys.map(k=>m.get(k))};}
@@ -444,6 +436,36 @@ function groupTimeDistinct(rows,dateFn,bucket,distinctFn){
   return {labels:[...counts.keys()].sort(),counts};
 }
 
+function rejectionIdentity(row){
+  const ref=String(row?.reference_id??'').trim();
+  return ref?`ref:${ref}`:`row:${String(row?.id??row?._id??'')}`;
+}
+function rejectionSortTime(row){
+  const d=row?._created||parseDate(row?.created_at);
+  return d&&!isNaN(d)?d.getTime():Number.POSITIVE_INFINITY;
+}
+function groupFirstEverRejections(contextRows,fullRows,bucket){
+  const first=new Map();
+  for(const r of fullRows||[]){
+    const key=rejectionIdentity(r),t=rejectionSortTime(r),id=Number(r?._id||num(r?.id)||0);
+    const prev=first.get(key);
+    if(!prev||t<prev.t||(t===prev.t&&id<prev.id)) first.set(key,{row:r,t,id});
+  }
+  const contextIds=new Set((contextRows||[]).map(r=>String(r?._id||r?.id||'')));
+  const buckets=new Map();
+  for(const {row} of first.values()){
+    const rowId=String(row?._id||row?.id||'');
+    if(!contextIds.has(rowId))continue;
+    const d=row?._created||parseDate(row?.created_at);if(!d||isNaN(d))continue;
+    const k=timeBucketKey(d,bucket);buckets.set(k,(buckets.get(k)||0)+1);
+  }
+  return {labels:[...buckets.keys()].sort(),counts:buckets};
+}
+function isDeliveryPointLabel(value){
+  const n=String(value??'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
+  return n==='delivery point'||n==='deliverypoint';
+}
+
 function drawTrendDualLine(canvas,labels,totalValues,uniqueValues,opts={}){
   const dpr=devicePixelRatio||1,w=canvas.clientWidth||600,h=canvas.getAttribute('height')?Number(canvas.getAttribute('height')):240;
   canvas.width=w*dpr;canvas.height=h*dpr;
@@ -458,7 +480,7 @@ function drawTrendDualLine(canvas,labels,totalValues,uniqueValues,opts={}){
   const xAt=i=>padL+(labels.length===1?cw/2:i*cw/(labels.length-1));
   const series=[
     {key:'total',name:'All Rejections',values:totalValues,color:'#e1003c',offset:-9,uniqueSeries:false},
-    {key:'unique',name:'Unique Reference IDs',values:uniqueValues,color:'#0f9f6e',offset:13,uniqueSeries:true}
+    {key:'unique',name:'New Unique Rejections',values:uniqueValues,color:'#0f9f6e',offset:13,uniqueSeries:true}
   ];
   const items=[];
   for(const sx of series){
@@ -473,10 +495,10 @@ function drawTrendDualLine(canvas,labels,totalValues,uniqueValues,opts={}){
   for(const it of items){
     const active=isChartItemActive(it.filterType,it.filterValue),isUnique=!!it.uniqueSeries;
     c.beginPath();c.arc(it.x,it.y,active?5:3.5,0,Math.PI*2);c.fillStyle=active?'#7c3aed':(isUnique?'#0f9f6e':'#e1003c');c.fill();
-    if(opts.showPointValues){
-      c.fillStyle=active?'#7c3aed':(isUnique?(dark?'#6ee7b7':'#087a54'):(dark?'#fda4af':'#4b5563'));
+    if(opts.showPointValues && !isUnique){
+      c.fillStyle=active?'#7c3aed':(dark?'#fda4af':'#4b5563');
       c.font=active?'bold 8px Tahoma, Arial':'8px Tahoma, Arial';c.textAlign='center';
-      const yy=isUnique?Math.min(h-padB-2,it.y+13):Math.max(10,it.y-8);c.fillText(fmt(it.value),it.x,yy);
+      c.fillText(fmt(it.value),it.x,Math.max(10,it.y-8));
     }
   }
   const step=Math.max(1,Math.ceil(labels.length/7));c.textAlign='center';
@@ -595,12 +617,18 @@ function parseDate(v){
     .replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
     .replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))
     .replace(/\s+/g,' ');
-  // ISO timestamps carrying an explicit timezone are authoritative.
+  // Values such as 1405-06-23T12:43:16.000Z are Jalali timestamps from the data source,
+  // not Gregorian year 1405. Parse the numeric calendar first, then honor ISO timezone syntax
+  // only for genuine Gregorian years.
+  const m=s.match(/(\d{4})[-\/.]([01]?\d)[-\/.]([0-3]?\d)(?:[^\d]{0,8}([0-2]?\d):([0-5]?\d)(?::([0-5]?\d))?)?/);
+  if(m && Number(m[1])>=1200 && Number(m[1])<1700){
+    try{const g=toGregorian(Number(m[1]),Number(m[2]),Number(m[3]));const d=tehranDate(g.gy,g.gm,g.gd,Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));if(!isNaN(d))return d;}catch(_){}
+  }
+  // ISO timestamps carrying an explicit timezone are authoritative for Gregorian years.
   if(/^\d{4}-\d{2}-\d{2}T/.test(s) && /(?:Z|[+-]\d{2}:?\d{2})$/i.test(s)){
     const iso=new Date(s); if(!isNaN(iso))return iso;
   }
   // Accept Gregorian or Jalali numeric dates even when extra text surrounds the value.
-  const m=s.match(/(\d{4})[-\/.]([01]?\d)[-\/.]([0-3]?\d)(?:[^\d]{0,8}([0-2]?\d):([0-5]?\d)(?::([0-5]?\d))?)?/);
   if(m){
     let y=Number(m[1]),mo=Number(m[2]),da=Number(m[3]);
     if(y>=1200&&y<1700){try{const g=toGregorian(y,mo,da);y=g.gy;mo=g.gm;da=g.gd;}catch(_){}}
@@ -609,6 +637,19 @@ function parseDate(v){
   }
   const d=new Date(s);return isNaN(d)?null:d;
 }
+function displayDateValue(v){
+  const raw=String(v??'').trim();if(!raw)return '';
+  const normalized=raw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  const m=normalized.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if(m){
+    const y=Number(m[1]),mo=Number(m[2]),da=Number(m[3]),hh=m[4],mi=m[5],ss=m[6];
+    let jy=y,jm=mo,jd=da;
+    if(!(y>=1200&&y<1700)){try{const j=toJalali(y,mo,da);jy=j[0];jm=j[1];jd=j[2];}catch(_){}}
+    return `${jy}/${pad(jm)}/${pad(jd)}${hh!==undefined?` ${pad(hh)}:${pad(mi||0)}:${pad(ss||0)}`:''}`;
+  }
+  const d=parseDate(raw);if(!d)return raw;const p=getTehranParts(d),j=toJalali(p.year,p.month,p.day);return `${j[0]}/${pad(j[1])}/${pad(j[2])} ${pad(p.hour)}:${pad(p.minute)}:${pad(p.second)}`;
+}
+function displayCellValue(header,value){return ['ready_date','created_at','promise_date','extracted_at'].includes(String(header))?displayDateValue(value):String(value??'');}
 function num(v){if(typeof v==='number')return v;const s=String(v??'').replace(/[٬,\s]/g,'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));const n=Number(s.replace(/[^0-9.\-]/g,''));return Number.isFinite(n)?n:0;}
 function fmt(v){return new Intl.NumberFormat('en-US').format(Number(v)||0)}function compact(v){return new Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:1}).format(Number(v)||0)}function formatDateTime(v){const d=parseDate(v);return d?new Intl.DateTimeFormat('en-US',{dateStyle:'short',timeStyle:'short'}).format(d):'—'}function unique(a){return[...new Set(a.map(x=>String(x||'').trim()).filter(Boolean))].sort()}function maxId(rows){return rows.reduce((m,r)=>Math.max(m,r._id||num(r.id)),0)}function pad(n){return String(n).padStart(2,'0')}function short(v,n){const s=String(v??'');return s.length>n?s.slice(0,n-1)+'…':s}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
@@ -618,19 +659,15 @@ function showLoadingOverlay(show){const el=$('loadingOverlay');if(el)el.hidden=!
 // v4.4 enhancements ---------------------------------------------------------
 let savedViews=[];
 function initEnhancements(){
-  loadTheme(); loadSavedViews();
+  loadTheme();
   const theme=$('themeToggle');if(theme)theme.onclick=toggleTheme;
-  const save=$('saveViewBtn');if(save)save.onclick=saveCurrentView;
-  const del=$('deleteViewBtn');if(del)del.onclick=deleteSavedView;
-  const sel=$('savedViewSelect');if(sel)sel.onchange=()=>applySavedView(sel.value);
   const clr=$('clearAlertHistoryBtn');if(clr)clr.onclick=async()=>{await chrome.runtime.sendMessage({type:'clearAlertHistory'});renderAlertHistory([]);toast('Alert history cleared');};
   const close=$('closeDrawerBtn'),back=$('drilldownBackdrop');if(close)close.onclick=closeDrilldown;if(back)back.onclick=closeDrilldown;
-  ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart','periodComparisonChart'].forEach(id=>{const c=$(id);if(c)c.addEventListener('dblclick',e=>handleChartDoubleClick(c,e));});
+  ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart'].forEach(id=>{const c=$(id);if(c)c.addEventListener('dblclick',e=>handleChartDoubleClick(c,e));});
   const heat=$('heatmapChart');if(heat){heat.addEventListener('click',e=>handleHeatmapClick(heat,e));heat.addEventListener('dblclick',e=>handleHeatmapDoubleClick(heat,e));heat.addEventListener('mousemove',e=>handleChartHover(heat,e));heat.addEventListener('mouseleave',hideChartTooltip);}
 }
-async function loadTheme(){const r=await chrome.storage.sync.get({theme:document.documentElement.dataset.theme||'light'});applyTheme(document.documentElement.dataset.theme||r.theme||'light');}
+async function loadTheme(){const r=await chrome.storage.sync.get({theme:'light'});applyTheme(r.theme||'light');}
 function applyTheme(theme){document.documentElement.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀':'☾';setTimeout(()=>renderCharts(),0);}
-window.addEventListener('DIGIEXPRESS_THEME_READY',e=>{const theme=e?.detail?.theme==='dark'?'dark':'light';applyTheme(theme);});
 async function toggleTheme(){const next=document.documentElement.dataset.theme==='dark'?'light':'dark';applyTheme(next);await chrome.storage.sync.set({theme:next});}
 function updateFreshness(ts){const el=$('freshnessIndicator');if(!el)return;const d=parseDate(ts)||new Date();const mins=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));el.textContent=mins<1?'Freshness: now':`Freshness: ${fmt(mins)}m`;el.className=`badge ${mins<=20?'good':mins<=60?'neutral':'bad'}`;el.dataset.ts=d.toISOString();}
 setInterval(()=>{const el=$('freshnessIndicator');if(el?.dataset.ts)updateFreshness(el.dataset.ts);},60000);
@@ -649,7 +686,6 @@ function periodComparisonSeries(rows){const local=computeKpisFromRows(rows).valu
 const _renderChartsV42=renderCharts;
 renderCharts=function(){
   _renderChartsV42();
-  const pc=periodComparisonSeries(rowsForChart('period'));drawBars($('periodComparisonChart'),pc.labels,pc.values,{filterType:'period',filterValues:pc.filterValues,horizontalLabels:true,wrapLabels:true});
   drawHeatmap($('heatmapChart'),rowsForChart('heatmap'));
 };
 function drawHeatmap(canvas,rows){if(!canvas)return;const dpr=devicePixelRatio||1,w=canvas.clientWidth||600,h=330;canvas.width=w*dpr;canvas.height=h*dpr;const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);const days=['Sat','Sun','Mon','Tue','Wed','Thu','Fri'],counts=Array.from({length:7},()=>Array(24).fill(0));for(const r of rows){const d=r._created;if(!d)continue;const weekday=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tehran',weekday:'short'}).format(d),di=['Sat','Sun','Mon','Tue','Wed','Thu','Fri'].indexOf(weekday);const p=getTehranParts(d);if(di>=0)counts[di][p.hour]++;}const max=Math.max(1,...counts.flat()),left=42,top=16,right=10,bottom=32,cw=(w-left-right)/24,ch=(h-top-bottom)/7,items=[];const dark=document.documentElement.dataset.theme==='dark';c.font='10px Tahoma, Arial';c.textAlign='right';c.textBaseline='middle';days.forEach((day,i)=>{c.fillStyle=dark?'#cbd5e1':'#64748b';c.fillText(day,left-6,top+i*ch+ch/2);});for(let hr=0;hr<24;hr+=2){c.textAlign='center';c.fillStyle=dark?'#94a3b8':'#748096';c.fillText(String(hr),left+hr*cw+cw/2,h-10);}for(let di=0;di<7;di++)for(let hr=0;hr<24;hr++){const v=counts[di][hr],ratio=v/max,x=left+hr*cw,y=top+di*ch,active=isChartItemActive('heatmap',`${days[di]}|${hr}`);c.fillStyle=active?'#7c3aed':`rgba(225,0,60,${0.08+ratio*0.82})`;c.fillRect(x+1,y+1,Math.max(1,cw-2),Math.max(1,ch-2));if(cw>18&&v){c.fillStyle=ratio>.5?'#fff':(dark?'#e5e7eb':'#334155');c.font=active?'bold 9px Tahoma':'9px Tahoma';c.textAlign='center';c.fillText(fmt(v),x+cw/2,y+ch/2);}items.push({type:'bar',x,y,w:cw,h:ch,label:`${days[di]} ${pad(hr)}:00`,value:v,filterType:'heatmap',filterValue:`${days[di]}|${hr}`});}chartMeta.set(canvas,{items,type:'heatmap'});}
@@ -660,11 +696,12 @@ function rowsBehindItem(item){
   const type=item.filterType;if(!type)return[];const filter={value:String(item.filterValue??item.label)};
   const rows=baseFilteredRows.filter(r=>matchesChartFilters(r,type)&&matchesOneChartFilter(r,type,filter));
   if(!item.uniqueSeries)return rows;
-  const seen=new Set(),out=[];
-  for(const r of rows){const ref=String(r.reference_id??'').trim(),key=ref||`__row__${String(r.id??r._id??out.length)}`;if(seen.has(key))continue;seen.add(key);out.push(r);}
-  return out;
+  const first=new Map();
+  for(const r of allRows||[]){const key=rejectionIdentity(r),t=rejectionSortTime(r),id=Number(r?._id||num(r?.id)||0),prev=first.get(key);if(!prev||t<prev.t||(t===prev.t&&id<prev.id))first.set(key,{row:r,t,id});}
+  const allowed=new Set(rows.map(r=>String(r?._id||r?.id||'')));
+  return [...first.values()].map(x=>x.row).filter(r=>allowed.has(String(r?._id||r?.id||'')));
 }
-function openDrilldownForItem(item){const rows=rowsBehindItem(item).sort((a,b)=>b._id-a._id);$('drawerTitle').textContent=`Drill-down — ${item.label}`;$('drawerSubtitle').textContent=item.uniqueSeries?`${item.value} unique reference IDs behind the selected visual mark`:`${item.value} shipments behind the selected visual mark`;$('drawerCount').textContent=fmt(rows.length);const hs=['reference_id','user_id','ready_date','created_at','shipping_size_id','destination_shipping_point','parcel_ids','promise_date'];$('drawerRows').innerHTML=rows.slice(0,2000).map(r=>'<tr>'+hs.map(h=>`<td title="${esc(r[h])}">${esc(short(r[h],40))}</td>`).join('')+'</tr>').join('')||'<tr><td colspan="8">No shipments found.</td></tr>';$('drilldownBackdrop').hidden=false;$('drilldownDrawer').classList.add('open');$('drilldownDrawer').setAttribute('aria-hidden','false');}
+function openDrilldownForItem(item){const rows=rowsBehindItem(item).sort((a,b)=>b._id-a._id);$('drawerTitle').textContent=`Drill-down — ${item.label}`;$('drawerSubtitle').textContent=item.uniqueSeries?`${item.value} new unique rejections behind the selected visual mark`:`${item.value} shipments behind the selected visual mark`;$('drawerCount').textContent=fmt(rows.length);const hs=['reference_id','user_id','ready_date','created_at','shipping_size_id','destination_shipping_point','parcel_ids','promise_date'];$('drawerRows').innerHTML=rows.slice(0,2000).map(r=>'<tr>'+hs.map(h=>{const v=displayCellValue(h,r[h]);return `<td title="${esc(v)}">${esc(short(v,40))}</td>`;}).join('')+'</tr>').join('')||'<tr><td colspan="8">No shipments found.</td></tr>';$('drilldownBackdrop').hidden=false;$('drilldownDrawer').classList.add('open');$('drilldownDrawer').setAttribute('aria-hidden','false');}
 function closeDrilldown(){$('drilldownBackdrop').hidden=true;$('drilldownDrawer').classList.remove('open');$('drilldownDrawer').setAttribute('aria-hidden','true');}
 function renderAlertHistory(history){const el=$('alertHistoryRows');if(!el)return;const rows=Array.isArray(history)?[...history].reverse():[];el.innerHTML=rows.map(a=>`<tr><td>${esc(formatDateTime(a.triggeredAt))}</td><td>${fmt(a.value)}</td><td>${fmt(a.threshold)}</td><td>${fmt(a.windowMinutes)} min</td><td>${a.acknowledgedAt?esc(formatDateTime(a.acknowledgedAt)):'—'}</td></tr>`).join('')||'<tr><td colspan="5">No alerts recorded.</td></tr>';}
 
@@ -678,9 +715,7 @@ renderCharts=function(){
 
 function renderOperationalIntelligence(){
   const rows=filteredRows||[];
-  renderSmartSummary(rows);
-  renderRootCauseSnapshot(rows);
-  renderContributionAnalysis(rows);
+  renderSmartSummary(allRows||[]);
   drawCumulativeDayCurve($('cumulativeDayChart'), rows);
 }
 

@@ -1,11 +1,11 @@
 {
-  "configVersion": 296,
-  "minEngineVersion": "12.3.9",
+  "configVersion": 298,
+  "minEngineVersion": "12.4.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 296",
+    "subtitle": "Operations Toolkit · Config 298",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 296
+    "configVersion": 298
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -143,26 +143,14 @@
     {
       "id": "rejected-shipments",
       "title": "Rejected Shipments",
-      "subtitle": "Rejection analytics dashboard",
+      "subtitle": "Rejected Shipments Control Center v4.9",
       "accessHeaders": [
         "Rejected Shipments"
       ],
-      "config": "operations/rejected-shipments.json?v=296",
+      "config": "operations/rejected-shipments.json?v=298",
       "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Zm25-10 4 4 6-7 4 4-10 11-8-8 4-4Z",
-      "description": "Rejected Shipments Control Center matching the supplied v4.9 reference: exact 12-column extraction, 1000-row paging, incremental watermark sync, scheduled retry, analytics and threshold alerts.",
+      "description": "Remote-owned Rejected Shipments Control Center v4.9 dashboard. KPI cards and Smart Summary remain global and do not change with dashboard filters; Heatmap and Cumulative Day Curve share one row.",
       "runLabel": "Open Rejected Shipments"
-    },
-    {
-      "id": "rejected-shipments-data",
-      "title": "Rejected Shipments Data Bridge",
-      "subtitle": "Background data bridge",
-      "accessHeaders": [
-        "Rejected Shipments"
-      ],
-      "config": "operations/rejected-shipments-data.json?v=296",
-      "enabled": false,
-      "description": "Hidden data bridge used by the standalone Rejected Shipments dashboard.",
-      "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Z"
     },
     {
       "id": "daily-planner",
@@ -658,7 +646,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-09-12T14:36:00+03:30",
+  "publishedAt": "2026-09-14T16:28:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true

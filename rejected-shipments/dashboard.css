@@ -58,3 +58,17 @@ html[data-theme="dark"] .smart-summary-card{background:linear-gradient(135deg,va
 
 /* v4.9 unique-reference trend */
 .trend-series-legend{display:flex;gap:14px;align-items:center;margin-top:7px;font-size:10px;color:var(--muted);flex-wrap:wrap}.trend-series-legend span{display:flex;align-items:center;gap:5px}.trend-swatch{display:inline-block;width:18px;height:3px;border-radius:999px}.trend-swatch.total{background:#e1003c}.trend-swatch.unique{background:#0f9f6e}
+
+
+/* v4.10 requested dashboard refinements */
+.rejected-brand-mark{background:#e1003c!important;color:#fff}
+.rejected-brand-mark svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+.rejected-brand-mark .reject-x{stroke-width:2.2}
+.advanced-analytics-grid{grid-template-columns:1fr}
+.cumulative-card{grid-column:1/-1}
+
+/* v298: fixed KPI/Summary context + paired operational visuals */
+.paired-analytics-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:0 0 14px;align-items:stretch}
+.paired-analytics-grid .heatmap-card,.paired-analytics-grid .cumulative-card{min-width:0;min-height:420px}
+.paired-analytics-grid canvas{width:100%;max-width:100%}
+@media(max-width:1100px){.paired-analytics-grid{grid-template-columns:1fr}}

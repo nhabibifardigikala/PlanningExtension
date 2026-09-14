@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rejected Shipments Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css?v=296" />
+  <link rel="stylesheet" href="dashboard.css?v=298" />
 </head>
 <body>
   <div id="loadingOverlay" class="loading-overlay"><div><span class="loading-spinner"></span><strong>Loading data…</strong></div></div>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand icon-only-brand" title="Rejected Shipments Control Center"><div class="brand-mark">RS</div></div>
+      <div class="brand icon-only-brand" title="Rejected Shipments Control Center"><div class="brand-mark rejected-brand-mark" aria-label="Rejected shipment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/><path class="reject-x" d="m15.7 8.3 4 4m0-4-4 4"/></svg></div></div>
       <nav class="icon-nav">
         <button class="nav-item active" data-section="dashboard" aria-label="Dashboard" title="Dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
         <button class="nav-item" data-section="data" aria-label="Data Explorer" title="Data Explorer"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></button>
@@ -37,10 +37,11 @@
       </header>
 
       <section id="section-dashboard" class="section active">
-        <div class="saved-views card">
-          <div class="saved-view-main"><strong>Saved Views</strong><select id="savedViewSelect"><option value="">Select a saved view…</option></select></div>
-          <div class="inline"><input id="savedViewName" class="search" placeholder="View name…"><button id="saveViewBtn" class="btn ghost compact">Save View</button><button id="deleteViewBtn" class="btn ghost compact">Delete</button></div>
-        </div>
+        <article class="card smart-summary-card" id="smartSummaryCard">
+          <div class="smart-summary-icon" aria-hidden="true">✦</div>
+          <div><span class="eyebrow">Smart Summary</span><strong id="smartSummaryText">Waiting for shipment data…</strong></div>
+        </article>
+
         <div class="filters card">
           <div class="field"><label>From Date (Jalali)</label><input id="filterFrom" type="text" autocomplete="off"></div>
           <div class="field"><label>To Date (Jalali)</label><input id="filterTo" type="text" autocomplete="off"></div>
@@ -50,12 +51,6 @@
           <div class="field"><label>Shipping Size</label><select id="filterShippingSize"><option value="">All</option></select></div>
           <button id="resetFilters" class="btn ghost compact">Clear Filters</button><div id="activeChartFilter" class="active-filter" hidden></div>
         </div>
-
-
-        <article class="card smart-summary-card" id="smartSummaryCard">
-          <div class="smart-summary-icon" aria-hidden="true">✦</div>
-          <div><span class="eyebrow">Smart Summary</span><strong id="smartSummaryText">Waiting for shipment data…</strong></div>
-        </article>
 
         <div class="kpi-grid kpi-grid-eight">
           <article class="kpi card"><span>Last 15min Rejected</span><strong id="kpi15m">0</strong><small>Rolling 15 minutes</small></article>
@@ -69,27 +64,21 @@
         </div>
 
         <div class="chart-grid">
-          <article class="card chart-card wide"><div class="card-head"><div><h3>Rejection Trend</h3><p>Based on shipment Created At</p><div class="trend-series-legend"><span><i class="trend-swatch total"></i>All Rejections</span><span><i class="trend-swatch unique"></i>Unique Reference IDs</span></div></div><div class="trend-controls"><select id="trendBucket" title="Time granularity"><option value="quarter" selected>15 Minutes</option><option value="hour">Hourly</option><option value="day">Daily</option><option value="month">Monthly</option></select><select id="trendPointCount" title="Time buckets to display"><option value="20">20</option><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option><option value="all">All</option></select></div></div><canvas id="trendChart" height="240"></canvas></article>
+          <article class="card chart-card wide"><div class="card-head"><div><h3>Rejection Trend</h3><p>Based on shipment Created At</p><div class="trend-series-legend"><span><i class="trend-swatch total"></i>All Rejections</span><span><i class="trend-swatch unique"></i>New Unique Rejections</span></div></div><div class="trend-controls"><select id="trendBucket" title="Time granularity"><option value="quarter" selected>15 Minutes</option><option value="hour">Hourly</option><option value="day">Daily</option><option value="month">Monthly</option></select><select id="trendPointCount" title="Time buckets to display"><option value="20">20</option><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option><option value="all">All</option></select></div></div><canvas id="trendChart" height="240"></canvas></article>
           <article class="card chart-card"><div class="card-head"><div><h3>Shipping Size</h3><p>Rejected shipments by shipping size</p></div></div><canvas id="shippingSizeChart" height="240"></canvas></article>
           <article class="card chart-card"><div class="card-head"><div><h3>Top Destination Points</h3><p>Most frequent destinations</p></div></div><canvas id="destinationChart" height="240"></canvas></article>
           <article class="card chart-card"><div class="card-head"><div><h3>Current Month Daily Trend</h3><p>Daily rejected shipments for the current Jalali month</p></div></div><canvas id="currentMonthDailyChart" height="240"></canvas></article>
-          <article class="card chart-card"><div class="card-head"><div><h3>Period Comparison</h3><p>Current versus previous comparable calendar periods</p></div></div><canvas id="periodComparisonChart" height="240"></canvas></article>
-          <article class="card chart-card heatmap-card"><div class="card-head"><div><h3>Rejection Heatmap</h3><p>Hour × weekday based on Created At</p></div></div><canvas id="heatmapChart" height="330"></canvas></article>
         </div>
 
-        <div class="advanced-analytics-grid">
+        <div class="paired-analytics-grid">
+          <article class="card chart-card heatmap-card">
+            <div class="card-head"><div><h3>Rejection Heatmap</h3><p>Hour × weekday based on Created At</p></div></div>
+            <canvas id="heatmapChart" height="330"></canvas>
+          </article>
           <article class="card chart-card cumulative-card">
             <div class="card-head"><div><h3>Cumulative Day Curve</h3><p>Today vs yesterday and 7-day average by hour of day</p></div></div>
             <div class="chart-legend" aria-label="Cumulative chart legend"><span><i class="legend-dot today"></i>Today</span><span><i class="legend-dot yesterday"></i>Yesterday</span><span><i class="legend-dot average"></i>7-day average</span></div>
-            <canvas id="cumulativeDayChart" height="280"></canvas>
-          </article>
-          <article class="card insight-card">
-            <div class="card-head"><div><h3>Root Cause Snapshot</h3><p>Largest drivers in the current filtered context</p></div></div>
-            <div id="rootCauseSnapshot" class="root-cause-grid"></div>
-          </article>
-          <article class="card insight-card contribution-card">
-            <div class="card-head"><div><h3>Contribution Analysis</h3><p>Share of rejected shipments by the main operational dimensions</p></div></div>
-            <div id="contributionAnalysis" class="contribution-analysis"></div>
+            <canvas id="cumulativeDayChart" height="330"></canvas>
           </article>
         </div>
 
@@ -171,7 +160,7 @@
   <div id="jalaliPicker" class="jalali-picker" hidden></div>
   <div id="chartTooltip" class="chart-tooltip" hidden></div>
   <div id="toast" class="toast"></div>
-  <script src="remote-adapter.js?v=296"></script>
-  <script src="dashboard.js?v=296"></script>
+  <script src="remote-adapter.js?v=298"></script>
+  <script src="dashboard.js?v=298"></script>
 </body>
 </html>

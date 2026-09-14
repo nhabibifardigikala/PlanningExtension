@@ -2,17 +2,17 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Open the Rejected Shipments dashboard in a separate browser tab.",
+  "description": "Open the Remote-owned Rejected Shipments Control Center dashboard. Privileged v4.9 background capabilities remain in the Digiexpress Host and are accessed through the narrow trusted bridge.",
   "workflow": [
     {
       "action": "open",
-      "url": "https://nhabibifardigikala.github.io/PlanningExtension/rejected-shipments/dashboard.html?v=296",
+      "url": "https://nhabibifardigikala.github.io/PlanningExtension/rejected-shipments/dashboard.html?v=298",
       "active": true,
       "completeTimeoutMs": 30000,
       "progress": "Opening Rejected Shipments dashboard…"
     }
   ],
   "successMessage": "Rejected Shipments dashboard opened.",
-  "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "runtimeContract": "stable-host-12.4.2",
+  "businessLogicOwner": "remote-ui-v4.9"
 }
