@@ -1,11 +1,11 @@
 {
-  "configVersion": 298,
+  "configVersion": 299,
   "minEngineVersion": "12.4.2",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 298",
+    "subtitle": "Operations Toolkit · Config 299",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 298
+    "configVersion": 299
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -147,9 +147,9 @@
       "accessHeaders": [
         "Rejected Shipments"
       ],
-      "config": "operations/rejected-shipments.json?v=298",
+      "config": "operations/rejected-shipments.json?v=299",
       "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Zm25-10 4 4 6-7 4 4-10 11-8-8 4-4Z",
-      "description": "Remote-owned Rejected Shipments Control Center v4.9 dashboard. KPI cards and Smart Summary remain global and do not change with dashboard filters; Heatmap and Cumulative Day Curve share one row.",
+      "description": "Remote-owned Rejected Shipments Control Center v4.9 dashboard. Heatmap shows average rejections by weekday/hour; cumulative curve shares the same row; trend time labels are separated from date bands.",
       "runLabel": "Open Rejected Shipments"
     },
     {
@@ -646,7 +646,7 @@
       ]
     }
   ],
-  "publishedAt": "2026-09-14T16:28:00+03:30",
+  "publishedAt": "2026-09-14T17:59:00+03:30",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true

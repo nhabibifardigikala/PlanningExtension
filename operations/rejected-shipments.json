@@ -6,7 +6,7 @@
   "workflow": [
     {
       "action": "open",
-      "url": "https://nhabibifardigikala.github.io/PlanningExtension/rejected-shipments/dashboard.html?v=298",
+      "url": "https://nhabibifardigikala.github.io/PlanningExtension/rejected-shipments/dashboard.html?v=299",
       "active": true,
       "completeTimeoutMs": 30000,
       "progress": "Opening Rejected Shipments dashboard…"
