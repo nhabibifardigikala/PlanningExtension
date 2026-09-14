@@ -72,3 +72,23 @@ html[data-theme="dark"] .smart-summary-card{background:linear-gradient(135deg,va
 .paired-analytics-grid .heatmap-card,.paired-analytics-grid .cumulative-card{min-width:0;min-height:420px}
 .paired-analytics-grid canvas{width:100%;max-width:100%}
 @media(max-width:720px){.paired-analytics-grid{grid-template-columns:1fr}}
+
+/* v300: force Heatmap and Cumulative Day Curve into the same 50/50 row.
+   This intentionally overrides the legacy .cumulative-card{grid-column:1/-1}. */
+.paired-analytics-grid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-auto-flow:row!important;
+  align-items:stretch!important;
+}
+.paired-analytics-grid > .heatmap-card,
+.paired-analytics-grid > .cumulative-card{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+}
+@media (max-width:720px){
+  .paired-analytics-grid{grid-template-columns:1fr!important;}
+}
