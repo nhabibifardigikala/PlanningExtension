@@ -1,0 +1,102 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Extract Delivery Polygon data from Admin for Data Set Update.",
+  "navigation": {
+    "retryCount": 8,
+    "retryDelayMs": 500,
+    "completeTimeoutMs": 60000
+  },
+  "successMessage": "Delivery Polygon extraction completed. {{rowCount}} rows are ready.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://admin.digikala.com/shipping/dc-polygons/",
+      "progress": "Opening Delivery Polygons…",
+      "active": false
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for DC Polygons table…",
+      "error": "DC Polygons table was not found."
+    },
+    {
+      "action": "enableColumns",
+      "columns": [
+        "coordinates"
+      ],
+      "options": {
+        "buttonSelector": "button",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000
+      },
+      "afterEachMs": 100,
+      "progress": "Enabling coordinates column…",
+      "error": "Could not enable the coordinates column."
+    },
+    {
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying column settings…"
+    },
+    {
+      "action": "wait",
+      "ms": 10000,
+      "progress": "Waiting for DC Polygons to reload…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://admin.digikala.com/shipping/dc-polygons/?per_page=1000",
+      "progress": "Setting rows per page to 1000…",
+      "completeTimeoutMs": 60000
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for the 1000-row table…",
+      "error": "DC Polygons table was not available after setting 1000 rows."
+    },
+    {
+      "action": "wait",
+      "ms": 3500,
+      "progress": "Waiting for data to finish loading…"
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "timeoutMs": 90000,
+      "expectedRowsPerPage": 1000,
+      "allowLastPagePartial": true,
+      "pollMs": 1500,
+      "afterPageMs": 700,
+      "dedupe": false,
+      "maxPages": 1000,
+      "ignoreLastActionColumn": true,
+      "parser": {
+        "tableSelector": "table",
+        "svgBoolean": true
+      },
+      "pageProgress": "Extracting Delivery Polygon page {{page}}…",
+      "progress": "Extracting Delivery Polygons…",
+      "error": "No Delivery Polygon rows were found."
+    }
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1500
+  },
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
+}

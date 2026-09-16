@@ -1,5 +1,5 @@
 {
-  "configVersion": 306,
+  "configVersion": 307,
   "minEngineVersion": "12.4.2",
   "app": {
     "name": "Digiexpress",
@@ -143,13 +143,27 @@
       "inputs": []
     },
     {
+      "id": "extract-delivery-polygons",
+      "title": "Delivery Polygons Dataset Extractor",
+      "subtitle": "Internal Data Set Update operation",
+      "accessHeaders": [
+        "Data Set Update"
+      ],
+      "config": "operations/extract-delivery-polygons.json?v=307",
+      "enabled": false,
+      "description": "Internal extractor used by Data Set Update for Delivery Polygons.",
+      "runLabel": "Run Extraction",
+      "uiMode": "form",
+      "inputs": []
+    },
+    {
       "id": "data-set-update",
       "title": "Data Set Update",
       "subtitle": "Scheduled dataset refresh",
       "accessHeaders": [
         "Data Set Update"
       ],
-      "config": "operations/data-set-update.json?v=306",
+      "config": "operations/data-set-update.json?v=307",
       "iconSvgPath": "M8 7h28a4 4 0 0 1 4 4v5h-4v-5H8v26h12v4H8a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4Zm20 12a12 12 0 1 1-8.5 3.5l2.8 2.8A8 8 0 1 0 28 23v5l-7-7 7-7v5Zm5 5h4v8h-8v-4h4v-4Z",
       "description": "Schedule automatic dataset refreshes or run them manually.",
       "runLabel": "Data Set Update",

@@ -13,6 +13,10 @@
     'pickup-polygons':{
       id:'pickup-polygons',label:'Pick-up Polygons',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
+    },
+    'delivery-polygons':{
+      id:'delivery-polygons',label:'Delivery Polygons',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',enabled:false,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
     }
   };
   const $=id=>document.getElementById(id);
@@ -125,7 +129,7 @@
     const id=run.dataset.runJob,st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
     if(st.running){try{mini.textContent='Cancelling…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Update cancelled');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
-      run.classList.add('running');mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':'Opening Flex Coverage Polygons…';mini.className='dataset-mini-status busy';
+      run.classList.add('running');mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':'Opening Admin DC Polygons…');mini.className='dataset-mini-status busy';
       const url=sharedWebAppUrl();await request('saveJob',{job:{...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations}});await request('runNow',{jobId:id});startFastPoll();await refresh({quiet:true});toast('Update started');
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
   }));
