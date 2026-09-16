@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 289;
+  const VERSION = 309;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -23,6 +23,24 @@
   function jalaliWeekOffset(y,m){try{const g=j2g(y,m,1);return(new Date(Date.UTC(g.gy,g.gm-1,g.gd)).getUTCDay()+1)%7;}catch(_){return 0;}}
   function currentJalaliParts(){try{const parts=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),obj=Object.fromEntries(parts.map(p=>[p.type,p.value]));return{y:Number(obj.year),m:Number(obj.month),d:Number(obj.day)};}catch(_){return{y:1405,m:1,d:1};}}
   const jalaliMonthDays=(y,m)=>m<=6?31:m<=11?30:(jalCal(y).leap===0?30:29);
+  function normalizeJalaliDateKey(value){
+    const raw=latinDigits(value).replace(/\D/g,'');
+    return /^\d{8}$/.test(raw)?raw:'';
+  }
+  function formatJalaliDateKey(raw){
+    return raw?`${raw.slice(0,4)}/${raw.slice(4,6)}/${raw.slice(6,8)}`:'';
+  }
+  function jalaliDateRange(fromValue,toValue){
+    const from=normalizeJalaliDateKey(fromValue),to=normalizeJalaliDateKey(toValue);
+    if(!from||!to||Number(from)>Number(to))return [];
+    let y=Number(from.slice(0,4)),m=Number(from.slice(4,6)),d=Number(from.slice(6,8));
+    const out=[];
+    for(let guard=0;guard<800&&Number(`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`)<=Number(to);guard++){
+      const key=`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`;out.push(formatJalaliDateKey(key));
+      d++;if(d>jalaliMonthDays(y,m)){d=1;m++;if(m>12){m=1;y++;}}
+    }
+    return out;
+  }
   function setupJalaliPicker(inputId){
     const input=$(inputId),wrap=input?.closest('.jalali-picker-wrap'),toggle=wrap?.querySelector(`[data-picker-for="${inputId}"]`),pop=wrap?.querySelector(`[data-picker="${inputId}"]`); if(!input||!toggle||!pop)return;
     const today=currentJalaliParts(); let view={...today};
@@ -117,22 +135,13 @@
   function renderCenterMenu(input, menu, mode) {
     const query = input.value.trim();
     if (query.length < 1) { menu.classList.add('hidden'); return; }
-    const numericQuery = latinDigits(query).trim();
-    if (mode === 'flex' && /^\d+(?:\s+\d+)*$/.test(numericQuery)) {
-      const ids=numericQuery.split(/\s+/).filter(Boolean);
-      menu.innerHTML = `<button type="button" data-flex-raw-ids="${esc(ids.join(' '))}" class="active"><span>${ids.length===1?`Use Flex ID ${esc(ids[0])}`:`Use ${ids.length} Flex IDs`}</span><small>${esc(ids.join(' · '))}</small></button>`;
-      menu.classList.remove('hidden');
-      const btn=qs('[data-flex-raw-ids]',menu);
-      if(btn)btn.onclick=()=>addRawFlexIds(btn.dataset.flexRawIds||'');
-      return;
-    }
     loadCenters().then(list => {
       const selected = mode === 'dk' ? state.centers : state.flexCenters;
-      const selectedIds = new Set(selected.filter(x=>x.lookupMode!=='id').map(x=>String(x.id)));
+      const selectedIds = new Set(selected.map(x=>String(x.id)));
       const found = list.filter(x => matchesCenter(x, query) && !selectedIds.has(String(x.id)))
         .sort((a,b)=>rank(a,query)-rank(b,query) || a.name.localeCompare(b.name)).slice(0,30);
       if (!found.length) { menu.innerHTML = '<div class="empty">No matching Distribution Center</div>'; menu.classList.remove('hidden'); return; }
-      menu.innerHTML = found.map((x,i)=>`<button type="button" data-id="${esc(x.id)}" data-name="${esc(x.name)}" class="${i===0?'active':''}"><span>${esc(x.name)}</span><small>${mode==='flex'?'Select by name':`ID ${esc(x.id)}`}</small></button>`).join('');
+      menu.innerHTML = found.map((x,i)=>`<button type="button" data-id="${esc(x.id)}" data-name="${esc(x.name)}" class="${i===0?'active':''}"><span>${esc(x.name)}</span><small>ID ${esc(x.id)}</small></button>`).join('');
       menu.classList.remove('hidden');
       qsa('button', menu).forEach(btn => btn.onclick = () => selectCenter(mode, btn.dataset.id, btn.dataset.name));
     }).catch(e => { menu.innerHTML = `<div class="empty">${esc(e.message||e)}</div>`; menu.classList.remove('hidden'); });
@@ -143,10 +152,7 @@
       if (!state.centers.some(x => String(x.id) === String(id))) state.centers.push({id:String(id),name:String(name||id)});
       $('dkCentersInput').value = ''; $('dkMenu').classList.add('hidden'); renderChips();
     } else {
-      const centerName=String(name||id);
-      if (!state.flexCenters.some(x => x.lookupMode==='name' && norm(x.name) === norm(centerName))) {
-        state.flexCenters.push({id:String(id||''),name:centerName,lookupMode:'name',flexId:''});
-      }
+      if (!state.flexCenters.some(x => String(x.id) === String(id))) state.flexCenters.push({id:String(id),name:String(name||id)});
       $('flexCenterInput').value = '';
       $('flexMenu').classList.add('hidden');
       renderFlexChips();
@@ -159,24 +165,8 @@
   }
 
   function renderFlexChips() {
-    $('flexChips').innerHTML = state.flexCenters.map((x,i)=>{
-      const byId=x.lookupMode==='id';
-      const title=byId?`Flex ID ${esc(x.flexId||x.id)}`:esc(x.name);
-      const meta=byId?'ID lookup':'Name lookup';
-      return `<span class="chip"><span>${title}</span><small>${meta}</small><button type="button" data-remove-flex="${i}" aria-label="Remove">×</button></span>`;
-    }).join('');
+    $('flexChips').innerHTML = state.flexCenters.map((x,i)=>`<span class="chip"><span>${esc(x.name)}</span><small>${x.name===x.id?'':`ID ${esc(x.id)}`}</small><button type="button" data-remove-flex="${i}" aria-label="Remove">×</button></span>`).join('');
     qsa('[data-remove-flex]', $('flexChips')).forEach(b => b.onclick = () => { state.flexCenters.splice(Number(b.dataset.removeFlex),1); renderFlexChips(); });
-  }
-
-  function addRawFlexIds(raw) {
-    const parts = latinDigits(raw).trim().split(/\s+/).filter(Boolean);
-    if (!parts.length || !parts.every(x=>/^\d+$/.test(x))) return false;
-    for (const id of parts) {
-      if (!state.flexCenters.some(x=>x.lookupMode==='id' && String(x.flexId||x.id)===id)) {
-        state.flexCenters.push({id,name:`Flex ID ${id}`,lookupMode:'id',flexId:id});
-      }
-    }
-    $('flexCenterInput').value=''; $('flexMenu').classList.add('hidden'); renderFlexChips(); return true;
   }
 
   function addRawDkIds(raw) {
@@ -196,12 +186,7 @@
       if(addRawDkIds(dkI.value))e.preventDefault();
     });
     fxI.addEventListener('input',()=>renderCenterMenu(fxI,fxM,'flex'));
-    fxI.addEventListener('keydown',e=>{
-      if(e.key!=='Enter')return;
-      if(addRawFlexIds(fxI.value)){e.preventDefault();return;}
-      const first=qs('button[data-id]',fxM);
-      if(first&&!fxM.classList.contains('hidden')){e.preventDefault();selectCenter('flex',first.dataset.id,first.dataset.name);}
-    });
+    fxI.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=qs('button',fxM);if(first&&!fxM.classList.contains('hidden')){e.preventDefault();selectCenter('flex',first.dataset.id,first.dataset.name);}}});
     document.addEventListener('click',e=>{if(!e.target.closest('.autocomplete')){dkM.classList.add('hidden');fxM.classList.add('hidden');}});
   }
 
@@ -310,7 +295,8 @@
 
   function metricData(model, group) {
     const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=model.source==='flex'?headerIndex(h,['shipping reserved capacity','shipping_reserved_capacity']):headerIndex(h,aliases.reserved);
-    const days=di>=0?new Set(group.rows.map(r=>String(r[di]??'').trim()).filter(Boolean)).size:group.rows.length;
+    const selectedDays=jalaliDateRange(model.fromDate,model.toDate);
+    const days=selectedDays.length||(di>=0?new Set(group.rows.map(r=>String(r[di]??'').trim()).filter(Boolean)).size:group.rows.length);
     const c=ci>=0?summary(group.rows.map(r=>num(r[ci]))):summary([]);
     const r=ri>=0?summary(group.rows.map(row=>num(row[ri]))):summary([]);
     return {days,capacity:c,reserved:r};
@@ -319,13 +305,21 @@
   function seriesData(model, group) {
     const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=model.source==='flex'?headerIndex(h,['shipping reserved capacity','shipping_reserved_capacity']):headerIndex(h,aliases.reserved), map=new Map();
     group.rows.forEach((row,index)=>{const date=di>=0?String(row[di]??'').trim():String(index+1);if(!date)return;if(!map.has(date))map.set(date,{date,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(date),c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}});
-    return [...map.values()]
+    const actual=[...map.values()]
       .map(o=>({date:o.date,capacity:o.hasC?o.capacity:null,reserved:o.hasR?o.reserved:null}))
       .sort((a,b)=>{
         const ak=Number(latinDigits(a.date).replace(/\D/g,'')),bk=Number(latinDigits(b.date).replace(/\D/g,''));
         if(Number.isFinite(ak)&&Number.isFinite(bk)&&ak!==bk)return ak-bk;
         return String(a.date).localeCompare(String(b.date),'fa');
       });
+    const fullRange=jalaliDateRange(model.fromDate,model.toDate);
+    if(!fullRange.length)return actual;
+    const byKey=new Map(actual.map(x=>[normalizeJalaliDateKey(x.date),x]));
+    return fullRange.map(date=>{
+      const hit=byKey.get(normalizeJalaliDateKey(date));
+      if(hit)return {...hit,date};
+      return {date,capacity:0,reserved:0};
+    });
   }
 
 
@@ -413,22 +407,12 @@
       if($('dkCentersInput').value.trim() && !addRawDkIds($('dkCentersInput').value)){setStatus('Select the Distribution Center from the list, or press Enter after numeric IDs.','error');return}
       if(!state.centers.length){setStatus('Select at least one Distribution Center for DK.','error');return}
     } else {
-      if($('flexCenterInput').value.trim() && !addRawFlexIds($('flexCenterInput').value)){setStatus('Select the Flex Distribution Center by name, or enter its numeric Flex ID and press Enter.','error');return}
-      if(!state.flexCenters.length){setStatus('Select at least one Distribution Center for Flex, or enter a numeric Flex ID.','error');return}
+      if($('flexCenterInput').value.trim()){setStatus('Select the Flex Distribution Center from the suggestion list before running.','error');return}
+      if(!state.flexCenters.length){setStatus('Select at least one Distribution Center for Flex.','error');return}
     }
     setBusy(true);$('result').classList.add('hidden');
     if(state.source==='dk' && state.centers.some(x=>x.name===x.id)){
-      try{
-        const list=await loadCenters();
-        const byId=new Map(list.map(x=>[String(x.id),x.name]));
-        state.centers=state.centers.map(x=>({...x,name:byId.get(String(x.id))||x.name}));
-        renderChips();
-      }catch(_){}
-      if(state.centers.some(x=>x.name===x.id)){
-        setStatus('One or more numeric Distribution Center IDs could not be resolved to an exact center name. Please select them from the list and try again.','error');
-        setBusy(false);
-        return;
-      }
+      try{const list=await loadCenters();const byId=new Map(list.map(x=>[String(x.id),x.name]));state.centers=state.centers.map(x=>({...x,name:byId.get(String(x.id))||x.name}));renderChips();}catch(_){}
     }
     const selected=state.source==='dk'?state.centers:state.flexCenters;
     const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};
@@ -436,10 +420,10 @@
     try{
       for(let i=0;i<selected.length;i++){
         const center=selected[i];
-        setStatus(`Running ${state.source==='dk'?'DK':'Flex'} report ${i+1}/${selected.length}: ${center.lookupMode==='id'?`Flex ID ${center.flexId||center.id}`:center.name}…`);
+        setStatus(`Running ${state.source==='dk'?'DK':'Flex'} report ${i+1}/${selected.length}: ${center.name}…`);
         const input=state.source==='dk'
-          ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:'',flexSelectionMode:''}
-          : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexSelectionMode:center.lookupMode==='id'?'id':'name',flexDcId:center.lookupMode==='id'?String(center.flexId||center.id):'',flexDcName:center.lookupMode==='id'?'':center.name};
+          ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:''}
+          : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexDcId:center.id,flexDcName:center.name};
         const result=await requestHostOperation(input,240000);
         models.push(buildModel(result,input));
       }

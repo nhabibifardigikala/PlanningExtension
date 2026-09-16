@@ -1,5 +1,5 @@
 {
-  "configVersion": 307,
+  "configVersion": 308,
   "minEngineVersion": "12.4.2",
   "app": {
     "name": "Digiexpress",
@@ -135,7 +135,7 @@
       "accessHeaders": [
         "Data Set Update"
       ],
-      "config": "operations/extract-pickup-polygons.json?v=306",
+      "config": "operations/extract-pickup-polygons.json?v=309",
       "enabled": false,
       "description": "Internal extractor used by Data Set Update for Pick-up Polygons.",
       "runLabel": "Run Extraction",
@@ -149,7 +149,7 @@
       "accessHeaders": [
         "Data Set Update"
       ],
-      "config": "operations/extract-delivery-polygons.json?v=307",
+      "config": "operations/extract-delivery-polygons.json?v=309",
       "enabled": false,
       "description": "Internal extractor used by Data Set Update for Delivery Polygons.",
       "runLabel": "Run Extraction",
@@ -163,7 +163,7 @@
       "accessHeaders": [
         "Data Set Update"
       ],
-      "config": "operations/data-set-update.json?v=307",
+      "config": "operations/data-set-update.json?v=309",
       "iconSvgPath": "M8 7h28a4 4 0 0 1 4 4v5h-4v-5H8v26h12v4H8a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4Zm20 12a12 12 0 1 1-8.5 3.5l2.8 2.8A8 8 0 1 0 28 23v5l-7-7 7-7v5Zm5 5h4v8h-8v-4h4v-4Z",
       "description": "Schedule automatic dataset refreshes or run them manually.",
       "runLabel": "Data Set Update",
@@ -188,7 +188,7 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=292",
+      "config": "operations/capacity-report.json?v=309",
       "description": "Choose DK or Flex. DK searches by numeric Distribution Center ID. Flex supports multiple centers and can select each Hub Coverage Polygons option either by center name or by its numeric Flex ID (the number shown in brackets). DK can optionally aggregate all centers and time scopes into one chart.",
       "runLabel": "Open Capacity Report"
     },
@@ -705,7 +705,7 @@
   },
   "engineArchitecture": "stable-secure-bootstrap-generic-runtime-v2",
   "ui": {
-    "html": "ui/app.html?v=292",
+    "html": "ui/app.html?v=308",
     "css": "ui/app.css?v=280",
     "contractVersion": 5,
     "dashboardCss": "ui/dashboard.css?v=271"
