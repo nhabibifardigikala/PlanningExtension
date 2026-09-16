@@ -5,14 +5,27 @@
 
   const ORIGIN=location.origin;
   const JOB_ID='distribution-centers';
-  const DEFAULT_JOB={id:JOB_ID,label:'Distribution Centers',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',enabled:false,schedule:{type:'daily',time:'12:00',intervalHours:1}};
+  const PRE_OPERATIONS=[{
+    operationId:'dc-user-assignment',
+    inputs:{useConfiguredEmail:true,dcCount:300}
+  }];
+  const DEFAULT_JOB={
+    id:JOB_ID,
+    label:'Distribution Centers',
+    operationId:'extract-dc',
+    sheetName:'Distribution Centers (LG)',
+    enabled:false,
+    schedule:{type:'daily',time:'12:00',intervalHours:1},
+    preOperations:PRE_OPERATIONS
+  };
   const $=id=>document.getElementById(id);
   let currentState=null;
+  let migrationDone=false;
 
   function request(action,payload={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dsu-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.5.1 or newer is required.'));},20000);
+      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.5.2 or newer is required.'));},20000);
       function onMessage(e){
         if(e.source!==window||e.origin!==ORIGIN)return;
         const d=e.data||{};
@@ -34,7 +47,17 @@
 
   function toggleSchedule(){const hourly=$('scheduleType').value==='hourly';$('dailyWrap').hidden=hourly;$('hourlyWrap').hidden=!hourly}
   function getJob(){return currentState?.jobs?.[JOB_ID]||DEFAULT_JOB}
-  function collectJob(){const base=getJob();return {...DEFAULT_JOB,...base,webAppUrl:$('webAppUrl').value.trim(),enabled:$('enabled').value==='true',schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1)}}}
+  function collectJob(){
+    const base=getJob();
+    return {
+      ...DEFAULT_JOB,
+      ...base,
+      webAppUrl:$('webAppUrl').value.trim(),
+      enabled:$('enabled').value==='true',
+      schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1)},
+      preOperations:PRE_OPERATIONS
+    };
+  }
   function apply(state){
     currentState=state||{};
     const job=getJob(),st=state?.states?.[JOB_ID]||{};
@@ -44,16 +67,33 @@
     $('dailyTime').value=job.schedule?.time||'12:00';
     $('intervalHours').value=String(job.schedule?.intervalHours||1);
     toggleSchedule();
-    $('lastRun').textContent=fmt(st.lastRunAt);$('rowCount').textContent=st.rowCount??'—';$('nextRun').textContent=fmt(st.nextRunAt);$('lastStatus').textContent=st.running?'Running…':(st.lastStatus||'—');
+    $('lastRun').textContent=fmt(st.lastRunAt);$('rowCount').textContent=st.rowCount??'—';$('nextRun').textContent=fmt(st.nextRunAt);$('lastStatus').textContent=st.running?(st.phase||st.lastStatus||'Running…'):(st.lastStatus||'—');
     $('datasetError').hidden=!st.lastError;$('datasetError').textContent=st.lastError||'';
     $('runNow').classList.toggle('running',!!st.running);$('runNow').disabled=!!st.running;
     const mini=$('dcMiniStatus');mini.className='dataset-mini-status';
-    if(st.running){mini.textContent='Updating…';mini.classList.add('busy')}else if(st.lastError){mini.textContent=st.lastError;mini.classList.add('error')}else{mini.textContent='Ready'}
+    if(st.running){mini.textContent=st.phase||'Updating…';mini.classList.add('busy')}else if(st.lastError){mini.textContent=st.lastError;mini.classList.add('error')}else{mini.textContent='Ready'}
+  }
+
+  async function ensurePipeline(state){
+    if(migrationDone)return state;
+    const job=state?.jobs?.[JOB_ID];
+    const pre=Array.isArray(job?.preOperations)?job.preOperations:[];
+    const ok=pre.some(x=>x?.operationId==='dc-user-assignment'&&Number(x?.inputs?.dcCount)===300&&x?.inputs?.useConfiguredEmail===true);
+    if(ok){migrationDone=true;return state}
+    const patched={...DEFAULT_JOB,...(job||{}),preOperations:PRE_OPERATIONS};
+    const saved=await request('saveJob',{job:patched});
+    const savedPre=Array.isArray(saved?.job?.preOperations)?saved.job.preOperations:[];
+    if(!savedPre.some(x=>x?.operationId==='dc-user-assignment'))throw new Error('Digiexpress Host 12.5.2 or newer is required for the DC assignment preparation step.');
+    migrationDone=true;
+    return request('getState');
   }
 
   async function refresh({quiet=false}={}){
-    try{const x=await request('getState');apply(x);$('connectionStatus').textContent='';$('connectionStatus').classList.remove('error');return x}
-    catch(e){if(!quiet){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}throw e}
+    try{
+      let x=await request('getState');
+      x=await ensurePipeline(x);
+      apply(x);$('connectionStatus').textContent='';$('connectionStatus').classList.remove('error');return x
+    }catch(e){if(!quiet){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}throw e}
   }
 
   $('appSettingsBtn').addEventListener('click',()=>openModal('appSettingsModal'));
@@ -73,7 +113,7 @@
   });
 
   $('runNow').addEventListener('click',async()=>{
-    const btn=$('runNow');try{btn.disabled=true;btn.classList.add('running');$('dcMiniStatus').textContent='Updating…';$('dcMiniStatus').className='dataset-mini-status busy';await request('saveJob',{job:collectJob()});await request('runNow',{jobId:JOB_ID});await refresh({quiet:true});toast('Distribution Centers updated')}
+    const btn=$('runNow');try{btn.disabled=true;btn.classList.add('running');$('dcMiniStatus').textContent='Assigning 300 DCs…';$('dcMiniStatus').className='dataset-mini-status busy';await request('saveJob',{job:collectJob()});await request('runNow',{jobId:JOB_ID});await refresh({quiet:true});toast('Distribution Centers updated')}
     catch(e){$('dcMiniStatus').textContent=e.message;$('dcMiniStatus').className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
     finally{btn.disabled=false;btn.classList.remove('running')}
   });
