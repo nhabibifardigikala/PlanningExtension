@@ -1,1 +1,79 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Data Set Update</title><link rel="stylesheet" href="app.css"></head><body><main class="page"><header class="hero"><div><h1>Data Set Update</h1><p>Automatic and manual dataset refreshes</p></div><div id="hostBadge" class="badge">Connecting…</div></header><section class="connection card"><div><h2>Google Sheets connection</h2><p>Deploy the bundled Apps Script once, then paste its Web App URL here.</p></div><div class="urlrow"><input id="webAppUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"><button id="saveConnection">Save</button></div></section><section class="dataset card" data-job="distribution-centers"><div class="dataset-head"><div><h2>Distribution Centers</h2><p>Source: Extract Distribution Centers → Destination: <strong>Distribution Centers (LG)</strong></p></div><button class="primary" id="runNow">Update now</button></div><div class="grid"><label><span>Automatic update</span><select id="enabled"><option value="false">Off</option><option value="true">On</option></select></label><label><span>Schedule type</span><select id="scheduleType"><option value="daily">Daily</option><option value="hourly">Hourly</option></select></label><label id="dailyWrap"><span>Update time</span><input id="dailyTime" type="time" value="12:00"></label><label id="hourlyWrap" hidden><span>Every</span><select id="intervalHours"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option><option value="6">6 hours</option><option value="12">12 hours</option></select></label></div><div class="actions"><button id="saveSchedule">Save schedule</button><span id="saveStatus"></span></div><div class="statusgrid"><div><span>Last update</span><strong id="lastRun">—</strong></div><div><span>Rows written</span><strong id="rowCount">—</strong></div><div><span>Next update</span><strong id="nextRun">—</strong></div><div><span>Status</span><strong id="lastStatus">—</strong></div></div><div id="errorBox" class="error" hidden></div></section></main><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Data Set Update</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main class="page">
+    <header class="app-header">
+      <div>
+        <h1>Data Set Update</h1>
+        <p>Manage and refresh shared data sets.</p>
+      </div>
+      <button id="appSettingsBtn" class="header-settings icon-btn" type="button" title="Program settings" aria-label="Program settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.16 7.16 0 0 0-1.62-.94L14.38 2.8a.5.5 0 0 0-.5-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.55-1.62.94L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.31-.08.64-.08.94s.03.63.08.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .5-.4l.36-2.52c.58-.24 1.12-.55 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.02-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
+      </button>
+    </header>
+
+    <section class="dataset-list" aria-label="Data sets">
+      <article class="dataset-row" data-job="distribution-centers">
+        <div class="dataset-name-wrap">
+          <h2>Distribution Centers</h2>
+          <div id="dcMiniStatus" class="dataset-mini-status">Ready</div>
+        </div>
+        <div class="dataset-actions">
+          <button id="runNow" class="sync-btn" type="button" title="Update now" aria-label="Update Distribution Centers now">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.6 6.4A8.95 8.95 0 0 0 12 3a9 9 0 0 0-8.5 6H1l4 4 4-4H6.6A6 6 0 0 1 17 7.2L14.2 10H21V3.2l-2.4 2.4v.8ZM5.4 17.6A8.95 8.95 0 0 0 12 21a9 9 0 0 0 8.5-6H23l-4-4-4 4h2.4A6 6 0 0 1 7 16.8L9.8 14H3v6.8l2.4-2.4v-.8Z"/></svg>
+          </button>
+          <button id="datasetSettingsBtn" class="dataset-settings icon-btn" type="button" title="Distribution Centers settings" aria-label="Distribution Centers settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.16 7.16 0 0 0-1.62-.94L14.38 2.8a.5.5 0 0 0-.5-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.55-1.62.94L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.31-.08.64-.08.94s.03.63.08.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .5-.4l.36-2.52c.58-.24 1.12-.55 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.02-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <div id="datasetSettingsModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="datasetSettingsTitle">
+      <div class="modal-head">
+        <div><h2 id="datasetSettingsTitle">Distribution Centers</h2><p>Automatic update settings</p></div>
+        <button class="close-btn" data-close="datasetSettingsModal" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="settings-grid">
+        <label><span>Automatic update</span><select id="enabled"><option value="false">Off</option><option value="true">On</option></select></label>
+        <label><span>Schedule type</span><select id="scheduleType"><option value="daily">Daily</option><option value="hourly">Hourly</option></select></label>
+        <label id="dailyWrap"><span>Update time</span><input id="dailyTime" type="time" value="12:00"></label>
+        <label id="hourlyWrap" hidden><span>Every</span><select id="intervalHours"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option><option value="6">6 hours</option><option value="12">12 hours</option></select></label>
+      </div>
+      <div class="status-grid">
+        <div><span>Last update</span><strong id="lastRun">—</strong></div>
+        <div><span>Rows written</span><strong id="rowCount">—</strong></div>
+        <div><span>Next update</span><strong id="nextRun">—</strong></div>
+        <div><span>Status</span><strong id="lastStatus">—</strong></div>
+      </div>
+      <div id="datasetError" class="error" hidden></div>
+      <button id="saveSchedule" class="save-btn" type="button">Save settings</button>
+    </div>
+  </div>
+
+  <div id="appSettingsModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="appSettingsTitle">
+      <div class="modal-head">
+        <div><h2 id="appSettingsTitle">Program Settings</h2><p>Google Sheets connection</p></div>
+        <button class="close-btn" data-close="appSettingsModal" type="button" aria-label="Close">×</button>
+      </div>
+      <label class="connection-field"><span>Google Apps Script Web App URL</span><input id="webAppUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"></label>
+      <p class="help">This connection is used by all data sets in Data Set Update.</p>
+      <div id="connectionStatus" class="inline-status"></div>
+      <button id="saveConnection" class="save-btn" type="button">Save connection</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
