@@ -1,78 +1,68 @@
-(function(){
-  'use strict';
-  const DEFAULT_URL='./DX_Polygons.xlsx';
-  const aliases={
-    stateId:['state id','state','province','استان'],
-    name:['name','نام'],
-    coordinates:['coordinates','coordinate','polygon','مختصات'],
-    dcId:['distribution center id','dc id','distribution_center_id','id','شناسه مرکز'],
-    iata:['iata'],
-    district:['district','منطقه'],
-    active:['active','is active','فعال'],
-    timeScope:['time scope','time_scope','بازه زمانی'],
-    submitType:['submit type','submit_type','نوع ارسال'],
-    natureId:['shipping nature id','nature id','shipping_nature_id','نوع مرکز']
-  };
-  const canon=v=>String(v??'').trim().toLowerCase().replace(/[\u200c\u200f\u202a-\u202e]/g,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ');
-  function findKey(row,names){
-    const keys=Object.keys(row||{}); const map=new Map(keys.map(k=>[canon(k),k]));
-    for(const n of names){const hit=map.get(canon(n));if(hit!==undefined)return hit;}
-    return null;
+(()=>{
+  const WEBAPP_KEY='digiexpress.dataset.webAppUrl';
+  const CALLBACK_ROOT='__dxPolygonJsonp';
+  let seq=0;
+  function clean(v){return String(v??'').replace(/\u200c|\u200d|\u200e|\u200f/g,' ').replace(/\s+/g,' ').trim()}
+  function norm(v){return clean(v).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()}
+  function findHeader(headers,aliases){const hs=headers.map(norm),as=aliases.map(norm);for(let i=0;i<hs.length;i++)if(as.includes(hs[i]))return i;for(let i=0;i<hs.length;i++)if(as.some(a=>hs[i].includes(a)))return i;return -1}
+  function numberValue(v){if(typeof v==='number')return v;const s=String(v??'').trim().replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[−–—]/g,'-');return s===''?NaN:Number(s)}
+  function parseWkt(text){
+    if(!/^\s*(MULTI)?POLYGON\s*\(/i.test(text))return null;
+    const pairs=[...text.matchAll(/(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/g)].map(m=>[Number(m[2]),Number(m[1])]);
+    return pairs.length>=3?[pairs]:null;
   }
-  function pick(row,names){const k=findKey(row,names);return k===null?'':row[k];}
   function parseCoordinates(value){
-    if(Array.isArray(value))return normalizeCoordinates(value);
-    const s=String(value??'').trim(); if(!s)return [];
-    let parsed=null;
-    try{parsed=JSON.parse(s);}catch(_){
-      try{parsed=JSON.parse(s.replace(/'/g,'"'));}catch(__){return [];}
+    if(Array.isArray(value))return normalizeRings(value);
+    let text=String(value??'').trim();if(!text)return[];
+    const wkt=parseWkt(text);if(wkt)return wkt;
+    let x=text;
+    for(let d=0;d<3&&typeof x==='string';d++){
+      try{x=JSON.parse(x);continue}catch(_){}
+      try{x=JSON.parse(x.replace(/\(/g,'[').replace(/\)/g,']').replace(/'/g,'"'));continue}catch(_){}
+      break;
     }
-    return normalizeCoordinates(parsed);
+    return normalizeRings(x);
   }
-  function normalizeCoordinates(raw){
-    if(!Array.isArray(raw))return [];
-    const parts=[];
-    for(const part of raw){
-      if(!Array.isArray(part))continue;
-      const pts=[];
-      for(const p of part){
-        if(!Array.isArray(p)||p.length<2)continue;
-        const lat=Number(p[0]),lon=Number(p[1]);
-        if(Number.isFinite(lat)&&Number.isFinite(lon))pts.push([lat,lon]);
-      }
-      if(pts.length>=3)parts.push(pts);
-    }
-    return parts;
+  function normalizeRings(node){
+    const rings=[];
+    const isPoint=p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(numberValue(p[0]))&&Number.isFinite(numberValue(p[1]));
+    const walk=n=>{if(!Array.isArray(n))return;if(n.length>=3&&n.every(isPoint)){const ring=n.map(p=>[numberValue(p[0]),numberValue(p[1])]).filter(p=>p[0]>=-90&&p[0]<=90&&p[1]>=-180&&p[1]<=180);if(ring.length>=3)rings.push(ring);return}for(const c of n)walk(c)};
+    walk(node);return rings;
   }
-  function normalizeRow(row,index){
-    const out={
-      stateId:String(pick(row,aliases.stateId)??'').trim(),
-      name:String(pick(row,aliases.name)??'').trim(),
-      coordinates:parseCoordinates(pick(row,aliases.coordinates)),
-      dcId:pick(row,aliases.dcId),
-      iata:String(pick(row,aliases.iata)??'').trim(),
-      district:String(pick(row,aliases.district)??'').trim(),
-      active:pick(row,aliases.active),
-      timeScope:String(pick(row,aliases.timeScope)??'').trim(),
-      submitType:String(pick(row,aliases.submitType)??'').trim(),
-      natureId:pick(row,aliases.natureId),
-      _row:index+2
-    };
-    const dcNum=Number(out.dcId); if(Number.isFinite(dcNum))out.dcId=dcNum;
-    const activeNum=Number(out.active); if(Number.isFinite(activeNum))out.active=activeNum;
-    const natureNum=Number(out.natureId); if(Number.isFinite(natureNum))out.natureId=natureNum;
-    return out;
+  function webAppUrl(){
+    try{const v=String(localStorage.getItem(WEBAPP_KEY)||'').trim();if(v)return v}catch(_){}
+    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),v=String(localStorage.getItem(k)||'');if(/https:\/\/script\.google\.com\/macros\/s\//i.test(v))return v.trim()}}catch(_){}
+    throw new Error('Google Sheets connection was not found. Open Data Set Update once and save Program Settings.');
   }
-  async function load(url=DEFAULT_URL){
-    if(!window.XLSX)throw new Error('Excel reader is unavailable.');
-    const resolved=new URL(url,location.href); resolved.searchParams.set('_',String(Date.now()));
-    const res=await fetch(resolved.href,{cache:'no-store'}); if(!res.ok)throw new Error(`DX_Polygons.xlsx could not be loaded (HTTP ${res.status}).`);
-    const buf=await res.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'}); const sheetName=wb.SheetNames[0];
-    if(!sheetName)throw new Error('DX_Polygons.xlsx has no worksheet.');
-    const raw=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{defval:'',raw:false});
-    const rows=raw.map(normalizeRow).filter(r=>r.name&&r.coordinates.length);
-    if(!rows.length)throw new Error('No valid polygons were found in DX_Polygons.xlsx. Check the column titles and coordinates column.');
-    return {source:'DX_Polygons.xlsx',sheet:sheetName,rows,rawCount:raw.length,invalidCount:raw.length-rows.length,natureMap:{Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6}};
+  function sheetFromSource(source){const s=String(source||'');if(/^sheet:/i.test(s))return s.slice(6).trim();if(/pickup/i.test(s))return 'Pick-up Polygons';return 'Delivery Polygons'}
+  function jsonp(url,params){return new Promise((resolve,reject)=>{
+    const id='cb'+Date.now()+'_'+(++seq),cb=CALLBACK_ROOT+'.'+id;window[CALLBACK_ROOT]=window[CALLBACK_ROOT]||{};
+    const script=document.createElement('script'),timer=setTimeout(()=>done(new Error('Google Sheets dataset request timed out.')),25000);
+    function cleanup(){clearTimeout(timer);delete window[CALLBACK_ROOT][id];script.remove()}
+    function done(err,data){cleanup();err?reject(err):resolve(data)}
+    window[CALLBACK_ROOT][id]=data=>done(null,data);script.onerror=()=>done(new Error('Google Sheets dataset could not be loaded.'));
+    const u=new URL(url);for(const [k,v] of Object.entries({...params,callback:cb,_:Date.now()}))u.searchParams.set(k,String(v));script.src=u.toString();document.head.appendChild(script);
+  })}
+  function mapRows(headers,rows,sheetName){
+    const nameI=findHeader(headers,['Name','name','title','polygon title','coverage polygon title']);
+    const coordI=findHeader(headers,['coordinates','coordinate']);
+    const dcI=findHeader(headers,['distribution center id','dc id','distribution center','id']);
+    const stateI=findHeader(headers,['state id']);
+    const iataI=findHeader(headers,['IATA','iata']);
+    const districtI=findHeader(headers,['district']);
+    const natureI=findHeader(headers,['shipping nature id','shipping nature','shipping size id','shipping size']);
+    const submitI=findHeader(headers,['submit type','delivery type']);
+    const activeI=findHeader(headers,['active']);
+    if(nameI<0||coordI<0)throw new Error(`${sheetName}: required Name/title or coordinates column was not found.`);
+    return rows.map(r=>({
+      name:clean(r[nameI]),coordinates:parseCoordinates(r[coordI]),dcId:dcI>=0?r[dcI]:'',stateId:stateI>=0?r[stateI]:'',iata:iataI>=0?r[iataI]:'',district:districtI>=0?r[districtI]:'',natureId:natureI>=0?r[natureI]:'',submitType:submitI>=0?r[submitI]:'',active:activeI>=0?r[activeI]:1,timeScope:''
+    })).filter(r=>r.name&&r.coordinates.length);
   }
-  window.DXPolygonLoader={load,normalizeRow,parseCoordinates};
+  async function load(source){
+    const sheetName=sheetFromSource(source),url=webAppUrl();
+    const data=await jsonp(url,{action:'getDataset',sheetName});
+    if(!data||data.ok!==true)throw new Error(data?.error||`${sheetName} could not be loaded.`);
+    return {headers:data.headers||[],rows:mapRows(data.headers||[],data.rows||[],sheetName),sheetName,updatedAt:data.updatedAt||''};
+  }
+  window.DXPolygonLoader={load};
 })();

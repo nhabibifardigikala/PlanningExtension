@@ -76,7 +76,7 @@
     else mini.textContent='Ready';
   }
   function apply(state){
-    currentState=state||{};$('webAppUrl').value=sharedWebAppUrl();
+    currentState=state||{};const sharedUrl=sharedWebAppUrl();$('webAppUrl').value=sharedUrl;try{if(sharedUrl)localStorage.setItem('digiexpress.dataset.webAppUrl',sharedUrl)}catch(_){}
     for(const id of Object.keys(JOBS))renderJob(id);
     if(Object.keys(JOBS).some(id=>getState(id).running))startFastPoll();else stopFastPoll();
     if($('datasetSettingsModal').classList.contains('open'))populateSettings(activeJobId);
@@ -115,7 +115,7 @@
   $('scheduleType').addEventListener('change',updateScheduleControls);$('enabled').addEventListener('change',updateScheduleControls);
 
   $('saveConnection').addEventListener('click',async()=>{
-    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
+    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
     catch(e){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}
     finally{btn.disabled=false}
   });

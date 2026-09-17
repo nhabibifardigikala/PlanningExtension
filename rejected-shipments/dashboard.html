@@ -4,7 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rejected Shipments Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css?v=300" />
+  <link rel="stylesheet" href="dashboard.css?v=312" />
+
+  <style>
+    .destination-month-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+    .destination-month-grid>.chart-card{min-width:0}
+    @media(max-width:1200px){.destination-month-grid{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
   <div id="loadingOverlay" class="loading-overlay"><div><span class="loading-spinner"></span><strong>Loading data…</strong></div></div>
@@ -66,6 +72,9 @@
         <div class="chart-grid">
           <article class="card chart-card wide"><div class="card-head"><div><h3>Rejection Trend</h3><p>Based on shipment Created At</p><div class="trend-series-legend"><span><i class="trend-swatch total"></i>All Rejections</span><span><i class="trend-swatch unique"></i>New Unique Rejections</span></div></div><div class="trend-controls"><select id="trendBucket" title="Time granularity"><option value="quarter" selected>15 Minutes</option><option value="hour">Hourly</option><option value="day">Daily</option><option value="month">Monthly</option></select><select id="trendPointCount" title="Time buckets to display"><option value="20">20</option><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option><option value="all">All</option></select></div></div><canvas id="trendChart" height="240"></canvas></article>
           <article class="card chart-card"><div class="card-head"><div><h3>Shipping Size</h3><p>Rejected shipments by shipping size</p></div></div><canvas id="shippingSizeChart" height="240"></canvas></article>
+        </div>
+
+        <div class="destination-month-grid">
           <article class="card chart-card"><div class="card-head"><div><h3>Top Destination Points</h3><p>Most frequent destinations</p></div></div><canvas id="destinationChart" height="240"></canvas></article>
           <article class="card chart-card"><div class="card-head"><div><h3>Current Month Daily Trend</h3><p>Daily rejected shipments for the current Jalali month</p></div></div><canvas id="currentMonthDailyChart" height="240"></canvas></article>
         </div>

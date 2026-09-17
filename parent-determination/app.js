@@ -1,6 +1,6 @@
 const DATASETS={
-  delivery:{label:'Delivery',url:'../data/DX_Polygons.xlsx?v=293'},
-  pickup:{label:'Pickup',url:'../data/Pickup_Polygons.xlsx?v=293'}
+  delivery:{label:'Delivery',url:'sheet:Delivery Polygons'},
+  pickup:{label:'Pickup',url:'sheet:Pick-up Polygons'}
 };
 const TYPE_MAP={Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6};
 let currentService='delivery';
