@@ -32,9 +32,9 @@ The deployed Host baseline is 12.2.9 and must not be incremented for normal feat
 ## Host 12.3.1 justified exception
 Config 269 requires a Host update only for generic platform behavior that cannot be delivered by Remote HTML/JSON alone: seven-day credential freshness with automatic validation on open, reusable raw-value support in multi-autocomplete controls, and local Home/Back view history. Capacity selectors, submission rules, icons, and UI remain Remote-owned.
 
-## v326 architecture boundary
+## v327 architecture boundary
 Remote owns branding, categories, icons, design-system tokens, UI markup, forms, validation metadata, operation workflows, selectors, retries, schedules, output contracts, feature flags and human-facing messages.
 
 Host owns only browser primitives and security-sensitive capabilities: Chrome tabs, scripting, storage, downloads, permissions, credential/access enforcement, generic workflow execution and generic diagnostics capture.
 
-`minEngineVersion` is a compatibility contract. The v326 Remote also ships a visible compatibility gate by default; Host 12.7+ removes the gate only after validating its version. This means even an older Host that does not understand the new gate cannot expose an incompatible UI.
+`minEngineVersion` is a compatibility contract. The v327 Remote also ships a visible compatibility gate by default; Host 12.7.1+ removes the gate only after validating its version. This means even an older Host that does not understand the new gate cannot expose an incompatible UI.

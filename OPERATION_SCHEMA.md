@@ -114,7 +114,7 @@ Example:
 }
 ```
 
-## v326 output contract
+## v327 output contract
 Every catalog operation declares an output contract:
 
 ```json
