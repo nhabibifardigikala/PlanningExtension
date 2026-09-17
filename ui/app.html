@@ -1,13 +1,34 @@
 <main class="app-shell">
+    <aside class="main-sidebar" aria-label="Primary navigation">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo-wrap"><img class="sidebar-logo" src="https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244" alt=""></div>
+        <div><strong>DigiExpress</strong><span>Planning Suite</span></div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-nav-btn active" type="button" data-category="all"><span class="nav-glyph">⌂</span><span>All tools</span><em>26</em></button>
+        <button class="sidebar-nav-btn" type="button" data-category="planning"><span class="nav-glyph">▣</span><span>Planning</span></button>
+        <button class="sidebar-nav-btn" type="button" data-category="automation"><span class="nav-glyph">⚡</span><span>Automation</span></button>
+        <button class="sidebar-nav-btn" type="button" data-category="extractors"><span class="nav-glyph">◫</span><span>Extractors</span></button>
+        <button class="sidebar-nav-btn" type="button" data-category="maps"><span class="nav-glyph">⌖</span><span>Maps &amp; Zones</span></button>
+        <button class="sidebar-nav-btn" type="button" data-category="reports"><span class="nav-glyph">▥</span><span>Reports</span></button>
+        <button class="sidebar-nav-btn" type="button" data-category="utilities"><span class="nav-glyph">◇</span><span>Utilities</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v318</span></div>
+    </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
-      <div class="brand">
+      <div class="mobile-brand brand">
         <img id="brandLogo" class="brand-logo" src="https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244" alt="" />
-        <div><div id="brandTitle" class="brand-title">Digiexpress</div><div id="brandSubtitle" class="brand-subtitle">Operations Toolkit · Config 244</div></div>
+        <div><div id="brandTitle" class="brand-title">DigiExpress</div><div id="brandSubtitle" class="brand-subtitle">Planning Suite · Config 318</div></div>
       </div>
-      <button class="icon-button settings-gear" id="settingsBtn" title="Settings" aria-label="Settings">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.16 7.16 0 0 0-1.62-.94L14.38 2.8a.5.5 0 0 0-.5-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.55-1.62.94L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.31-.08.64-.08.94s.03.63.08.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .5-.4l.36-2.52c.58-.24 1.12-.55 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.02-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
-      </button>
+      <div class="topbar-actions">
+        <div class="topbar-status"><span class="online-dot"></span><span>Remote connected</span></div>
+        <button class="icon-button settings-gear" id="settingsBtn" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.16 7.16 0 0 0-1.62-.94L14.38 2.8a.5.5 0 0 0-.5-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.55-1.62.94L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.31-.08.64-.08.94s.03.63.08.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .5-.4l.36-2.52c.58-.24 1.12-.55 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.02-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
+        </button>
+      </div>
     </header>
 
     <aside id="voicePermissionBroker" class="voice-permission-broker" aria-label="Microphone access" aria-live="polite">
@@ -19,9 +40,34 @@
     </aside>
 
     <section id="homeView" class="view active">
-      <div class="section-heading"><h1 id="homeHeading">Choose an operation</h1><p id="homeSubheading">Run your daily operations from one place.</p></div>
+      <section class="hero-shell">
+        <div class="hero-copy">
+          <span class="eyebrow">DigiExpress Planning Suite</span>
+          <h1 id="homeHeading">Everything you need for logistics planning</h1>
+          <p id="homeSubheading">Plan, automate, analyze and manage operational workflows from one focused workspace.</p>
+          <div class="hero-points"><span><i></i> Remote-first</span><span><i></i> Fast operations</span><span><i></i> Secure host</span></div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-orb hero-orb-a"></div><div class="hero-orb hero-orb-b"></div>
+          <div class="hero-metric"><strong>26</strong><span>Operational tools</span></div>
+          <div class="hero-metric secondary"><strong>100%</strong><span>Remote UI</span></div>
+        </div>
+      </section>
+      <section class="tool-toolbar" aria-label="Tool filters">
+        <label class="tool-search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.2-4.2M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"/></svg><input id="operationSearch" type="search" placeholder="Search tools, reports or workflows…" autocomplete="off"><kbd>Ctrl K</kbd></label>
+        <div class="category-chips" id="categoryChips">
+          <button type="button" class="category-chip active" data-category="all">All</button>
+          <button type="button" class="category-chip" data-category="planning">Planning</button>
+          <button type="button" class="category-chip" data-category="automation">Automation</button>
+          <button type="button" class="category-chip" data-category="extractors">Extractors</button>
+          <button type="button" class="category-chip" data-category="maps">Maps &amp; Zones</button>
+          <button type="button" class="category-chip" data-category="reports">Reports</button>
+          <button type="button" class="category-chip" data-category="utilities">Utilities</button>
+        </div>
+      </section>
+      <div class="section-heading tools-heading"><div><span class="eyebrow compact">Workspace</span><h2>Operational tools</h2><p>Choose a tool to open its workspace.</p></div><div id="visibleToolCount" class="tool-count">26 tools</div></div>
       <section class="operation-grid" id="menu"></section>
-      <section class="status-card"><div class="status-dot"></div><div><div class="status-title">Status</div><div id="status" class="status" aria-live="polite">Loading remote configuration…</div></div></section>
+      <section class="status-card compact-status"><div class="status-dot"></div><div><div class="status-title">System status</div><div id="status" class="status" aria-live="polite">Loading remote configuration…</div></div></section>
     </section>
 
     <section id="operationView" class="view">

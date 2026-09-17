@@ -1,0 +1,7 @@
+DigiExpress Remote Config 318
+- Full professional/minimal workspace redesign based on UI/UX Pro Max principles.
+- Full-width responsive dashboard layout with sidebar, hero, search and category filters.
+- 26 remote WebP operation icons; total icon payload ~184 KB.
+- IATA Code Synchronizer uses a data-sync/globe concept and contains no airplane.
+- Light/dark responsive styling, focus states and reduced-motion support.
+- Remote requires Host 12.6.0 for WebP icon rendering and full-tab launch.
