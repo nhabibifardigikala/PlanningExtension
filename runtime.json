@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Config 269. Weekly automatic credential validation and generic raw-value multi-autocomplete require Host 12.3.1; normal product changes remain Remote-first.",
-  "configVersion": 269,
-  "minimumRuntimeVersion": "12.3.1",
-  "minimumRuntime": "12.3.1",
+  "notes": "Config 328. Unified theme state across shell, Remote workspaces, Agents, and Host-local Authenticator/Voice Typing.",
+  "configVersion": 328,
+  "minimumRuntimeVersion": "12.7.2",
+  "minimumRuntime": "12.7.2",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.3.1",
+  "recommendedRuntime": "12.7.2",
   "runtimeUpdatePolicy": "security-only",
-  "version": "269",
+  "version": "328",
   "platformContract": 12,
-  "remoteVersion": 269,
+  "remoteVersion": 328,
   "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.3.1"
+  "runtimeVersion": "12.7.2"
 }

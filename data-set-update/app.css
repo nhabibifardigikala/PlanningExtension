@@ -54,3 +54,11 @@ input,select{height:44px;border:1px solid var(--line);border-radius:12px;backgro
 .sync-btn,.dataset-settings{width:44px!important;height:44px!important;flex:0 0 44px!important}
 .modal-head h2{font-size:28.5px!important}.modal-head p{font-size:15.5px!important}.settings-grid span,.connection-field span{font-size:14.3px!important}.agent-options-title{font-size:15.5px!important}.target-option{font-size:15.5px!important}.status-grid span{font-size:13px!important}.status-grid strong{font-size:15.5px!important}.help,.inline-status,.error{font-size:14.3px!important}.save-btn{font-size:15.5px!important}
 @media(max-width:760px){.app-header h1{font-size:34px!important}.dataset-row{height:auto!important;min-height:72px!important}.dataset-row h2{font-size:18.5px!important}}
+
+/* v328 — unified dark surfaces + optical centering for agent action icons */
+html[data-theme="dark"],body[data-theme="dark"]{--bg:#08111f!important;--card:#0f1b2d!important;--panel:#0f1b2d!important;--text:#f4f7fb!important;--muted:#a8b4c7!important;--line:#26354d!important;--gear:#c7d3e6!important;background:#08111f!important;color:#f4f7fb!important}
+html[data-theme="dark"] .dataset-row,html[data-theme="dark"] .modal-card,html[data-theme="dark"] .status-grid div{background:#0f1b2d!important;border-color:#26354d!important}
+.sync-btn{display:flex!important;align-items:center!important;justify-content:center!important;line-height:0!important;text-align:center!important}
+.sync-btn svg{display:block!important;margin:0!important;position:static!important;transform-origin:50% 50%!important;flex:0 0 auto!important}
+.sync-btn:not(.running) svg{transform:translate(0,0)!important}
+.sync-btn.running svg{animation:spin .85s linear infinite!important}

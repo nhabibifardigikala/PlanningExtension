@@ -1,0 +1,6 @@
+DigiExpress Remote v328
+- Unified authoritative dark theme across Remote workspaces.
+- Theme bridge re-requests shell theme after load/pageshow/visibility changes.
+- Agents action button icon is optically centered.
+- Cache-busters updated to v328.
+- Minimum Host version is 12.7.2.

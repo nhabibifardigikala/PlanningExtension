@@ -1,4 +1,4 @@
-/* DigiExpress Design System v327 — remote-owned shared UI foundation */
+/* DigiExpress Design System v328 — remote-owned shared UI foundation */
 :root{
   color-scheme:light;
   --dx-font-latin:"Gilroy Medium","Gilroy","Segoe UI",Arial,sans-serif;
@@ -12,7 +12,7 @@
   --dx-shadow-sm:0 4px 16px rgba(15,23,42,.05);--dx-shadow:0 14px 38px rgba(15,23,42,.07);
   --dx-focus:0 0 0 3px rgba(37,99,235,.18);
 }
-:root[data-theme="dark"],html[data-theme="dark"]{
+:root[data-theme="dark"],html[data-theme="dark"],body[data-theme="dark"]{
   color-scheme:dark;--dx-bg:#08111f;--dx-surface:#0f1b2d;--dx-surface-soft:#132239;--dx-surface-raised:#16263f;
   --dx-text:#f4f7fb;--dx-muted:#a8b4c7;--dx-line:#26354d;--dx-line-strong:#354762;
   --dx-primary:#5b8cff;--dx-primary-hover:#79a3ff;--dx-primary-soft:#142d5a;
@@ -40,3 +40,11 @@ table{background:var(--dx-surface)!important;border-color:var(--dx-line)!importa
 .dx-diagnostic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.dx-setting-section{display:grid;gap:12px}.dx-setting-actions{display:flex;gap:10px;flex-wrap:wrap}.dx-setting-actions>button{width:auto!important;min-width:150px;margin:0!important}.dx-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word;background:var(--dx-surface-soft);border:1px solid var(--dx-line);border-radius:12px;padding:12px}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--dx-muted) 35%,transparent);border:3px solid transparent;background-clip:padding-box;border-radius:999px}::-webkit-scrollbar-track{background:transparent}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+/* v328 — hard dark-theme surface enforcement for embedded workspaces.
+   Some legacy pages still carry high-specificity light backgrounds; these selectors
+   make the shared theme authoritative without rewriting each legacy stylesheet. */
+html[data-theme="dark"] body,body[data-theme="dark"]{background:var(--dx-bg)!important;color:var(--dx-text)!important}
+html[data-theme="dark"] :is(.dx-card,.settings-card,.stats-card,.panel,.card,.modal-card,.editor-card,.result-card,.dataset-row,.filter-panel,.toolbar,.controls-panel,.summary-card,.metric-card,.form-card,.result-panel,.map-panel,.sidebar-panel,.sheet,.workspace,.content-card,.tool-card){background:var(--dx-surface)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
+html[data-theme="dark"] :is(input,select,textarea){background:var(--dx-surface-raised)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
+html[data-theme="dark"] :is(th,.subtle,.soft-panel,.info-box,.notice,.empty-state){background:var(--dx-surface-soft)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
