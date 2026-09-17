@@ -1,0 +1,9 @@
+Remote v322
+- Main/embedded font stack uses Gilroy Medium with Yekan Bakh FaNum fallback for Persian glyphs.
+- Main theme accent normalized to blue.
+- Favorites section placeholder added above Operational tools.
+- Cache versions bumped to 322 for embedded pages.
+- Parent Determination controls redesigned to match the common UI system.
+- Coverage Polygons: Submit Type and Active filters removed.
+- Voice Typing orange accent removed in favor of the common blue accent.
+- app.json configVersion 322 and min Host 12.6.2.

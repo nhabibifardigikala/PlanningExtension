@@ -9,7 +9,7 @@
   --dx-bg:#0b1220;--dx-surface:#111a2d;--dx-surface-2:#151f34;--dx-line:#26334d;
   --dx-text:#eef4ff;--dx-muted:#9baac1;--dx-shadow:0 16px 42px rgba(0,0,0,.28);--dx-shadow-sm:0 6px 22px rgba(0,0,0,.22)
 }
-html,body{background:var(--dx-bg)!important;color:var(--dx-text)!important;font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif!important}
+html,body{background:var(--dx-bg)!important;color:var(--dx-text)!important;font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",system-ui,-apple-system,sans-serif!important}
 body{min-width:0!important}
 button,input,select,textarea{font:inherit}
 button{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
@@ -57,3 +57,8 @@ header,.header,.app-header,.topbar{background:transparent!important;border-color
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#cbd5e1;border:3px solid transparent;background-clip:padding-box;border-radius:999px}::-webkit-scrollbar-track{background:transparent}
 @media(max-width:760px){html,body{font-size:15px!important}h1{font-size:28px!important}h2{font-size:19px!important}}
 html[data-theme="dark"],:root[data-theme="dark"]{--dx-bg:#0a1020;--dx-surface:#111a2d;--dx-surface-2:#151f34;--dx-line:#26334d;--dx-text:#eef4ff;--dx-muted:#9baac1}
+
+
+/* v322 type system */
+html,body,button,input,select,textarea{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
+:lang(fa),[dir="rtl"]{font-family:"Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",sans-serif!important;font-feature-settings:"tnum" 1}

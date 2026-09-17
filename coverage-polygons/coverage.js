@@ -69,7 +69,7 @@ function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#F79009',5
 function cleanSubmit(v){return String(v||'').replace(/^EXPRESS\s+/i,'').trim()||'-'}
 function makeFilter(host, values, cls){host.innerHTML=values.map(v=>`<label class="filter-chip"><input type="checkbox" class="${cls}" value="${esc(v)}"><span>${esc(v)}</span></label>`).join('');host.querySelectorAll('input').forEach(x=>x.addEventListener('change',applyFilters))}
 function selected(cls){return [...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
-function pass(r){const ts=selected('f-type'),ds=selected('f-district'),ss=selected('f-submit'),as=selected('f-active');if(ts.length&&!ts.includes(natureLabel(r.natureId)))return false;if(ds.length&&!ds.some(x=>String(r.district||'').startsWith(x)))return false;if(ss.length&&!ss.includes(cleanSubmit(r.submitType)))return false;const av=Number(r.active)===1?'YES':'NO';if(as.length&&!as.includes(av))return false;return true}
+function pass(r){const ts=selected('f-type'),ds=selected('f-district');if(ts.length&&!ts.includes(natureLabel(r.natureId)))return false;if(ds.length&&!ds.some(x=>String(r.district||'').startsWith(x)))return false;return true}
 function draw(list,fit=false){polygons.clearLayers();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!Array.isArray(part)||part.length<3)return;const poly=L.polygon(part,{color:polyColor(r.natureId),weight:2,fillOpacity:.22}).addTo(polygons);poly.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId||r.stateId||'-')}<br>IATA: ${esc(r.iata||'-')}`)}));if(searchedPoint)L.marker(searchedPoint).addTo(points);if(fit){const b=polygons.getBounds();if(b.isValid()){lastFitBounds=b;map.invalidateSize({pan:false,animate:false});map.fitBounds(b,{padding:[12,12],animate:false});setTimeout(()=>refreshMapSize(true),120)}}}
 function render(){const q=$('#search').value.trim().toLocaleLowerCase();let a=(pointHits.length?pointHits:shown).filter(r=>!q||[r.name,r.dcId,r.stateId,r.iata,r.district,r.timeScope,cleanSubmit(r.submitType),natureLabel(r.natureId)].join(' ').toLocaleLowerCase().includes(q));a=[...a].sort((x,y)=>String(x[sortKey]??'').localeCompare(String(y[sortKey]??''),undefined,{numeric:true})*sortDir);$('#count').textContent=`${a.length} polygon${a.length===1?'':'s'}`;$('#results').innerHTML=a.length?`<table><thead><tr><th data-key="name">Name</th><th data-key="dcId">ID</th><th data-key="iata">IATA</th></tr></thead><tbody>${a.map(r=>`<tr data-id="${esc(r.dcId||r.stateId)}" data-name="${esc(r.name)}"><td>${esc(r.name)}</td><td>${esc(r.dcId||r.stateId||'-')}</td><td>${esc(r.iata||'-')}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No polygons found.</div>';document.querySelectorAll('th[data-key]').forEach(h=>h.onclick=()=>{sortKey=h.dataset.key;sortDir*=-1;render()});document.querySelectorAll('tbody tr').forEach(tr=>tr.onclick=()=>focusPolygon(tr.dataset.id,tr.dataset.name))}
 function applyFilters(){shown=rows.filter(pass);pointHits=[];draw(shown,false);render()}
@@ -87,12 +87,9 @@ async function loadDataset(service,{fit=true}={}){
     rows=normalizePickupIds(dataset.rows||[]);
     shown=[...rows];pointHits=[];searchedPoint=null;points.clearLayers();
     const district=[...new Set(rows.map(r=>String(r.district||'').split('(')[0].trim()).filter(Boolean))].sort();
-    const submit=[...new Set(rows.map(r=>cleanSubmit(r.submitType)).filter(x=>x&&x!=='-'))].sort();
     const typeValues=[...new Set(rows.map(r=>natureLabel(r.natureId)).filter(Boolean))].sort((a,b)=>Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6})[a]||99)-Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6})[b]||99));
     makeFilter($('#typeFilters'),typeValues,'f-type');
     makeFilter($('#districtFilters'),district,'f-district');
-    makeFilter($('#submitFilters'),submit,'f-submit');
-    makeFilter($('#activeFilters'),['YES','NO'],'f-active');
     $('#search').value='';$('#latlon').value='';$('#pointStatus').textContent='';
     draw(shown,fit);render();
     $('#datasetStatus').textContent=`${cfg.label}: ${rows.length} polygons loaded.`;
