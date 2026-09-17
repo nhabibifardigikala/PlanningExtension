@@ -1,0 +1,27 @@
+
+:root{
+  --dx-bg:#f6f8fc;--dx-surface:#ffffff;--dx-surface-2:#f9fbff;--dx-line:#e4e9f2;
+  --dx-text:#10213f;--dx-muted:#6f7f99;--dx-primary:#2563eb;--dx-primary-2:#7c3aed;
+  --dx-green:#10b981;--dx-orange:#f59e0b;--dx-red:#ef4444;--dx-radius:18px;
+  --dx-shadow:0 14px 38px rgba(15,23,42,.07);--dx-shadow-sm:0 5px 18px rgba(15,23,42,.05)
+}
+:root[data-theme="dark"],html[data-theme="dark"]{
+  --dx-bg:#0b1220;--dx-surface:#111a2d;--dx-surface-2:#151f34;--dx-line:#26334d;
+  --dx-text:#eef4ff;--dx-muted:#9baac1;--dx-shadow:0 16px 42px rgba(0,0,0,.28);--dx-shadow-sm:0 6px 22px rgba(0,0,0,.22)
+}
+html,body{background:var(--dx-bg)!important;color:var(--dx-text)!important;font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif!important}
+body{min-width:0!important}
+button,input,select,textarea{font:inherit}
+button{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--dx-primary) 22%,transparent)!important;outline-offset:2px!important}
+input,select,textarea{border:1px solid var(--dx-line)!important;border-radius:12px!important;background:var(--dx-surface)!important;color:var(--dx-text)!important;box-shadow:none!important}
+input:focus,select:focus,textarea:focus{border-color:#9ebcf8!important;box-shadow:0 0 0 3px rgba(37,99,235,.08)!important}
+.modal-card,.panel,.card,.settings-card,.stats-card,.editor-card,.recorder-panel,.process-card,.result-card,.filter-panel,.toolbar,.controls-panel{
+  border-color:var(--dx-line)!important;border-radius:var(--dx-radius)!important;background:var(--dx-surface)!important;box-shadow:var(--dx-shadow-sm)!important
+}
+.primary,.save-btn,.save-button,.button.primary,button.primary{background:linear-gradient(135deg,#2563eb,#3b82f6)!important;color:white!important;border-color:transparent!important;box-shadow:0 8px 20px rgba(37,99,235,.18)!important}
+.secondary,.secondary-button{border-color:var(--dx-line)!important;background:var(--dx-surface)!important;color:var(--dx-text)!important}
+.danger,.secondary-button.danger{color:var(--dx-red)!important;border-color:color-mix(in srgb,var(--dx-red) 35%,var(--dx-line))!important}
+header,.header,.app-header{border-color:var(--dx-line)!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

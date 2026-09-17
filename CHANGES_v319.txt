@@ -1,0 +1,7 @@
+Config 319 UI correction
+- Fixed operation workspace shrinking to a narrow column in full-tab mode.
+- Expanded operation cards to 4/5-column desktop layouts with improved spacing and typography.
+- Rebuilt Agents page for full-width desktop use (2-column agent cards, modern modals, status tiles).
+- Added shared embedded UI theme for remote-owned operation pages.
+- Cache-busted embedded operation URLs to v319 so updated CSS is fetched immediately.
+- Host 12.6.0 remains unchanged for this revision.

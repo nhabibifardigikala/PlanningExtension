@@ -547,3 +547,29 @@ html[data-theme="dark"] body{background:linear-gradient(180deg,#0a1020,#0b1224);
 @media(max-width:760px){.app-shell{padding:0 14px 24px}.main-sidebar{position:static;width:auto;height:auto;margin:12px 0;padding:10px;border-radius:16px;display:block}.sidebar-brand,.sidebar-spacer,.sidebar-settings-link,.sidebar-footer{display:none}.sidebar-nav{display:flex;overflow:auto;padding:0;gap:6px}.sidebar-nav-btn{flex:0 0 auto;width:auto;min-height:38px;padding:0 12px;display:flex;gap:6px}.sidebar-nav-btn span:not(.nav-glyph){display:inline}.topbar{height:58px}.topbar-status{display:none}.mobile-brand{display:flex;margin-right:auto}.brand-logo{width:34px;height:34px}.brand-title{font-size:16px}.brand-subtitle{font-size:9px}.hero-shell{padding:26px 22px;min-height:auto;border-radius:19px}.hero-copy h1{font-size:31px}.hero-copy p{font-size:13px}.tool-toolbar{padding:8px}.tool-search{min-width:100%}.category-chips{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}.category-chip{flex:0 0 auto}.operation-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.op-card{min-height:160px!important;grid-template-columns:50px 1fr!important;padding:13px!important}.op-icon{width:50px!important;height:50px!important}.op-title{font-size:12px!important}.op-meta{font-size:9px!important}.tools-heading{padding-top:21px}.tool-search kbd{display:none}}
 @media(max-width:480px){.operation-grid{grid-template-columns:1fr}.hero-points{gap:10px}.hero-copy h1{font-size:27px}.op-card{min-height:135px!important}.op-meta{-webkit-line-clamp:2}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+/* v319 — full-tab layout correction and denser professional workspace */
+.view{width:100%;max-width:1500px;margin-left:auto;margin-right:auto}
+#operationView.active,#settingsView.active{width:100%;min-width:0}
+.app-shell:has(#operationView.active){align-items:stretch}
+#operationView.active:has(#operationInputs [data-field-wrap="__dataSetUpdateEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__followUpEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__noteEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]),
+#operationView.active:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]){width:100%!important;max-width:none!important;margin:0!important}
+#dataSetUpdateEmbedded.data-set-update-embedded,#capacityReportEmbedded.capacity-report-embedded,#processLearningEmbedded.process-learning-embedded,
+.daily-planner-embedded,.follow-up-embedded,.voice-typing-embedded,.note-embedded,.time-study-embedded,.wellness-embedded,.map-operation-embedded{width:100%!important;max-width:none!important}
+.operation-grid{grid-template-columns:repeat(auto-fit,minmax(245px,1fr))!important;gap:16px!important}
+.op-card{min-height:188px!important;padding:18px!important;grid-template-columns:64px 1fr!important;column-gap:15px!important}
+.op-icon{width:64px!important;height:64px!important;border-radius:17px!important}
+.op-icon img.op-icon-image,.op-icon>img{border-radius:17px!important}
+.op-title{font-size:14px!important}.op-meta{font-size:11px!important;-webkit-line-clamp:3!important}
+.hero-shell{min-height:210px!important}.tool-toolbar{position:sticky;top:8px;z-index:20}
+@media(min-width:1500px){.operation-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+@media(min-width:1150px) and (max-width:1499px){.operation-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:760px){.operation-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important}.op-card{min-height:165px!important}}
