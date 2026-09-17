@@ -25,7 +25,7 @@
   function request(action,payload={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dsu-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.5.3 or newer is required.'));},20000);
+      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.5.4 or newer is required.'));},20000);
       function onMessage(e){
         if(e.source!==window||e.origin!==ORIGIN)return;
         const d=e.data||{};
