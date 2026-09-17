@@ -25,7 +25,7 @@
       "action": "open",
       "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Opening Distribution Centers…",
-      "active": false
+      "active": true
     },
     {
       "action": "ensureLogin",
@@ -39,12 +39,19 @@
       "completeTimeoutMs": 60000
     },
     {
+      "action": "wait",
+      "ms": 12000,
+      "progress": "Keeping Distribution Centers active while the page loads…"
+    },
+    {
       "action": "waitFor",
       "selector": "table",
-      "timeoutMs": 15000,
+      "timeoutMs": 5000,
       "intervalMs": 250,
       "progress": "Waiting for table…",
-      "error": "Distribution Center table was not found."
+      "error": "Distribution Center table was not found.",
+      "stepAttempts": 6,
+      "stepRetryDelayMs": 750
     },
     {
       "action": "setPageZoom",
@@ -137,12 +144,19 @@
       "completeTimeoutMs": 60000
     },
     {
+      "action": "wait",
+      "ms": 12000,
+      "progress": "Keeping refreshed Distribution Centers active while data loads…"
+    },
+    {
       "action": "waitFor",
       "selector": "table",
-      "timeoutMs": 20000,
+      "timeoutMs": 5000,
       "intervalMs": 250,
       "progress": "Waiting for refreshed table…",
-      "error": "Distribution Center table was not available after refresh."
+      "error": "Distribution Center table was not available after refresh.",
+      "stepAttempts": 6,
+      "stepRetryDelayMs": 750
     },
     {
       "action": "setPageZoom",
@@ -208,7 +222,9 @@
       "prependColumns": []
     }
   },
-  "remoteBehaviorVersion": 11,
+  "remoteBehaviorVersion": 12,
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "keepTabActive": true,
+  "foregroundReason": "LG defers table rendering in background tabs. Critical render windows are held active via remote wait steps; no Host update is required."
 }

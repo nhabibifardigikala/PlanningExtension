@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Run and schedule operational agents from one place.",
+  "description": "Run and schedule operational agents from one place. Remote-only implementation compatible with stable Host 12.5.4.",
   "workflow": [],
   "successMessage": "Agents ready.",
   "runtimeContract": "stable-host-12",

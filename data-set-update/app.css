@@ -8,7 +8,7 @@
 /* v309: dataset operation labels stay regular-weight across host/theme inheritance. */
 .dataset-row,.dataset-row h2,.dataset-name-wrap,.dataset-mini-status{font-weight:400!important}
 
-/* v313 — Agents visual alignment with the main Digiexpress application */
+/* v314 — Agents visual alignment with the main Digiexpress application */
 :root{--bg:#f3f4f6;--card:#fff;--panel:#fff;--text:#102030;--muted:#667085;--accent:#f79009;--sync:#f79009;--gear:#f79009;--line:#f79009;--success:#079455;--danger:#d92d20;--shadow:0 8px 22px #0002}
 :root[data-theme="dark"]{--bg:#07172c;--card:#0d2b56;--panel:#071a33;--text:#fff;--muted:#b6c1d2;--accent:#f79009;--sync:#f79009;--gear:#f79009;--line:#f79009;--success:#22c55e;--danger:#ff5b52;--shadow:0 8px 22px #0005}
 .page{max-width:980px;padding:18px 24px 40px}.app-header{min-height:60px;margin-bottom:18px}.app-header h1{font-size:22px;font-weight:800}.app-header p{font-size:13px;margin-top:6px}.header-settings{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.header-settings svg{width:23px;height:23px;fill:var(--accent)}

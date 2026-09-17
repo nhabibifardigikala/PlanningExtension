@@ -401,7 +401,7 @@
         }
       ],
       "storeAs": "shippingPointRetryCorrections",
-      "makeCurrent": false,
+      "makeCurrent": true,
       "resultMessage": "Verification: {{mismatchCount}} Shipping Point IATA mismatch(es) remain.",
       "progress": "Verifying Shipping Point IATA changes…"
     },
@@ -867,7 +867,7 @@
         }
       ],
       "storeAs": "shippingPolygonRetryCorrections",
-      "makeCurrent": false,
+      "makeCurrent": true,
       "resultMessage": "Verification: {{mismatchCount}} Shipping Polygon IATA mismatch(es) remain.",
       "progress": "Verifying Shipping Polygon IATA changes…"
     },

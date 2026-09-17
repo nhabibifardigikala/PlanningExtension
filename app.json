@@ -1,11 +1,11 @@
 {
-  "configVersion": 311,
-  "minEngineVersion": "12.5.5",
+  "configVersion": 314,
+  "minEngineVersion": "12.5.4",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 311",
+    "subtitle": "Operations Toolkit · Config 314",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 311
+    "configVersion": 314
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -19,7 +19,7 @@
         "Agents",
         "Sync IATA Code"
       ],
-      "config": "operations/sync-iata.json?v=311",
+      "config": "operations/sync-iata.json?v=314",
       "description": "Internal Agents operation. Synchronizes IATA codes for Shipping Points and Shipping Polygons.",
       "runLabel": "Start Synchronizer",
       "inputs": [
@@ -114,7 +114,7 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=244",
+      "config": "operations/extract-distribution-centers.json?v=314",
       "description": "Extract Distribution Center data and download the result as an Excel file.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
@@ -168,8 +168,8 @@
         "Agents",
         "Data Set Update"
       ],
-      "config": "operations/data-set-update.json?v=311",
-      "iconSvgPath": "M8 7h28a4 4 0 0 1 4 4v5h-4v-5H8v26h12v4H8a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4Zm20 12a12 12 0 1 1-8.5 3.5l2.8 2.8A8 8 0 1 0 28 23v5l-7-7 7-7v5Zm5 5h4v8h-8v-4h4v-4Z",
+      "config": "operations/data-set-update.json?v=314",
+      "iconSvgPath": "M12 10h24a5 5 0 0 1 5 5v20a5 5 0 0 1-5 5H12a5 5 0 0 1-5-5V15a5 5 0 0 1 5-5Zm10-6h4v6h-4V4Zm-8 12v18h20V16H14Zm4 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm12 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm-12 10h12v4H18v-4ZM5 20H1v10h4V20Zm42 0h-4v10h4V20Z",
       "description": "Run and schedule operational agents from one place.",
       "runLabel": "Agents",
       "uiMode": "form",
@@ -614,7 +614,7 @@
         "راهنمای فرآیندها"
       ],
       "config": "operations/process-learning.json?v=270",
-      "iconSvgPath": "M8 5a5 5 0 1 0 0 10A5 5 0 0 0 8 5Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm16 13a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm16-3a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM19 35a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm-9-23v7.5c0 2.5 2 4.5 4.5 4.5H19v-4l7 5.5-7 5.5v-4h-4.5A7.5 7.5 0 0 1 7 22.5V15h3Zm19 10h6v-4l7 5.5-7 5.5v-4h-6v-3ZM22 31h4v5.5a6.5 6.5 0 0 1-6.5 6.5H19v-3h.5a3.5 3.5 0 0 0 3.5-3.5V31Z",
+      "iconSvgPath": "M8 5h10v10H8V5Zm22 0h10v10H30V5ZM8 33h10v10H8V33Zm22 0h10v10H30V33ZM18 8h8v4h-8V8Zm6 4h4v9h7v8h-4v-4H17v4h-4v-8h7v-9h4Zm-7 13v8h-4v-8h4Zm18 0v8h-4v-8h4Z",
       "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
       "runLabel": "Open Processes",
       "uiMode": "form",
