@@ -1,0 +1,9 @@
+Config 320
+- Increased primary UI font sizes by approximately 30% for readability.
+- Reduced main operation card height from 188px to 112px (approximately 40%).
+- Rebalanced card icon/title/description layout for the new compact height.
+- Increased operation/settings screen typography.
+- Increased Agents typography by approximately 30%.
+- Reduced Agents row height from 108px to 70px while keeping 44px action targets.
+- Bumped remote cache versions to 320.
+- Host unchanged (12.6.0).

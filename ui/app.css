@@ -573,3 +573,28 @@ html[data-theme="dark"] body{background:linear-gradient(180deg,#0a1020,#0b1224);
 @media(min-width:1500px){.operation-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
 @media(min-width:1150px) and (max-width:1499px){.operation-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 @media(max-width:760px){.operation-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important}.op-card{min-height:165px!important}}
+
+
+/* v320 — readability + compact tool cards */
+/* Typography is intentionally ~30% larger than v319 in the primary workspace. */
+.sidebar-brand strong{font-size:23px!important}.sidebar-brand span{font-size:14px!important}
+.sidebar-nav-btn,.sidebar-settings-link{font-size:17px!important}.sidebar-nav-btn em{font-size:13px!important}.sidebar-footer strong{font-size:14px!important}.sidebar-footer small,.version-pill{font-size:12px!important}
+.topbar-status{font-size:15px!important}
+.eyebrow{font-size:13px!important}.hero-copy h1{font-size:clamp(39px,3.6vw,58px)!important}.hero-copy p{font-size:19px!important}.hero-points{font-size:14px!important}.hero-metric strong{font-size:36px!important}.hero-metric span{font-size:13px!important}
+.tool-search input{font-size:15.5px!important}.tool-search kbd{font-size:12px!important}.category-chip{font-size:13px!important}.tools-heading h2{font-size:25px!important}.tools-heading p{font-size:14px!important}.eyebrow.compact{font-size:10.5px!important}.tool-count{font-size:13px!important}
+
+/* Cards are ~40% shorter than the previous 188px desktop card while preserving touch targets. */
+.operation-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))!important;gap:12px!important}
+.op-card{min-height:112px!important;height:112px!important;padding:13px 14px!important;grid-template-columns:58px minmax(0,1fr)!important;grid-template-rows:auto 1fr!important;column-gap:13px!important;row-gap:5px!important;align-content:center!important}
+.op-icon{grid-row:1/3!important;width:58px!important;height:58px!important;border-radius:15px!important;align-self:center!important}.op-icon img.op-icon-image,.op-icon>img{border-radius:15px!important}
+.op-title{grid-column:2!important;align-self:end!important;font-size:17px!important;line-height:1.18!important;padding-right:30px!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.op-meta{grid-column:2!important;align-self:start!important;font-size:13px!important;line-height:1.28!important;-webkit-line-clamp:2!important;padding-right:32px!important}
+.op-card:after{right:12px!important;bottom:12px!important;width:28px!important;height:28px!important;border-radius:9px!important;font-size:15px!important}
+.compact-status{font-size:15px!important}.status-title,.status{font-size:13px!important}
+
+/* Operation/settings screens readability */
+.section-heading h1{font-size:36px!important}.section-heading p{font-size:15.5px!important}.settings-card h2{font-size:19.5px!important}.settings-card label{font-size:15.5px!important}.settings-help,.settings-status{font-size:15.5px!important}.dynamic-form .field-help{font-size:14px!important}.save-button,.secondary-button{font-size:15px!important}.result-table{font-size:16px!important}.progress-text{font-size:14px!important}.log-item{font-size:14px!important}.developer-credit{font-size:15px!important}
+
+@media(max-width:1100px){.operation-grid{grid-template-columns:repeat(auto-fill,minmax(225px,1fr))!important}}
+@media(max-width:760px){.hero-copy h1{font-size:38px!important}.hero-copy p{font-size:17px!important}.operation-grid{grid-template-columns:1fr!important}.op-card{height:106px!important;min-height:106px!important}.op-title{font-size:16px!important}.op-meta{font-size:12.5px!important}}
+@media(max-width:480px){.op-card{height:102px!important;min-height:102px!important}}
