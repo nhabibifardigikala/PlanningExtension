@@ -1,11 +1,11 @@
 {
-  "configVersion": 314,
+  "configVersion": 315,
   "minEngineVersion": "12.5.4",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 314",
+    "subtitle": "Operations Toolkit · Config 315",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 314
+    "configVersion": 315
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -114,7 +114,7 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=314",
+      "config": "operations/extract-distribution-centers.json?v=315",
       "description": "Extract Distribution Center data and download the result as an Excel file.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
@@ -168,8 +168,8 @@
         "Agents",
         "Data Set Update"
       ],
-      "config": "operations/data-set-update.json?v=314",
-      "iconSvgPath": "M12 10h24a5 5 0 0 1 5 5v20a5 5 0 0 1-5 5H12a5 5 0 0 1-5-5V15a5 5 0 0 1 5-5Zm10-6h4v6h-4V4Zm-8 12v18h20V16H14Zm4 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm12 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm-12 10h12v4H18v-4ZM5 20H1v10h4V20Zm42 0h-4v10h4V20Z",
+      "config": "operations/data-set-update.json?v=315",
+      "iconSvgPath": "M24 4a6 6 0 0 1 6 6v2h2a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6h2v-2a6 6 0 0 1 6-6Zm0 4a2 2 0 0 0-2 2v2h4v-2a2 2 0 0 0-2-2Zm-8 10a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V20a2 2 0 0 0-2-2H16Zm4 4a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm8 0a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM19 30h10v4H19v-4ZM6 20H2v10h4V20Zm40 0h-4v10h4V20Z",
       "description": "Run and schedule operational agents from one place.",
       "runLabel": "Agents",
       "uiMode": "form",
@@ -431,7 +431,7 @@
         "DC User Assignment",
         "DC USER ASSIGNMENT"
       ],
-      "config": "operations/dc-user-assignment.json?v=244",
+      "config": "operations/dc-user-assignment.json?v=315",
       "iconSvgPath": "M18 7a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm0 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 15c8 0 14 4.1 14 9v5H4v-5c0-4.9 6-9 14-9Zm0 4c-5.8 0-10 2.6-10 5v1h20v-1c0-2.4-4.2-5-10-5Zm20-12h6v4h-6v6h-4v-6h-6v-4h6v-6h4Z",
       "description": "Assign Distribution Centers to a user. Choose the saved access email or enter another email, then enter the desired DC count.",
       "runLabel": "Assign DCs",
@@ -613,8 +613,8 @@
         "Process Learning",
         "راهنمای فرآیندها"
       ],
-      "config": "operations/process-learning.json?v=270",
-      "iconSvgPath": "M8 5h10v10H8V5Zm22 0h10v10H30V5ZM8 33h10v10H8V33Zm22 0h10v10H30V33ZM18 8h8v4h-8V8Zm6 4h4v9h7v8h-4v-4H17v4h-4v-8h7v-9h4Zm-7 13v8h-4v-8h4Zm18 0v8h-4v-8h4Z",
+      "config": "operations/process-learning.json?v=315",
+      "iconSvgPath": "M8 3a5 5 0 1 1 0 10A5 5 0 0 1 8 3Zm16 0a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm8 16a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm16 0a5 5 0 1 1 0 10 5 5 0 0 1 0-10ZM13 6h6l-1.8-1.8L20 1.4 25.6 7 20 12.6l-2.8-2.8L19 8h-6V6Zm16 0h6a9 9 0 0 1 9 9v2a9 9 0 0 1-9 9H20.4l1.8 1.8-2.8 2.8-5.6-5.6 5.6-5.6 2.8 2.8-1.8 1.8H35a5 5 0 0 0 5-5v-2a5 5 0 0 0-5-5h-6V6ZM8 22a5 5 0 0 0-5 5v2a9 9 0 0 0 9 9h7.6l-1.8 1.8 2.8 2.8 5.6-5.6-5.6-5.6-2.8 2.8 1.8 1.8H12a5 5 0 0 1-5-5v-2a1 1 0 0 1 1-1h3v-4H8Z",
       "description": "Browse and search process guidance with step-by-step instructions from Google Sheets.",
       "runLabel": "Open Processes",
       "uiMode": "form",

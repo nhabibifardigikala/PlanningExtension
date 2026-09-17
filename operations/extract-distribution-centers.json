@@ -36,11 +36,12 @@
       "action": "navigate",
       "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Opening Distribution Center list…",
-      "completeTimeoutMs": 60000
+      "completeTimeoutMs": 60000,
+      "active": true
     },
     {
       "action": "wait",
-      "ms": 12000,
+      "ms": 16000,
       "progress": "Keeping Distribution Centers active while the page loads…"
     },
     {
@@ -52,6 +53,16 @@
       "error": "Distribution Center table was not found.",
       "stepAttempts": 6,
       "stepRetryDelayMs": 750
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 12000,
+      "intervalMs": 300,
+      "progress": "Waiting for rows…",
+      "error": "Distribution Center rows were not available.",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 900
     },
     {
       "action": "setPageZoom",
@@ -141,11 +152,12 @@
       "action": "navigate",
       "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Refreshing Distribution Center data…",
-      "completeTimeoutMs": 60000
+      "completeTimeoutMs": 60000,
+      "active": true
     },
     {
       "action": "wait",
-      "ms": 12000,
+      "ms": 16000,
       "progress": "Keeping refreshed Distribution Centers active while data loads…"
     },
     {
@@ -159,13 +171,23 @@
       "stepRetryDelayMs": 750
     },
     {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 12000,
+      "intervalMs": 300,
+      "progress": "Waiting for refreshed rows…",
+      "error": "Distribution Center rows were not available after refresh.",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 900
+    },
+    {
       "action": "setPageZoom",
       "zoom": 0.2,
       "progress": "Preparing refreshed page…"
     },
     {
       "action": "wait",
-      "ms": 15000,
+      "ms": 18000,
       "progress": "Waiting for data to finish loading…"
     },
     {
@@ -226,5 +248,5 @@
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
   "keepTabActive": true,
-  "foregroundReason": "LG defers table rendering in background tabs. Critical render windows are held active via remote wait steps; no Host update is required."
+  "foregroundReason": "LG defers table rendering in background tabs. DC User Assignment and Distribution Centers are both kept in the foreground during critical loading and selection windows through remote configuration."
 }

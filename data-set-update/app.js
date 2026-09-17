@@ -26,6 +26,14 @@
     }
   };
   const $=id=>document.getElementById(id);
+
+  const RUN_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.6 6.4A8.95 8.95 0 0 0 12 3a9 9 0 0 0-8.5 6H1l4 4 4-4H6.6A6 6 0 0 1 17 7.2L14.2 10H21V3.2l-2.4 2.4v.8ZM5.4 17.6A8.95 8.95 0 0 0 12 21a9 9 0 0 0 8.5-6H23l-4-4-4 4h2.4A6 6 0 0 1 7 16.8L9.8 14H3v6.8l2.4-2.4v-.8Z"/></svg>';
+  const STOP_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z"/></svg>';
+  function setRunButtonVisual(run,isRunning,label){
+    run.innerHTML=isRunning?STOP_ICON:RUN_ICON;
+    run.title=isRunning?'Stop operation':'Update now';
+    run.setAttribute('aria-label',isRunning?`Stop ${label}`:`Run ${label} now`);
+  }
   let currentState=null,activeJobId='distribution-centers',pollTimer=null,migrationDone=false;
 
   function request(action,payload={}){
@@ -79,8 +87,7 @@
   function renderJob(id){
     const st=getState(id),run=document.querySelector(`[data-run-job="${id}"]`),mini=document.querySelector(`[data-status-for="${id}"]`);
     if(!run||!mini)return;
-    run.classList.toggle('running',!!st.running);run.classList.toggle('cancel-mode',!!st.running);run.disabled=false;
-    run.title=st.running?'Cancel update':'Update now';run.setAttribute('aria-label',st.running?`Cancel ${JOBS[id].label} update`:`Update ${JOBS[id].label} now`);
+    const isRunning=!!st.running;run.classList.toggle('running',isRunning);run.classList.toggle('cancel-mode',isRunning);run.disabled=false;setRunButtonVisual(run,isRunning,JOBS[id].label);
     mini.className='dataset-mini-status';
     if(st.running){mini.textContent=st.phase||'Updating…';mini.classList.add('busy')}
     else if(st.lastError){mini.textContent=st.lastError;mini.classList.add('error')}
@@ -140,9 +147,9 @@
 
   document.querySelectorAll('[data-run-job]').forEach(run=>run.addEventListener('click',async()=>{
     const id=run.dataset.runJob,st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
-    if(st.running){try{mini.textContent='Cancelling…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Update cancelled');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
+    if(st.running){try{setRunButtonVisual(run,true,JOBS[id].label);mini.textContent='Stopping operation…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Operation stopped');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
-      run.classList.add('running');mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':'Synchronizing IATA codes…'));mini.className='dataset-mini-status busy';
+      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':'Synchronizing IATA codes…'));mini.className='dataset-mini-status busy';
       const url=sharedWebAppUrl();let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations};
       if(id==='iata-code-synchronizer'){const saved=job.inputs||JOBS[id].inputs||{};job.inputs=saved;}
       await request('saveJob',{job});await request('runNow',{jobId:id});startFastPoll();await refresh({quiet:true});toast('Agent started');

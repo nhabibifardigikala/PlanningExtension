@@ -1,0 +1,6 @@
+Config 315 changes
+- Changed Agents home icon.
+- Changed Processes home icon to a flow/path icon inspired by the provided image.
+- In Agents page, the same update button now becomes a red stop button while a job is running and sends a cancel request on click.
+- Distribution Centers Extractor: strengthened foreground behavior and row-wait logic.
+- DC User Assignment: opens in foreground and requests keepTabActive to reduce background-tab stalls.

@@ -48,7 +48,7 @@
   "navigation": {
     "retryCount": 10,
     "retryDelayMs": 400,
-    "completeTimeoutMs": 30000
+    "completeTimeoutMs": 60000
   },
   "successMessage": "DC assignment completed successfully for {{email}}.",
   "workflow": [
@@ -56,12 +56,17 @@
       "action": "open",
       "url": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
       "progress": "Opening DC User Assignment…",
-      "active": false
+      "active": true
     },
     {
       "action": "ensureLogin",
       "detectTimeoutMs": 5000,
       "progress": "Checking authentication…"
+    },
+    {
+      "action": "wait",
+      "ms": 2500,
+      "progress": "Keeping DC User Assignment active while the page settles…"
     },
     {
       "action": "pagedBatchSubmit",
@@ -126,5 +131,7 @@
     "delayMs": 1500
   },
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "keepTabActive": true,
+  "foregroundReason": "LG UI becomes unreliable in background tabs during DC selection. Keep the DC User Assignment tab in the foreground while the operation is running."
 }
