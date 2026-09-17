@@ -367,7 +367,7 @@ function renderCharts(){
   };
   drawTrendDualLine($('trendChart'),trend.labels,trend.total,trend.unique,{filterType:'trend',showPointValues:true,yStep});
   const monthDaily=currentMonthDailySeries(rowsForChart('monthday'));
-  drawLine($('currentMonthDailyChart'),monthDaily.labels,monthDaily.values,{filterType:'monthday',filterValues:monthDaily.filterValues,showPointValues:true,yStep:50,showAllXLabels:true});
+  drawLine($('currentMonthDailyChart'),monthDaily.labels,monthDaily.values,{filterType:'monthday',filterValues:monthDaily.filterValues,showPointValues:true,yStep:500,showAllXLabels:true});
   const destinationRows=rowsForChart('destination').filter(r=>!isDeliveryPointLabel(r.destination_shipping_point));
   const dest=topGroups(destinationRows,r=>r.destination_shipping_point||'Unknown',8,()=>1);drawBars($('destinationChart'),dest.labels,dest.values,{filterType:'destination',horizontalLabels:true,wrapLabels:true});
   const sizeMap={'1':'Normal','2':'Medium','3':'Large'};
