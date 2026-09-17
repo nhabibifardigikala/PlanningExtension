@@ -598,3 +598,59 @@ html[data-theme="dark"] body{background:linear-gradient(180deg,#0a1020,#0b1224);
 @media(max-width:1100px){.operation-grid{grid-template-columns:repeat(auto-fill,minmax(225px,1fr))!important}}
 @media(max-width:760px){.hero-copy h1{font-size:38px!important}.hero-copy p{font-size:17px!important}.operation-grid{grid-template-columns:1fr!important}.op-card{height:106px!important;min-height:106px!important}.op-title{font-size:16px!important}.op-meta{font-size:12.5px!important}}
 @media(max-width:480px){.op-card{height:102px!important;min-height:102px!important}}
+
+
+/* v321 — layout normalization: preserve compact height without crowding. */
+.operation-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+  align-items:stretch!important;
+}
+.op-card{
+  width:100%!important;
+  height:116px!important;
+  min-height:116px!important;
+  padding:14px 14px!important;
+  display:grid!important;
+  grid-template-columns:58px minmax(0,1fr) 34px!important;
+  grid-template-rows:auto auto!important;
+  column-gap:14px!important;
+  row-gap:4px!important;
+  align-content:center!important;
+  align-items:center!important;
+  text-align:left!important;
+  overflow:hidden!important;
+}
+.op-icon{grid-column:1!important;grid-row:1/3!important;width:58px!important;height:58px!important;align-self:center!important;justify-self:start!important}
+.op-title{grid-column:2!important;grid-row:1!important;align-self:end!important;text-align:left!important;padding:0!important;margin:0!important;font-size:17px!important;line-height:1.18!important;font-weight:760!important;letter-spacing:-.015em!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;min-width:0!important}
+.op-meta{grid-column:2!important;grid-row:2!important;align-self:start!important;text-align:left!important;padding:0!important;margin:0!important;font-size:13px!important;line-height:1.26!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;min-width:0!important}
+.op-card::after{position:static!important;grid-column:3!important;grid-row:1/3!important;align-self:center!important;justify-self:end!important;right:auto!important;bottom:auto!important;width:32px!important;height:32px!important;border-radius:10px!important;display:grid!important;place-items:center!important;flex:none!important}
+.tools-heading{display:grid!important;grid-template-columns:1fr auto!important;align-items:end!important;column-gap:16px!important}
+.tools-heading .tool-count{align-self:center!important}
+@media (min-width:1450px){.operation-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media (min-width:980px) and (max-width:1449px){.operation-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media (min-width:640px) and (max-width:979px){.operation-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media (max-width:639px){.operation-grid{grid-template-columns:1fr!important}.op-card{height:110px!important;min-height:110px!important}}
+
+/* v321 — unified operation workspace surfaces. */
+#operationView>.settings-card,#settingsView>.settings-card,.stats-card{
+  border:1px solid #e4eaf3!important;
+  border-radius:18px!important;
+  background:color-mix(in srgb,var(--card) 96%,transparent)!important;
+  box-shadow:0 10px 30px rgba(15,23,42,.055)!important;
+  padding:22px!important;
+}
+.dynamic-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 18px!important}
+.dynamic-form>.op-field-wrap,.dynamic-form>.op-checkbox-wrap{margin:0!important;min-width:0!important}
+.dynamic-form>.op-field-wrap:has(textarea),.dynamic-form>.op-field-wrap:has(input[type="file"]),.dynamic-form>.op-checkbox-wrap{grid-column:1/-1!important}
+.settings-card label,.dynamic-form label{font-size:15px!important;font-weight:700!important;color:var(--text)!important}
+.settings-card input,.settings-card select,.settings-card textarea,.dynamic-form input,.dynamic-form select,.dynamic-form textarea{
+  min-height:46px!important;border:1px solid #d7deea!important;border-radius:12px!important;background:var(--panel)!important;padding:11px 13px!important;box-shadow:0 1px 2px rgba(15,23,42,.02)!important
+}
+.settings-card input:focus,.settings-card select:focus,.settings-card textarea:focus,.dynamic-form input:focus,.dynamic-form select:focus,.dynamic-form textarea:focus{border-color:#7aa7ff!important;box-shadow:0 0 0 4px rgba(37,99,235,.10)!important}
+.save-button{min-height:48px!important;border-radius:12px!important;background:linear-gradient(135deg,#2563eb,#3b82f6)!important;color:#fff!important;box-shadow:0 8px 20px rgba(37,99,235,.16)!important}
+.secondary-button{min-height:44px!important;border-radius:12px!important}
+.operation-control-row{display:flex!important;gap:10px!important}.operation-control-row .secondary-button{width:auto!important;flex:1!important}
+@media(max-width:760px){.dynamic-form{grid-template-columns:1fr!important}.dynamic-form>.op-field-wrap,.dynamic-form>.op-checkbox-wrap{grid-column:auto!important}}
+html[data-theme="dark"] #operationView>.settings-card,html[data-theme="dark"] #settingsView>.settings-card,html[data-theme="dark"] .stats-card{border-color:#26324b!important;box-shadow:0 12px 32px rgba(0,0,0,.2)!important}

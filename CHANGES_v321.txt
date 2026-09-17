@@ -1,0 +1,7 @@
+Config 321
+- Rebalanced operation cards into 4/3/2/1 responsive columns to prevent crowding and awkward title wrapping.
+- Kept compact card height while giving title, description, icon and action dedicated grid columns.
+- Unified generic operation forms, fields, buttons and result surfaces.
+- Expanded shared embedded design system across remote mini-apps.
+- Bumped embedded resource cache versions to 321.
+- Host 12.6.1 is only needed for the refreshed local Authenticator UI.

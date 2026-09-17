@@ -25,3 +25,35 @@ input:focus,select:focus,textarea:focus{border-color:#9ebcf8!important;box-shado
 .danger,.secondary-button.danger{color:var(--dx-red)!important;border-color:color-mix(in srgb,var(--dx-red) 35%,var(--dx-line))!important}
 header,.header,.app-header{border-color:var(--dx-line)!important}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+/* v321 — professional shared visual language for embedded apps */
+:root{
+  --dx-bg:#f5f7fb;--dx-surface:#ffffff;--dx-surface-2:#f8faff;--dx-line:#e3e9f2;
+  --dx-text:#10213f;--dx-muted:#72809a;--dx-primary:#2563eb;--dx-primary-2:#7c3aed;
+  --dx-green:#10b981;--dx-orange:#f59e0b;--dx-red:#ef4444;--dx-radius:18px;
+  --dx-shadow:0 14px 38px rgba(15,23,42,.065);--dx-shadow-sm:0 5px 18px rgba(15,23,42,.045)
+}
+html,body{font-size:16px!important;line-height:1.45!important;background:var(--dx-bg)!important}
+body{color:var(--dx-text)!important}
+h1{font-size:clamp(26px,2.4vw,36px)!important;line-height:1.1!important;letter-spacing:-.025em!important;color:var(--dx-text)!important}
+h2{font-size:20px!important;line-height:1.2!important;letter-spacing:-.015em!important;color:var(--dx-text)!important}
+h3{font-size:17px!important;color:var(--dx-text)!important}
+p,.help,.muted,.subtitle,.description{color:var(--dx-muted)!important}
+main,.page,.app,.shell,.container{max-width:none}
+button,a,input,select,textarea{font-size:15px!important}
+button{min-height:42px;border-radius:11px!important;font-weight:700!important}
+input,select,textarea{min-height:44px!important;padding:10px 12px!important}
+textarea{min-height:96px!important}
+.modal-card,.panel,.card,.settings-card,.stats-card,.editor-card,.recorder-panel,.process-card,.result-card,.filter-panel,.toolbar,.controls-panel,
+.dataset-row,.exercise-card,.note-card,.timer-card,.summary-card,.metric-card,.form-card,.result-panel,.map-panel,.sidebar-panel{
+  border:1px solid var(--dx-line)!important;border-radius:16px!important;background:var(--dx-surface)!important;box-shadow:var(--dx-shadow-sm)!important
+}
+header,.header,.app-header,.topbar{background:transparent!important;border-color:var(--dx-line)!important}
+.table-scroll,table{border-radius:14px!important}table{background:var(--dx-surface)!important}th{background:var(--dx-surface-2)!important;color:var(--dx-muted)!important;font-weight:750!important}td,th{border-color:var(--dx-line)!important}
+.badge,.pill,.chip,.tag{border-radius:999px!important}
+.primary,.save-btn,.save-button,.button.primary,button.primary,.run-btn,.sync-btn{background:linear-gradient(135deg,#2563eb,#3b82f6)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 8px 20px rgba(37,99,235,.16)!important}
+.icon-btn,.close-btn,.secondary,.secondary-button{background:var(--dx-surface)!important;border:1px solid var(--dx-line)!important;color:var(--dx-text)!important;box-shadow:none!important}
+.error{color:var(--dx-red)!important}.success,.ok{color:var(--dx-green)!important}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#cbd5e1;border:3px solid transparent;background-clip:padding-box;border-radius:999px}::-webkit-scrollbar-track{background:transparent}
+@media(max-width:760px){html,body{font-size:15px!important}h1{font-size:28px!important}h2{font-size:19px!important}}
+html[data-theme="dark"],:root[data-theme="dark"]{--dx-bg:#0a1020;--dx-surface:#111a2d;--dx-surface-2:#151f34;--dx-line:#26334d;--dx-text:#eef4ff;--dx-muted:#9baac1}
