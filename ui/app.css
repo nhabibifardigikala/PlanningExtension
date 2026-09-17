@@ -719,3 +719,12 @@ html[data-theme="dark"] .op-card-open{background:#121a2e!important;border-color:
 .sidebar-nav-btn span:not(.nav-glyph){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .category-chips{row-gap:7px!important}
 .category-chip{white-space:nowrap}
+
+/* v325 dark-theme icon controls */
+html[data-theme="dark"] .nav-icon-button{background:#121a2e!important;border-color:#26324b!important;color:#dbe7ff!important;box-shadow:none!important}
+html[data-theme="dark"] .nav-icon-button:hover{background:#18233a!important;border-color:#3b82f6!important;color:#7fb0ff!important}
+html[data-theme="dark"] .nav-icon-button svg{stroke:currentColor!important;fill:none!important}
+html[data-theme="dark"] .icon-button{background:#121a2e!important;border-color:#26324b!important;color:#dbe7ff!important}
+html[data-theme="dark"] .icon-button:hover{background:#18233a!important;border-color:#3b82f6!important}
+html[data-theme="dark"] .icon-button svg{fill:currentColor!important;color:#dbe7ff!important}
+html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
