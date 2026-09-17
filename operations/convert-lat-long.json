@@ -25,13 +25,26 @@
   "clientProcessor": {
     "type": "excel-wkt-csv",
     "fileField": "inputFile",
-    "nameHeaders": ["Name", "name"],
-    "coordinateHeaders": ["coordinates", "Coordinates"],
-    "outputHeaders": ["WKT", "name", "description"],
+    "nameHeaders": [
+      "Name",
+      "name"
+    ],
+    "coordinateHeaders": [
+      "coordinates",
+      "Coordinates"
+    ],
+    "outputHeaders": [
+      "WKT",
+      "name",
+      "description"
+    ],
     "filename": "output_wkt.csv"
   },
   "workflow": [],
   "successMessage": "WKT CSV created.",
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "excel"
+  }
 }

@@ -6,5 +6,8 @@
   "workflow": [],
   "successMessage": "Planner ready.",
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
 }

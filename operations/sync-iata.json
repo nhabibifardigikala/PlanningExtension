@@ -965,5 +965,8 @@
   },
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "title": "IATA Code Synchronizer"
+  "title": "IATA Code Synchronizer",
+  "output": {
+    "type": "excel"
+  }
 }

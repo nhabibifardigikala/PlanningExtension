@@ -6,5 +6,8 @@
   "workflow": [],
   "successMessage": "Work Healthy ready.",
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
 }

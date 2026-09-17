@@ -6,21 +6,21 @@
   const ORIGIN=location.origin;
   const JOBS={
     'distribution-centers':{
-      id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',enabled:false,
+      id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
       preOperations:[{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:300}}]
     },
     'pickup-polygons':{
-      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',enabled:false,
+      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
     },
     'delivery-polygons':{
-      id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',enabled:false,
+      id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
     }
 ,
     'iata-code-synchronizer':{
-      id:'iata-code-synchronizer',label:'IATA Code Synchronizer',operationId:'sync-iata',sheetName:'IATA Synchronizer Log',enabled:false,
+      id:'iata-code-synchronizer',label:'IATA Code Synchronizer',operationId:'sync-iata',sheetName:'IATA Synchronizer Log',output:{type:'none'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[],
       inputs:{syncTargets:['shipping-points','shipping-polygons'],pointExceptions:'',polygonExceptions:''}
     }
@@ -60,6 +60,15 @@
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
 
   function defaultJob(id){return JSON.parse(JSON.stringify(JOBS[id]));}
+  function friendlyError(raw){
+    const msg=String(raw||'').trim(),low=msg.toLowerCase();
+    if(!msg)return '';
+    if(/no headers|returned no headers/.test(low))return 'No report columns were found. The LG page may not have finished loading or the table layout may have changed. Retry the Agent; if it fails again, enable Diagnostics in Settings.';
+    if(/google apps script|web app url/.test(low))return 'Google Sheets publishing is not configured. Open Agents settings and save the Google Apps Script Web App URL for Sheet-based extractors.';
+    if(/table.*not found|rows were not available|element not found/.test(low))return 'The required LG page content did not load in time. Keep the LG session signed in and retry. Diagnostics can show the failed URL and selector.';
+    if(/login|authentication|credential/.test(low))return 'LG authentication needs attention. Sign in to LG or validate your account again in Settings, then retry.';
+    return msg;
+  }
   function getJob(id=activeJobId){return currentState?.jobs?.[id]||defaultJob(id)}
   function getState(id=activeJobId){return currentState?.states?.[id]||{}}
   function sharedWebAppUrl(){
@@ -90,7 +99,7 @@
     const isRunning=!!st.running;run.classList.toggle('running',isRunning);run.classList.toggle('cancel-mode',isRunning);run.disabled=false;setRunButtonVisual(run,isRunning,JOBS[id].label);
     mini.className='dataset-mini-status';
     if(st.running){mini.textContent=st.phase||'Updating…';mini.classList.add('busy')}
-    else if(st.lastError){mini.textContent=st.lastError;mini.classList.add('error')}
+    else if(st.lastError){mini.textContent=friendlyError(st.lastError);mini.classList.add('error')}
     else mini.textContent='Ready';
   }
   function apply(state){
@@ -108,7 +117,7 @@
     $('enabled').checked=job.enabled===true;$('scheduleType').value=job.schedule?.type==='hourly'?'hourly':'daily';
     $('dailyTime').value=job.schedule?.time||'12:00';$('intervalHours').value=String(job.schedule?.intervalHours||1);updateScheduleControls();
     $('lastRun').textContent=fmt(st.lastRunAt);$('rowCount').textContent=st.rowCount??'—';$('nextRun').textContent=fmt(st.nextRunAt);$('lastStatus').textContent=st.running?(st.phase||st.lastStatus||'Running…'):(st.lastStatus||'—');
-    $('datasetError').hidden=!st.lastError;$('datasetError').textContent=st.lastError||'';
+    $('datasetError').hidden=!st.lastError;$('datasetError').textContent=friendlyError(st.lastError)||'';
   }
   function startFastPoll(){if(pollTimer)return;pollTimer=setInterval(()=>refresh({quiet:true}).catch(()=>{}),1200)}
   function stopFastPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null}}

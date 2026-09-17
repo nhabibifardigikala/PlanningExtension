@@ -6,5 +6,8 @@
   "workflow": [],
   "successMessage": "Authenticator ready.",
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "host-security-boundary"
+  "businessLogicOwner": "host-security-boundary",
+  "output": {
+    "type": "internal"
+  }
 }

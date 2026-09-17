@@ -6,5 +6,8 @@
   "workflow": [],
   "successMessage": "Ready.",
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "excel"
+  }
 }

@@ -3510,5 +3510,8 @@
   ],
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "minimumRuntimeVersion": "12.0.6"
+  "minimumRuntimeVersion": "12.0.6",
+  "output": {
+    "type": "excel"
+  }
 }

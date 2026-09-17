@@ -98,5 +98,8 @@
     "delayMs": 1500
   },
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
 }

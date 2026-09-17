@@ -248,5 +248,8 @@
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
   "keepTabActive": true,
-  "foregroundReason": "LG defers table rendering in background tabs. DC User Assignment and Distribution Centers are both kept in the foreground during critical loading and selection windows through remote configuration."
+  "foregroundReason": "LG defers table rendering in background tabs. DC User Assignment and Distribution Centers are both kept in the foreground during critical loading and selection windows through remote configuration.",
+  "output": {
+    "type": "excel"
+  }
 }

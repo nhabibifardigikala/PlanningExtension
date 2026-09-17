@@ -133,5 +133,8 @@
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
   "keepTabActive": true,
-  "foregroundReason": "LG UI becomes unreliable in background tabs during DC selection. Keep the DC User Assignment tab in the foreground while the operation is running."
+  "foregroundReason": "LG UI becomes unreliable in background tabs during DC selection. Keep the DC User Assignment tab in the foreground while the operation is running.",
+  "output": {
+    "type": "internal"
+  }
 }

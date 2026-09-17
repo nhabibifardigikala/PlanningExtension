@@ -1,6 +1,6 @@
 {
   "title": "Settings",
-  "description": "Theme, credentials and remote configuration.",
+  "description": "Account, appearance, remote configuration, agents, diagnostics, and local data controls.",
   "appearance": {
     "title": "Appearance",
     "themes": [
@@ -48,5 +48,36 @@
       "simpleAdd": true,
       "showAddCancel": true
     }
-  }
+  },
+  "sections": [
+    {
+      "id": "account",
+      "title": "Account"
+    },
+    {
+      "id": "appearance",
+      "title": "Appearance"
+    },
+    {
+      "id": "remote",
+      "title": "Remote"
+    },
+    {
+      "id": "agents",
+      "title": "Agents"
+    },
+    {
+      "id": "diagnostics",
+      "title": "Diagnostics"
+    },
+    {
+      "id": "data-cache",
+      "title": "Data & Cache"
+    }
+  ],
+  "diagnostics": {
+    "title": "Diagnostics",
+    "help": "Capture operation steps, retries, URLs, selectors and a small DOM snapshot when an operation fails."
+  },
+  "supportEmail": "n.habibifar@digikala.com"
 }

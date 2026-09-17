@@ -113,3 +113,17 @@ Example:
   ]
 }
 ```
+
+## v326 output contract
+Every catalog operation declares an output contract:
+
+```json
+"output": { "type": "sheet" | "excel" | "internal" | "none" }
+```
+
+- `sheet`: the operation/agent publishes tabular output to Google Sheets and therefore requires a publishing destination.
+- `excel`: the operation produces an Excel download/report.
+- `internal`: the result is consumed inside Digiexpress or by another Remote workflow.
+- `none`: the operation performs an action and does not publish a dataset.
+
+The Host treats this as a generic contract. It must not infer publishing requirements from operation IDs.

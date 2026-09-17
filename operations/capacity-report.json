@@ -433,5 +433,8 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 9
+  "remoteBehaviorVersion": 9,
+  "output": {
+    "type": "internal"
+  }
 }

@@ -663,5 +663,8 @@
   "uiMode": "form",
   "runLabel": "Run",
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "excel"
+  }
 }

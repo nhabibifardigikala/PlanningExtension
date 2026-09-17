@@ -14,5 +14,8 @@
   ],
   "successMessage": "Rejected Shipments dashboard opened.",
   "runtimeContract": "stable-host-12.4.2",
-  "businessLogicOwner": "remote-ui-v4.9"
+  "businessLogicOwner": "remote-ui-v4.9",
+  "output": {
+    "type": "internal"
+  }
 }
