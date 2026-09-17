@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract Delivery Polygon data from Admin for Data Set Update.",
+  "description": "Extract Delivery Polygon data from Admin for Agents.",
   "navigation": {
     "retryCount": 8,
     "retryDelayMs": 500,

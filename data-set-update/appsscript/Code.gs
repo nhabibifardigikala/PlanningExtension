@@ -130,5 +130,5 @@ function shippingSizeNumber_(value){
   const any=s.match(/\d+/);return any?Number(any[0]):'';
 }
 
-function doGet(){return json_({ok:true,service:'Digiexpress Data Set Update'});}
+function doGet(){return json_({ok:true,service:'Digiexpress Agents'});}
 function json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);}

@@ -3,8 +3,8 @@
   "handler": "generic",
   "requiresCredentials": true,
   "uiMode": "form",
-  "runLabel": "Start IATA Sync",
-  "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
+  "runLabel": "Start Synchronizer",
+  "description": "Synchronize IATA codes for Shipping Points and Shipping Polygons.",
   "inputs": [
     {
       "name": "syncTargets",
@@ -964,5 +964,6 @@
     "delayMs": 1500
   },
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "title": "IATA Code Synchronizer"
 }

@@ -6,17 +6,23 @@
   const ORIGIN=location.origin;
   const JOBS={
     'distribution-centers':{
-      id:'distribution-centers',label:'Distribution Centers',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',enabled:false,
+      id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
       preOperations:[{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:300}}]
     },
     'pickup-polygons':{
-      id:'pickup-polygons',label:'Pick-up Polygons',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',enabled:false,
+      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
     },
     'delivery-polygons':{
-      id:'delivery-polygons',label:'Delivery Polygons',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',enabled:false,
+      id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
+    }
+,
+    'iata-code-synchronizer':{
+      id:'iata-code-synchronizer',label:'IATA Code Synchronizer',operationId:'sync-iata',sheetName:'',publishResult:false,enabled:false,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[],
+      inputs:{syncTargets:['shipping-points','shipping-polygons'],pointExceptions:'',polygonExceptions:''}
     }
   };
   const $=id=>document.getElementById(id);
@@ -25,7 +31,7 @@
   function request(action,payload={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dsu-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.5.4 or newer is required.'));},20000);
+      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.5.5 or newer is required.'));},20000);
       function onMessage(e){
         if(e.source!==window||e.origin!==ORIGIN)return;
         const d=e.data||{};
@@ -62,7 +68,12 @@
   }
   function collectJob(id=activeJobId){
     const base=getJob(id),defs=JOBS[id];
-    return {...defs,...base,webAppUrl:$('webAppUrl').value.trim()||sharedWebAppUrl(),enabled:$('enabled').checked,schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1)},preOperations:defs.preOperations};
+    const inputs=id==='iata-code-synchronizer'?{
+      syncTargets:[...($('syncShippingPoints').checked?['shipping-points']:[]),...($('syncShippingPolygons').checked?['shipping-polygons']:[])],
+      pointExceptions:$('pointExceptions').value.trim(),
+      polygonExceptions:$('polygonExceptions').value.trim()
+    }:(base.inputs||defs.inputs||{});
+    return {...defs,...base,webAppUrl:$('webAppUrl').value.trim()||sharedWebAppUrl(),enabled:$('enabled').checked,schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1)},preOperations:defs.preOperations,inputs,publishResult:defs.publishResult!==false};
   }
 
   function renderJob(id){
@@ -85,6 +96,8 @@
     activeJobId=id;const job=getJob(id),st=getState(id);
     $('datasetSettingsTitle').textContent=JOBS[id].label;
     $('preUpdateNote').hidden=id!=='distribution-centers';
+    const isIata=id==='iata-code-synchronizer';$('iataOptions').hidden=!isIata;$('rowCountLabel').textContent=isIata?'Processed records':'Rows written';
+    if(isIata){const inputs=job.inputs||JOBS[id].inputs||{};const targets=Array.isArray(inputs.syncTargets)?inputs.syncTargets:[];$('syncShippingPoints').checked=targets.includes('shipping-points');$('syncShippingPolygons').checked=targets.includes('shipping-polygons');$('pointExceptions').value=inputs.pointExceptions||'';$('polygonExceptions').value=inputs.polygonExceptions||'';}
     $('enabled').checked=job.enabled===true;$('scheduleType').value=job.schedule?.type==='hourly'?'hourly':'daily';
     $('dailyTime').value=job.schedule?.time||'12:00';$('intervalHours').value=String(job.schedule?.intervalHours||1);updateScheduleControls();
     $('lastRun').textContent=fmt(st.lastRunAt);$('rowCount').textContent=st.rowCount??'—';$('nextRun').textContent=fmt(st.nextRunAt);$('lastStatus').textContent=st.running?(st.phase||st.lastStatus||'Running…'):(st.lastStatus||'—');
@@ -100,8 +113,8 @@
       const cur=state?.jobs?.[id];const defs=JOBS[id];
       const pre=Array.isArray(cur?.preOperations)?cur.preOperations:[];
       const preOk=id!=='distribution-centers'||pre.some(x=>x?.operationId==='dc-user-assignment'&&Number(x?.inputs?.dcCount)===300&&x?.inputs?.useConfiguredEmail===true);
-      const opOk=cur?.operationId===defs.operationId&&cur?.sheetName===defs.sheetName;
-      if(!cur||!preOk||!opOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,preOperations:defs.preOperations}});changed=true;}
+      const expectedPublish=defs.publishResult!==false;const opOk=cur?.operationId===defs.operationId&&String(cur?.sheetName||'')===String(defs.sheetName||'')&&cur?.publishResult===expectedPublish;
+      if(!cur||!preOk||!opOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,preOperations:defs.preOperations,publishResult:defs.publishResult!==false,inputs:cur?.inputs||defs.inputs||{}}});changed=true;}
     }
     migrationDone=true;return changed?request('getState'):state;
   }
@@ -115,12 +128,12 @@
   $('scheduleType').addEventListener('change',updateScheduleControls);$('enabled').addEventListener('change',updateScheduleControls);
 
   $('saveConnection').addEventListener('click',async()=>{
-    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
+    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,publishResult:JOBS[id].publishResult!==false,inputs:base.inputs||JOBS[id].inputs||{}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
     catch(e){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}
     finally{btn.disabled=false}
   });
   $('saveSchedule').addEventListener('click',async()=>{
-    const btn=$('saveSchedule');try{btn.disabled=true;await request('saveJob',{job:collectJob(activeJobId)});await refresh({quiet:true});toast(`${JOBS[activeJobId].label} settings saved`);closeModal('datasetSettingsModal')}
+    const btn=$('saveSchedule');try{btn.disabled=true;const job=collectJob(activeJobId);if(activeJobId==='iata-code-synchronizer'&&!job.inputs.syncTargets.length)throw new Error('Select at least one IATA synchronization target.');await request('saveJob',{job});await refresh({quiet:true});toast(`${JOBS[activeJobId].label} settings saved`);closeModal('datasetSettingsModal')}
     catch(e){$('datasetError').hidden=false;$('datasetError').textContent=e.message}
     finally{btn.disabled=false}
   });
@@ -129,8 +142,10 @@
     const id=run.dataset.runJob,st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
     if(st.running){try{mini.textContent='Cancelling…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Update cancelled');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
-      run.classList.add('running');mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':'Opening Admin DC Polygons…');mini.className='dataset-mini-status busy';
-      const url=sharedWebAppUrl();await request('saveJob',{job:{...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations}});await request('runNow',{jobId:id});startFastPoll();await refresh({quiet:true});toast('Update started');
+      run.classList.add('running');mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':'Synchronizing IATA codes…'));mini.className='dataset-mini-status busy';
+      const url=sharedWebAppUrl();let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,publishResult:JOBS[id].publishResult!==false};
+      if(id==='iata-code-synchronizer'){const saved=job.inputs||JOBS[id].inputs||{};job.inputs=saved;}
+      await request('saveJob',{job});await request('runNow',{jobId:id});startFastPoll();await refresh({quiet:true});toast('Agent started');
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
   }));
 

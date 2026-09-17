@@ -1,11 +1,11 @@
 {
-  "configVersion": 309,
-  "minEngineVersion": "12.4.2",
+  "configVersion": 311,
+  "minEngineVersion": "12.5.5",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Operations Toolkit · Config 309",
+    "subtitle": "Operations Toolkit · Config 311",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
-    "configVersion": 309
+    "configVersion": 311
   },
   "theme": "theme.json?v=244",
   "settings": "settings.json?v=244",
@@ -13,14 +13,15 @@
   "operations": [
     {
       "id": "sync-iata",
-      "title": "Sync IATA Code",
-      "subtitle": "Sync codes",
+      "title": "IATA Code Synchronizer",
+      "subtitle": "Agents operation",
       "accessHeaders": [
+        "Agents",
         "Sync IATA Code"
       ],
-      "config": "operations/sync-iata.json?v=244",
-      "description": "Select which Drop Shipping datasets to synchronize, optionally exclude record IDs, then compare their code values with Distribution Center IATA and correct mismatches.",
-      "runLabel": "Start IATA Sync",
+      "config": "operations/sync-iata.json?v=311",
+      "description": "Internal Agents operation. Synchronizes IATA codes for Shipping Points and Shipping Polygons.",
+      "runLabel": "Start Synchronizer",
       "inputs": [
         {
           "name": "syncTargets",
@@ -69,7 +70,8 @@
         }
       ],
       "iconTextOverlay": "IATA",
-      "iconTextOverlaySize": 12
+      "iconTextOverlaySize": 12,
+      "enabled": false
     },
     {
       "id": "pudo-auto-config",
@@ -130,43 +132,46 @@
     },
     {
       "id": "extract-pickup-polygons",
-      "title": "Pick-up Polygons Dataset Extractor",
-      "subtitle": "Internal Data Set Update operation",
+      "title": "Pickup Polygons Extractor",
+      "subtitle": "Internal Agents operation",
       "accessHeaders": [
+        "Agents",
         "Data Set Update"
       ],
-      "config": "operations/extract-pickup-polygons.json?v=309",
+      "config": "operations/extract-pickup-polygons.json?v=311",
       "enabled": false,
-      "description": "Internal extractor used by Data Set Update for Pick-up Polygons.",
+      "description": "Internal extractor used by Agents for Pickup Polygons.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
       "inputs": []
     },
     {
       "id": "extract-delivery-polygons",
-      "title": "Delivery Polygons Dataset Extractor",
-      "subtitle": "Internal Data Set Update operation",
+      "title": "Delivery Polygons Extractor",
+      "subtitle": "Internal Agents operation",
       "accessHeaders": [
+        "Agents",
         "Data Set Update"
       ],
-      "config": "operations/extract-delivery-polygons.json?v=309",
+      "config": "operations/extract-delivery-polygons.json?v=311",
       "enabled": false,
-      "description": "Internal extractor used by Data Set Update for Delivery Polygons.",
+      "description": "Internal extractor used by Agents for Delivery Polygons.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
       "inputs": []
     },
     {
       "id": "data-set-update",
-      "title": "Data Set Update",
-      "subtitle": "Scheduled dataset refresh",
+      "title": "Agents",
+      "subtitle": "Automated operations",
       "accessHeaders": [
+        "Agents",
         "Data Set Update"
       ],
-      "config": "operations/data-set-update.json?v=309",
+      "config": "operations/data-set-update.json?v=311",
       "iconSvgPath": "M8 7h28a4 4 0 0 1 4 4v5h-4v-5H8v26h12v4H8a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4Zm20 12a12 12 0 1 1-8.5 3.5l2.8 2.8A8 8 0 1 0 28 23v5l-7-7 7-7v5Zm5 5h4v8h-8v-4h4v-4Z",
-      "description": "Schedule automatic dataset refreshes or run them manually.",
-      "runLabel": "Data Set Update",
+      "description": "Run and schedule operational agents from one place.",
+      "runLabel": "Agents",
       "uiMode": "form",
       "inputs": [
         {

@@ -32,7 +32,7 @@
   function webAppUrl(){
     try{const v=String(localStorage.getItem(WEBAPP_KEY)||'').trim();if(v)return v}catch(_){}
     try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),v=String(localStorage.getItem(k)||'');if(/https:\/\/script\.google\.com\/macros\/s\//i.test(v))return v.trim()}}catch(_){}
-    throw new Error('Google Sheets connection was not found. Open Data Set Update once and save Program Settings.');
+    throw new Error('Google Sheets connection was not found. Open Agents once and save Program Settings.');
   }
   function sheetFromSource(source){const s=String(source||'');if(/^sheet:/i.test(s))return s.slice(6).trim();if(/pickup/i.test(s))return 'Pick-up Polygons';return 'Delivery Polygons'}
   function jsonp(url,params){return new Promise((resolve,reject)=>{

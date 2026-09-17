@@ -1,1 +1,10 @@
-{"enabled":true,"handler":"generic","requiresCredentials":false,"description":"Schedule automatic dataset refreshes or run them manually.","workflow":[],"successMessage":"Data Set Update ready.","runtimeContract":"stable-host-12","businessLogicOwner":"remote"}
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Run and schedule operational agents from one place.",
+  "workflow": [],
+  "successMessage": "Agents ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote"
+}
