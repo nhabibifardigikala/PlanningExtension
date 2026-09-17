@@ -671,3 +671,51 @@ html,body,button,input,select,textarea{font-family:"Gilroy Medium","Gilroy","Yek
 .favorite-toggle{position:absolute;z-index:3;right:10px;top:9px;width:30px;height:30px;min-height:30px!important;border:0!important;border-radius:10px!important;background:rgba(248,250,252,.94)!important;color:#a8b2c3!important;display:grid;place-items:center;padding:0!important;font-size:17px!important;line-height:1!important;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,.05)!important;transition:transform .15s ease,color .15s ease,background .15s ease!important}.favorite-toggle:hover{transform:scale(1.06)!important;color:#f59e0b!important}.favorite-toggle.active{color:#f59e0b!important;background:#fff7e6!important}.favorite-toggle:focus-visible{outline:3px solid rgba(37,99,235,.18)!important;outline-offset:2px!important}
 html[data-theme="dark"] .op-card-open{background:#121a2e!important;border-color:#26324b!important;color:#e9eef9!important}html[data-theme="dark"] .favorite-toggle{background:#182238!important;color:#7585a3!important}html[data-theme="dark"] .favorite-toggle.active{background:#322b1c!important;color:#fbbf24!important}
 @media(max-width:760px){.op-card,.op-card-open{height:110px!important;min-height:110px!important}.op-card-open{padding-right:48px!important}.favorite-toggle{right:8px;top:8px}}
+
+
+/* v323 — fixed overlays respect the full-tab workspace and sidebar. */
+@media (min-width:761px){
+  .voice-permission-broker{
+    left:286px!important;
+    right:26px!important;
+    top:88px!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+  .operation-subtabs{
+    left:286px!important;
+    right:26px!important;
+    bottom:14px!important;
+    width:auto!important;
+    border:1px solid var(--border)!important;
+    border-radius:16px!important;
+    padding:7px!important;
+    box-shadow:0 16px 34px rgba(15,23,42,.14)!important;
+  }
+  #operationView:has(.operation-subtabs:not(.hidden)){
+    padding-bottom:86px!important;
+  }
+}
+@media (max-width:760px){
+  .voice-permission-broker{
+    left:14px!important;
+    right:14px!important;
+    top:76px!important;
+  }
+  .operation-subtabs{
+    left:14px!important;
+    right:14px!important;
+    bottom:10px!important;
+    border:1px solid var(--border)!important;
+    border-radius:14px!important;
+  }
+  #operationView:has(.operation-subtabs:not(.hidden)){
+    padding-bottom:82px!important;
+  }
+}
+
+/* v323 — category labels can be longer without crowding the navigation. */
+.sidebar-nav-btn{grid-template-columns:26px minmax(0,1fr) auto!important}
+.sidebar-nav-btn span:not(.nav-glyph){min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.category-chips{row-gap:7px!important}
+.category-chip{white-space:nowrap}

@@ -1,0 +1,6 @@
+DigiExpress Remote v323
+- Role Assignment bottom sub-navigation now respects the fixed left sidebar and no longer overlays it.
+- Voice Typing microphone broker now starts after the left sidebar and no longer covers sidebar navigation.
+- Applied the user-approved operation categories to all 26 operation definitions.
+- Replaced sidebar and search-chip categories with: Agents, Network, Capacity, Role Management, Polygons, Process, Work Study, Utilities.
+- Updated cache/version references to v323.
