@@ -4,6 +4,7 @@ let allRows = [], baseFilteredRows = [], filteredRows = [], page = 1, settings =
 let chartFilters = {};
 let serverKpis = null;
 let dashboardAutoRefreshTimer = null;
+let dashboardLastRefreshRequestAt = 0;
 const chartMeta = new WeakMap();
 const $ = id => document.getElementById(id);
 
@@ -155,12 +156,25 @@ async function saveAllSettings(){
   if(r?.ok){settings=r.settings;$('settingsSaved').textContent='Saved';toast('Dashboard settings saved');await refreshStatus();} else toast(r?.error||'Failed to save settings');
 }
 
+function requestScheduledDashboardRefresh(){
+  dashboardLastRefreshRequestAt=Date.now();
+  chrome.runtime.sendMessage({type:'refreshDashboardNow'}).catch(()=>{});
+}
+
 function startDashboardAutoRefresh(){
   if(dashboardAutoRefreshTimer)clearInterval(dashboardAutoRefreshTimer);
-  dashboardAutoRefreshTimer=setInterval(()=>{
-    if(document.visibilityState!=='visible')return;
-    chrome.runtime.sendMessage({type:'refreshDashboardNow'}).catch(()=>{});
-  },5*60*1000);
+  // Read DataSets → Rejected Shipments every five minutes while the dashboard exists.
+  // Browser timer throttling can delay hidden tabs, so visibility/focus catch-up below
+  // forces an immediate read when more than five minutes have elapsed.
+  dashboardLastRefreshRequestAt=Date.now();
+  dashboardAutoRefreshTimer=setInterval(requestScheduledDashboardRefresh,5*60*1000);
+  const catchUp=()=>{
+    if(document.visibilityState==='visible' && Date.now()-dashboardLastRefreshRequestAt>=5*60*1000){
+      requestScheduledDashboardRefresh();
+    }
+  };
+  document.addEventListener('visibilitychange',catchUp);
+  window.addEventListener('focus',catchUp);
 }
 
 async function refreshAfterSync(syncResult){

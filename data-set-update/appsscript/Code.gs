@@ -1,6 +1,21 @@
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments']);
 const REJECTED_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date','extracted_at'];
+const REJECTED_FIELD_ALIASES = {
+  id: ['id'],
+  reference_id: ['reference_id','reference id'],
+  user_id: ['user_id','user id'],
+  ready_date: ['ready_date','ready date'],
+  status: ['status'],
+  created_at: ['created_at','created at'],
+  service_level: ['service_level','service level'],
+  shipping_size_id: ['shipping_size_id','shipping size id'],
+  destination_address: ['destination_address','destination address'],
+  destination_shipping_point: ['destination_shipping_point','destination shipping point'],
+  parcel_ids: ['parcel_ids','parcel ids'],
+  promise_date: ['promise_date','promise date'],
+  extracted_at: ['extracted_at','extracted at']
+};
 
 function doPost(e){
   try{
@@ -51,28 +66,28 @@ function readDataset_(body){
   const sheetName=String(body.sheetName||'');
   const sheet=requireSheet_(sheetName);
   const lastRow=sheet.getLastRow(),lastCol=sheet.getLastColumn();
-  if(lastRow<1||lastCol<1)return json_({ok:true,sheetName,headers:[],rows:[],totalRows:0,updatedAt:new Date().toISOString()});
+  if(lastRow<1||lastCol<1)return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,headers:[],rows:[],totalRows:0,updatedAt:new Date().toISOString()});
   const headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0];
   const totalRows=Math.max(0,lastRow-1);
   const limit=Math.max(1,Math.min(50000,Number(body.limit)||20000));
   const take=Math.min(totalRows,limit);
   const startRow=take?Math.max(2,lastRow-take+1):2;
   const rows=take?sheet.getRange(startRow,1,take,lastCol).getDisplayValues():[];
-  return json_({ok:true,sheetName,headers,rows,totalRows,updatedAt:new Date().toISOString()});
+  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,headers,rows,totalRows,updatedAt:new Date().toISOString()});
 }
 
 function rejectedState_(body){
   const sheet=requireSheet_(String(body.sheetName||'Rejected Shipments'));
   const lastRow=sheet.getLastRow(),lastCol=sheet.getLastColumn();
-  if(lastRow<1||lastCol<1)return json_({ok:true,maxId:0,totalRows:0});
+  if(lastRow<1||lastCol<1)return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName:String(body.sheetName||'Rejected Shipments'),maxId:0,totalRows:0});
   const headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0].map(h=>String(h||'').trim().toLowerCase());
   const idIdx=headers.indexOf('id');
   if(idIdx<0)throw new Error('Rejected Shipments: id column was not found.');
-  if(lastRow<2)return json_({ok:true,maxId:0,totalRows:0});
+  if(lastRow<2)return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName:String(body.sheetName||'Rejected Shipments'),maxId:0,totalRows:0});
   const ids=sheet.getRange(2,idIdx+1,lastRow-1,1).getDisplayValues();
   let maxId=0;
   for(const row of ids){const n=numericId_(row[0]);if(n>maxId)maxId=n;}
-  return json_({ok:true,maxId,totalRows:lastRow-1});
+  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName:String(body.sheetName||'Rejected Shipments'),maxId,totalRows:lastRow-1});
 }
 
 function appendRejected_(body){
@@ -88,23 +103,86 @@ function appendRejected_(body){
   }else{
     headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0].map(v=>String(v||'').trim());
   }
-  const normalizedHeaders=headers.map(h=>h.toLowerCase());
-  for(const required of REJECTED_HEADERS){if(!normalizedHeaders.includes(required))throw new Error('Rejected Shipments: missing column '+required);}
-  const idIdx=normalizedHeaders.indexOf('id');
-  const existing=new Set();
-  if(lastRow>1){for(const r of sheet.getRange(2,idIdx+1,lastRow-1,1).getDisplayValues()){const n=numericId_(r[0]);if(n)existing.add(String(n));}}
-  const rows=[];
+
+  // The target Sheet schema is canonical and fixed. Validate by canonical header name,
+  // not by physical position, so existing DataSets tabs remain safe to append to.
+  const sheetCanonical=headers.map(canonicalRejectedField_);
+  for(const required of REJECTED_HEADERS){
+    if(!sheetCanonical.includes(required))throw new Error('Rejected Shipments: missing target sheet column '+required);
+  }
+  const idIdx=sheetCanonical.indexOf('id');
+
+  // Convert the extracted table objects to the exact Rejected Shipments schema.
+  // Stable Host deliberately preserves the website's visible header labels (for example
+  // "Reference ID"), therefore the Apps Script receiver owns this Remote schema mapping.
+  const canonicalIncoming=[];
+  const seenIncomingFields=new Set();
   for(const item of incoming){
-    if(!item||typeof item!=='object')continue;
-    const id=numericId_(item.id);if(!id||existing.has(String(id)))continue;
+    if(!item||typeof item!=='object'||Array.isArray(item))continue;
+    const mapped={};
+    for(const [sourceKey,value] of Object.entries(item)){
+      const key=canonicalRejectedField_(sourceKey);
+      if(!key)continue;
+      seenIncomingFields.add(key);
+      if(!Object.prototype.hasOwnProperty.call(mapped,key)||mapped[key]==='')mapped[key]=value;
+    }
+    if(!Object.prototype.hasOwnProperty.call(mapped,'extracted_at')||!String(mapped.extracted_at||'').trim()){
+      mapped.extracted_at=new Date().toISOString();
+      seenIncomingFields.add('extracted_at');
+    }
+    canonicalIncoming.push(mapped);
+  }
+
+  // Never silently publish a partial schema. Empty cell values are allowed, but the
+  // extracted table must expose every requested field. This prevents the previous
+  // failure mode where only id/status were written while the other columns stayed blank.
+  if(canonicalIncoming.length){
+    const requiredSourceFields=REJECTED_HEADERS.filter(h=>h!=='extracted_at');
+    const missing=requiredSourceFields.filter(h=>!seenIncomingFields.has(h));
+    if(missing.length){
+      const received=[...new Set(incoming.flatMap(item=>item&&typeof item==='object'&&!Array.isArray(item)?Object.keys(item):[]))];
+      throw new Error('Rejected Shipments: extracted table is missing required columns: '+missing.join(', ')+'. Received fields: '+received.join(' | '));
+    }
+  }
+
+  // De-duplicate on the exact column named "id" only. Other fields may legitimately repeat.
+  const existing=new Set();
+  if(lastRow>1){
+    for(const r of sheet.getRange(2,idIdx+1,lastRow-1,1).getDisplayValues()){
+      const n=numericId_(r[0]);if(n)existing.add(String(n));
+    }
+  }
+
+  const rows=[];
+  for(const item of canonicalIncoming){
+    const id=numericId_(item.id);
+    if(!id||existing.has(String(id)))continue;
     existing.add(String(id));
-    rows.push(headers.map(h=>cellValue_(item[h]??item[String(h).toLowerCase()]??'')));
+    rows.push(headers.map((_,i)=>cellValue_(item[sheetCanonical[i]]??'')));
   }
   rows.sort((a,b)=>numericId_(a[idIdx])-numericId_(b[idIdx]));
   if(rows.length)sheet.getRange(sheet.getLastRow()+1,1,rows.length,headers.length).setValues(rows);
   SpreadsheetApp.flush();
+
   let maxId=0;for(const id of existing){const n=Number(id)||0;if(n>maxId)maxId=n;}
-  return json_({ok:true,sheetName,appendedCount:rows.length,maxId,totalRows:Math.max(0,sheet.getLastRow()-1),updatedAt:new Date().toISOString()});
+  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,appendedCount:rows.length,maxId,totalRows:Math.max(0,sheet.getLastRow()-1),updatedAt:new Date().toISOString()});
+}
+
+function rejectedHeaderToken_(value){
+  return String(value??'').toLowerCase()
+    .replace(/^show\s+/,'')
+    .replace(/\s+column$/,'')
+    .replace(/[^a-z0-9]+/g,'');
+}
+
+function canonicalRejectedField_(value){
+  const token=rejectedHeaderToken_(value);
+  if(!token)return '';
+  for(const key of REJECTED_HEADERS){
+    const aliases=[key].concat(REJECTED_FIELD_ALIASES[key]||[]);
+    if(aliases.some(alias=>rejectedHeaderToken_(alias)===token))return key;
+  }
+  return '';
 }
 
 function cellValue_(value){

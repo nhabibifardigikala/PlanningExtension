@@ -4,6 +4,8 @@
   document.documentElement.dataset.theme=explicitTheme==='dark'?'dark':'light';
 
   const ORIGIN=location.origin;
+  const REJECTED_DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
+  const REJECTED_DATASETS_SHEET='Rejected Shipments';
   const JOBS={
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
@@ -31,7 +33,7 @@
       retry:{attempts:3,delayMs:60000,backoff:1},
       inputs:{keepScrapeTabOpen:false},
       pipeline:{
-        beforePlatformRequest:{method:'sheets.maxNumericColumn',args:{spreadsheetId:'1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k',sheetName:'Rejected Shipments',column:'id'}},
+        beforePlatformRequest:{method:'sheets.maxNumericColumn',args:{spreadsheetId:REJECTED_DATASETS_SPREADSHEET_ID,sheetName:REJECTED_DATASETS_SHEET,column:'id'}},
         cursorResponsePath:'maxId',cursorInput:'previousMaxId',
         recordDefaults:{extracted_at:'{{now}}'},
         afterRequest:{action:'appendRejected',sheetName:'{{job.sheetName}}',rows:'{{records}}'}
@@ -98,14 +100,15 @@
   async function probeRejectedDatasetEndpoint(url){
     if(!url||!window.DigiExpressPlatform?.runtime?.sendMessage)return false;
     try{
-      const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:'Rejected Shipments'}),responseType:'json',timeoutMs:15000,credentials:'include'}});
-      return !!(r?.ok&&r?.data&&r.data.ok!==false);
+      const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});
+      const d=r?.data||{};
+      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET);
     }catch(_){return false;}
   }
   async function resolveRejectedDatasetEndpoint(){
     const candidates=await rejectedEndpointCandidates();
     for(const url of candidates){if(await probeRejectedDatasetEndpoint(url))return url;}
-    throw new Error('Rejected Shipments DataSets endpoint is not reachable. Deploy the current Code.gs as a Web App that can return JSON without a Google sign-in page, then save that /exec URL in Agents settings.');
+    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy Code-v346.gs, then save that deployment /exec URL in Agents settings. The endpoint must report the exact DataSets spreadsheet ID.');
   }
   function updateScheduleControls(){
     const enabled=$('enabled').checked,type=$('scheduleType').value;
@@ -176,7 +179,9 @@
       const pre=Array.isArray(cur?.preOperations)?cur.preOperations:[];
       const preOk=id!=='distribution-centers'||pre.some(x=>x?.operationId==='dc-user-assignment'&&Number(x?.inputs?.dcCount)===300&&x?.inputs?.useConfiguredEmail===true);
       const opOk=cur?.operationId===defs.operationId&&String(cur?.sheetName||'')===String(defs.sheetName||'');
-      if(!cur||!preOk||!opOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,inputs:cur?.inputs||defs.inputs||{},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
+      const pipelineOk=JSON.stringify(cur?.pipeline||null)===JSON.stringify(defs.pipeline||null);
+      const retryOk=JSON.stringify(cur?.retry||null)===JSON.stringify(defs.retry||null);
+      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
     }
     migrationDone=true;return changed?request('getState'):state;
   }
@@ -192,7 +197,7 @@
   $('scheduleType').addEventListener('change',updateScheduleControls);$('enabled').addEventListener('change',updateScheduleControls);
 
   $('saveConnection').addEventListener('click',async()=>{
-    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,inputs:base.inputs||JOBS[id].inputs||{}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
+    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||base.pipeline||null,retry:JOBS[id].retry||base.retry,inputs:{...(JOBS[id].inputs||{}),...(base.inputs||{})}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
     catch(e){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}
     finally{btn.disabled=false}
   });
@@ -209,8 +214,15 @@
       run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl();
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
-      let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations};
-      if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'){const saved=job.inputs||JOBS[id].inputs||{};job.inputs=saved;}
+      let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,retry:JOBS[id].retry||getJob(id).retry};
+      if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
+      if(id==='rejected-shipments-sync'){
+        mini.textContent='Reading latest Rejected Shipments ID from DataSets…';
+        const cursor=await window.DigiExpressPlatform.call('sheets.maxNumericColumn',{spreadsheetId:REJECTED_DATASETS_SPREADSHEET_ID,sheetName:REJECTED_DATASETS_SHEET,column:'id'});
+        const maxId=Number(cursor?.result?.maxId??cursor?.maxId??0)||0;
+        job.inputs={...(job.inputs||{}),previousMaxId:maxId};
+        mini.textContent=`Starting after ID ${maxId.toLocaleString('en-US')}…`;
+      }
       await request('saveJob',{job});await request('runNow',{jobId:id});startFastPoll();await refresh({quiet:true});toast('Agent started');
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
   }));

@@ -1,3 +1,6 @@
+## v346
+- Rejected Shipments: canonical 13-column publish mapping and direct 5-minute DataSets dashboard refresh.
+
 # DigiExpress Remote v338
 
 Config 338 is the Stable Host 13 migration release.
@@ -50,3 +53,8 @@ The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. T
 ## v344
 - Rejected Shipments Synchronizer now stops pagination at the exact maximum `id` already present in DataSets → Rejected Shipments.
 - Authenticator no longer uses an intermediate Remote card; opening Authenticator launches the secure Host-local page directly, with an automatic fallback launcher only if the Remote route is opened explicitly.
+
+## v345 fixes
+- Rejected Shipments job definitions now migrate the authoritative Remote pipeline into stored Stable Jobs state, preventing stale jobs from losing the max-id cursor.
+- Manual Rejected runs read the exact maximum `id` from DataSets before starting and inject it as `previousMaxId`.
+- Authenticator no longer leaves the workspace routed to a Remote wrapper; it opens the secure Host page and immediately returns the workspace to Home.

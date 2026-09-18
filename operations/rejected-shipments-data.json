@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Rejected Shipments incremental synchronizer. Reads the current max value of the exact Google Sheet id column, filters rejected shipments, applies the exact 12-column layout, sets 1000 rows per page, and extracts only newer IDs.",
+  "description": "Rejected Shipments incremental synchronizer. Reads the current max value of the exact Google Sheet id column, applies the rejected filter, verifies all 12 required source columns, sets 1000 rows per page, and extracts only IDs newer than the Sheet watermark.",
   "runLabel": "Sync Now",
   "navigation": {
     "retryCount": 5,
@@ -165,6 +165,258 @@
       "progress": "Waiting for the table to finish reloading…"
     },
     {
+      "action": "ensureTableColumn",
+      "column": "id",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying id column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: id"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "reference id",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying reference_id column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: reference_id"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "user id",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying user_id column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: user_id"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "ready date",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying ready_date column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: ready_date"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "status",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying status column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: status"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "created at",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying created_at column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: created_at"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "service level",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying service_level column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: service_level"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "shipping size id",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying shipping_size_id column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: shipping_size_id"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "destination address",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying destination_address column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: destination_address"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "destination shipping point",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying destination_shipping_point column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: destination_shipping_point"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "parcel ids",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying parcel_ids column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: parcel_ids"
+    },
+    {
+      "action": "ensureTableColumn",
+      "column": "promise date",
+      "options": {
+        "tableSelector": "table",
+        "headerSelector": "table thead th",
+        "buttonText": "Columns",
+        "buttonSelector": "button",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterOpenMs": 250,
+        "afterSelectMs": 180,
+        "loadTimeoutMs": 30000,
+        "pollMs": 300
+      },
+      "attempts": 2,
+      "retryDelayMs": 700,
+      "required": true,
+      "progress": "Verifying promise_date column…",
+      "error": "Rejected Shipments: required column was not visible after column selection: promise_date"
+    },
+    {
       "action": "navigate",
       "url": "https://drop-shipping.digikala.com/shipment/?id=&reference_id=&status=rejected&user_id=0&origin_user_address_id=0&destination_user_address_id=0&origin_shipping_point_address_id=0&destination_shipping_point_address_id=0&ready_date=&from_promise_date=&to_promise_date=&crud_tab_id=&order=1&order_by=id&order_type=DESC&per_page=1000",
       "completeTimeoutMs": 45000,
@@ -279,7 +531,7 @@
       "successMessage": "Shipment opened."
     }
   ],
-  "runtimeContract": "stable-host-13.0.1",
-  "businessLogicOwner": "remote",
+  "runtimeContract": "stable-host-13.0.2",
+  "businessLogicOwner": "remote-v346",
   "closeTabOnError": true
 }

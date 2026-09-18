@@ -1,14 +1,14 @@
-/* Rejected Shipments Remote adapter v342
+/* Rejected Shipments Remote adapter v346
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
 (() => {
   const runtimeListeners=new Set();
   let retryTimer=null,retryAttempt=0,audioCtx=null,alertTimer=null,activeOscillators=[];
-  const CACHE_KEY='dxRejectedDashboardCacheV3';
+  const CACHE_KEY='dxRejectedDashboardCacheV4';
   const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const DATASETS_SHEET='Rejected Shipments';
-  const META_KEY='dxRejectedDashboardMetaV3';
+  const META_KEY='dxRejectedDashboardMetaV4';
   const emit=message=>{for(const fn of [...runtimeListeners]){try{fn(message,{},()=>{})}catch(_){}}};
   const numericId=v=>{const m=String(v??'').replace(/[,\s]/g,'').match(/\d+/);return m?Number(m[0]):0;};
   let resolvedConnectionUrl='';
@@ -49,14 +49,15 @@
   async function cachePayload(payload){await chrome.storage.local.set({[CACHE_KEY]:payload.rows||[],[META_KEY]:{totalRows:payload.totalRows||0,maxId:payload.maxId||0,cacheUpdatedAt:payload.cacheUpdatedAt||new Date().toISOString()}});}
   async function cached(limit=50000){const x=await chrome.storage.local.get([CACHE_KEY,META_KEY]);const rows=Array.isArray(x[CACHE_KEY])?x[CACHE_KEY].slice(-limit):[];const m=x[META_KEY]||{};return rows.length?{ok:true,rows,kpis:null,totalRows:Number(m.totalRows)||rows.length,maxId:Number(m.maxId)||Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:m.cacheUpdatedAt||'',dataSource:'local-cache'}:{ok:false,error:'No dashboard cache available yet.'};}
   async function fresh(limit=50000){
-    let rows=[],totalRows=0,updatedAt='';
-    try{
-      const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit});
-      const d=direct?.result??direct??{};rows=rowsFrom(d);totalRows=Number(d.totalRows)||rows.length;updatedAt=d.updatedAt||new Date().toISOString();
-    }catch(directError){
-      const d=await http({action:'readDataset',sheetName:DATASETS_SHEET,limit});rows=rowsFrom(d);totalRows=Number(d.totalRows)||rows.length;updatedAt=d.updatedAt||new Date().toISOString();
-    }
-    const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:updatedAt,dataSource:'google-sheet'};await cachePayload(payload);return payload;
+    // Dashboard reads only from the authoritative DataSets spreadsheet tab.
+    // Do not fall back to Apps Script here: an expired Web App deployment must never
+    // block dashboard hydration when the Google Sheet itself is readable in Chrome.
+    const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit});
+    const d=direct?.result??direct??{};
+    const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
+    const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:updatedAt,dataSource:'google-sheet-direct'};
+    await cachePayload(payload);
+    return payload;
   }
   function scheduleRetry(error){clearTimeout(retryTimer);retryAttempt++;retryTimer=setTimeout(()=>refresh('retry').catch(()=>{}),60000);emit({type:'dashboardRefreshFailed',error:String(error?.message||error),retryAttempt,nextRetry:new Date(Date.now()+60000).toISOString()});}
   async function refresh(source='manual'){
