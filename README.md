@@ -455,3 +455,11 @@ Flex Capacity post-create verification remains Remote-owned and continues to use
 - Sync IATA uses larger IATA lettering with bidirectional arrows.
 - Processes uses a clearer process-network icon.
 - A ~1 cm right-edge hover sidebar shows only frequently used operation icons, ranked by local usage.
+
+## v335 — Rejected Shipments Agent + DataSets dashboard
+- Rejected shipment extraction/synchronization moved from the dashboard into Agents as `Rejected Shipments Synchronizer`.
+- Synchronizer writes incrementally to DataSets → `Rejected Shipments` and defaults to a 15-minute Agent interval schedule.
+- Rejected dashboard reads DataSets → `Rejected Shipments` every 5 minutes and retries failed fresh reads every minute until successful.
+- Rejection Trend fills missing time buckets with zero values.
+- `Delivery Point` / `دلیوری پوینت` is excluded from Top Destination Points.
+- Bundled Agents Apps Script adds `readDataset`, `rejectedState`, and `appendRejected`; redeploy the Web App after updating Code.gs.

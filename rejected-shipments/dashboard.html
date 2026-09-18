@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rejected Shipments Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css?v=334" />
+  <link rel="stylesheet" href="dashboard.css?v=335" />
 
   <style>
     .destination-month-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
     .destination-month-grid>.chart-card{min-width:0}
     @media(max-width:1200px){.destination-month-grid{grid-template-columns:1fr}}
   </style>
-  <link rel="stylesheet" href="../ui/design-system.css?v=328">
+  <link rel="stylesheet" href="../ui/design-system.css?v=335">
 </head>
 <body>
   <div id="loadingOverlay" class="loading-overlay"><div><span class="loading-spinner"></span><strong>Loading data…</strong></div></div>
@@ -32,14 +32,13 @@
       <header class="topbar">
         <div>
           <h1 id="pageTitle">Rejected Shipments Dashboard</h1>
-          <p id="pageSubtitle">Incremental monitoring, analytics, and threshold alerts</p>
+          <p id="pageSubtitle">Live analytics from DataSets with 5-minute automatic refresh</p>
         </div>
         <div class="top-actions">
           <span id="freshnessIndicator" class="badge neutral" title="Data freshness">Freshness: —</span>
           <button id="themeToggle" class="btn ghost icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
           <span id="syncBadge" class="badge neutral">Ready</span>
           <button id="refreshDataBtn" class="btn ghost">↻ Refresh Dashboard</button>
-          <button id="syncNowBtn" class="btn primary">⟳ Sync Now</button>
         </div>
       </header>
 
@@ -111,7 +110,7 @@
           <article class="card form-card">
             <h3>Alert Rule</h3>
             <p>Trigger a notification and a repeating alert when new rejected shipments reach the configured threshold within the selected rolling window. The sound continues until the user stops it.</p>
-            <label class="switch-row"><span><b>Enable Alerts</b><small>Evaluated after every automatic or manual sync</small></span><input id="alertEnabled" type="checkbox"></label>
+            <label class="switch-row"><span><b>Enable Alerts</b><small>Evaluated when the Rejected Shipments Agent adds new rows</small></span><input id="alertEnabled" type="checkbox"></label>
             <div class="field"><label>Rejected Count Threshold</label><input id="alertThreshold" type="number" min="1" value="10"></div>
             <div class="field"><label>Rolling Window (minutes)</label><input id="alertWindowMinutes" type="number" min="15" value="60"></div>
             <div class="inline"><button id="saveAlertBtn" class="btn primary">Save Alert Rule</button><button id="testAlertBtn" class="btn ghost">Test Alert Sound</button><button id="stopAlertBtn" class="btn danger">Stop Alert Sound</button></div>
@@ -133,31 +132,29 @@
       <section id="section-settings" class="section">
         <div class="two-col">
           <article class="card form-card">
-            <h3>Google Sheet Connection</h3>
-            <div class="field"><label>Google Apps Script Web App URL</label><input id="webAppUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"></div>
-            <div class="field"><label>Shared Secret</label><input id="secretToken" type="password" placeholder="••••••••"></div>
-            <p class="hint">The Apps Script is configured to write to the Rejected Shipments spreadsheet.</p>
+            <h3>Dashboard Data</h3>
+            <div class="callout"><strong>Source:</strong> DataSets → Rejected Shipments</div>
+            <p class="hint">The dashboard refreshes from Google Sheets every 5 minutes. If a refresh fails, DigiExpress retries every minute until a fresh response succeeds. The Google Sheets connection and shipment synchronization are managed in Agents.</p>
           </article>
           <article class="card form-card">
-            <h3>Synchronization</h3>
-            <div class="field"><label>Extraction Schedule</label><input id="intervalMinutes" type="number" value="15" disabled></div><p class="hint">Extraction runs every 15 minutes on official quarter-hour boundaries (:00, :15, :30, :45). Failed extractions retry every minute until successful. Dashboard data refreshes every 5 minutes and also retries until successful.</p>
-            <label class="switch-row"><span><b>Keep Extraction Tab Open</b><small>Useful for troubleshooting</small></span><input id="keepScrapeTabOpen" type="checkbox"></label><div class="field"><label>DK User ID / Label</label><input id="dkUserMatcher" type="text" value="دیجی کالا شاپ" placeholder="e.g. دیجی کالا شاپ or numeric ID"></div><div class="field"><label>DX User ID / Label</label><input id="dxUserMatcher" type="text" value="دیجی اکسپرس" placeholder="e.g. دیجی اکسپرس or numeric ID"></div>
-            <div class="callout">Sync is incremental: the largest stored ID is read first, and only larger IDs are appended.</div>
+            <h3>User Labels</h3>
+            <div class="field"><label>DK User ID / Label</label><input id="dkUserMatcher" type="text" value="دیجی کالا شاپ" placeholder="e.g. دیجی کالا شاپ or numeric ID"></div>
+            <div class="field"><label>DX User ID / Label</label><input id="dxUserMatcher" type="text" value="دیجی اکسپرس" placeholder="e.g. دیجی اکسپرس or numeric ID"></div>
           </article>
         </div>
-        <div class="savebar"><button id="saveSettingsBtn" class="btn primary">Save All Settings</button><span id="settingsSaved"></span></div>
+        <div class="savebar"><button id="saveSettingsBtn" class="btn primary">Save Dashboard Settings</button><span id="settingsSaved"></span></div>
       </section>
 
       <section id="section-about" class="section">
         <div class="status-grid">
-          <article class="card"><span>Last Sync</span><strong id="statusLastSync">—</strong></article>
+          <article class="card"><span>Last Agent Sync</span><strong id="statusLastSync">—</strong></article>
           <article class="card"><span>New Rejections in Last Sync</span><strong id="statusNewCount">—</strong></article>
           <article class="card"><span>Latest Max ID</span><strong id="statusMaxId">—</strong></article>
           <article class="card"><span>Pages Read</span><strong id="statusPages">—</strong></article>
         </div>
         <article class="card error-card"><h3>Last Error</h3><pre id="statusError">No errors</pre></article>
         <article class="card"><h3>Latest Extraction Diagnostics</h3><pre id="statusDiagnostics">No diagnostics recorded yet.</pre></article>
-        <article class="card"><h3>Sync Logic</h3><ol><li>Read max(id) from Google Sheet.</li><li>Open Shipments with status=rejected and ID descending.</li><li>Extract only rows with IDs greater than the watermark.</li><li>Stop when the previous ID watermark is reached and append safely to the Sheet.</li><li>Record sync history and evaluate the alert threshold.</li></ol></article>
+        <article class="card"><h3>Data Flow</h3><ol><li>The Rejected Shipments Synchronizer runs from Agents and appends only new IDs to DataSets → Rejected Shipments.</li><li>This dashboard reads that tab every 5 minutes.</li><li>Failed dashboard reads retry every minute until successful.</li><li>Charts and KPIs update immediately after fresh rows are received.</li></ol></article>
       </section>
     </main>
   </div>
@@ -170,7 +167,7 @@
   <div id="jalaliPicker" class="jalali-picker" hidden></div>
   <div id="chartTooltip" class="chart-tooltip" hidden></div>
   <div id="toast" class="toast"></div>
-  <script src="remote-adapter.js?v=334"></script>
-  <script src="dashboard.js?v=334"></script>
-<script src="../ui/theme-bridge.js?v=334"></script></body>
+  <script src="remote-adapter.js?v=335"></script>
+  <script src="dashboard.js?v=335"></script>
+<script src="../ui/theme-bridge.js?v=335"></script></body>
 </html>

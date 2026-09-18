@@ -3,6 +3,7 @@ const LATEST_HEADERS = ['reference_id','user_id','ready_date','created_at','ship
 let allRows = [], baseFilteredRows = [], filteredRows = [], page = 1, settings = {};
 let chartFilters = {};
 let serverKpis = null;
+let dashboardAutoRefreshTimer = null;
 const chartMeta = new WeakMap();
 const $ = id => document.getElementById(id);
 
@@ -31,14 +32,9 @@ async function init(){
   const releaseOverlay = setTimeout(()=>showLoadingOverlay(false), 800);
   try{
     await loadSettings();
+    startDashboardAutoRefresh();
     refreshStatus().catch(()=>{});
     refreshKpisFast().catch(()=>{});
-
-    if(!String(settings.webAppUrl||'').trim()){
-      setSyncState('Setup required','neutral',false);
-      openSection('settings');
-      return;
-    }
 
     const cached = await withTimeout(
       chrome.runtime.sendMessage({type:'getDashboardCache',limit:50000}).catch(()=>null),
@@ -121,7 +117,6 @@ function bindNavigation(){
 }
 
 function bindActions(){
-  $('syncNowBtn').addEventListener('click', syncNow);
   $('refreshDataBtn').addEventListener('click', async()=>{ setSyncState('Refreshing…','neutral',true); const r=await chrome.runtime.sendMessage({type:'refreshDashboardNow'}); if(r?.ok){ if(Array.isArray(r.rows)) applyDashboardPayload(r,{preserveBadge:false,fromCache:r.dataSource==='local-cache'}); setSyncState('Up to date','good',false); } else { setSyncState('Refresh retry scheduled','neutral',false); toast(r?.error||'Refresh failed; retry scheduled automatically'); } });
   ['filterService','filterDestination','filterUser','filterShippingSize'].forEach(id => $(id).addEventListener('change',()=>applyFilters()));
   $('trendBucket').addEventListener('change',()=>{delete chartFilters.trend;applyFilters();});
@@ -149,26 +144,23 @@ function bindActions(){
 }
 
 async function loadSettings(){
-  settings = await chrome.storage.sync.get({webAppUrl:'',secretToken:'',intervalMinutes:15,alertEnabled:true,alertThreshold:10,alertWindowMinutes:60,keepScrapeTabOpen:false,dkUserMatcher:'دیجی کالا شاپ',dxUserMatcher:'دیجی اکسپرس'});
-  for(const key of ['webAppUrl','secretToken','intervalMinutes','alertThreshold','alertWindowMinutes','dkUserMatcher','dxUserMatcher']) if($(key)) $(key).value=settings[key]??'';
-  $('alertEnabled').checked=Boolean(settings.alertEnabled); $('keepScrapeTabOpen').checked=Boolean(settings.keepScrapeTabOpen);
+  settings = await chrome.storage.sync.get({alertEnabled:true,alertThreshold:10,alertWindowMinutes:60,dkUserMatcher:'دیجی کالا شاپ',dxUserMatcher:'دیجی اکسپرس'});
+  for(const key of ['alertThreshold','alertWindowMinutes','dkUserMatcher','dxUserMatcher']) if($(key)) $(key).value=settings[key]??'';
+  $('alertEnabled').checked=Boolean(settings.alertEnabled);
 }
 
 async function saveAllSettings(){
-  const payload={webAppUrl:$('webAppUrl').value,secretToken:$('secretToken').value,intervalMinutes:15,alertEnabled:$('alertEnabled').checked,alertThreshold:Number($('alertThreshold').value),alertWindowMinutes:Number($('alertWindowMinutes').value),keepScrapeTabOpen:$('keepScrapeTabOpen').checked,dkUserMatcher:$('dkUserMatcher').value,dxUserMatcher:$('dxUserMatcher').value};
+  const payload={alertEnabled:$('alertEnabled').checked,alertThreshold:Number($('alertThreshold').value),alertWindowMinutes:Number($('alertWindowMinutes').value),dkUserMatcher:$('dkUserMatcher').value,dxUserMatcher:$('dxUserMatcher').value};
   const r=await chrome.runtime.sendMessage({type:'saveSettings',settings:payload});
-  if(r?.ok){settings=r.settings;$('settingsSaved').textContent='Saved';toast('Settings saved');await refreshStatus();} else toast(r?.error||'Failed to save settings');
+  if(r?.ok){settings=r.settings;$('settingsSaved').textContent='Saved';toast('Dashboard settings saved');await refreshStatus();} else toast(r?.error||'Failed to save settings');
 }
 
-async function syncNow(){
-  setSyncState('Syncing…','neutral',true);
-  const r=await chrome.runtime.sendMessage({type:'syncNow'});
-  if(r?.ok){
-    toast(`${fmt(r.newCount)} new records added`); setSyncState('Refreshing dashboard…','neutral',true);
-    await refreshStatus();
-    await refreshAfterSync(r);
-    setSyncState('Sync successful','good',false);
-  }else{setSyncState('Sync failed','bad',false);toast(r?.error||'Sync failed');await refreshStatus();}
+function startDashboardAutoRefresh(){
+  if(dashboardAutoRefreshTimer)clearInterval(dashboardAutoRefreshTimer);
+  dashboardAutoRefreshTimer=setInterval(()=>{
+    if(document.visibilityState!=='visible')return;
+    chrome.runtime.sendMessage({type:'refreshDashboardNow'}).catch(()=>{});
+  },5*60*1000);
 }
 
 async function refreshAfterSync(syncResult){
@@ -219,7 +211,7 @@ async function loadDashboardData(preserveBadge=false, limit=50000){
 
 function applyDashboardPayload(r,{preserveBadge=false,fromCache=false}={}){
   if(r.warning && !preserveBadge) toast(r.warning);
-  serverKpis=normalizeKpis(r.kpis)||serverKpis||null; if(!normalizeKpis(r.kpis)) refreshKpisFast().catch(()=>{});
+  serverKpis=normalizeKpis(r.kpis)||null;
   allRows=(r.rows||[]).map(normalizeRow); updateFreshness(r.cacheUpdatedAt||new Date().toISOString());
   const createdValid=allRows.reduce((n,row)=>n+(row._created?1:0),0);
   if(allRows.length && createdValid===0){
@@ -422,7 +414,23 @@ function getDataRows(){const q=$('dataSearch').value.trim().toLowerCase();return
 function renderDataTable(){const rows=getDataRows(),size=Number($('pageSize').value)||50,pages=Math.max(1,Math.ceil(rows.length/size));page=Math.min(page,pages);const slice=rows.slice((page-1)*size,page*size);const t=$('dataTable');t.querySelector('thead').innerHTML='<tr>'+RAW_HEADERS.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>';t.querySelector('tbody').innerHTML=slice.map(r=>`<tr class="shipment-row" data-reference-id="${escAttr(r.reference_id)}" title="Open shipment by Reference ID">`+RAW_HEADERS.map(h=>{const v=displayCellValue(h,r[h]);return `<td title="${esc(v)}">${esc(short(v,45))}</td>`;}).join('')+'</tr>').join('')||`<tr><td colspan="${RAW_HEADERS.length}">No data available.</td></tr>`;$('pageInfo').textContent=`${fmt(page)} / ${fmt(pages)} — ${fmt(rows.length)} records`;}
 
 function timeBucketKey(d,bucket){if(!d||isNaN(d))return'';if(bucket==='quarter'){const q=Math.floor(d.getMinutes()/15)*15;return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(q)}`;}if(bucket==='hour')return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:00`;if(bucket==='month')return`${d.getFullYear()}-${pad(d.getMonth()+1)}`;return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
-function groupTime(rows,dateFn,bucket,valueFn){const m=new Map();for(const r of rows){const d=dateFn(r);if(!d||isNaN(d))continue;const k=timeBucketKey(d,bucket);m.set(k,(m.get(k)||0)+(Number(valueFn(r))||0));}const keys=[...m.keys()].sort();return{labels:keys,values:keys.map(k=>m.get(k))};}
+function groupTime(rows,dateFn,bucket,valueFn){
+  const m=new Map();
+  for(const r of rows){const d=dateFn(r);if(!d||isNaN(d))continue;const k=timeBucketKey(d,bucket);m.set(k,(m.get(k)||0)+(Number(valueFn(r))||0));}
+  const observed=[...m.keys()].sort();if(!observed.length)return{labels:[],values:[]};
+  const start=parseBucketLabel(observed[0],bucket),end=parseBucketLabel(observed[observed.length-1],bucket);
+  if(!start||!end)return{labels:observed,values:observed.map(k=>m.get(k)||0)};
+  const labels=[];let cur=new Date(start.getTime()),guard=0;
+  while(cur<=end&&guard<50000){const k=timeBucketKey(cur,bucket);labels.push(k);cur=nextBucketDate(cur,bucket);guard++;}
+  return{labels,values:labels.map(k=>m.get(k)||0)};
+}
+function parseBucketLabel(label,bucket){
+  const s=String(label||'');
+  let m;if(bucket==='month'){m=s.match(/^(\d{4})-(\d{2})$/);return m?new Date(Number(m[1]),Number(m[2])-1,1,0,0,0,0):null;}
+  if(bucket==='day'){m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),0,0,0,0):null;}
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/);return m?new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),0,0):null;
+}
+function nextBucketDate(date,bucket){const d=new Date(date.getTime());if(bucket==='quarter')d.setMinutes(d.getMinutes()+15);else if(bucket==='hour')d.setHours(d.getHours()+1);else if(bucket==='day')d.setDate(d.getDate()+1);else d.setMonth(d.getMonth()+1);return d;}
 function groupTimeDistinct(rows,dateFn,bucket,distinctFn){
   const buckets=new Map();
   for(const r of rows||[]){
@@ -462,8 +470,8 @@ function groupFirstEverRejections(contextRows,fullRows,bucket){
   return {labels:[...buckets.keys()].sort(),counts:buckets};
 }
 function isDeliveryPointLabel(value){
-  const n=String(value??'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
-  return n==='delivery point'||n==='deliverypoint';
+  const n=String(value??'').replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200d\u200e\u200f]/g,' ').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
+  return n==='delivery point'||n==='deliverypoint'||n==='دلیوری پوینت'||n==='دلیوریپوینت';
 }
 
 function drawTrendDualLine(canvas,labels,totalValues,uniqueValues,opts={}){
@@ -581,7 +589,7 @@ function toJalali(gy,gm,gd){const j=d2j(g2d(Number(gy),Number(gm),Number(gd)));r
 function toGregorian(jy,jm,jd){return d2g(j2d(Number(jy),Number(jm),Number(jd)));}
 function toPersianDigits(v){return String(v).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);}
 
-function setSyncState(text,cls,busy){$('syncBadge').textContent=text;$('syncBadge').className=`badge ${cls}`;$('syncNowBtn').disabled=busy;$('refreshDataBtn').disabled=busy;}
+function setSyncState(text,cls,busy){$('syncBadge').textContent=text;$('syncBadge').className=`badge ${cls}`;if($('syncNowBtn'))$('syncNowBtn').disabled=busy;if($('refreshDataBtn'))$('refreshDataBtn').disabled=busy;}
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600);}
 function tehranDate(y,m,d,h=0,mi=0,s=0){
   // Iran standard time is UTC+03:30. Shipment Created At values are Tehran wall-clock
