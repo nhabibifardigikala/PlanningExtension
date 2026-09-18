@@ -1,7 +1,8 @@
 (() => {
-  const VERSION = 309;
+  const VERSION = 330;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
+  const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
   const state = { centers: [], flexCenters: [], allCenters: [], source: 'dk', busy: false };
   const $ = id => document.getElementById(id);
@@ -40,6 +41,13 @@
       d++;if(d>jalaliMonthDays(y,m)){d=1;m++;if(m>12){m=1;y++;}}
     }
     return out;
+  }
+  function jalaliWeekdayLabel(value){
+    const key=normalizeJalaliDateKey(value); if(!key)return '';
+    try{
+      const g=j2g(Number(key.slice(0,4)),Number(key.slice(4,6)),Number(key.slice(6,8)));
+      return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(Date.UTC(g.gy,g.gm-1,g.gd)).getUTCDay()]||'';
+    }catch(_){return '';}
   }
   function setupJalaliPicker(inputId){
     const input=$(inputId),wrap=input?.closest('.jalali-picker-wrap'),toggle=wrap?.querySelector(`[data-picker-for="${inputId}"]`),pop=wrap?.querySelector(`[data-picker="${inputId}"]`); if(!input||!toggle||!pop)return;
@@ -115,6 +123,55 @@
       const tqx = encodeURIComponent(`out:json;responseHandler:${cb}`);
       script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&headers=3&tq=${tq}&tqx=${tqx}`;
       script.onerror = () => cleanup(new Error('Could not load Distribution Centers from Google Sheets.'));
+      document.head.appendChild(script);
+    });
+  }
+
+  function loadDkCapacityFromGoogleSheet(input) {
+    const dcId = String(input?.dcId ?? '').trim();
+    const numericId = Number(dcId);
+    if (!dcId || !Number.isFinite(numericId)) return Promise.reject(new Error('Use G-Sheet requires a numeric Distribution Center ID.'));
+    const from = normalizeJalaliDateKey(input?.fromDate), to = normalizeJalaliDateKey(input?.toDate);
+    return new Promise((resolve, reject) => {
+      const cb = `__dxCapSheet_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+      const script = document.createElement('script');
+      const timer = setTimeout(() => cleanup(new Error('Google Sheet capacity request timed out.')), 30000);
+      const cleanup = err => {
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (_) { window[cb] = undefined; }
+        script.remove();
+        if (err) reject(err);
+      };
+      window[cb] = data => {
+        try {
+          if (data?.status === 'error') throw new Error(data?.errors?.[0]?.detailed_message || data?.errors?.[0]?.message || 'Google Sheet returned an error.');
+          const rows = (data?.table?.rows || []).map(r => {
+            const c = r.c || [];
+            return [
+              String(c[0]?.v ?? '').replace(/\.0$/,''),
+              String(c[1]?.v ?? '').trim(),
+              String(c[2]?.f ?? c[2]?.v ?? '').trim(),
+              String(c[3]?.v ?? '').trim(),
+              c[4]?.v ?? '',
+              c[5]?.v ?? ''
+            ];
+          }).filter(row => {
+            const key = normalizeJalaliDateKey(row[2]);
+            return key && (!from || Number(key) >= Number(from)) && (!to || Number(key) <= Number(to));
+          });
+          cleanup();
+          resolve({
+            headers:['distribution center id','distribution center','date','time scope','capacity','capacity reserved'],
+            rows,
+            source:'gsheet',
+            sheet:CAPACITY_SHEET_NAME
+          });
+        } catch (e) { cleanup(e); }
+      };
+      const tq = encodeURIComponent(`select A,B,C,D,E,F where A = ${numericId}`);
+      const tqx = encodeURIComponent(`out:json;responseHandler:${cb}`);
+      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(CAPACITY_SHEET_NAME)}&headers=1&tq=${tq}&tqx=${tqx}`;
+      script.onerror = () => cleanup(new Error('Could not load DK capacity data from Google Sheets. Check access to DataSets → DC Capacity (LG).'));
       document.head.appendChild(script);
     });
   }
@@ -195,6 +252,7 @@
     $('dkCentersField').classList.toggle('hidden', state.source !== 'dk');
     $('flexCenterField').classList.toggle('hidden', state.source !== 'flex');
     $('aggregateWrap').classList.toggle('hidden', state.source !== 'dk');
+    $('gSheetWrap')?.classList.toggle('hidden', state.source !== 'dk');
   }
 
   function headerIndex(headers, aliases) {
@@ -236,9 +294,16 @@
   function aggregateRows(headers, rows) {
     const di=headerIndex(headers,aliases.date), ci=headerIndex(headers,aliases.capacity), ri=headerIndex(headers,aliases.reserved);
     const map=new Map();
-    for(const row of rows){const date=di>=0?String(row[di]??'').trim():'';const key=date||'Unknown date';if(!map.has(key))map.set(key,{date:key,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(key);const c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}}
+    for(const row of rows){
+      const key=di>=0?normalizeJalaliDateKey(row[di]):'';
+      if(!key) continue;
+      const date=formatJalaliDateKey(key);
+      if(!map.has(key))map.set(key,{key,date,capacity:0,reserved:0,hasC:false,hasR:false});
+      const o=map.get(key),c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;
+      if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}
+    }
     const outHeaders=['Date','Capacity','Capacity Reserved'];
-    const outRows=[...map.values()].map(o=>[o.date,o.hasC?o.capacity:'',o.hasR?o.reserved:'']);
+    const outRows=[...map.values()].sort((a,b)=>Number(a.key)-Number(b.key)).map(o=>[o.date,o.hasC?o.capacity:'',o.hasR?o.reserved:'']);
     return {headers:outHeaders,rows:outRows};
   }
 
@@ -290,13 +355,12 @@
         partitions.push({id:'',label,rows:rr,groups:groupRows(headers,rr)});
       }
     }
-    return {source,aggregate,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:input.flexCenters||(input.flexCenter?[input.flexCenter]:[]),flexCenter:input.flexCenter||null,totalRows:rows.length};
+    return {source,aggregate,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:input.flexCenters||(input.flexCenter?[input.flexCenter]:[]),flexCenter:input.flexCenter||null,totalRows:rows.length,dataSource:input.useGSheet&&source==='dk'?'gsheet':'system'};
   }
 
   function metricData(model, group) {
     const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=model.source==='flex'?headerIndex(h,['shipping reserved capacity','shipping_reserved_capacity']):headerIndex(h,aliases.reserved);
-    const selectedDays=jalaliDateRange(model.fromDate,model.toDate);
-    const days=selectedDays.length||(di>=0?new Set(group.rows.map(r=>String(r[di]??'').trim()).filter(Boolean)).size:group.rows.length);
+    const days=di>=0?new Set(group.rows.map(r=>normalizeJalaliDateKey(r[di])).filter(Boolean)).size:group.rows.length;
     const c=ci>=0?summary(group.rows.map(r=>num(r[ci]))):summary([]);
     const r=ri>=0?summary(group.rows.map(row=>num(row[ri]))):summary([]);
     return {days,capacity:c,reserved:r};
@@ -304,22 +368,18 @@
 
   function seriesData(model, group) {
     const h=model.headers, di=headerIndex(h,aliases.date), ci=headerIndex(h,aliases.capacity), ri=model.source==='flex'?headerIndex(h,['shipping reserved capacity','shipping_reserved_capacity']):headerIndex(h,aliases.reserved), map=new Map();
-    group.rows.forEach((row,index)=>{const date=di>=0?String(row[di]??'').trim():String(index+1);if(!date)return;if(!map.has(date))map.set(date,{date,capacity:0,reserved:0,hasC:false,hasR:false});const o=map.get(date),c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}});
-    const actual=[...map.values()]
-      .map(o=>({date:o.date,capacity:o.hasC?o.capacity:null,reserved:o.hasR?o.reserved:null}))
-      .sort((a,b)=>{
-        const ak=Number(latinDigits(a.date).replace(/\D/g,'')),bk=Number(latinDigits(b.date).replace(/\D/g,''));
-        if(Number.isFinite(ak)&&Number.isFinite(bk)&&ak!==bk)return ak-bk;
-        return String(a.date).localeCompare(String(b.date),'fa');
-      });
-    const fullRange=jalaliDateRange(model.fromDate,model.toDate);
-    if(!fullRange.length)return actual;
-    const byKey=new Map(actual.map(x=>[normalizeJalaliDateKey(x.date),x]));
-    return fullRange.map(date=>{
-      const hit=byKey.get(normalizeJalaliDateKey(date));
-      if(hit)return {...hit,date};
-      return {date,capacity:0,reserved:0};
+    group.rows.forEach(row=>{
+      const key=di>=0?normalizeJalaliDateKey(row[di]):'';
+      // Chart only dates that are physically present in the extracted dataset.
+      // Invalid/blank dates and requested-range gaps are never synthesized.
+      if(!key)return;
+      if(!map.has(key))map.set(key,{key,date:formatJalaliDateKey(key),capacity:0,reserved:0,hasC:false,hasR:false});
+      const o=map.get(key),c=ci>=0?num(row[ci]):null,r=ri>=0?num(row[ri]):null;
+      if(c!=null){o.capacity+=c;o.hasC=true}if(r!=null){o.reserved+=r;o.hasR=true}
     });
+    return [...map.values()]
+      .sort((a,b)=>Number(a.key)-Number(b.key))
+      .map(o=>({date:o.date,capacity:o.hasC?o.capacity:null,reserved:o.hasR?o.reserved:null}));
   }
 
 
@@ -337,7 +397,7 @@
     let grid='';for(let k=0;k<5;k++){const yy=p.t+k*(H-p.t-p.b)/4,v=max-k*(max-min)/4;grid+=`<line class="grid-line" x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}"/><text class="axis-text" x="${p.l-7}" y="${yy+3}" text-anchor="end">${Math.round(v)}</text>`}
     const paths=series.map(s=>{let d='';let started=false;data.forEach((o,i)=>{const v=o[s.key];if(v==null)return;d+=`${started?'L':'M'} ${x(i)} ${y(v)} `;started=true});return d?`<path class="line-${s.cls}" d="${d.trim()}"/>`:''}).join('');
     const pts=series.map(s=>data.map((o,i)=>o[s.key]==null?'':`<circle class="point-${s.cls}" cx="${x(i)}" cy="${y(o[s.key])}" r="3"><title>${esc(s.label)} • ${esc(o.date)}: ${fmt(o[s.key])}</title></circle>`).join('')).join('');
-    const labelY=H-12;const labels=data.map((o,i)=>`<text class="axis-text axis-date" x="${x(i)}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${x(i)} ${labelY})">${esc(o.date)}</text>`).join('');
+    const labelY=H-12;const labels=data.map((o,i)=>{const day=jalaliWeekdayLabel(o.date),xx=x(i);return `<text class="axis-text axis-date" x="${xx-4}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${xx-4} ${labelY})">${esc(o.date)}</text>${day?`<text class="axis-text axis-weekday" x="${xx+7}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${xx+7} ${labelY})">${esc(day)}</text>`:''}`}).join('');
     const legend=`<div class="legend">${series.map(s=>`<span><i class="${s.cls}"></i>${esc(s.label)}</span>`).join('')}</div>`;
     return `${legend}<div class="chart"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity trend by date">${grid}${paths}${pts}${labels}</svg></div>`;
   }
@@ -345,7 +405,8 @@
   function renderModel(model, dashboard=false) {
     const host=$('result'); if(!host)return;
     const rows=model.partitions.reduce((n,p)=>n+p.rows.length,0);
-    host.innerHTML=`<div class="result-toolbar"><div><strong>${model.source==='flex'?'Flex':'DK'} Capacity Report${model.aggregate?' • Aggregated':''}</strong><small>${esc(model.fromDate)} → ${esc(model.toDate)} • ${rows} row${rows===1?'':'s'}</small></div><div class="actions"><button class="secondary" id="downloadExcel">Download Excel</button>${dashboard?'':`<button class="secondary" id="openDashboard">Open dashboard</button>`}</div></div><div id="reportCards"></div>`;
+    const sourceBadge=model.source==='dk'?`<span class="result-source-badge ${model.dataSource==='gsheet'?'gsheet':''}">${model.dataSource==='gsheet'?'Google Sheet':'LG System'}</span>`:'';
+    host.innerHTML=`<div class="result-toolbar"><div><strong>${model.source==='flex'?'Flex':'DK'} Capacity Report${model.aggregate?' • Aggregated':''}${sourceBadge}</strong><small>${esc(model.fromDate)} → ${esc(model.toDate)} • ${rows} row${rows===1?'':'s'}</small></div><div class="actions"><button class="secondary" id="downloadExcel">Download Excel</button>${dashboard?'':`<button class="secondary" id="openDashboard">Open dashboard</button>`}</div></div><div id="reportCards"></div>`;
     host.classList.remove('hidden');const cards=$('reportCards');
     for(const part of model.partitions){
       const sec=document.createElement('section');sec.className=`report-card${model.source==='flex'?' flex-report':''}`;
@@ -387,15 +448,15 @@
       if(input.aggregateCapacities){
         const agg=aggregateRows(headers,allRows);
         const partitions=[{id:'aggregate',label:'Aggregated capacities',rows:agg.rows,groups:groupRows(agg.headers,agg.rows)}];
-        return {source:'dk',aggregate:true,headers:agg.headers,rows:agg.rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:agg.rows.length};
+        return {source:'dk',aggregate:true,headers:agg.headers,rows:agg.rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:agg.rows.length,dataSource:input.useGSheet?'gsheet':'system'};
       }
       const partitions=models.flatMap(m=>m.partitions||[]);
-      return {source:'dk',aggregate:false,headers,rows:allRows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:allRows.length};
+      return {source:'dk',aggregate:false,headers,rows:allRows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:allRows.length,dataSource:input.useGSheet?'gsheet':'system'};
     }
     const headers=['Coverage Polygon','Time Slot','Date','Shipping Reserved Capacity'];
     const rows=models.flatMap(m=>m.rows||[]);
     const partitions=models.flatMap(m=>m.partitions||[]);
-    return {source:'flex',aggregate:false,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:[],flexCenters:input.flexCenters||[],totalRows:rows.length};
+    return {source:'flex',aggregate:false,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:[],flexCenters:input.flexCenters||[],totalRows:rows.length,dataSource:'system'};
   }
 
   async function run() {
@@ -415,20 +476,22 @@
       try{const list=await loadCenters();const byId=new Map(list.map(x=>[String(x.id),x.name]));state.centers=state.centers.map(x=>({...x,name:byId.get(String(x.id))||x.name}));renderChips();}catch(_){}
     }
     const selected=state.source==='dk'?state.centers:state.flexCenters;
-    const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};
+    const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,useGSheet:state.source==='dk'&&!!$('useGSheet')?.checked,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};
     const models=[];
     try{
       for(let i=0;i<selected.length;i++){
         const center=selected[i];
-        setStatus(`Running ${state.source==='dk'?'DK':'Flex'} report ${i+1}/${selected.length}: ${center.name}…`);
+        const usingSheet=state.source==='dk'&&baseInput.useGSheet;
+        setStatus(`${usingSheet?'Loading Google Sheet':'Running '+(state.source==='dk'?'DK':'Flex')+' report'} ${i+1}/${selected.length}: ${center.name}…`);
         const input=state.source==='dk'
           ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:''}
           : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexDcId:center.id,flexDcName:center.name};
-        const result=await requestHostOperation(input,240000);
+        const result=usingSheet?await loadDkCapacityFromGoogleSheet(input):await requestHostOperation(input,240000);
         models.push(buildModel(result,input));
       }
       const model=combineModels(models,baseInput);
-      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed. ${model.totalRows} rows processed across ${selected.length} Distribution Center${selected.length===1?'':'s'}.`,'ok');
+      if(!model.totalRows) throw new Error(baseInput.useGSheet?'No matching capacity rows were found in DataSets → DC Capacity (LG) for the selected Distribution Center/date range.':'No capacity rows were returned for the selected Distribution Center/date range.');
+      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed from ${model.dataSource==='gsheet'?'Google Sheet':'system'}. ${model.totalRows} rows processed across ${selected.length} Distribution Center${selected.length===1?'':'s'}.`,'ok');
     } catch(e){setStatus(e.message||String(e),'error')}
     finally{setBusy(false)}
   }

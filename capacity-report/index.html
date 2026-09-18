@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Capacity Report</title>
-  <link rel="stylesheet" href="capacity-report.css?v=309">
-  <link rel="stylesheet" href="../ui/design-system.css?v=328">
+  <link rel="stylesheet" href="capacity-report.css?v=330">
+  <link rel="stylesheet" href="../ui/design-system.css?v=330">
 </head>
 <body>
   <main class="app" id="app">
@@ -62,6 +62,14 @@
           </div>
         </div>
 
+        <label class="aggregate-option source-option" id="gSheetWrap">
+          <input id="useGSheet" type="checkbox">
+          <span>
+            <strong>Use G-Sheet</strong>
+            <small>Load DK capacity data from DataSets → DC Capacity (LG) instead of the LG Capacity page.</small>
+          </span>
+        </label>
+
         <label class="aggregate-option" id="aggregateWrap">
           <input id="aggregateCapacities" type="checkbox">
           <span>
@@ -80,6 +88,6 @@
 
     <section id="result" class="result hidden" aria-live="polite"></section>
   </main>
-  <script src="capacity-report.js?v=309"></script>
-<script src="../ui/theme-bridge.js?v=328"></script></body>
+  <script src="capacity-report.js?v=330"></script>
+<script src="../ui/theme-bridge.js?v=330"></script></body>
 </html>

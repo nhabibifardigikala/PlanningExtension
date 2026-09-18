@@ -1,0 +1,9 @@
+Capacity Report v330
+- DK: added Use G-Sheet option.
+- When enabled, DK capacity is loaded from DataSets / DC Capacity (LG) instead of LG system.
+- Google Sheet columns used: distribution center id, distribution center, date, time scope, capacity, capacity reserved.
+- Google Sheet rows are filtered by selected Distribution Center ID and requested Jalali date range.
+- Charts only render valid dates that physically exist in returned rows; missing requested dates are never synthesized.
+- Aggregate mode also excludes blank/invalid dates.
+- Report shows whether DK source was LG System or Google Sheet.
+- No Host update required.

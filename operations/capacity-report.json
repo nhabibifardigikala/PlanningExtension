@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Remote-owned Capacity Report. DK searches each selected Distribution Center by its exact numeric ID, runs in a background tab with 1000-row paging, and can aggregate across centers/time scopes. Flex supports multiple centers and can select Hub Coverage Polygons either by visible center name or by the numeric Flex option ID shown in brackets.",
+  "description": "Capacity Report. DK normally reads from LG; the Remote UI can alternatively load DK rows from DataSets → DC Capacity (LG) without running the LG workflow. Flex continues to use the Flex system workflow.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
