@@ -1,0 +1,11 @@
+Capacity Report v331
+- Chart Y axis always starts at zero.
+- Min / Average / Max labels and values are larger.
+- Visible "Capacity Reserved" label is now "Reserved".
+- Default Jalali date range: first day of current Persian month through today.
+- Distribution Center lookup reads DataSets -> Distribution Centers (LG).
+- Flex gets its own Use G-Sheet option using DataSets -> DC Capacity (Flex).
+- Flex G-Sheet normal mode searches Coverage Polygons.
+- Flex Report by Hub mode searches Hubs and sums all capacity/reserved rows for the hub across coverage polygons/time slots by date.
+- Charts only include dates physically present in returned data.
+- No Host update is required.

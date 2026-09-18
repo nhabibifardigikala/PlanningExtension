@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Capacity Report. DK normally reads from LG; the Remote UI can alternatively load DK rows from DataSets → DC Capacity (LG) without running the LG workflow. Flex continues to use the Flex system workflow.",
+  "description": "Capacity Report. DK and Flex can read from their operational systems or directly from DataSets Google Sheet. Distribution Center lookup is sourced from DataSets → Distribution Centers (LG). Flex Google Sheet source supports Coverage Polygon and Report by Hub modes.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
@@ -433,7 +433,7 @@
   "successMessage": "Capacity report data extracted.",
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
-  "remoteBehaviorVersion": 9,
+  "remoteBehaviorVersion": 10,
   "output": {
     "type": "internal"
   }
