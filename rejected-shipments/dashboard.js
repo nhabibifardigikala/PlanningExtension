@@ -656,6 +656,9 @@ function initEnhancements(){
   const theme=$('themeToggle');if(theme){theme.onclick=syncThemeFromBridge;theme.title='Theme is controlled by DigiExpress Appearance';theme.setAttribute('aria-label','Sync theme with DigiExpress');}
   window.addEventListener('digiexpress:themechange',e=>applyTheme(e.detail?.theme||document.documentElement.dataset.theme||'light'));
   window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='DIGIEXPRESS_THEME')applyTheme(d.theme);if(d.type==='DIGIEXPRESS_REMOTE_THEME_RESULT'&&d.ok!==false)applyTheme(d.theme);});
+  // Rejected Shipments can run as a standalone Remote tab. Re-check the Host theme
+  // periodically so Appearance changes propagate even while this tab stays open.
+  setInterval(()=>{ if(!document.hidden) syncThemeFromBridge(); },1500);
   const clr=$('clearAlertHistoryBtn');if(clr)clr.onclick=async()=>{await chrome.runtime.sendMessage({type:'clearAlertHistory'});renderAlertHistory([]);toast('Alert history cleared');};
   const close=$('closeDrawerBtn'),back=$('drilldownBackdrop');if(close)close.onclick=closeDrilldown;if(back)back.onclick=closeDrilldown;
   ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart'].forEach(id=>{const c=$(id);if(c)c.addEventListener('dblclick',e=>handleChartDoubleClick(c,e));});

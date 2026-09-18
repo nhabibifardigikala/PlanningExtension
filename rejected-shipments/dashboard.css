@@ -92,3 +92,13 @@ html[data-theme="dark"] .smart-summary-card{background:linear-gradient(135deg,va
 @media (max-width:720px){
   .paired-analytics-grid{grid-template-columns:1fr!important;}
 }
+
+/* v336: make Light/Dark visibly follow the global DigiExpress theme. */
+html:not([data-theme="dark"]) .sidebar{background:#f8fafc;color:#162033;border-right:1px solid #e2e8f0}
+html:not([data-theme="dark"]) .nav-item{color:#526075}
+html:not([data-theme="dark"]) .nav-item:hover,html:not([data-theme="dark"]) .nav-item.active{background:#e8eef6;color:#111827}
+html:not([data-theme="dark"]) .side-status{border-top-color:#e2e8f0}
+html:not([data-theme="dark"]) .side-status small{color:#748096}
+html[data-theme="dark"] .sidebar{background:#0b1220;color:#fff;border-right-color:#263244}
+html[data-theme="dark"] .nav-item{color:#cbd5e1}
+html[data-theme="dark"] .nav-item:hover,html[data-theme="dark"] .nav-item.active{background:#1f2937;color:#fff}

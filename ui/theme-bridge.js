@@ -40,7 +40,7 @@
   const request=()=>{requestParent();requestHostTheme();};
 
   const qp=new URLSearchParams(location.search);
-  apply(qp.get('theme') || (matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'));
+  apply(qp.get('theme') || 'light');
 
   addEventListener('message',event=>{
     const data=event.data||{};
