@@ -58,3 +58,8 @@ The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. T
 - Rejected Shipments job definitions now migrate the authoritative Remote pipeline into stored Stable Jobs state, preventing stale jobs from losing the max-id cursor.
 - Manual Rejected runs read the exact maximum `id` from DataSets before starting and inject it as `previousMaxId`.
 - Authenticator no longer leaves the workspace routed to a Remote wrapper; it opens the secure Host page and immediately returns the workspace to Home.
+
+
+## v347
+- Prevented the hidden Authenticator iframe from loading on DigiExpress startup.
+- The Remote Authenticator fallback no longer opens the secure local page automatically.
