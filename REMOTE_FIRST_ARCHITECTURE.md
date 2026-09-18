@@ -1,40 +1,24 @@
-# Remote-first architecture (v202)
+# DigiExpress Remote-first architecture — v338 / Stable Host 13
 
-Remote owns all business behavior. Host 12.0.0 is treated as a security-only runtime.
+v338 completes the Remote-first migration. Host 13.0.0 is intended to remain installed for normal future releases.
 
-## Remote-owned
-- app catalog and operation definitions
-- URLs/selectors and workflow ordering
-- retries, waits, assertions, verification
-- matching/normalization pipelines such as `stripTrailingBrackets`
-- Excel input mapping and output reports
-- live-report definitions
-- feature pages and UI (Planner, Note, Pomodoro, Work Healthy, etc.)
-- theme, labels, icons and settings
+## What moved to Remote
+- Full application shell HTML/CSS/JavaScript (`ui/app.html`, `ui/app.js`).
+- Settings, theme, Favorites, navigation and URL state.
+- Agents UI and Agent definitions.
+- Agent schedules, retries and generic publishing pipelines.
+- Rejected Shipments dashboard refresh behavior.
+- Operation cards, forms, validation, reports, charts and embedded modules.
 
-## Host-owned fixed capabilities
-- access/credential security boundary
-- tabs/scripting/download/storage/notifications permissions
-- generic declarative workflow interpreter
-- generic DOM primitives and normalization transforms
-- generic XLSX export and browser bridges
-- remote caching/rollback and compatibility checks
+## Stable Host bridge
+Remote pages use `ui/platform-client.js`. The Host injects `platform_bridge.js` only on the trusted PlanningExtension origin.
 
-## Update rule
-For normal product changes, publish Remote only. Keep `minimumRuntimeVersion` at `12.0.0`. A Host release is justified only by a security/browser-runtime issue or a truly new privileged primitive that cannot be represented by the existing capability contract.
+The bridge exposes generic capabilities, not operation-specific APIs.
 
+## Stable Jobs
+Agents are persisted and scheduled by the generic Host scheduler, but their definitions are supplied by Remote. This means adding/removing an Agent or changing its schedule/output pipeline is a Remote-only release.
 
-## Permanent release rule (Config 259+)
+## Minimum Host
+`13.0.0`.
 
-The deployed Host baseline is 12.2.9 and must not be incremented for normal feature releases. New operations, UI, workflows, selectors, data sources, transformations, caches, labels, reports, and business rules are Remote-only. A Host update is permitted only when the requested behavior cannot be implemented with the existing Remote/web capabilities or the existing generic Host contract, or when required for a security or Chrome/Manifest platform fix.
-
-
-## Host 12.3.1 justified exception
-Config 269 requires a Host update only for generic platform behavior that cannot be delivered by Remote HTML/JSON alone: seven-day credential freshness with automatic validation on open, reusable raw-value support in multi-autocomplete controls, and local Home/Back view history. Capacity selectors, submission rules, icons, and UI remain Remote-owned.
-
-## v327 architecture boundary
-Remote owns branding, categories, icons, design-system tokens, UI markup, forms, validation metadata, operation workflows, selectors, retries, schedules, output contracts, feature flags and human-facing messages.
-
-Host owns only browser primitives and security-sensitive capabilities: Chrome tabs, scripting, storage, downloads, permissions, credential/access enforcement, generic workflow execution and generic diagnostics capture.
-
-`minEngineVersion` is a compatibility contract. The v327 Remote also ships a visible compatibility gate by default; Host 12.7.1+ removes the gate only after validating its version. This means even an older Host that does not understand the new gate cannot expose an incompatible UI.
+Future Remote configs should keep this minimum unchanged unless a new privileged browser primitive, Chrome/Manifest change, or security correction is truly required.

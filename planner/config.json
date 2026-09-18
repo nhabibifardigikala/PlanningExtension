@@ -15,7 +15,7 @@
     }
   },
   "holidays": {
-    "url": "holidays.json?v=1"
+    "url": "holidays.json?v=338"
   },
   "defaults": {
     "calendar": "jalali",

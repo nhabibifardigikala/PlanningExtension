@@ -28,7 +28,14 @@
     'rejected-shipments-sync':{
       id:'rejected-shipments-sync',label:'Rejected Shipments Synchronizer',operationId:'rejected-shipments-sync',sheetName:'Rejected Shipments',output:{type:'internal'},enabled:true,
       schedule:{type:'interval',time:'12:00',intervalHours:1,intervalMinutes:15},preOperations:[],
-      inputs:{keepScrapeTabOpen:false}
+      retry:{attempts:3,delayMs:60000,backoff:1},
+      inputs:{keepScrapeTabOpen:false},
+      pipeline:{
+        beforeRequest:{action:'rejectedState',sheetName:'{{job.sheetName}}'},
+        cursorResponsePath:'maxId',cursorInput:'previousMaxId',
+        recordDefaults:{extracted_at:'{{now}}'},
+        afterRequest:{action:'appendRejected',sheetName:'{{job.sheetName}}',rows:'{{records}}'}
+      }
     }
   };
   const $=id=>document.getElementById(id);
@@ -43,19 +50,13 @@
   let currentState=null,activeJobId='distribution-centers',pollTimer=null,migrationDone=false;
 
   function request(action,payload={}){
-    return new Promise((resolve,reject)=>{
-      const requestId=`dsu-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const timer=setTimeout(()=>{window.removeEventListener('message',onMessage);reject(new Error('Host did not respond. Digiexpress Host 12.7.4 or newer is required.'));},20000);
-      function onMessage(e){
-        if(e.source!==window||e.origin!==ORIGIN)return;
-        const d=e.data||{};
-        if(d.type!=='DIGIEXPRESS_DATASET_UPDATE_RESULT'||d.requestId!==requestId)return;
-        clearTimeout(timer);window.removeEventListener('message',onMessage);
-        d.ok?resolve(d.result||{}):reject(new Error(d.error||'Request failed.'));
-      }
-      window.addEventListener('message',onMessage);
-      window.postMessage({type:'DIGIEXPRESS_DATASET_UPDATE_REQUEST',requestId,action,payload},ORIGIN);
-    });
+    const map={getState:'jobs.getState',saveJob:'jobs.saveJob',runNow:'jobs.runNow',cancel:'jobs.cancel',getHistory:'jobs.getHistory'};
+    const method=map[action];
+    if(!method)return Promise.reject(new Error('Unsupported Agents action.'));
+    if(window.DigiExpressPlatform?.call){
+      return window.DigiExpressPlatform.call(method,payload).then(r=>r?.result??r);
+    }
+    return Promise.reject(new Error('Stable Host 13.0.0 platform bridge is not available. Reload the extension.'));
   }
 
   const fmt=v=>v?new Date(v).toLocaleString():'—';

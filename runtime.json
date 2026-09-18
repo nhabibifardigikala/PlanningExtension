@@ -1,5 +1,5 @@
 {
-  "contractVersion": 5,
+  "contractVersion": 13,
   "loading": {
     "title": "Loading Digiexpress…",
     "message": "Loading the latest application configuration."
@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Config 328. Unified theme state across shell, Remote workspaces, Agents, and Host-local Authenticator/Voice Typing.",
-  "configVersion": 328,
-  "minimumRuntimeVersion": "12.7.2",
-  "minimumRuntime": "12.7.2",
+  "notes": "Config 338. Stable Host 13 remote-shell architecture: UI, Agents, schedules, workflows and product behavior are Remote-owned.",
+  "configVersion": 338,
+  "minimumRuntimeVersion": "13.0.0",
+  "minimumRuntime": "13.0.0",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "12.7.2",
-  "runtimeUpdatePolicy": "security-only",
-  "version": "328",
-  "platformContract": 12,
-  "remoteVersion": 328,
-  "executionModel": "remote-first-declarative",
-  "runtimeVersion": "12.7.2"
+  "recommendedRuntime": "13.0.0",
+  "runtimeUpdatePolicy": "security-platform-only",
+  "version": "338",
+  "platformContract": 13,
+  "remoteVersion": 338,
+  "executionModel": "remote-shell-stable-host",
+  "runtimeVersion": "13.0.0"
 }

@@ -1,19 +1,12 @@
-# Remote Application Contract for Stable Host 11
+# Platform Contract 13
 
-All product and operation behavior is remote-first. Use `runtime.json`, `app.json`, `settings.json`, `theme.json`, `messages.json`, `ui/*`, `operations/*`, `data/*`, `templates/*`, and `icons/*` for changes.
+Remote is the product. Host is the security/browser runtime.
 
-## Never require a Host release for
-- adding/removing operations
-- forms and validation
-- URLs/selectors/waits/retries
-- tab reuse/background behavior
-- pause/resume/cancel behavior
-- batch iteration and repeat-until conditions
-- success/error interpretation
-- data filtering/grouping/join/aggregation
-- Excel input/output mapping and styling
-- dashboards/charts/KPIs
-- access aliases and user-facing text
-- theme, icon, layout or labels
+### Remote-owned
+UI, JavaScript, theme, cards, settings, Agents, schedules, pipelines, selectors, URLs, retries, validation, reports, dashboards, charts, icons, messages, data sources and transformations.
 
-Stable Host 11 provides a generic declarative workflow runtime. New workflows should prefer `engineMode: "universal"` and the universal node set documented in `UNIVERSAL_DSL.md`.
+### Host-owned
+Credentials, access enforcement, Chrome permissions, generic browser automation, generic HTTP/XLSX/storage/alarms, secure Authenticator and diagnostics.
+
+### Update policy
+Normal product work is Remote-only. Host 13 is updated only for security, Chrome/Manifest compatibility, or a missing privileged primitive.
