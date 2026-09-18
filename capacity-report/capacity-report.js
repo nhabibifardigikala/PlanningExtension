@@ -514,7 +514,7 @@
 
   function renderChart(data, source) {
     if(!data.length)return '<div class="empty-state">No chart data.</div>';
-    let series=[{key:'capacity',cls:'capacity',label:'Capacity'},{key:'reserved',cls:'reserved',label:'Reserved'}];
+    let series=source==='flex'?[{key:'capacity',cls:'capacity',label:'Capacity'}]:[{key:'capacity',cls:'capacity',label:'Capacity'},{key:'reserved',cls:'reserved',label:'Reserved'}];
     series=series.filter(s=>data.some(d=>d[s.key]!=null));
     const values=[];for(const d of data)for(const s of series)if(d[s.key]!=null)values.push(d[s.key]);if(!values.length)return '<div class="empty-state">No numeric capacity values.</div>';
     const min=0;let max=Math.max(0,...values);if(max<=0)max=1;
