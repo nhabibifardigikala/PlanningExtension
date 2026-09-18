@@ -1,9 +1,9 @@
 {
-  "configVersion": 331,
+  "configVersion": 334,
   "minEngineVersion": "12.7.3",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 330",
+    "subtitle": "Planning Suite · Config 334",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=244",
     "configVersion": 331
   },
@@ -235,11 +235,11 @@
     {
       "id": "rejected-shipments",
       "title": "Rejected Shipments",
-      "subtitle": "Rejected Shipments Control Center v4.9",
+      "subtitle": "Rejected Shipments Control Center v4.9 · Global theme sync",
       "accessHeaders": [
         "Rejected Shipments"
       ],
-      "config": "operations/rejected-shipments.json?v=329",
+      "config": "operations/rejected-shipments.json?v=334",
       "iconSvgPath": "M8 7h32v5H8V7Zm0 11h20v5H8v-5Zm0 11h14v5H8v-5Zm25-10 4 4 6-7 4 4-10 11-8-8 4-4Z",
       "description": "Remote-owned Rejected Shipments Control Center v4.9 dashboard. Heatmap shows average rejections by weekday/hour; cumulative curve shares the same row; trend time labels are separated from date bands.",
       "runLabel": "Open Rejected Shipments",
@@ -883,7 +883,7 @@
     "html": "ui/app.html?v=329",
     "css": "ui/app.css?v=329"
   },
-  "version": 329,
+  "version": "334",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

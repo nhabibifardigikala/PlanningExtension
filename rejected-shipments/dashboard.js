@@ -644,16 +644,22 @@ function showLoadingOverlay(show){const el=$('loadingOverlay');if(el)el.hidden=!
 // v4.4 enhancements ---------------------------------------------------------
 let savedViews=[];
 function initEnhancements(){
-  loadTheme();
-  const theme=$('themeToggle');if(theme)theme.onclick=toggleTheme;
+  syncThemeFromBridge();
+  const theme=$('themeToggle');if(theme){theme.onclick=syncThemeFromBridge;theme.title='Theme is controlled by DigiExpress Appearance';theme.setAttribute('aria-label','Sync theme with DigiExpress');}
+  window.addEventListener('digiexpress:themechange',e=>applyTheme(e.detail?.theme||document.documentElement.dataset.theme||'light'));
+  window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='DIGIEXPRESS_THEME')applyTheme(d.theme);if(d.type==='DIGIEXPRESS_REMOTE_THEME_RESULT'&&d.ok!==false)applyTheme(d.theme);});
   const clr=$('clearAlertHistoryBtn');if(clr)clr.onclick=async()=>{await chrome.runtime.sendMessage({type:'clearAlertHistory'});renderAlertHistory([]);toast('Alert history cleared');};
   const close=$('closeDrawerBtn'),back=$('drilldownBackdrop');if(close)close.onclick=closeDrilldown;if(back)back.onclick=closeDrilldown;
   ['trendChart','currentMonthDailyChart','destinationChart','shippingSizeChart'].forEach(id=>{const c=$(id);if(c)c.addEventListener('dblclick',e=>handleChartDoubleClick(c,e));});
   const heat=$('heatmapChart');if(heat){heat.addEventListener('click',e=>handleHeatmapClick(heat,e));heat.addEventListener('dblclick',e=>handleHeatmapDoubleClick(heat,e));heat.addEventListener('mousemove',e=>handleChartHover(heat,e));heat.addEventListener('mouseleave',hideChartTooltip);}
 }
-async function loadTheme(){const r=await chrome.storage.sync.get({theme:'light'});applyTheme(r.theme||'light');}
-function applyTheme(theme){document.documentElement.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀':'☾';setTimeout(()=>renderCharts(),0);}
-async function toggleTheme(){const next=document.documentElement.dataset.theme==='dark'?'light':'dark';applyTheme(next);await chrome.storage.sync.set({theme:next});}
+function applyTheme(theme){theme=String(theme||'').toLowerCase()==='dark'?'dark':'light';document.documentElement.dataset.theme=theme;document.documentElement.style.colorScheme=theme;document.body?.setAttribute('data-theme',theme);const b=$('themeToggle');if(b)b.textContent=theme==='dark'?'☀':'☾';setTimeout(()=>renderCharts(),0);}
+function syncThemeFromBridge(){
+  // theme-bridge.js requests the authoritative Host theme. This click simply asks again.
+  try{parent!==window&&parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*')}catch(_){}
+  try{const requestId=`rs-theme-${Date.now()}`;window.postMessage({type:'DIGIEXPRESS_REMOTE_THEME_REQUEST',requestId},location.origin)}catch(_){}
+  applyTheme(document.documentElement.dataset.theme||'light');
+}
 function updateFreshness(ts){const el=$('freshnessIndicator');if(!el)return;const d=parseDate(ts)||new Date();const mins=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));el.textContent=mins<1?'Freshness: now':`Freshness: ${fmt(mins)}m`;el.className=`badge ${mins<=20?'good':mins<=60?'neutral':'bad'}`;el.dataset.ts=d.toISOString();}
 setInterval(()=>{const el=$('freshnessIndicator');if(el?.dataset.ts)updateFreshness(el.dataset.ts);},60000);
 async function loadSavedViews(){const r=await chrome.storage.sync.get({savedViews:[]});savedViews=Array.isArray(r.savedViews)?r.savedViews:[];renderSavedViews();}
