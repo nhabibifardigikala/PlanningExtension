@@ -45,3 +45,8 @@ The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. T
 ## v343 fixes
 - Authenticator opens the real Host-local secure application directly instead of showing a Remote placeholder card.
 - Polygon applications read DataSets directly through Stable Host `sheets.readRows`; Apps Script/JSONP is no longer required for polygon dataset loading.
+
+
+## v344
+- Rejected Shipments Synchronizer now stops pagination at the exact maximum `id` already present in DataSets → Rejected Shipments.
+- Authenticator no longer uses an intermediate Remote card; opening Authenticator launches the secure Host-local page directly, with an automatic fallback launcher only if the Remote route is opened explicitly.
