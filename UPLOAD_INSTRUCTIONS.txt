@@ -1,0 +1,9 @@
+DigiExpress v339 repair
+
+Upload these files into the existing GitHub repository without deleting the rest of the repository.
+The critical file is ui/app.html. It is now self-contained and includes the shell CSS + JS inline.
+Host 13.0.0 does not need to be changed.
+
+After upload, open:
+https://nhabibifardigikala.github.io/PlanningExtension/ui/app.html?v=339
+once to bypass any stale browser/GitHub Pages cache. After that, the extension icon can be used normally.

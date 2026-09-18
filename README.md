@@ -15,3 +15,7 @@ The dashboard is Remote-owned and reads DataSets through the generic HTTP bridge
 
 ## Host policy
 Minimum Host is 13.0.0. Keep it at 13.0.0 for normal future Remote releases.
+
+
+## v339 shell hardening
+The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. This prevents a partial GitHub upload, stale relative asset, or missing `ui/app.css` / `ui/app.js` from rendering DigiExpress as unstyled HTML. Host 13.0.0 remains unchanged. Product logic is still Remote-owned.
