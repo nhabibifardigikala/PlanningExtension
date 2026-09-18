@@ -1,12 +1,14 @@
-/* Rejected Shipments Remote adapter v341
+/* Rejected Shipments Remote adapter v342
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
 (() => {
   const runtimeListeners=new Set();
   let retryTimer=null,retryAttempt=0,audioCtx=null,alertTimer=null,activeOscillators=[];
-  const CACHE_KEY='dxRejectedDashboardCacheV2';
-  const META_KEY='dxRejectedDashboardMetaV2';
+  const CACHE_KEY='dxRejectedDashboardCacheV3';
+  const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
+  const DATASETS_SHEET='Rejected Shipments';
+  const META_KEY='dxRejectedDashboardMetaV3';
   const emit=message=>{for(const fn of [...runtimeListeners]){try{fn(message,{},()=>{})}catch(_){}}};
   const numericId=v=>{const m=String(v??'').replace(/[,\s]/g,'').match(/\d+/);return m?Number(m[0]):0;};
   let resolvedConnectionUrl='';
@@ -22,7 +24,7 @@
     return {urls:out,sheetName:String(stable['rejected-shipments-sync']?.sheetName||legacy['rejected-shipments-sync']?.sheetName||'Rejected Shipments')};
   }
   async function rawHttp(url,payload,timeoutMs=60000){
-    const r=await DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),responseType:'json',timeoutMs}});
+    const r=await DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),responseType:'json',timeoutMs,credentials:'include'}});
     if(!r?.ok)throw new Error(r?.error||'Google Sheet request failed.');
     if(r.data?.ok===false)throw new Error(r.data.error||'Google Sheet request failed.');
     return r.data||{};
@@ -47,7 +49,14 @@
   async function cachePayload(payload){await chrome.storage.local.set({[CACHE_KEY]:payload.rows||[],[META_KEY]:{totalRows:payload.totalRows||0,maxId:payload.maxId||0,cacheUpdatedAt:payload.cacheUpdatedAt||new Date().toISOString()}});}
   async function cached(limit=50000){const x=await chrome.storage.local.get([CACHE_KEY,META_KEY]);const rows=Array.isArray(x[CACHE_KEY])?x[CACHE_KEY].slice(-limit):[];const m=x[META_KEY]||{};return rows.length?{ok:true,rows,kpis:null,totalRows:Number(m.totalRows)||rows.length,maxId:Number(m.maxId)||Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:m.cacheUpdatedAt||'',dataSource:'local-cache'}:{ok:false,error:'No dashboard cache available yet.'};}
   async function fresh(limit=50000){
-    const d=await http({action:'readDataset',limit});const rows=rowsFrom(d);const payload={ok:true,rows,kpis:null,totalRows:Number(d.totalRows)||rows.length,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:d.updatedAt||new Date().toISOString(),dataSource:'google-sheet'};await cachePayload(payload);return payload;
+    let rows=[],totalRows=0,updatedAt='';
+    try{
+      const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit});
+      const d=direct?.result??direct??{};rows=rowsFrom(d);totalRows=Number(d.totalRows)||rows.length;updatedAt=d.updatedAt||new Date().toISOString();
+    }catch(directError){
+      const d=await http({action:'readDataset',sheetName:DATASETS_SHEET,limit});rows=rowsFrom(d);totalRows=Number(d.totalRows)||rows.length;updatedAt=d.updatedAt||new Date().toISOString();
+    }
+    const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:updatedAt,dataSource:'google-sheet'};await cachePayload(payload);return payload;
   }
   function scheduleRetry(error){clearTimeout(retryTimer);retryAttempt++;retryTimer=setTimeout(()=>refresh('retry').catch(()=>{}),60000);emit({type:'dashboardRefreshFailed',error:String(error?.message||error),retryAttempt,nextRetry:new Date(Date.now()+60000).toISOString()});}
   async function refresh(source='manual'){

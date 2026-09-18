@@ -31,7 +31,7 @@
       retry:{attempts:3,delayMs:60000,backoff:1},
       inputs:{keepScrapeTabOpen:false},
       pipeline:{
-        beforeRequest:{action:'rejectedState',sheetName:'{{job.sheetName}}'},
+        beforePlatformRequest:{method:'sheets.maxNumericColumn',args:{spreadsheetId:'1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k',sheetName:'Rejected Shipments',column:'id'}},
         cursorResponsePath:'maxId',cursorInput:'previousMaxId',
         recordDefaults:{extracted_at:'{{now}}'},
         afterRequest:{action:'appendRejected',sheetName:'{{job.sheetName}}',rows:'{{records}}'}
@@ -98,7 +98,7 @@
   async function probeRejectedDatasetEndpoint(url){
     if(!url||!window.DigiExpressPlatform?.runtime?.sendMessage)return false;
     try{
-      const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:'Rejected Shipments'}),responseType:'json',timeoutMs:15000}});
+      const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:'Rejected Shipments'}),responseType:'json',timeoutMs:15000,credentials:'include'}});
       return !!(r?.ok&&r?.data&&r.data.ok!==false);
     }catch(_){return false;}
   }

@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Rejected Shipments incremental extraction. The Agent only ensures the 12 required columns are visible; it no longer toggles every unknown column.",
+  "description": "Rejected Shipments incremental synchronizer. Reads the current max value of the exact Google Sheet id column, filters rejected shipments, applies the exact 12-column layout, sets 1000 rows per page, and extracts only newer IDs.",
   "runLabel": "Sync Now",
   "navigation": {
     "retryCount": 5,
@@ -13,7 +13,7 @@
   "workflow": [
     {
       "action": "open",
-      "url": "https://drop-shipping.digikala.com/shipment/?id=&reference_id=&status=rejected&user_id=0&origin_user_address_id=0&destination_user_address_id=0&origin_shipping_point_address_id=0&destination_shipping_point_address_id=0&ready_date=&from_promise_date=&to_promise_date=&crud_tab_id=&order=1&order_by=id&order_type=DESC",
+      "url": "https://drop-shipping.digikala.com/shipment/",
       "active": false,
       "progress": "Opening rejected shipments…"
     },
@@ -23,270 +23,146 @@
       "progress": "Checking Drop Shipping authentication…"
     },
     {
-      "action": "navigate",
-      "url": "https://drop-shipping.digikala.com/shipment/?id=&reference_id=&status=rejected&user_id=0&origin_user_address_id=0&destination_user_address_id=0&origin_shipping_point_address_id=0&destination_shipping_point_address_id=0&ready_date=&from_promise_date=&to_promise_date=&crud_tab_id=&order=1&order_by=id&order_type=DESC",
-      "progress": "Loading rejected shipments…",
-      "completeTimeoutMs": 45000
+      "action": "waitFor",
+      "selector": "select[name=\"status\"], input[name=\"status\"], table",
+      "timeoutMs": 30000,
+      "intervalMs": 300,
+      "progress": "Waiting for shipment filters…"
+    },
+    {
+      "action": "fill",
+      "selector": "select[name=\"status\"], input[name=\"status\"]",
+      "value": "rejected",
+      "progress": "Applying rejected filter…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 700
+    },
+    {
+      "action": "click",
+      "selector": "",
+      "textContains": "Search",
+      "afterMs": 900,
+      "progress": "Searching rejected shipments…",
+      "stepAttempts": 3,
+      "stepRetryDelayMs": 700
     },
     {
       "action": "waitFor",
-      "selector": "table",
+      "selector": "table tbody tr, table thead th",
       "timeoutMs": 30000,
       "intervalMs": 300,
-      "progress": "Waiting for shipment table…",
-      "error": "Rejected Shipments table did not become ready."
+      "progress": "Waiting for rejected shipment results…",
+      "error": "Rejected Shipments results did not load after Search."
     },
     {
-      "action": "ensureTableColumn",
-      "column": "id",
+      "action": "configureColumns",
+      "columns": {
+        "id": true,
+        "reference_id": true,
+        "user_id": true,
+        "ready_date": true,
+        "status": true,
+        "created_at": true,
+        "service_level": true,
+        "shipping_size_id": true,
+        "destination_address": true,
+        "destination_shipping_point": true,
+        "parcel_ids": true,
+        "promise_date": true,
+        "origin_user_address_id": false,
+        "destination_user_address_id": false,
+        "origin_shipping_point_address_id": false,
+        "destination_shipping_point_address_id": false,
+        "origin_address": false,
+        "origin_shipping_point": false,
+        "origin_shipping_point_id": false,
+        "destination_shipping_point_id": false,
+        "origin_user_address": false,
+        "destination_user_address": false,
+        "order_id": false,
+        "order_item_id": false,
+        "warehouse_id": false,
+        "crud_tab_id": false,
+        "from_promise_date": false,
+        "to_promise_date": false,
+        "updated_at": false,
+        "deleted_at": false,
+        "actions": false,
+        "action": false
+      },
       "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
+        "exact": true,
         "buttonText": "Columns",
         "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"], [uk-dropdown] input[type=\"checkbox\"], .uk-dropdown input[type=\"checkbox\"], [role=\"menu\"] input[type=\"checkbox\"], .dropdown-menu input[type=\"checkbox\"], .popover input[type=\"checkbox\"]",
+        "aliases": {
+          "id": [
+            "id"
+          ],
+          "reference_id": [
+            "reference id",
+            "reference_id"
+          ],
+          "user_id": [
+            "user id",
+            "user_id"
+          ],
+          "ready_date": [
+            "ready date",
+            "ready_date"
+          ],
+          "status": [
+            "status"
+          ],
+          "created_at": [
+            "created at",
+            "created_at"
+          ],
+          "service_level": [
+            "service level",
+            "service_level"
+          ],
+          "shipping_size_id": [
+            "shipping size id",
+            "shipping_size_id"
+          ],
+          "destination_address": [
+            "destination address",
+            "destination_address"
+          ],
+          "destination_shipping_point": [
+            "destination shipping point",
+            "destination_shipping_point"
+          ],
+          "parcel_ids": [
+            "parcel ids",
+            "parcel_ids"
+          ],
+          "promise_date": [
+            "promise date",
+            "promise_date"
+          ]
+        },
         "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
+        "afterEachMs": 180,
+        "maxChanges": 80
       },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring id column is visible…",
-      "retryProgress": "Retrying id column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column id could not be enabled."
+      "storeAs": "columnSelection",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 1000,
+      "progress": "Selecting exactly the 12 required shipment columns…",
+      "retryProgress": "Retrying shipment column selection ({{attempt}}/{{attempts}})…",
+      "error": "The Rejected Shipments columns could not be configured."
     },
     {
-      "action": "ensureTableColumn",
-      "column": "reference_id",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring reference_id column is visible…",
-      "retryProgress": "Retrying reference_id column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column reference_id could not be enabled."
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying shipment columns…"
     },
     {
-      "action": "ensureTableColumn",
-      "column": "user_id",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring user_id column is visible…",
-      "retryProgress": "Retrying user_id column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column user_id could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "ready_date",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring ready_date column is visible…",
-      "retryProgress": "Retrying ready_date column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column ready_date could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "status",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring status column is visible…",
-      "retryProgress": "Retrying status column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column status could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "created_at",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring created_at column is visible…",
-      "retryProgress": "Retrying created_at column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column created_at could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "service_level",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring service_level column is visible…",
-      "retryProgress": "Retrying service_level column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column service_level could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "shipping_size_id",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring shipping_size_id column is visible…",
-      "retryProgress": "Retrying shipping_size_id column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column shipping_size_id could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "destination_address",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring destination_address column is visible…",
-      "retryProgress": "Retrying destination_address column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column destination_address could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "destination_shipping_point",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring destination_shipping_point column is visible…",
-      "retryProgress": "Retrying destination_shipping_point column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column destination_shipping_point could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "parcel_ids",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring parcel_ids column is visible…",
-      "retryProgress": "Retrying parcel_ids column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column parcel_ids could not be enabled."
-    },
-    {
-      "action": "ensureTableColumn",
-      "column": "promise_date",
-      "options": {
-        "tableSelector": "table",
-        "headerSelector": "table thead th",
-        "buttonText": "Columns",
-        "buttonSelector": "button",
-        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
-        "menuTimeoutMs": 12000,
-        "afterOpenMs": 350,
-        "afterSelectMs": 220,
-        "loadTimeoutMs": 30000,
-        "pollMs": 300
-      },
-      "attempts": 4,
-      "retryDelayMs": 900,
-      "progress": "Ensuring promise_date column is visible…",
-      "retryProgress": "Retrying promise_date column ({{attempt}}/{{attempts}})…",
-      "error": "Rejected Shipments: required column promise_date could not be enabled."
+      "action": "wait",
+      "ms": 1400,
+      "progress": "Waiting for the table to finish reloading…"
     },
     {
       "action": "navigate",
@@ -315,6 +191,11 @@
         "equals": "1000"
       },
       "error": "Rows per page did not become 1000."
+    },
+    {
+      "action": "wait",
+      "ms": 1200,
+      "progress": "Waiting for the 1000-row table to stabilize…"
     },
     {
       "action": "extractPaginatedTable",
@@ -347,7 +228,7 @@
       },
       "stepAttempts": 4,
       "stepRetryDelayMs": 1200,
-      "progress": "Extracting rejected shipments…",
+      "progress": "Extracting IDs newer than {{previousMaxId}}…",
       "pageProgress": "Extracting rejected shipment page {{page}}…",
       "retryProgress": "Repairing extraction and retrying ({{attempt}}/{{attempts}})…",
       "error": "Rejected shipment rows could not be extracted.",
@@ -398,7 +279,7 @@
       "successMessage": "Shipment opened."
     }
   ],
-  "runtimeContract": "stable-host-13",
+  "runtimeContract": "stable-host-13.0.1",
   "businessLogicOwner": "remote",
   "closeTabOnError": true
 }

@@ -33,3 +33,10 @@ The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. T
 - Rejected Dashboard now searches all saved DataSets Web App endpoints and uses the first endpoint that successfully answers the `rejectedState` JSON request.
 - Rejected manual runs probe the DataSets endpoint before starting, so a stale 401 URL is not silently reused when another valid saved endpoint exists.
 - Agent extraction tabs remain configured to close after success, failure, or cancellation via Remote workflow ownership and `closeTabOnError`.
+
+
+## v342 — Rejected Shipments reliability
+
+- Dashboard reads DataSets → Rejected Shipments directly through Stable Host Google Sheets read capability, with Apps Script fallback.
+- Synchronizer reads max(id) from the exact `id` column before extraction, applies rejected filter + Search, configures the exact 12 Rejected_Raw columns, sets 1000 rows/page, stops at the stored watermark, and appends de-duplicated IDs.
+- Extraction tabs close on success, error, or cancellation.
