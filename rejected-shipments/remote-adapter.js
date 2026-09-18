@@ -1,4 +1,4 @@
-/* Rejected Shipments Remote adapter v338
+/* Rejected Shipments Remote adapter v341
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
@@ -9,26 +9,39 @@
   const META_KEY='dxRejectedDashboardMetaV2';
   const emit=message=>{for(const fn of [...runtimeListeners]){try{fn(message,{},()=>{})}catch(_){}}};
   const numericId=v=>{const m=String(v??'').replace(/[,\s]/g,'').match(/\d+/);return m?Number(m[0]):0;};
-  async function connection(){
+  let resolvedConnectionUrl='';
+  async function candidateUrls(){
     const x=await chrome.storage.local.get(['dxStableJobsV1','dxDatasetUpdateJobsV1']);
     const stable=x.dxStableJobsV1||{}, legacy=x.dxDatasetUpdateJobsV1||{};
-    const preferred=stable['rejected-shipments-sync']||legacy['rejected-shipments-sync']||{};
-    let url=String(preferred.webAppUrl||'').trim();
-    if(!url){
-      for(const pool of [stable,legacy]){
-        for(const j of Object.values(pool||{})){
-          const u=String(j?.webAppUrl||'').trim();
-          if(u){url=u;break;}
-        }
-        if(url)break;
-      }
+    const out=[]; const add=v=>{const u=String(v||'').trim();if(u&&!out.includes(u))out.push(u);};
+    add(stable['rejected-shipments-sync']?.webAppUrl);
+    add(legacy['rejected-shipments-sync']?.webAppUrl);
+    for(const pool of [stable,legacy])for(const j of Object.values(pool||{}))add(j?.webAppUrl);
+    try{const old=await chrome.storage.sync.get({webAppUrl:''});add(old.webAppUrl);}catch(_){}
+    try{add(localStorage.getItem('digiexpress.dataset.webAppUrl'));}catch(_){}
+    return {urls:out,sheetName:String(stable['rejected-shipments-sync']?.sheetName||legacy['rejected-shipments-sync']?.sheetName||'Rejected Shipments')};
+  }
+  async function rawHttp(url,payload,timeoutMs=60000){
+    const r=await DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),responseType:'json',timeoutMs}});
+    if(!r?.ok)throw new Error(r?.error||'Google Sheet request failed.');
+    if(r.data?.ok===false)throw new Error(r.data.error||'Google Sheet request failed.');
+    return r.data||{};
+  }
+  async function connection(){
+    const c=await candidateUrls();
+    if(resolvedConnectionUrl)return {url:resolvedConnectionUrl,sheetName:c.sheetName};
+    let lastError='';
+    for(const url of c.urls){
+      try{await rawHttp(url,{action:'rejectedState',sheetName:c.sheetName},15000);resolvedConnectionUrl=url;return {url,sheetName:c.sheetName};}
+      catch(e){lastError=String(e?.message||e);}
     }
-    return {url,sheetName:String(preferred.sheetName||'Rejected Shipments')};
+    if(!c.urls.length)throw new Error('Google Sheets connection is not configured in Agents.');
+    throw new Error(`Rejected Shipments DataSets endpoint did not return JSON. ${lastError}`);
   }
   async function http(payload){
-    const c=await connection();if(!c.url)throw new Error('Google Sheets connection is not configured in Agents.');
-    const r=await DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url:c.url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,sheetName:payload.sheetName||c.sheetName}),responseType:'json',timeoutMs:60000}});
-    if(!r?.ok)throw new Error(r?.error||'Google Sheet request failed.');if(r.data?.ok===false)throw new Error(r.data.error||'Google Sheet request failed.');return r.data||{};
+    const c=await connection();
+    try{return await rawHttp(c.url,{...payload,sheetName:payload.sheetName||c.sheetName});}
+    catch(e){resolvedConnectionUrl='';throw e;}
   }
   function rowsFrom(data){const h=Array.isArray(data.headers)?data.headers.map(String):[];return (data.rows||[]).map(r=>Object.fromEntries(h.map((k,i)=>[k,Array.isArray(r)?(r[i]??''):''])));}
   async function cachePayload(payload){await chrome.storage.local.set({[CACHE_KEY]:payload.rows||[],[META_KEY]:{totalRows:payload.totalRows||0,maxId:payload.maxId||0,cacheUpdatedAt:payload.cacheUpdatedAt||new Date().toISOString()}});}

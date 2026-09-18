@@ -22,3 +22,7 @@ Agents are persisted and scheduled by the generic Host scheduler, but their defi
 `13.0.0`.
 
 Future Remote configs should keep this minimum unchanged unless a new privileged browser primitive, Chrome/Manifest change, or security correction is truly required.
+
+
+### v341 Rejected Shipments note
+Rejected Shipments uses only stable Host 13 primitives (`ensureTableColumn`, `extractPaginatedTable`, `closeTab`) and no longer depends on ad-hoc validation actions. Endpoint discovery is Remote-owned.

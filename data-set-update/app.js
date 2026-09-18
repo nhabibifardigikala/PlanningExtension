@@ -86,6 +86,27 @@
     for(const id of Object.keys(JOBS)){const u=String(currentState?.jobs?.[id]?.webAppUrl||'').trim();if(u)return u;}
     return '';
   }
+  async function rejectedEndpointCandidates(){
+    const out=[];
+    const add=v=>{const u=String(v||'').trim();if(u&&!out.includes(u))out.push(u);};
+    add(currentState?.jobs?.['rejected-shipments-sync']?.webAppUrl);
+    for(const id of Object.keys(JOBS))add(currentState?.jobs?.[id]?.webAppUrl);
+    try{const legacy=await chrome.storage.sync.get({webAppUrl:''});add(legacy.webAppUrl);}catch(_){}
+    try{add(localStorage.getItem('digiexpress.dataset.webAppUrl'));}catch(_){}
+    return out;
+  }
+  async function probeRejectedDatasetEndpoint(url){
+    if(!url||!window.DigiExpressPlatform?.runtime?.sendMessage)return false;
+    try{
+      const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:'Rejected Shipments'}),responseType:'json',timeoutMs:15000}});
+      return !!(r?.ok&&r?.data&&r.data.ok!==false);
+    }catch(_){return false;}
+  }
+  async function resolveRejectedDatasetEndpoint(){
+    const candidates=await rejectedEndpointCandidates();
+    for(const url of candidates){if(await probeRejectedDatasetEndpoint(url))return url;}
+    throw new Error('Rejected Shipments DataSets endpoint is not reachable. Deploy the current Code.gs as a Web App that can return JSON without a Google sign-in page, then save that /exec URL in Agents settings.');
+  }
   function updateScheduleControls(){
     const enabled=$('enabled').checked,type=$('scheduleType').value;
     $('scheduleType').disabled=!enabled;$('dailyTime').disabled=!enabled;$('intervalHours').disabled=!enabled;$('intervalMinutes').disabled=!enabled;
@@ -186,7 +207,9 @@
     if(st.running){try{setRunButtonVisual(run,true,JOBS[id].label);mini.textContent='Stopping operation…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Operation stopped');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
       run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
-      const url=sharedWebAppUrl();let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations};
+      let url=sharedWebAppUrl();
+      if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
+      let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations};
       if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'){const saved=job.inputs||JOBS[id].inputs||{};job.inputs=saved;}
       await request('saveJob',{job});await request('runNow',{jobId:id});startFastPoll();await refresh({quiet:true});toast('Agent started');
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
