@@ -208,6 +208,10 @@
       "pageProgress": "Extracting Distribution Center page {{page}}…",
       "progress": "Extracting Distribution Centers…",
       "error": "No Distribution Center rows were found."
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing Agent tab…"
     }
   ],
   "retryPolicy": {
@@ -251,5 +255,6 @@
   "foregroundReason": "LG defers table rendering in background tabs. DC User Assignment and Distribution Centers are both kept in the foreground during critical loading and selection windows through remote configuration.",
   "output": {
     "type": "excel"
-  }
+  },
+  "closeTabOnError": true
 }

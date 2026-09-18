@@ -968,5 +968,6 @@
   "title": "IATA Code Synchronizer",
   "output": {
     "type": "excel"
-  }
+  },
+  "closeTabOnError": true
 }

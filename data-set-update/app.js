@@ -101,7 +101,7 @@
       pointExceptions:$('pointExceptions').value.trim(),
       polygonExceptions:$('polygonExceptions').value.trim()
     };
-    if(id==='rejected-shipments-sync')inputs={keepScrapeTabOpen:$('keepRejectedTabOpen').checked};
+    if(id==='rejected-shipments-sync')inputs={keepScrapeTabOpen:false};
     return {...defs,...base,webAppUrl:$('webAppUrl').value.trim()||sharedWebAppUrl(),enabled:$('enabled').checked,schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1),intervalMinutes:Number($('intervalMinutes').value||15)},preOperations:defs.preOperations,inputs};
   }
 
@@ -130,9 +130,8 @@
     activeJobId=id;const job=getJob(id),st=getState(id);
     $('datasetSettingsTitle').textContent=JOBS[id].label;
     $('preUpdateNote').hidden=id!=='distribution-centers';
-    const isIata=id==='iata-code-synchronizer',isRejected=id==='rejected-shipments-sync';$('iataOptions').hidden=!isIata;$('rejectedOptions').hidden=!isRejected;$('rowCountLabel').textContent=isIata?'Processed records':(isRejected?'Rows appended':'Rows written');
+    const isIata=id==='iata-code-synchronizer',isRejected=id==='rejected-shipments-sync';$('iataOptions').hidden=!isIata;if($('rejectedOptions'))$('rejectedOptions').hidden=true;$('rowCountLabel').textContent=isIata?'Processed records':(isRejected?'Rows appended':'Rows written');
     if(isIata){const inputs=job.inputs||JOBS[id].inputs||{};const targets=Array.isArray(inputs.syncTargets)?inputs.syncTargets:[];$('syncShippingPoints').checked=targets.includes('shipping-points');$('syncShippingPolygons').checked=targets.includes('shipping-polygons');$('pointExceptions').value=inputs.pointExceptions||'';$('polygonExceptions').value=inputs.polygonExceptions||'';}
-    if(isRejected){const inputs=job.inputs||JOBS[id].inputs||{};$('keepRejectedTabOpen').checked=inputs.keepScrapeTabOpen===true;}
     $('enabled').checked=job.enabled===true;const stype=job.schedule?.type;$('scheduleType').value=stype==='hourly'?'hourly':(stype==='interval'?'interval':'daily');
     $('dailyTime').value=job.schedule?.time||'12:00';$('intervalHours').value=String(job.schedule?.intervalHours||1);$('intervalMinutes').value=String(job.schedule?.intervalMinutes||15);updateScheduleControls();
     $('lastRun').textContent=fmt(st.lastRunAt);$('rowCount').textContent=st.rowCount??'—';$('nextRun').textContent=fmt(st.nextRunAt);$('lastStatus').textContent=st.running?(st.phase||st.lastStatus||'Running…'):(st.lastStatus||'—');

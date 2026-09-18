@@ -19,3 +19,10 @@ Minimum Host is 13.0.0. Keep it at 13.0.0 for normal future Remote releases.
 
 ## v339 shell hardening
 The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. This prevents a partial GitHub upload, stale relative asset, or missing `ui/app.css` / `ui/app.js` from rendering DigiExpress as unstyled HTML. Host 13.0.0 remains unchanged. Product logic is still Remote-owned.
+
+
+## v340 fixes
+- Agent-owned tabs now close on success and on error.
+- Rejected Shipments Synchronizer no longer uses unsupported setTabZoom.
+- Delivery Polygons accepts current dc-polygons schema with distribution center id and optional time scope.
+- Rejected dashboard uses robust DataSets connection fallback, longer hydration timeout, and the previous two-tone repeating alert sound.

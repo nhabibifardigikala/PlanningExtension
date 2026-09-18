@@ -189,7 +189,7 @@ async function loadDashboardData(preserveBadge=false, limit=50000){
   try{
     const r=await withTimeout(
       chrome.runtime.sendMessage({type:'getDashboardData',limit}).catch(err=>({ok:false,error:String(err)})),
-      12000,
+      60000,
       {ok:false,error:'Dashboard request timed out'}
     );
     if(!r?.ok){

@@ -120,16 +120,61 @@ function numericId_(value){
   const m=s.match(/\d+/);return m?Number(m[0]):0;
 }
 
+function normalizeHeaderKey_(value){
+  return normalizeText_(value).toLowerCase()
+    .replace(/[()\[\]{}:;,.\/\\|]+/g,' ')
+    .replace(/[_\-–—]+/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+
+function findColumn_(headers, aliases){
+  const normalized=headers.map(normalizeHeaderKey_);
+  const wanted=(aliases||[]).map(normalizeHeaderKey_).filter(Boolean);
+  for(const alias of wanted){
+    const exact=normalized.indexOf(alias);if(exact>=0)return exact;
+  }
+  for(let i=0;i<normalized.length;i++){
+    const h=normalized[i];
+    for(const alias of wanted){
+      if(alias.length>=3&&(h.includes(alias)||alias.includes(h)))return i;
+    }
+  }
+  return -1;
+}
+
+function inferColumnByScore_(rows, scorer){
+  const width=Math.max(0,...rows.map(r=>Array.isArray(r)?r.length:0));
+  let best=-1,bestScore=0;
+  for(let c=0;c<width;c++){
+    let score=0,seen=0;
+    for(let r=0;r<Math.min(rows.length,250);r++){
+      const v=rows[r]?.[c];if(v===null||v===undefined||String(v).trim()==='')continue;
+      seen++;score+=Number(scorer(v)||0);
+    }
+    if(seen&&score>bestScore){bestScore=score;best=c;}
+  }
+  return bestScore>0?best:-1;
+}
+
 function preparePickupPolygons_(headers,rows){
-  const norm=s=>String(s||'').toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
-  const hs=headers.map(norm);
-  let nameIdx=hs.findIndex(h=>h==='name');
-  if(nameIdx<0)nameIdx=hs.findIndex(h=>h==='coverage polygon'||h==='coverage polygon name');
-  if(nameIdx<0)throw new Error('Pick-up Polygons: name column was not found.');
-  const shipIdx=hs.findIndex(h=>h==='shipping size id'||h==='shipping size ids');
-  if(shipIdx<0)throw new Error('Pick-up Polygons: shipping size id column was not found.');
-  const coordIdx=hs.findIndex(h=>h==='coordinates'||h.endsWith(' coordinates'));
-  if(coordIdx<0)throw new Error('Pick-up Polygons: coordinates column was not found after column selection.');
+  let nameIdx=findColumn_(headers,['name','coverage polygon','coverage polygon name','polygon name','polygon','title','hub','hub name']);
+  if(nameIdx<0)nameIdx=inferColumnByScore_(rows,v=>/(FBM|SBS)/i.test(String(v))?5:0);
+  if(nameIdx<0)throw new Error('Pick-up Polygons: name column was not found. Received headers: '+headers.join(' | '));
+
+  let shipIdx=findColumn_(headers,['shipping size id','shipping size ids','shipping size','size id','size']);
+  if(shipIdx<0)shipIdx=inferColumnByScore_(rows,v=>/(عادی|عادي|متوسط|سنگین|سنگين|\([123]\)|\b[123]\b)/i.test(normalizeText_(v))?2:0);
+  if(shipIdx<0)throw new Error('Pick-up Polygons: shipping size id column was not found. Received headers: '+headers.join(' | '));
+
+  let coordIdx=findColumn_(headers,['coordinates','coordinate','polygon coordinates','coverage polygon coordinates','مختصات']);
+  if(coordIdx<0)coordIdx=inferColumnByScore_(rows,v=>{
+    const x=String(v||'').trim();
+    if(!x)return 0;
+    if(/^\s*[\[{]/.test(x)&&/\d/.test(x)&&(/,/.test(x)||/:/.test(x)))return 3;
+    if(/-?\d{1,3}(?:\.\d+)?\s*[,،]\s*-?\d{1,3}(?:\.\d+)?/.test(x))return 2;
+    return 0;
+  });
+  if(coordIdx<0)throw new Error('Pick-up Polygons: coordinates column was not found after column selection. Received headers: '+headers.join(' | '));
+
   const out=[];
   for(const row of rows){
     const name=String(row[nameIdx]||'');
@@ -141,7 +186,6 @@ function preparePickupPolygons_(headers,rows){
   return {headers,rows:out};
 }
 
-
 function prepareDeliveryPolygons_(polygonHeaders,polygonRows){
   const ss=SpreadsheetApp.openById(SPREADSHEET_ID);
   const dcSheet=ss.getSheetByName('Distribution Centers (LG)');
@@ -149,43 +193,52 @@ function prepareDeliveryPolygons_(polygonHeaders,polygonRows){
   const values=dcSheet.getDataRange().getValues();
   if(values.length<2)throw new Error('Delivery Polygons: Distribution Centers (LG) has no data.');
 
-  const normHeader=s=>normalizeText_(s).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
-  const dcHeaders=values[0].map(normHeader), dcRows=values.slice(1);
-  const idx=(arr,names)=>{for(const name of names){const i=arr.indexOf(name);if(i>=0)return i;}return -1;};
-  const dcName=idx(dcHeaders,['name']);
+  const dcHeaders=values[0].map(normalizeHeaderKey_), dcRows=values.slice(1);
+  const idx=(arr,names)=>{for(const name of names){const n=normalizeHeaderKey_(name);let i=arr.indexOf(n);if(i>=0)return i;for(i=0;i<arr.length;i++){if(arr[i].includes(n)||n.includes(arr[i]))return i;}}return -1;};
+  const dcName=idx(dcHeaders,['name','distribution center','distribution center name']);
   const dcId=idx(dcHeaders,['id','distribution center id']);
-  const dcIata=idx(dcHeaders,['iata']);
+  const dcIata=idx(dcHeaders,['iata','iata code']);
   const dcDistrict=idx(dcHeaders,['district']);
-  const dcActive=idx(dcHeaders,['active']);
-  if([dcName,dcId,dcIata,dcDistrict,dcActive].some(i=>i<0))throw new Error('Delivery Polygons: required Distribution Centers columns were not found.');
+  const dcActive=idx(dcHeaders,['active','is active']);
+  if([dcName,dcId,dcIata,dcDistrict,dcActive].some(i=>i<0))throw new Error('Delivery Polygons: required Distribution Centers columns were not found. Headers: '+values[0].join(' | '));
 
-  const ph=polygonHeaders.map(normHeader);
-  const polyName=idx(ph,['distribution center id','distribution center','dc']);
-  const polyCoord=idx(ph,['coordinates','coordinate']);
-  const polyTime=idx(ph,['time scope','timescope']);
-  const polyNature=idx(ph,['shipping nature id','shipping nature']);
-  if([polyName,polyCoord,polyTime,polyNature].some(i=>i<0))throw new Error('Delivery Polygons: required dc-polygons columns were not found (distribution center id, coordinates, time scope, shipping nature id).');
-
-  const baseByName=new Map();
+  const baseByName=new Map(),baseById=new Map(),dcNames=new Set();
   for(const r of dcRows){
-    const name=String(r[dcName]??'').trim();
-    if(!name)continue;
+    const name=String(r[dcName]??'').trim(),id=String(r[dcId]??'').trim();
+    if(!name&&!id)continue;
     if(/گنجه|گنجدار/.test(normalizeText_(name)))continue;
     const active=String(r[dcActive]??'').trim();
     if(active==='0'||active.toLowerCase()==='false')continue;
-    baseByName.set(normalizeNameKey_(name),{name,id:r[dcId]??'',iata:r[dcIata]??'',district:r[dcDistrict]??''});
+    const base={name,id:r[dcId]??'',iata:r[dcIata]??'',district:r[dcDistrict]??''};
+    if(name){const key=normalizeNameKey_(name);dcNames.add(key);baseByName.set(key,base);}
+    if(id)baseById.set(String(numericId_(id)||id),base);
   }
+
+  let polyDc=findColumn_(polygonHeaders,['distribution center id','distribution center','distribution center name','dc id','dc','dc name','center','center name']);
+  if(polyDc<0)polyDc=inferColumnByScore_(polygonRows,v=>{
+    const raw=String(v??'').trim(),nid=String(numericId_(raw)||raw);
+    return baseById.has(nid)?6:(dcNames.has(normalizeNameKey_(raw))?5:0);
+  });
+  let polyCoord=findColumn_(polygonHeaders,['coordinates','coordinate','polygon coordinates','مختصات']);
+  if(polyCoord<0)polyCoord=inferColumnByScore_(polygonRows,v=>{const x=String(v||'').trim();return ((/^\s*[\[{]/.test(x)&&/\d/.test(x)&&(/,/.test(x)||/:/.test(x)))||/-?\d{1,3}(?:\.\d+)?\s*[,،]\s*-?\d{1,3}(?:\.\d+)?/.test(x))?3:0;});
+  let polyTime=findColumn_(polygonHeaders,['time scope','timescope','time slot','time range','working time','working hours']);
+  if(polyTime<0)polyTime=inferColumnByScore_(polygonRows,v=>/(\d{1,2}\s*(?:h)?\s*[-–—]\s*\d{1,2}\s*(?:h)?|\d{1,2}:\d{2})/i.test(String(v))?2:0);
+  let polyNature=findColumn_(polygonHeaders,['shipping nature id','shipping nature','nature id','nature','shipping type']);
+  if(polyNature<0)polyNature=inferColumnByScore_(polygonRows,v=>/(عادی|عادي|متوسط|سنگین|سنگين|\([123]\)|\b[123]\b)/i.test(normalizeText_(v))?2:0);
+  if([polyDc,polyCoord,polyNature].some(i=>i<0))throw new Error('Delivery Polygons: required dc-polygons columns were not found. Received headers: '+polygonHeaders.join(' | '));
 
   const out=[];
   for(const r of polygonRows){
     const coordinates=String(r[polyCoord]??'').trim();
     if(!coordinates)continue;
-    const polygonDcName=String(r[polyName]??'').trim();
-    if(!polygonDcName)continue;
-    const base=baseByName.get(normalizeNameKey_(polygonDcName));
+    const rawDc=String(r[polyDc]??'').trim();
+    if(!rawDc)continue;
+    const idKey=String(numericId_(rawDc)||rawDc);
+    const base=baseById.get(idKey)||baseByName.get(normalizeNameKey_(rawDc));
     if(!base)continue;
     const nature=deliveryNatureNumber_(base.name,r[polyNature]);
-    out.push([base.name,coordinates,base.id,base.iata,base.district,r[polyTime]??'',nature]);
+    const timeScope=polyTime>=0?(r[polyTime]??''):'';
+    out.push([base.name,coordinates,base.id,base.iata,base.district,timeScope,nature]);
   }
   return {headers:['Name','coordinates','distribution center id','IATA','district','time scope','shipping nature id'],rows:out};
 }

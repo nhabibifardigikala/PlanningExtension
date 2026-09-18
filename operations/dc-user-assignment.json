@@ -124,6 +124,10 @@
       "terminalSuccessTexts": [
         "User and DC relation already exists"
       ]
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing Agent tab…"
     }
   ],
   "retryPolicy": {
@@ -136,5 +140,6 @@
   "foregroundReason": "LG UI becomes unreliable in background tabs during DC selection. Keep the DC User Assignment tab in the foreground while the operation is running.",
   "output": {
     "type": "internal"
-  }
+  },
+  "closeTabOnError": true
 }

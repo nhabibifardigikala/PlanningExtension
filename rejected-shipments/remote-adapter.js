@@ -4,15 +4,26 @@
  */
 (() => {
   const runtimeListeners=new Set();
-  let retryTimer=null,retryAttempt=0,audioCtx=null,osc=null;
+  let retryTimer=null,retryAttempt=0,audioCtx=null,alertTimer=null,activeOscillators=[];
   const CACHE_KEY='dxRejectedDashboardCacheV2';
   const META_KEY='dxRejectedDashboardMetaV2';
   const emit=message=>{for(const fn of [...runtimeListeners]){try{fn(message,{},()=>{})}catch(_){}}};
   const numericId=v=>{const m=String(v??'').replace(/[,\s]/g,'').match(/\d+/);return m?Number(m[0]):0;};
   async function connection(){
     const x=await chrome.storage.local.get(['dxStableJobsV1','dxDatasetUpdateJobsV1']);
-    const j=x.dxStableJobsV1?.['rejected-shipments-sync']||x.dxDatasetUpdateJobsV1?.['rejected-shipments-sync']||{};
-    return {url:String(j.webAppUrl||'').trim(),sheetName:String(j.sheetName||'Rejected Shipments')};
+    const stable=x.dxStableJobsV1||{}, legacy=x.dxDatasetUpdateJobsV1||{};
+    const preferred=stable['rejected-shipments-sync']||legacy['rejected-shipments-sync']||{};
+    let url=String(preferred.webAppUrl||'').trim();
+    if(!url){
+      for(const pool of [stable,legacy]){
+        for(const j of Object.values(pool||{})){
+          const u=String(j?.webAppUrl||'').trim();
+          if(u){url=u;break;}
+        }
+        if(url)break;
+      }
+    }
+    return {url,sheetName:String(preferred.sheetName||'Rejected Shipments')};
   }
   async function http(payload){
     const c=await connection();if(!c.url)throw new Error('Google Sheets connection is not configured in Agents.');
@@ -35,6 +46,39 @@
     const st=jobs.dxStableJobStateV1?.['rejected-shipments-sync']||{};
     return {ok:true,lastSync:st.lastRunAt?new Date(st.lastRunAt).toISOString():'',lastNewCount:st.rowCount||0,lastMaxId:0,lastError:st.lastError||'',lastPageCount:0,nextScheduledSync:st.nextRunAt||null,rollingCount:0,alertHistory:cfg.alertHistory||[],config:cfg};
   }
+
+  async function ensureAudioContext(){
+    if(!audioCtx||audioCtx.state==='closed')audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended')await audioCtx.resume();
+    return audioCtx;
+  }
+  async function playLegacyAlertPair(){
+    const audio=await ensureAudioContext();
+    const play=(delay,freq)=>{
+      const osc=audio.createOscillator(),gain=audio.createGain();
+      osc.type='sine';osc.frequency.value=freq;gain.gain.value=0.0001;
+      osc.connect(gain);gain.connect(audio.destination);
+      const t=audio.currentTime+delay;
+      gain.gain.exponentialRampToValueAtTime(0.36,t+0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001,t+0.36);
+      osc.start(t);osc.stop(t+0.38);activeOscillators.push(osc);
+      osc.onended=()=>{activeOscillators=activeOscillators.filter(x=>x!==osc)};
+    };
+    play(0,880);play(0.40,1174.66);
+  }
+  async function startLegacyAlert(){
+    if(alertTimer)return true;
+    await playLegacyAlertPair();
+    alertTimer=setInterval(()=>playLegacyAlertPair().catch(()=>{}),1800);
+    return true;
+  }
+  async function stopLegacyAlert(){
+    if(alertTimer){clearInterval(alertTimer);alertTimer=null;}
+    for(const osc of activeOscillators.splice(0)){try{osc.stop()}catch(_){}}
+    if(audioCtx&&audioCtx.state!=='closed'){await audioCtx.close().catch(()=>{});audioCtx=null;}
+    return true;
+  }
+
   async function sendMessage(message){
     switch(String(message?.type||'')){
       case 'getDashboardCache': return cached(message.limit||50000);
@@ -45,8 +89,8 @@
       case 'saveSettings': {const settings={...(message.settings||{})};await chrome.storage.sync.set(settings);return {ok:true,settings};}
       case 'clearAlertHistory': await chrome.storage.sync.set({alertHistory:[]});return {ok:true};
       case 'openShipmentReference': return DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:'rejected-shipments-sync',inputs:{__subOperationId:'open-reference',referenceId:String(message.referenceId||'')},awaitCompletion:true,silentDone:true});
-      case 'testAlert': {try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();osc=audioCtx.createOscillator();osc.frequency.value=880;osc.connect(audioCtx.destination);osc.start();setTimeout(()=>{try{osc?.stop()}catch(_){}},900);return {ok:true};}catch(e){return {ok:false,error:e.message};}}
-      case 'stopAlert': try{osc?.stop();await audioCtx?.close();}catch(_){}return {ok:true};
+      case 'testAlert': {try{await startLegacyAlert();return {ok:true};}catch(e){return {ok:false,error:e.message};}}
+      case 'stopAlert': await stopLegacyAlert();return {ok:true};
       default: return DigiExpressPlatform.runtime.sendMessage(message);
     }
   }

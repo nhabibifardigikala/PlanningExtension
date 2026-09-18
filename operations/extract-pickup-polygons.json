@@ -91,6 +91,10 @@
       "pageProgress": "Extracting Pick-up Polygon page {{page}}…",
       "progress": "Extracting Pick-up Polygons…",
       "error": "No Pick-up Polygon rows were found."
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing Agent tab…"
     }
   ],
   "retryPolicy": {
@@ -101,5 +105,6 @@
   "businessLogicOwner": "remote",
   "output": {
     "type": "internal"
-  }
+  },
+  "closeTabOnError": true
 }

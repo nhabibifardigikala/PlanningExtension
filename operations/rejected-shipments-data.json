@@ -37,11 +37,6 @@
       "error": "Rejected Shipments table did not become ready."
     },
     {
-      "action": "setTabZoom",
-      "zoom": 0.5,
-      "progress": "Preparing shipment table…"
-    },
-    {
       "action": "configureColumns",
       "columns": {
         "id": true,
@@ -271,20 +266,7 @@
       "nextSelector": "a[rel=\"next\"], a[aria-label=\"Next page\"], a[title*=\"Next\"], .uk-pagination-next a"
     },
     {
-      "action": "setTabZoom",
-      "zoom": 1,
-      "when": {
-        "left": "{{keepScrapeTabOpen}}",
-        "equals": "true"
-      },
-      "progress": "Restoring shipment tab zoom…"
-    },
-    {
       "action": "closeTab",
-      "when": {
-        "left": "{{keepScrapeTabOpen}}",
-        "equals": "false"
-      },
       "progress": "Closing extraction tab…"
     }
   ],
@@ -329,5 +311,6 @@
     }
   ],
   "runtimeContract": "stable-host-12",
-  "businessLogicOwner": "remote"
+  "businessLogicOwner": "remote",
+  "closeTabOnError": true
 }
