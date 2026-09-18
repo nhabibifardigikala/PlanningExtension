@@ -40,3 +40,8 @@ The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. T
 - Dashboard reads DataSets → Rejected Shipments directly through Stable Host Google Sheets read capability, with Apps Script fallback.
 - Synchronizer reads max(id) from the exact `id` column before extraction, applies rejected filter + Search, configures the exact 12 Rejected_Raw columns, sets 1000 rows/page, stops at the stored watermark, and appends de-duplicated IDs.
 - Extraction tabs close on success, error, or cancellation.
+
+
+## v343 fixes
+- Authenticator opens the real Host-local secure application directly instead of showing a Remote placeholder card.
+- Polygon applications read DataSets directly through Stable Host `sheets.readRows`; Apps Script/JSONP is no longer required for polygon dataset loading.

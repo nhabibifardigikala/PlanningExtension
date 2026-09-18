@@ -1,7 +1,5 @@
 (()=>{
-  const WEBAPP_KEY='digiexpress.dataset.webAppUrl';
-  const CALLBACK_ROOT='__dxPolygonJsonp';
-  let seq=0;
+  const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   function clean(v){return String(v??'').replace(/\u200c|\u200d|\u200e|\u200f/g,' ').replace(/\s+/g,' ').trim()}
   function norm(v){return clean(v).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()}
   function findHeader(headers,aliases){const hs=headers.map(norm),as=aliases.map(norm);for(let i=0;i<hs.length;i++)if(as.includes(hs[i]))return i;for(let i=0;i<hs.length;i++)if(as.some(a=>hs[i].includes(a)))return i;return -1}
@@ -29,40 +27,29 @@
     const walk=n=>{if(!Array.isArray(n))return;if(n.length>=3&&n.every(isPoint)){const ring=n.map(p=>[numberValue(p[0]),numberValue(p[1])]).filter(p=>p[0]>=-90&&p[0]<=90&&p[1]>=-180&&p[1]<=180);if(ring.length>=3)rings.push(ring);return}for(const c of n)walk(c)};
     walk(node);return rings;
   }
-  function webAppUrl(){
-    try{const v=String(localStorage.getItem(WEBAPP_KEY)||'').trim();if(v)return v}catch(_){}
-    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),v=String(localStorage.getItem(k)||'');if(/https:\/\/script\.google\.com\/macros\/s\//i.test(v))return v.trim()}}catch(_){}
-    throw new Error('Google Sheets connection was not found. Open Agents once and save Program Settings.');
-  }
   function sheetFromSource(source){const s=String(source||'');if(/^sheet:/i.test(s))return s.slice(6).trim();if(/pickup/i.test(s))return 'Pick-up Polygons';return 'Delivery Polygons'}
-  function jsonp(url,params){return new Promise((resolve,reject)=>{
-    const id='cb'+Date.now()+'_'+(++seq),cb=CALLBACK_ROOT+'.'+id;window[CALLBACK_ROOT]=window[CALLBACK_ROOT]||{};
-    const script=document.createElement('script'),timer=setTimeout(()=>done(new Error('Google Sheets dataset request timed out.')),25000);
-    function cleanup(){clearTimeout(timer);delete window[CALLBACK_ROOT][id];script.remove()}
-    function done(err,data){cleanup();err?reject(err):resolve(data)}
-    window[CALLBACK_ROOT][id]=data=>done(null,data);script.onerror=()=>done(new Error('Google Sheets dataset could not be loaded.'));
-    const u=new URL(url);for(const [k,v] of Object.entries({...params,callback:cb,_:Date.now()}))u.searchParams.set(k,String(v));script.src=u.toString();document.head.appendChild(script);
-  })}
   function mapRows(headers,rows,sheetName){
     const nameI=findHeader(headers,['Name','name','title','polygon title','coverage polygon title']);
     const coordI=findHeader(headers,['coordinates','coordinate']);
-    const dcI=findHeader(headers,['distribution center id','dc id','distribution center','id']);
+    const dcI=findHeader(headers,['distribution center id','dc id','distribution center','hub id','id']);
     const stateI=findHeader(headers,['state id']);
-    const iataI=findHeader(headers,['IATA','iata']);
+    const iataI=findHeader(headers,['IATA','iata','iata code']);
     const districtI=findHeader(headers,['district']);
     const natureI=findHeader(headers,['shipping nature id','shipping nature','shipping size id','shipping size']);
-    const submitI=findHeader(headers,['submit type','delivery type']);
-    const activeI=findHeader(headers,['active']);
-    if(nameI<0||coordI<0)throw new Error(`${sheetName}: required Name/title or coordinates column was not found.`);
+    const submitI=findHeader(headers,['submit type','delivery type','type']);
+    const activeI=findHeader(headers,['active','is active']);
+    if(nameI<0||coordI<0)throw new Error(`${sheetName}: required Name/title or coordinates column was not found. Received headers: ${headers.join(' | ')}`);
     return rows.map(r=>({
       name:clean(r[nameI]),coordinates:parseCoordinates(r[coordI]),dcId:dcI>=0?r[dcI]:'',stateId:stateI>=0?r[stateI]:'',iata:iataI>=0?r[iataI]:'',district:districtI>=0?r[districtI]:'',natureId:natureI>=0?r[natureI]:'',submitType:submitI>=0?r[submitI]:'',active:activeI>=0?r[activeI]:1,timeScope:''
     })).filter(r=>r.name&&r.coordinates.length);
   }
   async function load(source){
-    const sheetName=sheetFromSource(source),url=webAppUrl();
-    const data=await jsonp(url,{action:'getDataset',sheetName});
-    if(!data||data.ok!==true)throw new Error(data?.error||`${sheetName} could not be loaded.`);
-    return {headers:data.headers||[],rows:mapRows(data.headers||[],data.rows||[],sheetName),sheetName,updatedAt:data.updatedAt||''};
+    const sheetName=sheetFromSource(source);
+    if(!globalThis.DigiExpressPlatform?.call)throw new Error('DigiExpress Host bridge is unavailable. Reload the extension page and try again.');
+    const response=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName,limit:100000});
+    const data=response?.result||response;
+    if(!data||!Array.isArray(data.headers)||!Array.isArray(data.rows))throw new Error(`${sheetName}: Google Sheets dataset could not be loaded.`);
+    return {headers:data.headers,rows:mapRows(data.headers,data.rows,sheetName),sheetName,updatedAt:data.updatedAt||''};
   }
   window.DXPolygonLoader={load};
 })();

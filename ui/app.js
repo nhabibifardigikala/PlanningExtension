@@ -760,6 +760,13 @@ $('smartSidebarItems')?.addEventListener('click',(event)=>{const b=event.target.
 
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
+  if(String(catalogOp.id)==='authenticator'){
+    setStatus('Opening secure Authenticator…');
+    const r=await platform.call('localPage.open',{path:'authenticator.html',active:true});
+    if(r?.ok===false)throw new Error(r.error||'Authenticator could not be opened.');
+    setStatus('Authenticator opened in a secure Host tab.','ok');
+    return true;
+  }
   setStatus(`Loading ${catalogOp.title||catalogOp.id}…`);
   const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id}); if(!loaded?.ok)throw new Error(loaded?.error||'Could not load the remote operation.');
   const op={...catalogOp,...(loaded.operation||{}),id:catalogOp.id};
