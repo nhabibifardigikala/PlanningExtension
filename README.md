@@ -87,7 +87,7 @@ Authenticator again behaves like the pre-Remote-shell embedded implementation: i
 
 - Gate Management now uses the explicit `Gate Management` Access-sheet header and is no longer public.
 
-## v356 — Weekly Planning
+## v357 — Weekly Planning
 
 - Added `Weekly Planning` under Utilities with Access header `Weekly Planning`.
 - Reads the `Tasks` sheet from spreadsheet `1t1rX8DEIIhPztSrxcRQIuZCwy5cYxRFomZWKdp6sHNg` through Stable Host `sheets.readRows`.
@@ -96,3 +96,7 @@ Authenticator again behaves like the pre-Remote-shell embedded implementation: i
 - New Task modal supports L1/L2/L3 hierarchy, group, priority, time, status, responsible, due date and optional planned date; `Add Date` is generated automatically.
 - Responsible and Priority dropdowns are configurable in Weekly Planning Settings and stored in Host-backed `chrome.storage.local`.
 - Writes use the existing generic authenticated `REMOTE_HTTP_REQUEST` bridge to an included Google Apps Script Web App (`weekly-planning/appsscript/Code.gs`). No Host update is required.
+
+
+## v357 visibility fix
+Weekly Planning registration is included in `app.json`, `operations/weekly-planning.json`, its icon, embedded workspace, and the changed-files package. Access header is exactly `Weekly Planning`.
