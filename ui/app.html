@@ -292,6 +292,20 @@ html[data-theme="dark"] .generic-legend-1{background:#d3d9e3}
 .operation-control-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.operation-control-row .secondary-button{margin-top:0}.operation-control-row .hidden+button:not(.hidden){grid-column:1/-1}
 
 
+/* v353 — Gate Management embedded Remote workspace. */
+#gateManagementEmbedded.gate-management-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:520px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--card);margin-top:6px}
+#gateManagementEmbedded.gate-management-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
+html[data-theme="dark"] #gateManagementFrame{color-scheme:dark}
+#operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) .settings-heading{margin-bottom:8px}
+#operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) .settings-heading p{display:none}
+#operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) #gateManagementEmbedded.gate-management-embedded{display:block!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__gateManagementEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__gateManagementEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__gateManagementEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+#operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) #gateManagementEmbedded.gate-management-embedded{flex:1 1 auto;height:auto!important;min-height:0!important}
+
 /* v64 — embedded Daily Planner. No host logic required. */
 .daily-planner-embedded{display:none;width:100%;min-height:calc(100vh - 170px);margin-top:8px}
 .daily-planner-embedded iframe{display:block;width:100%;height:calc(100vh - 178px);min-height:620px;border:0;border-radius:14px;background:var(--card,#fff)}
@@ -851,7 +865,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="hero-orb hero-orb-a"></div><div class="hero-orb hero-orb-b"></div>
-          <div class="hero-metric"><strong>26</strong><span>Operational tools</span></div>
+          <div class="hero-metric"><strong>27</strong><span>Operational tools</span></div>
           <div class="hero-metric secondary"><strong>100%</strong><span>Remote UI</span></div>
         </div>
       </section>
@@ -873,7 +887,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
         <div class="section-heading tools-heading favorites-heading"><div><span class="eyebrow compact">Pinned</span><h2>Favorites</h2><p>Your starred tools for quick access.</p></div></div>
         <section class="operation-grid favorites-grid" id="favoritesGrid"></section>
       </section>
-      <div class="section-heading tools-heading"><div><span class="eyebrow compact">Workspace</span><h2>Operational tools</h2><p>Choose a tool to open its workspace.</p></div><div id="visibleToolCount" class="tool-count">26 tools</div></div>
+      <div class="section-heading tools-heading"><div><span class="eyebrow compact">Workspace</span><h2>Operational tools</h2><p>Choose a tool to open its workspace.</p></div><div id="visibleToolCount" class="tool-count">27 tools</div></div>
       <section class="operation-grid" id="menu"></section>
       <section class="status-card compact-status"><div class="status-dot"></div><div><div class="status-title">System status</div><div id="status" class="status" aria-live="polite">Loading remote configuration…</div></div></section>
     </section>
@@ -886,6 +900,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
         <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=348" loading="lazy"></iframe>
       </section>
       <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=353" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>

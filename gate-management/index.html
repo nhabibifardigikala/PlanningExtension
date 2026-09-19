@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gate Management</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#0f172a;--muted:#667085;--line:#e2e8f0;--primary:#2563eb;--soft:#eef4ff}
+html[data-theme="dark"]{--bg:#0b1220;--card:#111a2b;--text:#eef4ff;--muted:#9cacbf;--line:#26334a;--primary:#60a5fa;--soft:#14223a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+body{padding:22px}.wrap{max-width:1180px;margin:auto}.hero{display:grid;grid-template-columns:1fr 160px;gap:24px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 16px 40px rgba(15,23,42,.06)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}h1{font-size:34px;margin:10px 0 8px;letter-spacing:-.03em}p{color:var(--muted);line-height:1.7;margin:0}.hero img{width:140px;height:140px;border-radius:24px;object-fit:cover;justify-self:end;box-shadow:0 12px 26px rgba(15,23,42,.12)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}.card strong{display:block;margin-bottom:7px;font-size:14px}.card span{color:var(--muted);font-size:12px;line-height:1.6}.empty{margin-top:18px;background:var(--card);border:1px dashed var(--line);border-radius:18px;padding:22px;text-align:center}.empty b{display:block;margin-bottom:7px}.pill{display:inline-flex;margin-top:12px;padding:7px 10px;border-radius:999px;background:var(--soft);color:var(--primary);font-size:11px;font-weight:800}
+@media(max-width:760px){body{padding:14px}.hero{grid-template-columns:1fr}.hero img{justify-self:start}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div><div class="eyebrow">Network Operations</div><h1>Gate Management</h1><p>Workspace for gate operations, vehicle flow, scheduling and access control. The module is now available in DigiExpress and is ready for the workflow you define next.</p><span class="pill">Remote-owned module</span></div>
+    <img src="../icons/apps/gate-management.webp?v=353" alt="Gate Management">
+  </section>
+  <section class="grid">
+    <article class="card"><strong>Gate Operations</strong><span>Entry / exit workflows and gate status can be added here.</span></article>
+    <article class="card"><strong>Scheduling</strong><span>Appointment, dock and queue scheduling can be connected in the next step.</span></article>
+    <article class="card"><strong>Monitoring</strong><span>Live status, history and exceptions can share the same workspace.</span></article>
+  </section>
+  <section class="empty"><b>Gate Management is ready</b><p>No operational workflow has been configured yet.</p></section>
+</div>
+<script>
+const q=new URLSearchParams(location.search);const t=(q.get('theme')||'').toLowerCase();if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;
+window.addEventListener('message',e=>{const t=String(e.data?.theme||'').toLowerCase();if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;});
+</script>
+</body>
+</html>

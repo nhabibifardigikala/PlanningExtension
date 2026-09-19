@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Gate Management workspace.",
+  "workflow": [],
+  "successMessage": "Gate Management ready.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
+}

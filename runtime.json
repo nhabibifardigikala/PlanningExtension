@@ -17,16 +17,16 @@
     "renderFromRemote": true
   },
   "notes": "Config 348. The workspace opens on Stable Host 13.0.0+; newer Host versions are required only by operations that declare minHostVersion.",
-  "configVersion": 352,
+  "configVersion": 353,
   "minimumRuntimeVersion": "13.0.0",
   "minimumRuntime": "13.0.0",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
   "recommendedRuntime": "13.0.2",
   "runtimeUpdatePolicy": "security-platform-only",
-  "version": "352",
+  "version": "353",
   "platformContract": 13,
-  "remoteVersion": 352,
+  "remoteVersion": 353,
   "executionModel": "remote-shell-stable-host",
   "runtimeVersion": "13.0.0"
 }
