@@ -1,0 +1,3 @@
+IMPORTANT: Upload the CONTENTS of this ZIP to the ROOT of the PlanningExtension GitHub repository.
+After upload, app.json must be directly at /PlanningExtension/app.json, not inside another folder.
+The ui folder must be /PlanningExtension/ui/, operations must be /PlanningExtension/operations/, etc.

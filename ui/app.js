@@ -26,7 +26,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 357;
+const EXPECTED_REMOTE_CONFIG_VERSION = 358;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -668,13 +668,32 @@ async function autoValidateCredentialsIfDue(stored){
   }finally{ setValidationBusy(false); }
 }
 
+async function fetchLiveCatalogVersion(){
+  try{
+    const url=new URL('../app.json',location.href);
+    url.searchParams.set('_',String(Date.now()));
+    const r=await fetch(url.href,{cache:'no-store',redirect:'follow'});
+    if(!r.ok)return 0;
+    const app=await r.json();
+    return Number(app?.configVersion||0);
+  }catch(_){return 0;}
+}
 async function loadRemote(force=false) {
   setStatus('Loading remote configuration…');
-  let response = await chrome.runtime.sendMessage({ type: force ? 'REFRESH_REMOTE_CONFIG' : 'GET_REMOTE_CONFIG', force });
+  // Structural rule: the Remote shell always forces the Host catalog to refresh.
+  // New operations must never depend on a 5-minute Host cache before becoming visible.
+  const liveVersion=await fetchLiveCatalogVersion();
+  let response = await chrome.runtime.sendMessage({ type:'REFRESH_REMOTE_CONFIG', force:true });
   if (!response?.ok) throw new Error(response?.error || 'Remote configuration could not be loaded.');
-  if (!force && Number(response?.bundle?.app?.configVersion || 0) < EXPECTED_REMOTE_CONFIG_VERSION) {
-    const refreshed = await chrome.runtime.sendMessage({ type:'REFRESH_REMOTE_CONFIG', force:true });
-    if (refreshed?.ok) response = refreshed;
+  let loadedVersion=Number(response?.bundle?.app?.configVersion||0);
+  const requiredVersion=Math.max(EXPECTED_REMOTE_CONFIG_VERSION,liveVersion||0);
+  if(loadedVersion<requiredVersion){
+    await new Promise(r=>setTimeout(r,350));
+    const retry=await chrome.runtime.sendMessage({type:'REFRESH_REMOTE_CONFIG',force:true});
+    if(retry?.ok){response=retry;loadedVersion=Number(retry?.bundle?.app?.configVersion||0);}
+  }
+  if(loadedVersion<requiredVersion){
+    throw new Error(`Remote catalog is stale (loaded ${loadedVersion||'unknown'}, expected ${requiredVersion}). Use Settings → Refresh Remote.`);
   }
   remoteBundle = response.bundle;
   document.getElementById('hostCompatibilityGate')?.classList.add('compatible');

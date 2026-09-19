@@ -100,3 +100,10 @@ Authenticator again behaves like the pre-Remote-shell embedded implementation: i
 
 ## v357 visibility fix
 Weekly Planning registration is included in `app.json`, `operations/weekly-planning.json`, its icon, embedded workspace, and the changed-files package. Access header is exactly `Weekly Planning`.
+
+
+## v358 structural catalog fix
+- Remote shell force-refreshes the Host catalog on every startup.
+- GitHub packages are rooted at repository root (no extra wrapper directory).
+- Gate Management and Weekly Planning are explicitly registered with Access-sheet column control.
+- All catalog asset version parameters were normalized to v358.
