@@ -30,3 +30,7 @@ Rejected Shipments uses only stable Host 13 primitives (`ensureTableColumn`, `ex
 ## Config 348: non-blocking Host upgrades
 
 The Remote workspace baseline is Stable Host 13.0.0. A newer Host release is a capability upgrade, not a reason to lock the whole application. Remote operations that truly depend on a newer privileged primitive declare `minHostVersion`; only those operations are blocked on an older Host, with a clear installed/required version message. All unrelated tools stay accessible.
+
+
+## v351 Authenticator navigation
+Authenticator opens in the current DigiExpress tab through the secure Host local-page primitive. It no longer creates an extra tab, and the Host-local page provides Back and Home controls while keeping 2FA secrets inside the Host boundary. Requires Host 13.0.3 for in-place navigation; older Hosts keep the workspace usable but this operation is version-gated.

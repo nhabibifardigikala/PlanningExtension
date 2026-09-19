@@ -51,9 +51,9 @@
     "generic-browser-alarms",
     "embedded-local-microphone-permission-runtime"
   ],
-  "remoteVersion": 349,
+  "remoteVersion": 351,
   "updateRule": "The workspace must remain accessible on Stable Host 13.0.0+. Only an operation that declares minHostVersion may be blocked when the installed Host is older than that operation requirement.",
-  "configVersion": 349,
+  "configVersion": 351,
   "minimumRuntimeVersion": "13.0.0",
   "recommendedRuntimeVersion": "13.0.2"
 }
