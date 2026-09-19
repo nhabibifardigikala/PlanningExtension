@@ -26,6 +26,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
+const EXPECTED_REMOTE_CONFIG_VERSION = 355;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -669,8 +670,12 @@ async function autoValidateCredentialsIfDue(stored){
 
 async function loadRemote(force=false) {
   setStatus('Loading remote configuration…');
-  const response = await chrome.runtime.sendMessage({ type: force ? 'REFRESH_REMOTE_CONFIG' : 'GET_REMOTE_CONFIG', force });
+  let response = await chrome.runtime.sendMessage({ type: force ? 'REFRESH_REMOTE_CONFIG' : 'GET_REMOTE_CONFIG', force });
   if (!response?.ok) throw new Error(response?.error || 'Remote configuration could not be loaded.');
+  if (!force && Number(response?.bundle?.app?.configVersion || 0) < EXPECTED_REMOTE_CONFIG_VERSION) {
+    const refreshed = await chrome.runtime.sendMessage({ type:'REFRESH_REMOTE_CONFIG', force:true });
+    if (refreshed?.ok) response = refreshed;
+  }
   remoteBundle = response.bundle;
   document.getElementById('hostCompatibilityGate')?.classList.add('compatible');
   renderRemoteBranding();

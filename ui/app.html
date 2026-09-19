@@ -900,7 +900,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
         <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=348" loading="lazy"></iframe>
       </section>
       <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=353" loading="lazy"></iframe></section>
+      <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
@@ -1049,6 +1049,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
+const EXPECTED_REMOTE_CONFIG_VERSION = 355;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1382,7 +1383,7 @@ async function refreshOperationVisibility(emailOverride = null) {
     const response = await chrome.runtime.sendMessage({ type:'GET_VISIBLE_OPERATIONS', email: hasValidEmail ? email : '' });
     if (!response?.ok) throw new Error(response?.error || 'Could not load operation access.');
     const allowed = new Set((response.allowedOps || []).map(String));
-    const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && allowed.has(String(op.id)));
+    const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && (op.accessControl === 'public' || allowed.has(String(op.id))));
     visibleOperationsCache=operations.slice();
     favoriteOperationIds=await getFavorites();
     await renderSmartSidebar();
@@ -1727,8 +1728,12 @@ async function autoValidateCredentialsIfDue(stored){
 
 async function loadRemote(force=false) {
   setStatus('Loading remote configuration…');
-  const response = await chrome.runtime.sendMessage({ type: force ? 'REFRESH_REMOTE_CONFIG' : 'GET_REMOTE_CONFIG', force });
+  let response = await chrome.runtime.sendMessage({ type: force ? 'REFRESH_REMOTE_CONFIG' : 'GET_REMOTE_CONFIG', force });
   if (!response?.ok) throw new Error(response?.error || 'Remote configuration could not be loaded.');
+  if (!force && Number(response?.bundle?.app?.configVersion || 0) < EXPECTED_REMOTE_CONFIG_VERSION) {
+    const refreshed = await chrome.runtime.sendMessage({ type:'REFRESH_REMOTE_CONFIG', force:true });
+    if (refreshed?.ok) response = refreshed;
+  }
   remoteBundle = response.bundle;
   renderRemoteBranding();
   renderThemeOptions();

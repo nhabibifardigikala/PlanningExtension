@@ -1,11 +1,11 @@
 {
-  "configVersion": 353,
+  "configVersion": 355,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 353",
+    "subtitle": "Planning Suite · Config 354",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=348",
-    "configVersion": 353
+    "configVersion": 355
   },
   "theme": "theme.json?v=348",
   "settings": "settings.json?v=348",
@@ -259,7 +259,7 @@
       "accessHeaders": [
         "Gate Management"
       ],
-      "config": "operations/gate-management.json?v=353",
+      "config": "operations/gate-management.json?v=355",
       "description": "Manage gate operations, scheduling and access workflows from one workspace.",
       "runLabel": "Open Gate Management",
       "uiMode": "form",
@@ -274,7 +274,7 @@
           }
         }
       ],
-      "iconImage": "icons/apps/gate-management.webp?v=353",
+      "iconImage": "icons/apps/gate-management.webp?v=355",
       "category": "network",
       "output": {
         "type": "internal"
@@ -941,7 +941,7 @@
     "html": "ui/app.html?v=348",
     "css": "ui/app.css?v=348"
   },
-  "version": "352",
+  "version": "355",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
