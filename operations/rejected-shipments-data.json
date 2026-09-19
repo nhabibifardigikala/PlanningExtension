@@ -533,5 +533,6 @@
   ],
   "runtimeContract": "stable-host-13.0.2",
   "businessLogicOwner": "remote-v346",
-  "closeTabOnError": true
+  "closeTabOnError": true,
+  "minHostVersion": "13.0.2"
 }

@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <title>DigiExpress</title>
 
-<!-- DigiExpress v341 self-contained remote shell. Shell CSS is embedded so a partial GitHub upload cannot break the UI. -->
+<!-- DigiExpress v348 self-contained remote shell. Shell CSS is embedded so a partial GitHub upload cannot break the UI. -->
 <style id="dx-design-system-inline">
 /* DigiExpress Design System v328 — remote-owned shared UI foundation */
 :root{
@@ -798,11 +798,10 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
 
 </head>
 <body>
-<div id="hostCompatibilityGate" class="host-compatibility-gate" role="alertdialog" aria-modal="true"><div class="host-compatibility-card"><span class="host-compatibility-icon">!</span><h1>Digiexpress Host update required</h1><p>This version of Digiexpress requires Host <strong>13.0.0</strong> or newer. The application is locked to prevent incompatible operations.</p><div class="host-compatibility-help">Please update the Host. For help, contact <a href="mailto:n.habibifar@digikala.com">n.habibifar@digikala.com</a>.</div></div></div>
   <main class="app-shell">
     <aside class="main-sidebar" aria-label="Primary navigation">
       <div class="sidebar-brand">
-        <div class="sidebar-logo-wrap"><img class="sidebar-logo" src="https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=347" alt=""></div>
+        <div class="sidebar-logo-wrap"><img class="sidebar-logo" src="https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=348" alt=""></div>
         <div><strong>DigiExpress</strong><span>Planning Suite</span></div>
       </div>
       <nav class="sidebar-nav">
@@ -818,13 +817,13 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v341</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v348</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
       <div class="mobile-brand brand">
-        <img id="brandLogo" class="brand-logo" src="https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=347" alt="" />
-        <div><div id="brandTitle" class="brand-title">DigiExpress</div><div id="brandSubtitle" class="brand-subtitle">Planning Suite · Config 347</div></div>
+        <img id="brandLogo" class="brand-logo" src="https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=348" alt="" />
+        <div><div id="brandTitle" class="brand-title">DigiExpress</div><div id="brandSubtitle" class="brand-subtitle">Planning Suite · Config 348</div></div>
       </div>
       <div class="topbar-actions">
         <div class="topbar-status"><span class="online-dot"></span><span>Remote connected</span></div>
@@ -884,22 +883,22 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
       <div class="section-heading settings-heading"><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div>
       <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><div class="operation-control-row"><button id="pauseOperation" class="secondary-button hidden" type="button">Pause</button><button id="cancelOperation" class="secondary-button danger hidden" type="button">Cancel operation</button></div><div id="operationStatus" class="settings-status" aria-live="polite"></div><div id="operationResult" class="operation-result hidden" aria-live="polite"></div></section>
       <section id="dailyPlannerEmbedded" class="daily-planner-embedded" aria-label="Daily Planner">
-        <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=347" loading="lazy"></iframe>
+        <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=348" loading="lazy"></iframe>
       </section>
-      <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=347" loading="lazy"></iframe></section>
+      <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
-      <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=347" loading="lazy"></iframe></section>
-      <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=347" loading="lazy"></iframe></section>
-      <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=347" loading="lazy"></iframe></section>
-      <section id="voiceTypingEmbedded" class="voice-typing-embedded" aria-label="Voice Typing"><iframe id="voiceTypingFrame" title="Voice Typing" src="voice-typing.html?v=347" allow="microphone"></iframe></section>
-      <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=347" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
-      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=347&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=347&theme=dark" loading="lazy"></iframe></section>
-      <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=347&theme=light" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=347&theme=dark" loading="lazy"></iframe></section>
-      <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=347&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=347&theme=dark" loading="lazy"></iframe></section>
-      <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=347" loading="lazy"></iframe></section>
-      <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=347" loading="lazy"></iframe></section>
-      <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=347" loading="lazy"></iframe></section>
-      <section id="parentDeterminationEmbedded" class="map-operation-embedded" aria-label="Parent Determination"><iframe title="Parent Determination" src="https://nhabibifardigikala.github.io/PlanningExtension/parent-determination/index.html?v=347" loading="lazy"></iframe></section>
+      <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="voiceTypingEmbedded" class="voice-typing-embedded" aria-label="Voice Typing"><iframe id="voiceTypingFrame" title="Voice Typing" src="voice-typing.html?v=348" allow="microphone"></iframe></section>
+      <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=348" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
+      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
+      <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
+      <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
+      <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="parentDeterminationEmbedded" class="map-operation-embedded" aria-label="Parent Determination"><iframe title="Parent Determination" src="https://nhabibifardigikala.github.io/PlanningExtension/parent-determination/index.html?v=348" loading="lazy"></iframe></section>
       <nav id="operationSubTabs" class="operation-subtabs hidden" aria-label="Role Assignment tools"></nav>
       <section id="capacityStats" class="stats-card hidden" aria-live="polite">
         <div class="stats-heading">Report summary</div>
@@ -1035,6 +1034,41 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
+let installedHostVersion = null;
+let hostVersionChecked = false;
+
+function compareVersions(a,b){
+  const A=String(a||'0').split('.').map(x=>Number(String(x).replace(/\D.*$/,''))||0);
+  const B=String(b||'0').split('.').map(x=>Number(String(x).replace(/\D.*$/,''))||0);
+  const n=Math.max(A.length,B.length);
+  for(let i=0;i<n;i++){const x=A[i]||0,y=B[i]||0;if(x>y)return 1;if(x<y)return -1;}
+  return 0;
+}
+async function detectInstalledHostVersion(force=false){
+  if(hostVersionChecked&&!force)return installedHostVersion;
+  hostVersionChecked=true;
+  try{
+    const info=await platform.call('platform.info',{});
+    installedHostVersion=String(info?.hostVersion||info?.version||'').trim()||null;
+  }catch(_){installedHostVersion=null;}
+  return installedHostVersion;
+}
+function requiredHostVersionForOperation(op){
+  return String(op?.minHostVersion||op?.requiredHostVersion||op?.host?.minVersion||op?.runtime?.minHostVersion||'').trim();
+}
+async function assertOperationHostCompatibility(op){
+  const required=requiredHostVersionForOperation(op);
+  if(!required)return true;
+  const installed=await detectInstalledHostVersion();
+  // Unknown version never blocks the workspace. The operation itself may still surface
+  // a capability error if a pre-13 bridge cannot report platform.info.
+  if(!installed)return true;
+  if(compareVersions(installed,required)<0){
+    const title=op?.title||op?.label||op?.id||'This operation';
+    throw new Error(`${title} requires Host ${required} or newer. Installed Host: ${installed}. The rest of DigiExpress remains available.`);
+  }
+  return true;
+}
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -1681,7 +1715,6 @@ async function loadRemote(force=false) {
   const response = await chrome.runtime.sendMessage({ type: force ? 'REFRESH_REMOTE_CONFIG' : 'GET_REMOTE_CONFIG', force });
   if (!response?.ok) throw new Error(response?.error || 'Remote configuration could not be loaded.');
   remoteBundle = response.bundle;
-  document.getElementById('hostCompatibilityGate')?.classList.add('compatible');
   renderRemoteBranding();
   renderThemeOptions();
   applyRemoteSettingsLabels();
@@ -1696,7 +1729,8 @@ async function loadRemote(force=false) {
   }
   const meta = remoteBundle.app || {};
   $('remoteMeta').textContent = `Config ${meta.configVersion ?? '—'} • fetched ${new Date(remoteBundle.fetchedAt).toLocaleString()}${remoteBundle.stale ? ' • cached/offline' : ''}`;
-  $('versionInfo').textContent = `Engine ${ENGINE_VERSION} • Config ${meta.configVersion ?? '—'}`;
+  await detectInstalledHostVersion();
+  $('versionInfo').textContent = `Host ${installedHostVersion||'unknown'} • Shell baseline ${ENGINE_VERSION} • Config ${meta.configVersion ?? '—'}`;
   await refreshOperationVisibility(stored.opsUsername || ''); await refreshSystemStatus(); await renderActivityLog(); await refreshDiagnosticsPreview();
 }
 
@@ -1769,6 +1803,7 @@ $('smartSidebarItems')?.addEventListener('click',(event)=>{const b=event.target.
 
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
+  await assertOperationHostCompatibility(catalogOp);
   if(String(catalogOp.id)==='authenticator'){
     setStatus('Opening secure Authenticator…');
     const r=await platform.call('localPage.open',{path:'authenticator.html',active:true});
@@ -1782,6 +1817,7 @@ async function openOperationById(opId,subId=''){
   setStatus(`Loading ${catalogOp.title||catalogOp.id}…`);
   const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id}); if(!loaded?.ok)throw new Error(loaded?.error||'Could not load the remote operation.');
   const op={...catalogOp,...(loaded.operation||{}),id:catalogOp.id};
+  await assertOperationHostCompatibility(op);
   if((Array.isArray(op.inputs)&&op.inputs.length)||(Array.isArray(op.subOperations)&&op.subOperations.length)){renderOperationForm(op,subId);setStatus('Ready');return true;}
   await checkOperationAccess(op.id); const response=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:op.id,inputs:{}}); if(!response?.ok)throw new Error(response?.error||'Could not start operation.'); setStatus(`${op.title||op.id} started.`,'ok');return true;
 }
@@ -2294,6 +2330,7 @@ $('runOperation').addEventListener('click', async () => {
   const op=currentOperation; if(runningOps.has(op.id))return; const btn=$('runOperation'); btn.disabled=true; $('capacityStats').classList.add('hidden'); resetLiveReport(op.id);
   try {
     const inputs=collectOperationInputs(op); if(op.subOperationId)inputs.__subOperationId=op.subOperationId;
+    await assertOperationHostCompatibility(op);
     await ensureOperationHostPermissions(op);
     await startActivity(op); setOperationRunning(true,op.id); setProgress('Preparing…');
     setOperationStatus('Checking access…'); await checkOperationAccess(op.id);

@@ -63,3 +63,7 @@ The main `ui/app.html` is now self-contained for its shell CSS and JavaScript. T
 ## v347
 - Prevented the hidden Authenticator iframe from loading on DigiExpress startup.
 - The Remote Authenticator fallback no longer opens the secure local page automatically.
+
+### Config 348 — operation-scoped Host compatibility
+
+Opening DigiExpress is no longer gated by the newest Host version. The shell baseline remains Host 13.0.0. Operations that need newer Host primitives declare `minHostVersion` and are the only ones restricted when the installed Host is older.

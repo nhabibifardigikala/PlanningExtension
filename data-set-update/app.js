@@ -28,7 +28,7 @@
     }
 ,
     'rejected-shipments-sync':{
-      id:'rejected-shipments-sync',label:'Rejected Shipments Synchronizer',operationId:'rejected-shipments-sync',sheetName:'Rejected Shipments',output:{type:'internal'},enabled:true,
+      id:'rejected-shipments-sync',label:'Rejected Shipments Synchronizer',operationId:'rejected-shipments-sync',sheetName:'Rejected Shipments',output:{type:'internal'},enabled:true,minHostVersion:'13.0.2',
       schedule:{type:'interval',time:'12:00',intervalHours:1,intervalMinutes:15},preOperations:[],
       retry:{attempts:3,delayMs:60000,backoff:1},
       inputs:{keepScrapeTabOpen:false},
@@ -50,6 +50,10 @@
     run.setAttribute('aria-label',isRunning?`Stop ${label}`:`Run ${label} now`);
   }
   let currentState=null,activeJobId='distribution-centers',pollTimer=null,migrationDone=false;
+  let installedHostVersion=null,hostVersionChecked=false;
+  function compareVersions(a,b){const A=String(a||'0').split('.').map(x=>Number(String(x).replace(/\D.*$/,''))||0),B=String(b||'0').split('.').map(x=>Number(String(x).replace(/\D.*$/,''))||0),n=Math.max(A.length,B.length);for(let i=0;i<n;i++){const x=A[i]||0,y=B[i]||0;if(x>y)return 1;if(x<y)return -1;}return 0;}
+  async function detectHostVersion(force=false){if(hostVersionChecked&&!force)return installedHostVersion;hostVersionChecked=true;try{const info=await window.DigiExpressPlatform.call('platform.info',{});installedHostVersion=String(info?.result?.hostVersion??info?.hostVersion??'').trim()||null;}catch(_){installedHostVersion=null;}return installedHostVersion;}
+  async function assertJobHostCompatibility(jobDef){const required=String(jobDef?.minHostVersion||'').trim();if(!required)return true;const installed=await detectHostVersion();if(!installed)return true;if(compareVersions(installed,required)<0)throw new Error(`${jobDef.label||jobDef.id} requires Host ${required} or newer. Installed Host: ${installed}. Other Agents remain available.`);return true;}
 
   function request(action,payload={}){
     const map={getState:'jobs.getState',saveJob:'jobs.saveJob',runNow:'jobs.runNow',cancel:'jobs.cancel',getHistory:'jobs.getHistory'};
@@ -202,7 +206,7 @@
     finally{btn.disabled=false}
   });
   $('saveSchedule').addEventListener('click',async()=>{
-    const btn=$('saveSchedule');try{btn.disabled=true;const job=collectJob(activeJobId);if(activeJobId==='iata-code-synchronizer'&&!job.inputs.syncTargets.length)throw new Error('Select at least one IATA synchronization target.');await request('saveJob',{job});await refresh({quiet:true});toast(`${JOBS[activeJobId].label} settings saved`);closeModal('datasetSettingsModal')}
+    const btn=$('saveSchedule');try{btn.disabled=true;const job=collectJob(activeJobId);if(job.enabled)await assertJobHostCompatibility(JOBS[activeJobId]);if(activeJobId==='iata-code-synchronizer'&&!job.inputs.syncTargets.length)throw new Error('Select at least one IATA synchronization target.');await request('saveJob',{job});await refresh({quiet:true});toast(`${JOBS[activeJobId].label} settings saved`);closeModal('datasetSettingsModal')}
     catch(e){$('datasetError').hidden=false;$('datasetError').textContent=e.message}
     finally{btn.disabled=false}
   });
@@ -211,6 +215,7 @@
     const id=run.dataset.runJob,st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
     if(st.running){try{setRunButtonVisual(run,true,JOBS[id].label);mini.textContent='Stopping operation…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Operation stopped');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
+      await assertJobHostCompatibility(JOBS[id]);
       run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl();
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();

@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Config 338. Stable Host 13 remote-shell architecture: UI, Agents, schedules, workflows and product behavior are Remote-owned.",
-  "configVersion": 338,
+  "notes": "Config 348. The workspace opens on Stable Host 13.0.0+; newer Host versions are required only by operations that declare minHostVersion.",
+  "configVersion": 348,
   "minimumRuntimeVersion": "13.0.0",
   "minimumRuntime": "13.0.0",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
-  "recommendedRuntime": "13.0.0",
+  "recommendedRuntime": "13.0.2",
   "runtimeUpdatePolicy": "security-platform-only",
-  "version": "338",
+  "version": "348",
   "platformContract": 13,
-  "remoteVersion": 338,
+  "remoteVersion": 348,
   "executionModel": "remote-shell-stable-host",
   "runtimeVersion": "13.0.0"
 }

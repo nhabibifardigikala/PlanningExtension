@@ -9,5 +9,6 @@
   "businessLogicOwner": "remote",
   "output": {
     "type": "internal"
-  }
+  },
+  "minHostVersion": "13.0.1"
 }

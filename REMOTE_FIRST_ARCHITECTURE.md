@@ -26,3 +26,7 @@ Future Remote configs should keep this minimum unchanged unless a new privileged
 
 ### v341 Rejected Shipments note
 Rejected Shipments uses only stable Host 13 primitives (`ensureTableColumn`, `extractPaginatedTable`, `closeTab`) and no longer depends on ad-hoc validation actions. Endpoint discovery is Remote-owned.
+
+## Config 348: non-blocking Host upgrades
+
+The Remote workspace baseline is Stable Host 13.0.0. A newer Host release is a capability upgrade, not a reason to lock the whole application. Remote operations that truly depend on a newer privileged primitive declare `minHostVersion`; only those operations are blocked on an older Host, with a clear installed/required version message. All unrelated tools stay accessible.

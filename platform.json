@@ -51,8 +51,9 @@
     "generic-browser-alarms",
     "embedded-local-microphone-permission-runtime"
   ],
-  "remoteVersion": 338,
-  "updateRule": "Normal product, UI, Agent, selector, data-source, schedule, report and workflow changes are Remote-only. Host 13 changes only for Chrome/Manifest, security-boundary fixes, or a new privileged browser primitive.",
-  "configVersion": 338,
-  "minimumRuntimeVersion": "13.0.0"
+  "remoteVersion": 348,
+  "updateRule": "The workspace must remain accessible on Stable Host 13.0.0+. Only an operation that declares minHostVersion may be blocked when the installed Host is older than that operation requirement.",
+  "configVersion": 348,
+  "minimumRuntimeVersion": "13.0.0",
+  "recommendedRuntimeVersion": "13.0.2"
 }

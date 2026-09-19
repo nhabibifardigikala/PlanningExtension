@@ -17,5 +17,6 @@
   "businessLogicOwner": "remote-v346",
   "output": {
     "type": "internal"
-  }
+  },
+  "minHostVersion": "13.0.1"
 }

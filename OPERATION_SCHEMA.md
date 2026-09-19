@@ -127,3 +127,17 @@ Every catalog operation declares an output contract:
 - `none`: the operation performs an action and does not publish a dataset.
 
 The Host treats this as a generic contract. It must not infer publishing requirements from operation IDs.
+
+## Per-operation Host compatibility (Config 348)
+
+`minHostVersion` is optional and belongs to an individual operation/job. The DigiExpress workspace itself must not be blocked just because the installed Host is older than the newest recommended Host.
+
+Example:
+
+```json
+{
+  "minHostVersion": "13.0.2"
+}
+```
+
+The Remote shell compares this requirement with `platform.info.hostVersion` only when that operation is opened or run. Operations without `minHostVersion` remain available on the Stable Host baseline. Agents may use the same field on an individual job definition.
