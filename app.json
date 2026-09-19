@@ -1,11 +1,11 @@
 {
-  "configVersion": 351,
+  "configVersion": 352,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 348",
+    "subtitle": "Planning Suite · Config 352",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=348",
-    "configVersion": 351
+    "configVersion": 352
   },
   "theme": "theme.json?v=348",
   "settings": "settings.json?v=348",
@@ -335,16 +335,28 @@
       "accessHeaders": [
         "Daily Planner"
       ],
-      "config": "operations/authenticator.json?v=348",
-      "description": "Secure local Authenticator. Opens directly from the stable Host security boundary; secrets and TOTP codes never pass through Remote.",
+      "config": "operations/authenticator.json?v=352",
+      "description": "Secure Host-local Authenticator embedded inside the DigiExpress operation view. Secrets and generated TOTP codes remain inside the Host origin.",
       "runLabel": "Authenticator",
       "iconSvgPath": "M4 20H44V28H4Z M10 6L17 2L38 42L31 46Z M31 2L38 6L17 46L10 42Z",
-      "iconImage": "icons/apps/authenticator.webp?v=348",
+      "iconImage": "icons/apps/authenticator.webp?v=352",
       "category": "utilities",
       "output": {
         "type": "internal"
       },
-      "minHostVersion": "13.0.3"
+      "minHostVersion": "13.0.4",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__authenticatorEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "note",
@@ -901,7 +913,7 @@
     "html": "ui/app.html?v=348",
     "css": "ui/app.css?v=348"
   },
-  "version": "347",
+  "version": "352",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

@@ -761,10 +761,20 @@ $('smartSidebarItems')?.addEventListener('click',(event)=>{const b=event.target.
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   if(String(catalogOp.id)==='authenticator'){
-    setStatus('Opening secure Authenticator…');
-    const r=await globalThis.DigiExpressPlatform.call('localPage.open',{path:'authenticator.html',active:true});
-    if(r?.ok===false)throw new Error(r.error||'Authenticator could not be opened.');
-    setStatus('Authenticator opened in a secure Host tab.','ok');
+    setStatus('Loading secure Authenticator…');
+    const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id});
+    const op={...catalogOp,...(loaded?.operation||{}),id:catalogOp.id};
+    renderOperationForm(op,subId);
+    const frame=document.getElementById('authenticatorFrame');
+    if(!frame)throw new Error('Authenticator frame is unavailable.');
+    if(frame.dataset.hostAuthenticatorLoaded!=='1'){
+      const local=await globalThis.DigiExpressPlatform.call('localPage.getUrl',{path:'authenticator.html'});
+      const localUrl=String(local?.url||'');
+      if(!localUrl.startsWith('chrome-extension://'))throw new Error('Secure Authenticator URL is unavailable. Reload Host 13.0.4 and retry.');
+      const u=new URL(localUrl);u.searchParams.set('embedded','1');u.searchParams.set('v','13.0.4');
+      frame.src=u.href;frame.dataset.hostAuthenticatorLoaded='1';
+    }
+    setStatus('Ready');
     return true;
   }
   setStatus(`Loading ${catalogOp.title||catalogOp.id}…`);

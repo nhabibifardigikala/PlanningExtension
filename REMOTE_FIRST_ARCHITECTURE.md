@@ -34,3 +34,7 @@ The Remote workspace baseline is Stable Host 13.0.0. A newer Host release is a c
 
 ## v351 Authenticator navigation
 Authenticator opens in the current DigiExpress tab through the secure Host local-page primitive. It no longer creates an extra tab, and the Host-local page provides Back and Home controls while keeping 2FA secrets inside the Host boundary. Requires Host 13.0.3 for in-place navigation; older Hosts keep the workspace usable but this operation is version-gated.
+
+
+## v352 secure embedded Authenticator
+The Authenticator UX is restored to the proven pre-v338 pattern: it appears inside the normal operation view with the shell Back/Home navigation. The iframe itself remains a `chrome-extension://` Host page, exposed only to the trusted DigiExpress Remote origin through Manifest V3 `web_accessible_resources`; Remote cannot read the iframe DOM because it is cross-origin. The frame starts as `about:blank` and is assigned only after the user clicks Authenticator.

@@ -71,3 +71,7 @@ Opening DigiExpress is no longer gated by the newest Host version. The shell bas
 
 ## v351 Authenticator navigation
 Authenticator opens in the current DigiExpress tab through the secure Host local-page primitive. It no longer creates an extra tab, and the Host-local page provides Back and Home controls while keeping 2FA secrets inside the Host boundary. Requires Host 13.0.3 for in-place navigation; older Hosts keep the workspace usable but this operation is version-gated.
+
+
+## v352 Authenticator restoration
+Authenticator again behaves like the pre-Remote-shell embedded implementation: it opens inside the DigiExpress operation view, while the actual page remains Host-local. Host 13.0.4 exposes only the allowlisted Authenticator resources to the trusted DigiExpress GitHub Pages origin and Remote obtains the URL through `localPage.getUrl`. No Authenticator page is loaded at workspace startup.

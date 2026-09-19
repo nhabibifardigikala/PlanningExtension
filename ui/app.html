@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <title>DigiExpress</title>
 
-<!-- DigiExpress v348 self-contained remote shell. Shell CSS is embedded so a partial GitHub upload cannot break the UI. -->
+<!-- DigiExpress v352 self-contained remote shell. Shell CSS is embedded so a partial GitHub upload cannot break the UI. -->
 <style id="dx-design-system-inline">
 /* DigiExpress Design System v328 — remote-owned shared UI foundation */
 :root{
@@ -1805,12 +1805,19 @@ async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   await assertOperationHostCompatibility(catalogOp);
   if(String(catalogOp.id)==='authenticator'){
-    setStatus('Opening secure Authenticator…');
-    const r=await globalThis.DigiExpressPlatform.call('localPage.open',{path:'authenticator.html',active:true,target:'current'});
-    if(r?.ok===false)throw new Error(r.error||'Authenticator could not be opened.');
-    viewHistory.length=0; currentOperation=null; currentSubOperationId='';
-    showView('home',{record:false,syncHash:false});
-    history.replaceState(null,'','#view=home');
+    setStatus('Loading secure Authenticator…');
+    const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id});
+    const op={...catalogOp,...(loaded?.operation||{}),id:catalogOp.id};
+    renderOperationForm(op,subId);
+    const frame=document.getElementById('authenticatorFrame');
+    if(!frame)throw new Error('Authenticator frame is unavailable.');
+    if(frame.dataset.hostAuthenticatorLoaded!=='1'){
+      const local=await globalThis.DigiExpressPlatform.call('localPage.getUrl',{path:'authenticator.html'});
+      const localUrl=String(local?.url||'');
+      if(!localUrl.startsWith('chrome-extension://'))throw new Error('Secure Authenticator URL is unavailable. Reload Host 13.0.4 and retry.');
+      const u=new URL(localUrl);u.searchParams.set('embedded','1');u.searchParams.set('v','13.0.4');
+      frame.src=u.href;frame.dataset.hostAuthenticatorLoaded='1';
+    }
     setStatus('Ready');
     return true;
   }

@@ -1,2 +1,6 @@
-Remote v351 changed files.
-Authenticator requests secure localPage.open with target=current, so it replaces the DigiExpress tab instead of opening a second tab. Authenticator is version-gated to Host 13.0.3; the DigiExpress workspace remains accessible on older Hosts.
+v352 — Authenticator restoration
+- Restores the proven pre-v338 embedded Authenticator UX inside the normal DigiExpress operation view.
+- Authenticator does not load at workspace startup.
+- On user click, Remote requests an allowlisted Host-local URL and assigns it to the embedded iframe.
+- Back/Home remain the normal DigiExpress operation navigation.
+- Requires Host 13.0.4 only for Authenticator; the rest of DigiExpress is not blocked by an older Host.

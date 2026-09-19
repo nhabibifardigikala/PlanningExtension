@@ -10,3 +10,7 @@ Credentials, access enforcement, Chrome permissions, generic browser automation,
 
 ### Update policy
 Normal product work is Remote-only. Host 13 is updated only for security, Chrome/Manifest compatibility, or a missing privileged primitive.
+
+
+## Secure local embed URL
+Host 13.0.4 adds the generic `localPage.getUrl` method. It returns URLs only for allowlisted Host-local pages. A returned page is embeddable only when the Host manifest explicitly exposes it to the trusted Remote origin.
