@@ -1,11 +1,11 @@
 {
-  "configVersion": 355,
+  "configVersion": 356,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 354",
+    "subtitle": "Planning Suite · Config 356",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=348",
-    "configVersion": 355
+    "configVersion": 356
   },
   "theme": "theme.json?v=348",
   "settings": "settings.json?v=348",
@@ -322,6 +322,34 @@
         }
       ],
       "iconImage": "icons/apps/daily-planner.webp?v=348",
+      "category": "utilities",
+      "output": {
+        "type": "internal"
+      }
+    },
+    {
+      "id": "weekly-planning",
+      "title": "Weekly Planning",
+      "subtitle": "Hierarchical weekly task planning",
+      "accessHeaders": [
+        "Weekly Planning"
+      ],
+      "config": "operations/weekly-planning.json?v=356",
+      "description": "Plan and manage hierarchical Tasks from Google Sheets with inline editing, employee plans, completion tracking and new-task creation.",
+      "runLabel": "Open Weekly Planning",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__weeklyPlanningEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ],
+      "iconImage": "icons/apps/weekly-planning.webp?v=356",
       "category": "utilities",
       "output": {
         "type": "internal"

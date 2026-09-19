@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Weekly Planning workspace backed by the Tasks Google Sheet. UI and workflow remain Remote-owned.",
+  "workflow": [],
+  "successMessage": "Weekly Planning ready.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
+}
