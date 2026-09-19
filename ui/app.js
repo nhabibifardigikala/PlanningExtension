@@ -762,7 +762,7 @@ async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   if(String(catalogOp.id)==='authenticator'){
     setStatus('Opening secure Authenticator…');
-    const r=await platform.call('localPage.open',{path:'authenticator.html',active:true});
+    const r=await globalThis.DigiExpressPlatform.call('localPage.open',{path:'authenticator.html',active:true});
     if(r?.ok===false)throw new Error(r.error||'Authenticator could not be opened.');
     setStatus('Authenticator opened in a secure Host tab.','ok');
     return true;

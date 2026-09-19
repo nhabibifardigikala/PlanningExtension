@@ -1,8 +1,5 @@
-# DigiExpress Remote v349 — Changed Files
+# DigiExpress Remote v350 changed files
 
-Changes:
-- Coverage Polygons manual coordinate input now accepts labeled format such as `Lat=34.48162, Long=47.65790`.
-- Parent Determination manual coordinate input accepts the same labeled format.
-- Existing formats `34.48162, 47.65790` and `34.48162 47.65790` remain supported.
-- Latitude/longitude range validation remains enabled.
-- Host update is not required.
+Fixes Authenticator launch from the Remote shell. The click handler now calls the exported `globalThis.DigiExpressPlatform` bridge instead of an out-of-scope local variable.
+
+Host update is not required. Keep Host 13.0.2.
