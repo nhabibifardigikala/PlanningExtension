@@ -307,7 +307,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__gateManageme
 #operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) #gateManagementEmbedded.gate-management-embedded{flex:1 1 auto;height:auto!important;min-height:0!important}
 
 
-/* v361 — Weekly Planning expanded workspace. */
+/* v362 — Weekly Planning expanded workspace. */
 #weeklyPlanningEmbedded.weekly-planning-embedded{display:none!important;width:100%;height:calc(100vh - 126px);min-height:620px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--card);margin-top:6px}
 #weeklyPlanningEmbedded.weekly-planning-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
 html[data-theme="dark"] #weeklyPlanningFrame{color-scheme:dark}
@@ -630,7 +630,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .op-icon{grid-row:1/4!important;width:58px!important;height:58px!important;border-radius:15px!important;overflow:hidden!important;display:block!important;background:#f3f6fb!important;color:inherit!important;box-shadow:0 5px 14px rgba(15,23,42,.08)!important}.op-icon img.op-icon-image,.op-icon>img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;border-radius:15px!important}.op-icon svg{width:34px!important;height:34px!important;margin:12px!important}.op-title{grid-column:2!important;align-self:end!important;text-align:left!important;font-size:13px!important;font-weight:800!important;line-height:1.25!important;color:#101828!important;padding-right:26px}.op-meta{grid-column:2!important;text-align:left!important;color:#7b879b!important;font-size:10px!important;line-height:1.5!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;padding-right:20px}.compact-status{margin:18px 0 0!important;padding:12px 14px!important;border-radius:13px!important;background:rgba(255,255,255,.7)!important}.status-title{font-size:10px!important}.status{font-size:10px!important}
 
 /* Operation + Settings views */
-#operationView,#settingsView{padding-top:24px}.view-nav{display:flex;gap:8px;margin-bottom:10px}.nav-icon-button{background:#fff!important;border-color:#e2e8f0!important;border-radius:11px!important;width:40px!important;height:40px!important}.settings-heading{padding:18px 0 0}.section-heading h1{font-size:28px!important;letter-spacing:-.6px}.section-heading p{font-size:12px!important;line-height:1.6}.settings-card,.stats-card{border:1px solid #e3e8f0!important;border-radius:18px!important;background:rgba(255,255,255,.95)!important;box-shadow:0 8px 26px rgba(15,23,42,.05)!important;padding:20px!important}.settings-card input,.settings-card select{height:44px!important;border-color:#dde3ec!important;border-radius:11px!important;background:#fbfcfe!important}.save-button{min-height:44px!important;border-radius:11px!important;background:linear-gradient(90deg,#2563eb,#3b82f6)!important;color:#fff!important;box-shadow:0 7px 18px rgba(37,99,235,.18)!important}.secondary-button{min-height:42px!important;border-radius:11px!important}.operation-control-row{display:flex;gap:10px}.operation-control-row .secondary-button{flex:1}
+#operationView,#settingsView{padding-top:10px}.view-nav{display:flex;gap:8px;margin-bottom:10px}.nav-icon-button{background:#fff!important;border-color:#e2e8f0!important;border-radius:11px!important;width:40px!important;height:40px!important}.settings-heading{padding:18px 0 0}.section-heading h1{font-size:28px!important;letter-spacing:-.6px}.section-heading p{font-size:12px!important;line-height:1.6}.settings-card,.stats-card{border:1px solid #e3e8f0!important;border-radius:18px!important;background:rgba(255,255,255,.95)!important;box-shadow:0 8px 26px rgba(15,23,42,.05)!important;padding:20px!important}.settings-card input,.settings-card select{height:44px!important;border-color:#dde3ec!important;border-radius:11px!important;background:#fbfcfe!important}.save-button{min-height:44px!important;border-radius:11px!important;background:linear-gradient(90deg,#2563eb,#3b82f6)!important;color:#fff!important;box-shadow:0 7px 18px rgba(37,99,235,.18)!important}.secondary-button{min-height:42px!important;border-radius:11px!important}.operation-control-row{display:flex;gap:10px}.operation-control-row .secondary-button{flex:1}
 .daily-planner-embedded,.follow-up-embedded,.authenticator-embedded,.wellness-embedded,.note-embedded,.voice-typing-embedded,.paste-assistant-embedded,.data-set-update-embedded,.capacity-report-embedded,.process-learning-embedded,.time-study-embedded,.map-operation-embedded{border-radius:20px!important;overflow:hidden!important;border:1px solid #e1e7ef!important;box-shadow:0 12px 32px rgba(15,23,42,.06)!important;background:#fff!important}
 
 /* Dark theme */
@@ -845,7 +845,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v361</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v362</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -907,7 +907,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
     </section>
 
     <section id="operationView" class="view">
-      <nav class="view-nav" aria-label="Navigation"><button id="operationHomeBtn" class="nav-icon-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button><button id="operationBackBtn" class="nav-icon-button" type="button" title="Back" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button></nav>
+      <nav class="view-nav" aria-label="Navigation"><button id="operationHomeBtn" class="nav-icon-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button></nav>
       <div class="section-heading settings-heading"><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div>
       <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><div class="operation-control-row"><button id="pauseOperation" class="secondary-button hidden" type="button">Pause</button><button id="cancelOperation" class="secondary-button danger hidden" type="button">Cancel operation</button></div><div id="operationStatus" class="settings-status" aria-live="polite"></div><div id="operationResult" class="operation-result hidden" aria-live="polite"></div></section>
       <section id="dailyPlannerEmbedded" class="daily-planner-embedded" aria-label="Daily Planner">
@@ -915,7 +915,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
       </section>
       <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
       <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
-      <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=361" loading="lazy"></iframe></section>
+      <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=362" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
@@ -939,7 +939,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
     </section>
 
     <section id="settingsView" class="view">
-      <nav class="view-nav" aria-label="Navigation"><button id="settingsHomeBtn" class="nav-icon-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button><button id="backBtn" class="nav-icon-button" type="button" title="Back" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button></nav>
+      <nav class="view-nav" aria-label="Navigation"><button id="settingsHomeBtn" class="nav-icon-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button></nav>
       <div class="section-heading settings-heading"><h1 id="settingsTitle">Settings</h1><p id="settingsDescription">Account, appearance, remote configuration, diagnostics, and local data controls.</p></div>
 
       <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
@@ -1064,7 +1064,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 361;
+const EXPECTED_REMOTE_CONFIG_VERSION = 362;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1795,8 +1795,8 @@ async function loadRemote(force=false) {
 $('settingsBtn').addEventListener('click', () => showView('settings'));
 $('settingsHomeBtn')?.addEventListener('click', goHomeView);
 $('operationHomeBtn')?.addEventListener('click', goHomeView);
-$('backBtn').addEventListener('click', goBackView);
-$('operationBackBtn').addEventListener('click', goBackView);
+$('backBtn')?.addEventListener('click', goBackView);
+$('operationBackBtn')?.addEventListener('click', goBackView);
 $('togglePassword').addEventListener('click', (e) => { const visible=passwordEl.type==='text'; passwordEl.type=visible?'password':'text'; e.currentTarget.textContent=visible?'Show':'Hide'; });
 $('refreshRemote').addEventListener('click', async () => { try { const r=await chrome.runtime.sendMessage({type:'REFRESH_REMOTE_CONFIG'}); if(!r?.ok) throw new Error(r?.error||'Remote configuration could not be refreshed.'); location.reload(); } catch(e){ showToast(e.message,'error'); } });
 $('rollbackRemote').addEventListener('click', async()=>{try{const r=await chrome.runtime.sendMessage({type:'ROLLBACK_REMOTE_CONFIG'});if(!r?.ok)throw new Error(r?.error||'Rollback failed.');location.reload();}catch(e){showToast(e.message,'error')}});

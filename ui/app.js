@@ -26,7 +26,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 361;
+const EXPECTED_REMOTE_CONFIG_VERSION = 362;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -722,8 +722,8 @@ async function loadRemote(force=false) {
 $('settingsBtn').addEventListener('click', () => showView('settings'));
 $('settingsHomeBtn')?.addEventListener('click', goHomeView);
 $('operationHomeBtn')?.addEventListener('click', goHomeView);
-$('backBtn').addEventListener('click', goBackView);
-$('operationBackBtn').addEventListener('click', goBackView);
+$('backBtn')?.addEventListener('click', goBackView);
+$('operationBackBtn')?.addEventListener('click', goBackView);
 $('togglePassword').addEventListener('click', (e) => { const visible=passwordEl.type==='text'; passwordEl.type=visible?'password':'text'; e.currentTarget.textContent=visible?'Show':'Hide'; });
 $('refreshRemote').addEventListener('click', async () => { try { const r=await chrome.runtime.sendMessage({type:'REFRESH_REMOTE_CONFIG'}); if(!r?.ok) throw new Error(r?.error||'Remote configuration could not be refreshed.'); location.reload(); } catch(e){ showToast(e.message,'error'); } });
 $('rollbackRemote').addEventListener('click', async()=>{try{const r=await chrome.runtime.sendMessage({type:'ROLLBACK_REMOTE_CONFIG'});if(!r?.ok)throw new Error(r?.error||'Rollback failed.');location.reload();}catch(e){showToast(e.message,'error')}});
