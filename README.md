@@ -1,4 +1,4 @@
-## Remote v359
+## Remote v361
 
 Weekly Planning usability update: larger typography, full-width layout, project/group based task creation, plan-hour progress metrics, and duplicate shell title removal.
 
