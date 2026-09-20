@@ -1,4 +1,4 @@
-/* Rejected Shipments Remote adapter v346
+/* Rejected Shipments Remote adapter v360
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
@@ -49,15 +49,30 @@
   async function cachePayload(payload){await chrome.storage.local.set({[CACHE_KEY]:payload.rows||[],[META_KEY]:{totalRows:payload.totalRows||0,maxId:payload.maxId||0,cacheUpdatedAt:payload.cacheUpdatedAt||new Date().toISOString()}});}
   async function cached(limit=50000){const x=await chrome.storage.local.get([CACHE_KEY,META_KEY]);const rows=Array.isArray(x[CACHE_KEY])?x[CACHE_KEY].slice(-limit):[];const m=x[META_KEY]||{};return rows.length?{ok:true,rows,kpis:null,totalRows:Number(m.totalRows)||rows.length,maxId:Number(m.maxId)||Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:m.cacheUpdatedAt||'',dataSource:'local-cache'}:{ok:false,error:'No dashboard cache available yet.'};}
   async function fresh(limit=50000){
-    // Dashboard reads only from the authoritative DataSets spreadsheet tab.
-    // Do not fall back to Apps Script here: an expired Web App deployment must never
-    // block dashboard hydration when the Google Sheet itself is readable in Chrome.
-    const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit});
-    const d=direct?.result??direct??{};
-    const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
-    const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:updatedAt,dataSource:'google-sheet-direct'};
-    await cachePayload(payload);
-    return payload;
+    // Primary path: generic Host sheet read. Host 13.0.5 first tries a credential-free
+    // read so broadly shared DataSets tabs behave the same for every user.
+    try{
+      const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit});
+      if(direct?.ok===false)throw new Error(direct.error||'Direct Google Sheet read failed.');
+      const d=direct?.result??direct??{};
+      const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
+      const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:updatedAt,dataSource:'google-sheet-direct'};
+      await cachePayload(payload);
+      return payload;
+    }catch(directError){
+      // Compatibility fallback: if this browser cannot read the Sheet directly, use
+      // the same Apps Script DataSets endpoint configured for Agents. This prevents
+      // the dashboard from being tied to one user's Google session.
+      try{
+        const d=await http({action:'readDataset',sheetName:DATASETS_SHEET,limit});
+        const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
+        const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(r=>numericId(r.id))),cacheUpdatedAt:updatedAt,dataSource:'apps-script-fallback',warning:'Direct Sheet access was unavailable; loaded through the shared DataSets endpoint.'};
+        await cachePayload(payload);
+        return payload;
+      }catch(scriptError){
+        throw new Error(`Direct Sheet read failed: ${directError.message} Apps Script fallback failed: ${scriptError.message}`);
+      }
+    }
   }
   function scheduleRetry(error){clearTimeout(retryTimer);retryAttempt++;retryTimer=setTimeout(()=>refresh('retry').catch(()=>{}),60000);emit({type:'dashboardRefreshFailed',error:String(error?.message||error),retryAttempt,nextRetry:new Date(Date.now()+60000).toISOString()});}
   async function refresh(source='manual'){

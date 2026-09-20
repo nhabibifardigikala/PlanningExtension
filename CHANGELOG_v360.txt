@@ -1,0 +1,5 @@
+DigiExpress Remote v360
+- Workspace no longer hard-locks when Host returns an older cached Remote catalog.
+- Rejected Shipments Dashboard now falls back to the shared Apps Script DataSets endpoint when direct Sheet access fails.
+- Rejected Dashboard assets cache-busted to v360.
+- Gate Management, Weekly Planning, and Rejected Shipments declare Host 13.0.5 where the new generic access/data fixes are required.

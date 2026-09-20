@@ -26,7 +26,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 359;
+const EXPECTED_REMOTE_CONFIG_VERSION = 360;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -692,8 +692,12 @@ async function loadRemote(force=false) {
     const retry=await chrome.runtime.sendMessage({type:'REFRESH_REMOTE_CONFIG',force:true});
     if(retry?.ok){response=retry;loadedVersion=Number(retry?.bundle?.app?.configVersion||0);}
   }
+  // Never brick the workspace because the Host still has an older catalog cached.
+  // The shell can continue with the last usable bundle and the Host will refresh in the
+  // background. Operation-specific compatibility/access checks still protect execution.
   if(loadedVersion<requiredVersion){
-    throw new Error(`Remote catalog is stale (loaded ${loadedVersion||'unknown'}, expected ${requiredVersion}). Use Settings → Refresh Remote.`);
+    response.bundle={...(response.bundle||{}),stale:true,remoteError:`Catalog ${loadedVersion||'unknown'} is behind live ${requiredVersion}. Background refresh will retry.`};
+    setTimeout(()=>chrome.runtime.sendMessage({type:'REFRESH_REMOTE_CONFIG',force:true}).catch(()=>{}),1500);
   }
   remoteBundle = response.bundle;
   document.getElementById('hostCompatibilityGate')?.classList.add('compatible');
