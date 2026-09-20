@@ -201,12 +201,12 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 
     <section class="view active" id="tasksView">
       <div class="toolbar">
-        <div class="field"><label>Search</label><input id="search" placeholder="Task name, group, code…"></div>
-        <div class="field"><label>Group</label><select id="groupFilter"><option value="">All groups</option></select></div>
-        <div class="field"><label>Priority</label><select id="priorityFilter"><option value="">All priorities</option></select></div>
-        <div class="field"><label>Responsible</label><select id="respFilter"><option value="">All responsible</option></select></div>
-        <div class="field"><label>Status</label><select id="statusFilter"><option value="">All statuses</option></select></div>
-        <div class="field"><label>Planning</label><select id="planningFilter"><option value="">All tasks</option><option value="planned">Planned</option><option value="unplanned">Unplanned</option><option value="done">Completed</option></select></div>
+        <div class="field"><label>Search</label><input id="search" autocomplete="off" placeholder="Task name, group, code…"></div>
+        <div class="field"><label>Group</label><select id="groupFilter" autocomplete="off"><option value="">All groups</option></select></div>
+        <div class="field"><label>Priority</label><select id="priorityFilter" autocomplete="off"><option value="">All priorities</option></select></div>
+        <div class="field"><label>Responsible</label><select id="respFilter" autocomplete="off"><option value="">All responsible</option></select></div>
+        <div class="field"><label>Status</label><select id="statusFilter" autocomplete="off"><option value="">All statuses</option></select></div>
+        <div class="field"><label>Planning</label><select id="planningFilter" autocomplete="off"><option value="">All tasks</option><option value="planned">Planned</option><option value="unplanned">Unplanned</option><option value="done">Completed</option></select></div>
       </div>
       <div class="table-card">
         <div class="table-head"><b>Tasks</b><span id="taskCount">0 tasks</span></div>
@@ -278,7 +278,7 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 </div></div>
 
 <div class="toast" id="toast"></div>
-<script src="../ui/platform-client.js?v=365"></script>
+<script src="../ui/platform-client.js?v=366"></script>
 <script>
 const SPREADSHEET_ID = '1t1rX8DEIIhPztSrxcRQIuZCwy5cYxRFomZWKdp6sHNg';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit';
@@ -327,11 +327,15 @@ function arrowSvg(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d
 function renderHierarchyHeader(kind, level, key, title, summary){ const collapsed = collapseState[kind][level===1?'l1':'l2'].has(key); return `<tr class="hierarchy-row level-${level}"><td class="hierarchy-cell" colspan="${kind==='tasks'?7:5}"><div class="hierarchy-bar"><button class="toggle-btn ${collapsed?'collapsed':''}" type="button" data-tree="${kind}" data-level="${level}" data-key="${esc(key)}" aria-label="${collapsed?'Expand':'Collapse'}">${arrowSvg()}</button><div><div class="task-title">${esc(title || 'Untitled')}</div></div><span class="summary-pill">${esc(summary)}</span></div></td></tr>`; }
 function renderTaskLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''}" data-row="${t.rowNumber}"><td class="task-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.group)}</td><td><select class="inline-select edit-priority">${optionHtml(allPriorities(),t.priority)}</select></td><td><input class="inline-input edit-time" value="${esc(t.time)}" placeholder="Time"></td><td><select class="inline-select edit-responsible">${optionHtml(configuredResponsibles(),t.responsible,'Unassigned')}</select></td><td><button class="save-mini" data-action="save">Save</button></td><td><button class="plan-btn" data-action="plan" title="Set Planned Date to today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg></button></td></tr>`; }
 function renderPlanLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''} plan-row" data-row="${t.rowNumber}"><td><input class="done-box" type="checkbox" ${isDone(t)?'checked':''} title="Toggle done"></td><td class="plan-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.priority)}</td><td>${esc(t.time)}</td><td class="done-date">${isDone(t)?esc(t.completionDate):'—'}</td></tr>`; }
+function taskFiltersActive(){ return !!(norm($('search').value) || $('groupFilter').value || $('priorityFilter').value || $('respFilter').value || $('statusFilter').value || $('planningFilter').value); }
+function resetTaskFilters(){ $('search').value=''; $('groupFilter').value=''; $('priorityFilter').value=''; $('respFilter').value=''; $('statusFilter').value=''; $('planningFilter').value=''; }
 function renderTasks(){
   const body=$('tasksBody');
-  const filtered=tasks.filter(taskMatchesFilters);
+  // Tasks is the master sheet view. With no explicit filters, every non-empty Google Sheet row is included,
+  // regardless of Responsible, Planned Date, Completion Date, Status, or hierarchy completeness.
+  const filtered=taskFiltersActive() ? tasks.filter(taskMatchesFilters) : [...tasks];
   const filteredRows=new Set(filtered.map(t=>t.rowNumber));
-  let html='', visibleCount=0, zebraIndex=0;
+  let html='', zebraIndex=0;
   const rendered=new Set();
   const projects=projectModels();
 
@@ -341,6 +345,7 @@ function renderTasks(){
     const projectChildren=[];
     for(const g of groups){
       const groupRow=tasks.find(t=>t.l1===p.l1&&t.l2===g.l2&&Number(t.l3||0)===0);
+      // IMPORTANT: no Responsible/Date requirement here. Every matching sheet child is included.
       const children=tasks.filter(t=>t.l1===p.l1&&t.l2===g.l2&&Number(t.l3||0)>0&&filteredRows.has(t.rowNumber)).sort((a,b)=>numericSort(a.l3,b.l3));
       const groupMatches=!!groupRow&&filteredRows.has(groupRow.rowNumber);
       if(groupMatches||children.length) projectChildren.push({g,groupRow,children});
@@ -349,32 +354,36 @@ function renderTasks(){
     const projectMatches=!!projectRow&&filteredRows.has(projectRow.rowNumber);
     if(!projectMatches&&!projectChildren.length&&!directLeaves.length) continue;
 
-    const descendantLeaves=[...directLeaves,...projectChildren.flatMap(x=>x.children)];
-    html+=renderHierarchyHeader('tasks',1,p.l1,p.name,hierarchySummary(descendantLeaves));
-    if(projectRow) rendered.add(projectRow.rowNumber);
-    visibleCount += projectRow&&projectMatches ? 1 : 0;
+    const descendantRows=[];
+    if(projectMatches&&projectRow) descendantRows.push(projectRow);
+    for(const block of projectChildren){ if(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)) descendantRows.push(block.groupRow); descendantRows.push(...block.children); }
+    descendantRows.push(...directLeaves);
+    html+=renderHierarchyHeader('tasks',1,p.l1,p.name,hierarchySummary(descendantRows));
+    if(projectRow&&projectMatches) rendered.add(projectRow.rowNumber);
+
     if(!collapseState.tasks.l1.has(p.l1)){
-      for(const t of directLeaves){ html+=renderTaskLeafRow(t,zebraIndex%2===1); rendered.add(t.rowNumber); visibleCount++; zebraIndex++; }
+      for(const t of directLeaves){ html+=renderTaskLeafRow(t,zebraIndex%2===1); rendered.add(t.rowNumber); zebraIndex++; }
       for(const block of projectChildren){
         const groupKey=`${p.l1}.${block.g.l2}`;
-        html+=renderHierarchyHeader('tasks',2,groupKey,block.g.name,hierarchySummary(block.children));
-        if(block.groupRow) rendered.add(block.groupRow.rowNumber);
-        visibleCount += block.groupRow&&filteredRows.has(block.groupRow.rowNumber) ? 1 : 0;
+        const groupSummaryRows=[...(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)?[block.groupRow]:[]),...block.children];
+        html+=renderHierarchyHeader('tasks',2,groupKey,block.g.name,hierarchySummary(groupSummaryRows));
+        if(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)) rendered.add(block.groupRow.rowNumber);
         if(!collapseState.tasks.l2.has(groupKey)){
-          for(const t of block.children){ html+=renderTaskLeafRow(t,zebraIndex%2===1); rendered.add(t.rowNumber); visibleCount++; zebraIndex++; }
+          for(const t of block.children){ html+=renderTaskLeafRow(t,zebraIndex%2===1); rendered.add(t.rowNumber); zebraIndex++; }
         }
       }
     }
   }
 
-  // Never hide a Google Sheet record just because its hierarchy is incomplete or non-standard.
+  // Any record that cannot be represented by the normal L1/L2 hierarchy is still shown here.
+  // This guarantees that Tasks never drops a non-empty Google Sheet row.
   const remaining=filtered.filter(t=>!rendered.has(t.rowNumber)).sort((a,b)=>a.rowNumber-b.rowNumber);
   if(remaining.length){
     html+=`<tr class="hierarchy-row level-2"><td class="hierarchy-cell" colspan="7"><div class="hierarchy-bar"><div class="task-title">Other rows</div><span class="summary-pill">${remaining.length} row${remaining.length===1?'':'s'}</span></div></td></tr>`;
-    for(const t of remaining){ html+=renderTaskLeafRow(t,zebraIndex%2===1); visibleCount++; zebraIndex++; }
+    for(const t of remaining){ html+=renderTaskLeafRow(t,zebraIndex%2===1); zebraIndex++; }
   }
 
-  $('taskCount').textContent=`${filtered.length} rows`;
+  $('taskCount').textContent=`${filtered.length} of ${tasks.length} rows`;
   body.innerHTML=html||`<tr><td colspan="7" class="empty">No rows match the current filters.</td></tr>`;
   bindHierarchyToggles();
   bindTaskRows();
@@ -410,7 +419,7 @@ function setPlanStats(rows){ const planned=rows.reduce((a,t)=>a+timeNumber(t.tim
 function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const master=ctx.createGain(); master.gain.setValueAtTime(0.0001,now); master.gain.exponentialRampToValueAtTime(0.055,now+0.025); master.gain.exponentialRampToValueAtTime(0.0001,now+0.75); master.connect(ctx.destination); [[659.25,0],[783.99,0.09],[987.77,0.18]].forEach(([freq,delay],i)=>{ const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type=i===0?'sine':'triangle'; osc.frequency.setValueAtTime(freq,now+delay); gain.gain.setValueAtTime(0.0001,now+delay); gain.gain.exponentialRampToValueAtTime(i===0?0.8:0.45,now+delay+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.42); osc.connect(gain); gain.connect(master); osc.start(now+delay); osc.stop(now+delay+0.45); }); } catch(_){} }
 async function markDone(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':d } }); t.completionDate=d; playDing(); showToast('Completion Date set to ' + d + '.', 'ok'); renderPlan(); renderTasks(); }
 async function unmarkDone(row){ const t=taskByRow(row); if(!t) return; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':'' } }); t.completionDate=''; showToast('Completion Date cleared.','ok'); renderPlan(); renderTasks(); }
-async function loadTasks(){ setLoading(true); setStatus('Reading Tasks from Google Sheets…'); try{ if(!globalThis.DigiExpressPlatform) throw new Error('Stable Host bridge is unavailable. Reload the extension.'); const data=await DigiExpressPlatform.call('sheets.readRows',{ spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, limit:100000 }); tasks=parseRows(data); renderTaskFilters(); renderPlanSelectors(); renderHierarchySelectors(); renderTasks(); renderPlan(); $('updatedAt').textContent='Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); setStatus(tasks.length + ' rows loaded', 'ok'); } catch(e){ tasks=[]; renderTasks(); renderPlan(); setStatus(String(e?.message||e),'err'); showToast(String(e?.message||e),'error'); } finally { setLoading(false); } }
+async function loadTasks(){ setLoading(true); setStatus('Reading Tasks from Google Sheets…'); try{ if(!globalThis.DigiExpressPlatform) throw new Error('Stable Host bridge is unavailable. Reload the extension.'); const data=await DigiExpressPlatform.call('sheets.readRows',{ spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, limit:100000 }); tasks=parseRows(data); renderTaskFilters(); resetTaskFilters(); renderPlanSelectors(); renderHierarchySelectors(); renderTasks(); renderPlan(); $('updatedAt').textContent='Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); setStatus(tasks.length + ' rows loaded', 'ok'); } catch(e){ tasks=[]; renderTasks(); renderPlan(); setStatus(String(e?.message||e),'err'); showToast(String(e?.message||e),'error'); } finally { setLoading(false); } }
 async function writeAction(action,payload={}){ const url=norm(settings.webAppUrl); if(!/^https:\/\/script\.google\.com\/(?:macros\/s\/[^/]+\/exec|a\/[^/]+\/macros\/s\/[^/]+\/exec)(?:[?#].*)?$/i.test(url)){ openSettings(); throw new Error('Configure the Weekly Planning Apps Script Web App URL first.'); } setStatus('Saving to Google Sheets…'); const body=JSON.stringify({ action, spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, ...payload }); const r=await chrome.runtime.sendMessage({ type:'REMOTE_HTTP_REQUEST', request:{ url, method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8', 'Accept':'application/json' }, body, responseType:'json', credentials:'include', timeoutMs:30000 } }); if(!r?.ok) throw new Error(r?.error || 'Google Sheets write failed.'); const data=r.data || {}; if(data.ok===false) throw new Error(data.error || 'Google Sheets write failed.'); setStatus('Saved · ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 'ok'); return data; }
 function blankHierarchyRow(l1,l2,l3,name,group=''){ return { L1:String(l1), L2:String(l2), L3:String(l3), 'Task Name':name, Group:group, Priority:'', Time:'', Status:'Active', Responsible:'', 'Add Date':todayJalali8(), 'Due Date':'', 'Planned Date':'', 'Completion Date':'' }; }
 async function createTask(){ const h=hierarchySelection(); if(h.pNew&&!h.pName) throw new Error('New Project Name is required.'); if(h.gNew&&!h.gName) throw new Error('New Group Name is required.'); const name=norm($('newName').value); if(!name) throw new Error('Task Name is required.'); const due=validJalali8($('newDueDate').value,true), planned=validJalali8($('newPlannedDate').value,true); if(h.pNew) await writeAction('appendTask',{ task:blankHierarchyRow(h.l1,'0','0',h.pName,'') }); if(h.gNew) await writeAction('appendTask',{ task:blankHierarchyRow(h.l1,h.l2,'0',h.gName,h.gName) }); const task={ L1:h.l1, L2:h.l2, L3:h.l3, 'Task Name':name, Group:h.gName, Priority:$('newPriority').value, Time:norm($('newTime').value), Status:norm($('newStatus').value)||'Open', Responsible:$('newResponsible').value, 'Add Date':todayJalali8(), 'Due Date':due, 'Planned Date':planned, 'Completion Date':'' }; await writeAction('appendTask',{ task }); closeModal('taskModal'); showToast('Task created as ' + h.l1 + '.' + h.l2 + '.' + h.l3 + '.', 'ok'); clearNewTask(); await loadTasks(); }
