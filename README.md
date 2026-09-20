@@ -1,3 +1,7 @@
+## Remote v359
+
+Weekly Planning usability update: larger typography, full-width layout, project/group based task creation, plan-hour progress metrics, and duplicate shell title removal.
+
 ## v346
 - Rejected Shipments: canonical 13-column publish mapping and direct 5-minute DataSets dashboard refresh.
 

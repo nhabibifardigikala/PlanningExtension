@@ -1,0 +1,10 @@
+Weekly Planning v359
+- Larger typography across Tasks, Plan, modals and controls.
+- Full-width/full-height use of the embedded workspace.
+- Removed duplicate outer Weekly Planning heading in the host shell.
+- New Task flow no longer asks users for L1/L2/L3 numbers.
+- Project list is derived from L1; Group list is derived from L2 within selected L1.
+- + New Project and + New Group options create missing hierarchy rows automatically.
+- L1/L2/L3 numbers are generated automatically.
+- Plan shows Planned Hours, Completed Hours and hour-based Progress percentage.
+- Responsible dropdowns prioritize the list configured in Weekly Planning Settings.
