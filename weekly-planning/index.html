@@ -24,7 +24,7 @@
   --navy:#17304f;
   --navy2:#22496f;
   --row-alt:#f1f4f8;
-  --done-row:#e8f5ec;
+  --done-row:#b7f7c9;
   --shadow:0 8px 24px rgba(32,52,75,.06);
 }
 html[data-theme="dark"]{
@@ -46,7 +46,7 @@ html[data-theme="dark"]{
   --navy:#152a43;
   --navy2:#1d3d5c;
   --row-alt:#142033;
-  --done-row:#183528;
+  --done-row:#0f4a24;
   --shadow:0 12px 30px rgba(0,0,0,.22);
 }
 *{box-sizing:border-box}
@@ -91,18 +91,18 @@ button{font-family:inherit}
 .table-wrap{max-height:calc(100vh - 180px)}
 .plan-list{max-height:calc(100vh - 230px)}
 table{width:100%;border-collapse:collapse;min-width:860px}
-th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}
 th{position:sticky;top:0;background:var(--card);color:var(--muted);font-weight:800;z-index:2}
 .task-name,.plan-name{min-width:280px;white-space:normal}
-.task-title{font-weight:800;line-height:1.35}
+.task-title{font-weight:800;line-height:1.15}
 .task-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px;font-size:11px;color:inherit;opacity:.9}
 .code-label{font-size:11px;font-weight:700;opacity:.95}
-.inline-input,.inline-select{width:100%;min-width:100px;border:1px solid transparent;background:transparent;color:var(--text);border-radius:8px;padding:7px 8px;font-size:13px}
+.inline-input,.inline-select{width:100%;min-width:100px;border:1px solid transparent;background:transparent;color:var(--text);border-radius:8px;padding:4px 6px;font-size:12px}
 .inline-input:hover,.inline-select:hover,.inline-input:focus,.inline-select:focus{border-color:var(--line);background:var(--card2);outline:none}
-.plan-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--primary);cursor:pointer;display:grid;place-items:center}
+.plan-btn{width:30px;height:30px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--primary);cursor:pointer;display:grid;place-items:center}
 .plan-btn:hover{background:var(--soft)}
 .plan-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.save-mini{border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer}
+.save-mini{border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:8px;padding:5px 8px;font-size:11px;cursor:pointer}
 .save-mini.dirty{border-color:var(--amber);color:var(--amber)}
 .empty{text-align:center;color:var(--muted);padding:28px 14px;font-size:13px}
 .hierarchy-row td{padding:0;border-bottom:1px solid var(--line)}
@@ -120,8 +120,8 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 .child-row td{background:var(--card)}
 .child-row.zebra td{background:var(--row-alt)}
 .child-row.done-row td{background:var(--done-row)!important}
-.child-row.done-row .task-title{color:var(--green)}
-.done-box{width:23px;height:23px;accent-color:var(--green);cursor:pointer}
+.child-row.done-row .task-title{color:#0a6b2d;font-weight:900}html[data-theme="dark"] .child-row.done-row .task-title{color:#7dff9e}
+.done-box{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
 .done-date{font-size:12px;color:var(--green);font-weight:700}
 .plan-workspace{display:grid;grid-template-columns:minmax(270px,320px) minmax(0,1fr);gap:12px;align-items:start}
 .plan-side{display:grid;gap:12px}
@@ -274,7 +274,7 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 </div></div>
 
 <div class="toast" id="toast"></div>
-<script src="../ui/platform-client.js?v=362"></script>
+<script src="../ui/platform-client.js?v=363"></script>
 <script>
 const SPREADSHEET_ID = '1t1rX8DEIIhPztSrxcRQIuZCwy5cYxRFomZWKdp6sHNg';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit';
@@ -320,9 +320,9 @@ function syntheticTask(level,l1,l2,name){ return { rowNumber:`synthetic-${level}
 function hierarchySummary(rows){ const count=rows.length; const hours=rows.reduce((a,t)=>a+timeNumber(t.time),0); return `${count} task${count===1?'':'s'} • ${fmtHours(hours)}`; }
 function taskMatchesFilters(t){ const q=norm($('search').value).toLowerCase(); const g=$('groupFilter').value; const p=$('priorityFilter').value; const r=$('respFilter').value; const s=$('statusFilter').value; const pl=$('planningFilter').value; const blob=[t.name,t.group,t.status,t.responsible,codeOf(t)].join(' ').toLowerCase(); return (!q||blob.includes(q)) && (!g||t.group===g) && (!p||t.priority===p) && (!r||t.responsible===r) && (!s||t.status===s) && (!pl || (pl==='planned'&&!!t.plannedDate) || (pl==='unplanned'&&!t.plannedDate) || (pl==='done'&&isDone(t))); }
 function arrowSvg(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>`; }
-function renderHierarchyHeader(kind, level, key, title, code, summary){ const collapsed = collapseState[kind][level===1?'l1':'l2'].has(key); return `<tr class="hierarchy-row level-${level}"><td class="hierarchy-cell" colspan="${kind==='tasks'?7:5}"><div class="hierarchy-bar"><button class="toggle-btn ${collapsed?'collapsed':''}" type="button" data-tree="${kind}" data-level="${level}" data-key="${esc(key)}" aria-label="${collapsed?'Expand':'Collapse'}">${arrowSvg()}</button><div><div class="task-title">${esc(title || 'Untitled')}</div><div class="task-meta"><span class="code-label">${esc(code)}</span></div></div><span class="summary-pill">${esc(summary)}</span></div></td></tr>`; }
+function renderHierarchyHeader(kind, level, key, title, code, summary){ const collapsed = collapseState[kind][level===1?'l1':'l2'].has(key); return `<tr class="hierarchy-row level-${level}"><td class="hierarchy-cell" colspan="${kind==='tasks'?7:5}"><div class="hierarchy-bar"><button class="toggle-btn ${collapsed?'collapsed':''}" type="button" data-tree="${kind}" data-level="${level}" data-key="${esc(key)}" aria-label="${collapsed?'Expand':'Collapse'}">${arrowSvg()}</button><div><div class="task-title">${esc(title || 'Untitled')}</div></div><span class="summary-pill">${esc(summary)}</span></div></td></tr>`; }
 function renderTaskLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''}" data-row="${t.rowNumber}"><td class="task-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.group)}</td><td><select class="inline-select edit-priority">${optionHtml(allPriorities(),t.priority)}</select></td><td><input class="inline-input edit-time" value="${esc(t.time)}" placeholder="Time"></td><td><select class="inline-select edit-responsible">${optionHtml(configuredResponsibles(),t.responsible,'Unassigned')}</select></td><td><button class="save-mini" data-action="save">Save</button></td><td><button class="plan-btn" data-action="plan" title="Set Planned Date to today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg></button></td></tr>`; }
-function renderPlanLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''} plan-row" data-row="${t.rowNumber}"><td>${isDone(t)?'<input class="done-box" type="checkbox" checked disabled title="Done">':`<input class="done-box" type="checkbox" title="Mark done">`}</td><td class="plan-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.priority)}</td><td>${esc(t.time)}</td><td class="done-date">${isDone(t)?esc(t.completionDate):'—'}</td></tr>`; }
+function renderPlanLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''} plan-row" data-row="${t.rowNumber}"><td><input class="done-box" type="checkbox" ${isDone(t)?'checked':''} title="Toggle done"></td><td class="plan-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.priority)}</td><td>${esc(t.time)}</td><td class="done-date">${isDone(t)?esc(t.completionDate):'—'}</td></tr>`; }
 function renderTasks(){ const body=$('tasksBody'); const projects=projectModels(); let html='', visibleLeafCount=0, zebraIndex=0; for(const p of projects){ const groups=groupModels(p.l1); const projectTask=tasks.find(t=>t.l1===p.l1&&Number(t.l2||0)===0&&Number(t.l3||0)===0) || syntheticTask(1,p.l1,0,p.name); const projectDirectMatch = taskMatchesFilters(projectTask); const groupBlocks=[]; let projectVisible = projectDirectMatch; for(const g of groups){ const groupTask=tasks.find(t=>t.l1===p.l1&&t.l2===g.l2&&Number(t.l3||0)===0) || syntheticTask(2,p.l1,g.l2,g.name); const groupDirectMatch = taskMatchesFilters(groupTask); const children=leafTasks().filter(t=>t.l1===p.l1 && t.l2===g.l2).sort((a,b)=>numericSort(a.l3,b.l3)); const visibleChildren=children.filter(taskMatchesFilters); if(groupDirectMatch || visibleChildren.length){ groupBlocks.push({ g, groupTask, visibleChildren }); projectVisible = true; visibleLeafCount += visibleChildren.length; } }
   if(!projectVisible) continue;
   const projectLeaves=groupBlocks.flatMap(x=>x.visibleChildren);
@@ -361,11 +361,12 @@ function renderPlan(){ const holder=$('planList'); let date=''; try{ date=validJ
   html += '</tbody></table>';
   holder.innerHTML = html;
   bindHierarchyToggles();
-  holder.querySelectorAll('.plan-row .done-box:not(:disabled)').forEach(cb=>cb.addEventListener('change', async e=>{ if(!e.target.checked) return; const row=+e.target.closest('.plan-row').dataset.row; try{ await markDone(row); } catch(err){ e.target.checked=false; setStatus(err.message||String(err),'err'); showToast(err.message||String(err),'error'); } }));
+  holder.querySelectorAll('.plan-row .done-box').forEach(cb=>cb.addEventListener('change', async e=>{ const row=+e.target.closest('.plan-row').dataset.row; const checked=e.target.checked; try{ if(checked) await markDone(row); else await unmarkDone(row); } catch(err){ e.target.checked=!checked; setStatus(err.message||String(err),'err'); showToast(err.message||String(err),'error'); } }));
 }
 function setPlanStats(rows){ const planned=rows.reduce((a,t)=>a+timeNumber(t.time),0); const completed=rows.filter(isDone).reduce((a,t)=>a+timeNumber(t.time),0); const pct=planned>0?Math.min(100,Math.round(completed/planned*100)):(rows.length?Math.round(rows.filter(isDone).length/rows.length*100):0); $('planPlannedHours').textContent=fmtHours(planned); $('planCompletedHours').textContent=fmtHours(completed); $('planProgress').textContent=pct+'%'; $('planProgressBar').style.width=pct+'%'; }
-function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const osc1=ctx.createOscillator(); const osc2=ctx.createOscillator(); const gain=ctx.createGain(); osc1.type='sine'; osc2.type='triangle'; osc1.frequency.setValueAtTime(880, now); osc1.frequency.exponentialRampToValueAtTime(1320, now+0.16); osc2.frequency.setValueAtTime(660, now); osc2.frequency.exponentialRampToValueAtTime(990, now+0.18); gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(0.08, now+0.02); gain.gain.exponentialRampToValueAtTime(0.0001, now+0.34); osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination); osc1.start(now); osc2.start(now); osc1.stop(now+0.35); osc2.stop(now+0.35); } catch(_){} }
+function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const master=ctx.createGain(); master.gain.setValueAtTime(0.0001,now); master.gain.exponentialRampToValueAtTime(0.055,now+0.025); master.gain.exponentialRampToValueAtTime(0.0001,now+0.75); master.connect(ctx.destination); [[659.25,0],[783.99,0.09],[987.77,0.18]].forEach(([freq,delay],i)=>{ const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type=i===0?'sine':'triangle'; osc.frequency.setValueAtTime(freq,now+delay); gain.gain.setValueAtTime(0.0001,now+delay); gain.gain.exponentialRampToValueAtTime(i===0?0.8:0.45,now+delay+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.42); osc.connect(gain); gain.connect(master); osc.start(now+delay); osc.stop(now+delay+0.45); }); } catch(_){} }
 async function markDone(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':d } }); t.completionDate=d; playDing(); showToast('Completion Date set to ' + d + '.', 'ok'); renderPlan(); renderTasks(); }
+async function unmarkDone(row){ const t=taskByRow(row); if(!t) return; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':'' } }); t.completionDate=''; showToast('Completion Date cleared.','ok'); renderPlan(); renderTasks(); }
 async function loadTasks(){ setLoading(true); setStatus('Reading Tasks from Google Sheets…'); try{ if(!globalThis.DigiExpressPlatform) throw new Error('Stable Host bridge is unavailable. Reload the extension.'); const data=await DigiExpressPlatform.call('sheets.readRows',{ spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, limit:100000 }); tasks=parseRows(data); renderTaskFilters(); renderPlanSelectors(); renderHierarchySelectors(); renderTasks(); renderPlan(); $('updatedAt').textContent='Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); setStatus(tasks.length + ' rows loaded', 'ok'); } catch(e){ tasks=[]; renderTasks(); renderPlan(); setStatus(String(e?.message||e),'err'); showToast(String(e?.message||e),'error'); } finally { setLoading(false); } }
 async function writeAction(action,payload={}){ const url=norm(settings.webAppUrl); if(!/^https:\/\/script\.google\.com\/(?:macros\/s\/[^/]+\/exec|a\/[^/]+\/macros\/s\/[^/]+\/exec)(?:[?#].*)?$/i.test(url)){ openSettings(); throw new Error('Configure the Weekly Planning Apps Script Web App URL first.'); } setStatus('Saving to Google Sheets…'); const body=JSON.stringify({ action, spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, ...payload }); const r=await chrome.runtime.sendMessage({ type:'REMOTE_HTTP_REQUEST', request:{ url, method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8', 'Accept':'application/json' }, body, responseType:'json', credentials:'include', timeoutMs:30000 } }); if(!r?.ok) throw new Error(r?.error || 'Google Sheets write failed.'); const data=r.data || {}; if(data.ok===false) throw new Error(data.error || 'Google Sheets write failed.'); setStatus('Saved · ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 'ok'); return data; }
 function blankHierarchyRow(l1,l2,l3,name,group=''){ return { L1:String(l1), L2:String(l2), L3:String(l3), 'Task Name':name, Group:group, Priority:'', Time:'', Status:'Active', Responsible:'', 'Add Date':todayJalali8(), 'Due Date':'', 'Planned Date':'', 'Completion Date':'' }; }
