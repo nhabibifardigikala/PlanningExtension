@@ -307,7 +307,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__gateManageme
 #operationView:has(#operationInputs [data-field-wrap="__gateManagementEmbedded"]) #gateManagementEmbedded.gate-management-embedded{flex:1 1 auto;height:auto!important;min-height:0!important}
 
 
-/* v363 — Weekly Planning expanded workspace. */
+/* v364 — Weekly Planning expanded workspace. */
 #weeklyPlanningEmbedded.weekly-planning-embedded{display:none!important;width:100%;height:calc(100vh - 126px);min-height:620px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--card);margin-top:6px}
 #weeklyPlanningEmbedded.weekly-planning-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
 html[data-theme="dark"] #weeklyPlanningFrame{color-scheme:dark}
@@ -549,6 +549,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
 
 
 
+.topbar-home-button{width:40px!important;height:40px!important;min-height:40px!important;flex:0 0 40px!important}
 /* Config 269: consistent Home + Back icon navigation */
 .view-nav{display:flex;align-items:center;gap:7px;margin:2px 0 10px}
 .nav-icon-button{width:36px;height:36px;display:grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer;transition:border-color .15s ease,background .15s ease,color .15s ease}
@@ -845,7 +846,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v363</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v364</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -854,6 +855,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
         <div><div id="brandTitle" class="brand-title">DigiExpress</div><div id="brandSubtitle" class="brand-subtitle">Planning Suite · Config 348</div></div>
       </div>
       <div class="topbar-actions">
+        <button id="globalHomeBtn" class="nav-icon-button topbar-home-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button>
         <div class="topbar-status"><span class="online-dot"></span><span>Remote connected</span></div>
         <button class="icon-button settings-gear" id="settingsBtn" title="Settings" aria-label="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.16 7.16 0 0 0-1.62-.94L14.38 2.8a.5.5 0 0 0-.5-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.52c-.58.24-1.12.55-1.62.94L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.05.31-.08.64-.08.94s.03.63.08.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.52a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .5-.4l.36-2.52c.58-.24 1.12-.55 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.02-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
@@ -907,7 +909,6 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
     </section>
 
     <section id="operationView" class="view">
-      <nav class="view-nav" aria-label="Navigation"><button id="operationHomeBtn" class="nav-icon-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button></nav>
       <div class="section-heading settings-heading"><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div>
       <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><div class="operation-control-row"><button id="pauseOperation" class="secondary-button hidden" type="button">Pause</button><button id="cancelOperation" class="secondary-button danger hidden" type="button">Cancel operation</button></div><div id="operationStatus" class="settings-status" aria-live="polite"></div><div id="operationResult" class="operation-result hidden" aria-live="polite"></div></section>
       <section id="dailyPlannerEmbedded" class="daily-planner-embedded" aria-label="Daily Planner">
@@ -915,7 +916,7 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
       </section>
       <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
       <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
-      <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=362" loading="lazy"></iframe></section>
+      <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=364" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
@@ -939,7 +940,6 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
     </section>
 
     <section id="settingsView" class="view">
-      <nav class="view-nav" aria-label="Navigation"><button id="settingsHomeBtn" class="nav-icon-button" type="button" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z"/></svg></button></nav>
       <div class="section-heading settings-heading"><h1 id="settingsTitle">Settings</h1><p id="settingsDescription">Account, appearance, remote configuration, diagnostics, and local data controls.</p></div>
 
       <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
@@ -1064,7 +1064,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 363;
+const EXPECTED_REMOTE_CONFIG_VERSION = 364;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1216,7 +1216,7 @@ function setValidationBusy(busy) {
   validationInProgress = !!busy;
   validationOverlay.classList.toggle('active', validationInProgress);
   validationOverlay.setAttribute('aria-hidden', validationInProgress ? 'false' : 'true');
-  ['saveSettings','clearCredentials','refreshRemote','backBtn','settingsBtn','settingsHomeBtn','operationBackBtn','operationHomeBtn'].forEach(id => { const el=$(id); if(el) el.disabled=validationInProgress; });
+  ['saveSettings','clearCredentials','refreshRemote','backBtn','settingsBtn','settingsHomeBtn','operationBackBtn','operationHomeBtn','globalHomeBtn'].forEach(id => { const el=$(id); if(el) el.disabled=validationInProgress; });
   usernameEl.disabled = validationInProgress;
   passwordEl.disabled = validationInProgress;
   $('togglePassword').disabled = validationInProgress;
@@ -1794,6 +1794,7 @@ async function loadRemote(force=false) {
 
 $('settingsBtn').addEventListener('click', () => showView('settings'));
 $('settingsHomeBtn')?.addEventListener('click', goHomeView);
+$('globalHomeBtn')?.addEventListener('click', goHomeView);
 $('operationHomeBtn')?.addEventListener('click', goHomeView);
 $('backBtn')?.addEventListener('click', goBackView);
 $('operationBackBtn')?.addEventListener('click', goBackView);

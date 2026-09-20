@@ -26,7 +26,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 363;
+const EXPECTED_REMOTE_CONFIG_VERSION = 364;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -143,7 +143,7 @@ function setValidationBusy(busy) {
   validationInProgress = !!busy;
   validationOverlay.classList.toggle('active', validationInProgress);
   validationOverlay.setAttribute('aria-hidden', validationInProgress ? 'false' : 'true');
-  ['saveSettings','clearCredentials','refreshRemote','backBtn','settingsBtn','settingsHomeBtn','operationBackBtn','operationHomeBtn'].forEach(id => { const el=$(id); if(el) el.disabled=validationInProgress; });
+  ['saveSettings','clearCredentials','refreshRemote','backBtn','settingsBtn','settingsHomeBtn','operationBackBtn','operationHomeBtn','globalHomeBtn'].forEach(id => { const el=$(id); if(el) el.disabled=validationInProgress; });
   usernameEl.disabled = validationInProgress;
   passwordEl.disabled = validationInProgress;
   $('togglePassword').disabled = validationInProgress;
@@ -721,6 +721,7 @@ async function loadRemote(force=false) {
 
 $('settingsBtn').addEventListener('click', () => showView('settings'));
 $('settingsHomeBtn')?.addEventListener('click', goHomeView);
+$('globalHomeBtn')?.addEventListener('click', goHomeView);
 $('operationHomeBtn')?.addEventListener('click', goHomeView);
 $('backBtn')?.addEventListener('click', goBackView);
 $('operationBackBtn')?.addEventListener('click', goBackView);

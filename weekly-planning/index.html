@@ -107,14 +107,14 @@ th{position:sticky;top:0;background:var(--card);color:var(--muted);font-weight:8
 .empty{text-align:center;color:var(--muted);padding:28px 14px;font-size:13px}
 .hierarchy-row td{padding:0;border-bottom:1px solid var(--line)}
 .hierarchy-cell{padding:0!important}
-.hierarchy-bar{display:flex;align-items:center;gap:10px;padding:11px 14px}
+.hierarchy-bar{display:flex;align-items:center;gap:8px;padding:4px 8px;min-height:32px}
 .level-1 .hierarchy-bar{background:var(--navy);color:#fff}
 .level-2 .hierarchy-bar{background:var(--amber-soft);color:#523d10}
 html[data-theme="dark"] .level-2 .hierarchy-bar{color:#f7e8b4}
-.toggle-btn{width:30px;height:30px;min-width:30px;border:1px solid currentColor;border-radius:8px;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.95}
-.toggle-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease}
+.toggle-btn{width:24px;height:24px;min-width:24px;border:1px solid currentColor;border-radius:8px;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.95}
+.toggle-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease}
 .toggle-btn.collapsed svg{transform:rotate(-90deg)}
-.summary-pill{margin-inline-start:auto;display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.16);font-size:11px;font-weight:700}
+.summary-pill{margin-inline-start:auto;display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.16);font-size:11px;font-weight:700}
 .level-2 .summary-pill{background:rgba(82,61,16,.12)}
 html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 .child-row td{background:var(--card)}
@@ -128,15 +128,15 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 .side-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
 .side-card h3{margin:0 0 12px;font-size:14px}
 .side-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px 14px;min-height:86px}
-.stat b{display:block;font-size:26px;line-height:1.1}
-.stat span{font-size:12px;color:var(--muted)}
-.progress-card{padding:14px 16px;margin-top:10px}
-.progress-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}
+.stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:82px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.stat b{display:block;font-size:26px;line-height:1.1;text-align:center}
+.stat span{font-size:12px;color:var(--muted);text-align:center}
+.progress-card{padding:0;margin-top:8px;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.progress-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;height:16px}
 .progress-track{height:16px;border-radius:999px;background:var(--soft);overflow:hidden;border:1px solid var(--line)}
 .progress-fill{height:100%;width:0;background:var(--green);transition:width .2s}
-.progress-percent{font-size:22px;font-weight:900;min-width:54px;text-align:right}
-.progress-label{font-size:12px;color:var(--muted);margin-bottom:8px}
+.progress-percent{font-size:13px;font-weight:900;min-width:36px;text-align:right;line-height:16px;height:16px}
+.progress-label{display:none}
 .chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:var(--soft);font-size:11px;color:var(--muted)}
 .modal-backdrop{position:fixed;inset:0;background:rgba(8,14,24,.48);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
 .modal-backdrop.open{display:flex}
@@ -233,7 +233,6 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
             <div class="plan-list" id="planList"></div>
           </div>
           <div class="progress-card">
-            <div class="progress-label">Progress</div>
             <div class="progress-line"><div class="progress-track"><div class="progress-fill" id="planProgressBar"></div></div><div class="progress-percent" id="planProgress">0%</div></div>
           </div>
         </section>
@@ -274,7 +273,7 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 </div></div>
 
 <div class="toast" id="toast"></div>
-<script src="../ui/platform-client.js?v=363"></script>
+<script src="../ui/platform-client.js?v=364"></script>
 <script>
 const SPREADSHEET_ID = '1t1rX8DEIIhPztSrxcRQIuZCwy5cYxRFomZWKdp6sHNg';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID + '/edit';
