@@ -1,4 +1,4 @@
-/* Rejected Shipments Remote adapter v368
+/* Rejected Shipments Remote adapter v369
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
@@ -31,19 +31,24 @@
   }
   async function connection(){
     const c=await candidateUrls();
-    if(resolvedConnectionUrl)return {url:resolvedConnectionUrl,sheetName:c.sheetName};
-    let lastError='';
-    for(const url of c.urls){
-      try{await rawHttp(url,{action:'rejectedState',sheetName:c.sheetName},15000);resolvedConnectionUrl=url;return {url,sheetName:c.sheetName};}
-      catch(e){lastError=String(e?.message||e);}
-    }
+    if(resolvedConnectionUrl)return {url:resolvedConnectionUrl,sheetName:c.sheetName,urls:c.urls};
     if(!c.urls.length)throw new Error('Google Sheets connection is not configured in Agents.');
-    throw new Error(`Rejected Shipments DataSets endpoint did not return JSON. ${lastError}`);
+    // Do not probe rejectedState here. That endpoint scans the full ID column and was
+    // needlessly consuming quota before every incremental dashboard read.
+    return {url:c.urls[0],sheetName:c.sheetName,urls:c.urls};
   }
   async function http(payload){
     const c=await connection();
-    try{return await rawHttp(c.url,{...payload,sheetName:payload.sheetName||c.sheetName});}
-    catch(e){resolvedConnectionUrl='';throw e;}
+    const ordered=[resolvedConnectionUrl,...(c.urls||[])].filter((u,i,a)=>u&&a.indexOf(u)===i);
+    let lastError=null;
+    for(const url of ordered){
+      try{
+        const data=await rawHttp(url,{...payload,sheetName:payload.sheetName||c.sheetName});
+        resolvedConnectionUrl=url;
+        return data;
+      }catch(e){ lastError=e; if(url===resolvedConnectionUrl)resolvedConnectionUrl=''; }
+    }
+    throw lastError||new Error('Google Sheet request failed.');
   }
   function rowsFrom(data){const h=Array.isArray(data.headers)?data.headers.map(String):[];return (data.rows||[]).map(r=>Object.fromEntries(h.map((k,i)=>[k,Array.isArray(r)?(r[i]??''):''])));}
   function rowId(row){return numericId(row?.id??row?.ID??row?.Id??'');}
@@ -56,70 +61,63 @@
   }
   async function cachePayload(payload){await chrome.storage.local.set({[CACHE_KEY]:payload.rows||[],[META_KEY]:{totalRows:payload.totalRows||0,maxId:payload.maxId||0,cacheUpdatedAt:payload.cacheUpdatedAt||new Date().toISOString()}});}
   async function cached(limit=50000){const x=await chrome.storage.local.get([CACHE_KEY,META_KEY]);const rows=Array.isArray(x[CACHE_KEY])?x[CACHE_KEY].slice(-limit):[];const m=x[META_KEY]||{};return rows.length?{ok:true,rows,kpis:null,totalRows:Number(m.totalRows)||rows.length,maxId:Number(m.maxId)||Math.max(0,...rows.map(rowId)),cacheUpdatedAt:m.cacheUpdatedAt||'',dataSource:'local-cache'}:{ok:false,error:'No dashboard cache available yet.'};}
-  async function readAppsScriptTail(limit=2000){
-    const d=await http({action:'readDataset',sheetName:DATASETS_SHEET,limit});
+  async function readAppsScriptTail(limit=120){
+    // Keep every automatic response deliberately small. kQuotaBytes is a transport/response
+    // quota, so a 2k-10k row tail can fail even though the Sheet itself is healthy.
+    const safeLimit=Math.max(25,Math.min(500,Number(limit)||120));
+    const d=await http({action:'readDataset',sheetName:DATASETS_SHEET,limit:safeLimit});
     const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
     return {rows,totalRows,updatedAt,maxId:Math.max(0,...rows.map(rowId))};
   }
   async function incrementalFresh(limit=50000){
     const c=await cached(limit);
-    // The old dashboard downloaded up to 50k rows every five minutes, which can exhaust
-    // the Google Sheets byte quota. Refresh only the tail and merge it into local cache.
-    let tailLimit=2000;
-    if(c.ok){
-      const metaRows=Number(c.totalRows)||c.rows.length;
-      // Normal five-minute growth is small. 2k rows gives plenty of headroom without
-      // repeatedly paying for the entire sheet.
-      tailLimit=Math.min(5000,Math.max(1000,Math.ceil(Math.min(metaRows,2000))));
-    }
-    const tail=await readAppsScriptTail(tailLimit);
+    // 120 recent rows is enough for a five-minute delta in normal operation while keeping
+    // the payload far below the quota that was being hit by the previous 2k/10k reads.
+    let tail=await readAppsScriptTail(c.ok?120:500);
     if(c.ok){
       const delta=Math.max(0,tail.totalRows-Number(c.totalRows||0));
-      let incoming=tail.rows;
-      // If the sheet grew by more than the first tail window, fetch only enough recent
-      // rows to cover that growth (capped to keep quota use bounded).
-      if(delta>tailLimit && delta<=10000){
-        const wider=await readAppsScriptTail(Math.min(10000,delta+250));
-        incoming=wider.rows; tail.totalRows=wider.totalRows; tail.updatedAt=wider.updatedAt; tail.maxId=wider.maxId;
+      // If more than 120 rows arrived since the last successful refresh, do one bounded
+      // catch-up read. Never exceed 500 rows in a single dashboard response.
+      if(delta>120){
+        const wider=await readAppsScriptTail(Math.min(500,delta+25));
+        tail=wider;
       }
-      const rows=mergeRows(c.rows,incoming,limit);
+      const rows=mergeRows(c.rows,tail.rows,limit);
       const payload={ok:true,rows,kpis:null,totalRows:tail.totalRows||rows.length,maxId:Math.max(Number(c.maxId)||0,tail.maxId||0,...rows.map(rowId)),cacheUpdatedAt:tail.updatedAt,dataSource:'apps-script-incremental'};
       await cachePayload(payload);
       return payload;
     }
-    // First run has no cache yet. Seed a useful recent window without a huge 50k-byte read.
-    const seed=tailLimit<10000?await readAppsScriptTail(10000):tail;
-    const rows=seed.rows.slice(-limit);
-    const payload={ok:true,rows,kpis:null,totalRows:seed.totalRows||rows.length,maxId:seed.maxId||Math.max(0,...rows.map(rowId)),cacheUpdatedAt:seed.updatedAt,dataSource:'apps-script-seed'};
+    // First use seeds only a bounded recent window. Subsequent five-minute reads build the
+    // cache forward without ever requesting a huge response.
+    const rows=tail.rows.slice(-limit);
+    const payload={ok:true,rows,kpis:null,totalRows:tail.totalRows||rows.length,maxId:tail.maxId||Math.max(0,...rows.map(rowId)),cacheUpdatedAt:tail.updatedAt,dataSource:'apps-script-seed'};
     await cachePayload(payload);
     return payload;
   }
-  async function directFull(limit=50000){
-    const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit});
+  async function directFull(limit=500){
+    const safeLimit=Math.max(25,Math.min(500,Number(limit)||500));
+    const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit:safeLimit});
     if(direct?.ok===false)throw new Error(direct.error||'Direct Google Sheet read failed.');
     const d=direct?.result??direct??{},rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
     const payload={ok:true,rows,kpis:null,totalRows,maxId:Math.max(0,...rows.map(rowId)),cacheUpdatedAt:updatedAt,dataSource:'google-sheet-direct'};
     await cachePayload(payload);return payload;
   }
-  function retryDelay(error){
-    const msg=String(error?.message||error||'').toLowerCase();
-    if(/quota|kquotabytes|rate limit|resource exhausted/.test(msg))return Math.min(30*60*1000,5*60*1000*Math.max(1,retryAttempt+1));
-    return Math.min(5*60*1000,60*1000*Math.max(1,retryAttempt+1));
-  }
-  function scheduleRetry(error){clearTimeout(retryTimer);retryAttempt++;const delay=retryDelay(error);retryTimer=setTimeout(()=>refresh('retry').catch(()=>{}),delay);emit({type:'dashboardRefreshFailed',error:String(error?.message||error),retryAttempt,nextRetry:new Date(Date.now()+delay).toISOString()});return delay;}
+  function isQuotaError(error){return /quota|kquotabytes|rate limit|resource exhausted/i.test(String(error?.message||error||''));}
   async function refresh(source='manual'){
     try{
-      // Scheduled/bootstrap refreshes are incremental. A manual refresh also prefers
-      // incremental data when a cache exists; this avoids quota spikes for every click.
       const p=await incrementalFresh(50000);
-      retryAttempt=0;clearTimeout(retryTimer);retryTimer=null;emit({type:'dashboardRefreshCompleted',result:{...p,source}});return p;
+      retryAttempt=0;
+      if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}
+      emit({type:'dashboardRefreshCompleted',result:{...p,source}});
+      return p;
     }catch(e){
-      const delay=scheduleRetry(e),c=await cached(50000);
-      // Do not immediately hit the second Google path after a quota failure. The old
-      // direct-then-Apps-Script sequence doubled pressure and made the quota outage last longer.
-      if(c.ok)return {...c,warning:`Google Sheet quota is temporarily busy; showing cached data. Next retry in ${Math.ceil(delay/60000)} min.`,retryScheduled:true,nextRetryMs:delay};
-      // Only when there is no cache at all, make one bounded direct attempt so first use can recover.
-      try{return await directFull(10000);}catch(fullError){return {ok:false,error:`Dashboard data could not be loaded. ${fullError.message}`,retryScheduled:true,nextRetryMs:delay};}
+      const c=await cached(50000);
+      // Important: do not create a second hidden retry timer after a quota error. The dashboard
+      // already has one five-minute scheduler; duplicate retry loops were multiplying requests.
+      emit({type:'dashboardRefreshFailed',error:String(e?.message||e),retryAttempt:1,nextRetry:new Date(Date.now()+5*60*1000).toISOString()});
+      if(c.ok)return {...c,warning:isQuotaError(e)?'Google Sheet response quota is busy; showing cached data. The next lightweight refresh will run in 5 min.':`Google Sheet refresh failed; showing cached data. Next automatic refresh in 5 min.`,retryScheduled:true,nextRetryMs:5*60*1000};
+      // No cache: make one very small direct attempt only.
+      try{return await directFull(250);}catch(fullError){return {ok:false,error:`Dashboard data could not be loaded. ${fullError.message}`,retryScheduled:true,nextRetryMs:5*60*1000};}
     }
   }
   async function status(){

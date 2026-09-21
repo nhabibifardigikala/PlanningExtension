@@ -4,16 +4,16 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Rejected Shipments Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css?v=368" />
+  <link rel="stylesheet" href="dashboard.css?v=369" />
 
   <style>
     .destination-month-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
     .destination-month-grid>.chart-card{min-width:0}
     @media(max-width:1200px){.destination-month-grid{grid-template-columns:1fr}}
   </style>
-  <link rel="stylesheet" href="../ui/design-system.css?v=368">
+  <link rel="stylesheet" href="../ui/design-system.css?v=369">
 
-<style id="dx-remote-global-font-v368">
+<style id="dx-remote-global-font-v369">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
 </style>
 </head>
@@ -138,7 +138,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
           <article class="card form-card">
             <h3>Dashboard Data</h3>
             <div class="callout"><strong>Source:</strong> DataSets → Rejected Shipments</div>
-            <p class="hint">The dashboard refreshes Rejected Shipments every 5 minutes using a lightweight incremental read and merges new rows into its local cache. Quota-related failures back off automatically instead of repeatedly re-reading the full Sheet.</p>
+            <p class="hint">The dashboard refreshes Rejected Shipments every 5 minutes using a lightweight incremental read and merges new rows into its local cache. Each refresh reads only a very small recent window; quota failures keep cached data visible and wait for the next normal 5-minute cycle.</p>
           </article>
           <article class="card form-card">
             <h3>User Labels</h3>
@@ -158,7 +158,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         </div>
         <article class="card error-card"><h3>Last Error</h3><pre id="statusError">No errors</pre></article>
         <article class="card"><h3>Latest Extraction Diagnostics</h3><pre id="statusDiagnostics">No diagnostics recorded yet.</pre></article>
-        <article class="card"><h3>Data Flow</h3><ol><li>The Rejected Shipments Synchronizer runs from Agents and appends only new IDs to DataSets → Rejected Shipments.</li><li>This dashboard checks a recent Sheet window every 5 minutes and merges newly received rows into the cached dataset.</li><li>Quota-related failures use progressive backoff so the dashboard does not create a retry storm.</li><li>Charts and KPIs update immediately after fresh rows are received.</li></ol></article>
+        <article class="card"><h3>Data Flow</h3><ol><li>The Rejected Shipments Synchronizer runs from Agents and appends only new IDs to DataSets → Rejected Shipments.</li><li>This dashboard checks a recent Sheet window every 5 minutes and merges newly received rows into the cached dataset.</li><li>Quota-related failures do not start extra retry loops; the next attempt happens on the normal 5-minute refresh cycle.</li><li>Charts and KPIs update immediately after fresh rows are received.</li></ol></article>
       </section>
     </main>
   </div>
@@ -171,8 +171,8 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
   <div id="jalaliPicker" class="jalali-picker" hidden></div>
   <div id="chartTooltip" class="chart-tooltip" hidden></div>
   <div id="toast" class="toast"></div>
-  <script src="../ui/platform-client.js?v=368"></script>
-  <script src="remote-adapter.js?v=368"></script>
-  <script src="dashboard.js?v=368"></script>
-<script src="../ui/theme-bridge.js?v=368"></script></body>
+  <script src="../ui/platform-client.js?v=369"></script>
+  <script src="remote-adapter.js?v=369"></script>
+  <script src="dashboard.js?v=369"></script>
+<script src="../ui/theme-bridge.js?v=369"></script></body>
 </html>
