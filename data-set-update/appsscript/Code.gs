@@ -24,6 +24,7 @@ function doPost(e){
     if(action==='replaceDataset')return replaceDataset_(body);
     if(action==='readDataset')return readDataset_(body);
     if(action==='rejectedState')return rejectedState_(body);
+    if(action==='readRejectedDashboardDelta')return readRejectedDashboardDelta_(body);
     if(action==='appendRejected')return appendRejected_(body);
     throw new Error('Unsupported action.');
   }catch(err){return json_({ok:false,error:String(err&&err.message||err)});}
@@ -76,18 +77,71 @@ function readDataset_(body){
   return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,headers,rows,totalRows,updatedAt:new Date().toISOString()});
 }
 
-function rejectedState_(body){
-  const sheet=requireSheet_(String(body.sheetName||'Rejected Shipments'));
+function rejectedMetaPropertyKey_(sheetName){
+  return 'rejected.meta.'+String(sheetName||'Rejected Shipments');
+}
+
+function rejectedSheetInfo_(sheet){
   const lastRow=sheet.getLastRow(),lastCol=sheet.getLastColumn();
-  if(lastRow<1||lastCol<1)return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName:String(body.sheetName||'Rejected Shipments'),maxId:0,totalRows:0});
-  const headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0].map(h=>String(h||'').trim().toLowerCase());
-  const idIdx=headers.indexOf('id');
+  if(lastRow<1||lastCol<1)return {headers:[],canonical:[],idIdx:-1,lastRow,lastCol,totalRows:0,maxId:0};
+  const headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0].map(v=>String(v||'').trim());
+  const canonical=headers.map(canonicalRejectedField_);
+  const idIdx=canonical.indexOf('id');
   if(idIdx<0)throw new Error('Rejected Shipments: id column was not found.');
-  if(lastRow<2)return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName:String(body.sheetName||'Rejected Shipments'),maxId:0,totalRows:0});
-  const ids=sheet.getRange(2,idIdx+1,lastRow-1,1).getDisplayValues();
-  let maxId=0;
-  for(const row of ids){const n=numericId_(row[0]);if(n>maxId)maxId=n;}
-  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName:String(body.sheetName||'Rejected Shipments'),maxId,totalRows:lastRow-1});
+  const totalRows=Math.max(0,lastRow-1);
+  const maxId=totalRows?numericId_(sheet.getRange(lastRow,idIdx+1,1,1).getDisplayValue()):0;
+  return {headers,canonical,idIdx,lastRow,lastCol,totalRows,maxId};
+}
+
+function storeRejectedMeta_(sheetName,meta){
+  try{
+    PropertiesService.getScriptProperties().setProperty(rejectedMetaPropertyKey_(sheetName),JSON.stringify({
+      maxId:Number(meta.maxId)||0,
+      totalRows:Number(meta.totalRows)||0,
+      updatedAt:meta.updatedAt||new Date().toISOString()
+    }));
+  }catch(_){ }
+}
+
+function rejectedState_(body){
+  const sheetName=String(body.sheetName||'Rejected Shipments');
+  const sheet=requireSheet_(sheetName);
+  const info=rejectedSheetInfo_(sheet);
+  storeRejectedMeta_(sheetName,{maxId:info.maxId,totalRows:info.totalRows});
+  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,maxId:info.maxId,totalRows:info.totalRows,updatedAt:new Date().toISOString(),mode:'tail-metadata'});
+}
+
+function readRejectedDashboardDelta_(body){
+  const sheetName=String(body.sheetName||'Rejected Shipments');
+  const sheet=requireSheet_(sheetName);
+  const info=rejectedSheetInfo_(sheet);
+  const limit=Math.max(1,Math.min(300,Number(body.limit)||80));
+  const rawAfter=Number(body.afterRow);
+  const hasCursor=Number.isFinite(rawAfter)&&rawAfter>=0;
+  const afterRow=hasCursor?Math.min(info.totalRows,Math.floor(rawAfter)):Math.max(0,info.totalRows-limit);
+  const available=Math.max(0,info.totalRows-afterRow);
+  const take=Math.min(available,limit);
+  const startDataRow=take?afterRow+1:info.totalRows+1;
+  const startSheetRow=take?startDataRow+1:info.lastRow+1;
+  const rows=take?sheet.getRange(startSheetRow,1,take,info.lastCol).getDisplayValues():[];
+  const cursorRow=take?afterRow+take:afterRow;
+  const truncated=available>take;
+  storeRejectedMeta_(sheetName,{maxId:info.maxId,totalRows:info.totalRows});
+  return json_({
+    ok:true,
+    spreadsheetId:SPREADSHEET_ID,
+    sheetName,
+    headers:info.headers,
+    rows,
+    totalRows:info.totalRows,
+    maxId:info.maxId,
+    cursorRow,
+    startDataRow,
+    truncated,
+    remainingRows:Math.max(0,info.totalRows-cursorRow),
+    updatedAt:new Date().toISOString(),
+    mode:hasCursor?'delta':'tail-seed'
+  });
 }
 
 function appendRejected_(body){
@@ -145,27 +199,40 @@ function appendRejected_(body){
     }
   }
 
-  // De-duplicate on the exact column named "id" only. Other fields may legitimately repeat.
-  const existing=new Set();
-  if(lastRow>1){
-    for(const r of sheet.getRange(2,idIdx+1,lastRow-1,1).getDisplayValues()){
-      const n=numericId_(r[0]);if(n)existing.add(String(n));
-    }
-  }
-
+  // IDs are monotonically increasing in the source and this synchronizer only asks for IDs
+  // greater than the current watermark. Read just the final ID instead of scanning the full ID column.
+  // This removes the largest quota consumer from every scheduled synchronization.
+  const currentInfo=rejectedSheetInfo_(sheet);
+  let maxId=currentInfo.maxId;
   const rows=[];
+  const seenBatch=new Set();
   for(const item of canonicalIncoming){
     const id=numericId_(item.id);
-    if(!id||existing.has(String(id)))continue;
-    existing.add(String(id));
+    if(!id||id<=maxId||seenBatch.has(String(id)))continue;
+    seenBatch.add(String(id));
     rows.push(headers.map((_,i)=>cellValue_(item[sheetCanonical[i]]??'')));
   }
   rows.sort((a,b)=>numericId_(a[idIdx])-numericId_(b[idIdx]));
-  if(rows.length)sheet.getRange(sheet.getLastRow()+1,1,rows.length,headers.length).setValues(rows);
-  SpreadsheetApp.flush();
-
-  let maxId=0;for(const id of existing){const n=Number(id)||0;if(n>maxId)maxId=n;}
-  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,appendedCount:rows.length,maxId,totalRows:Math.max(0,sheet.getLastRow()-1),updatedAt:new Date().toISOString()});
+  let appendedCount=0;
+  if(rows.length){
+    const lock=LockService.getScriptLock();
+    lock.waitLock(15000);
+    try{
+      const latestInfo=rejectedSheetInfo_(sheet);
+      maxId=latestInfo.maxId;
+      const safeRows=rows.filter(r=>numericId_(r[idIdx])>maxId);
+      if(safeRows.length){
+        sheet.getRange(sheet.getLastRow()+1,1,safeRows.length,headers.length).setValues(safeRows);
+        appendedCount=safeRows.length;
+        maxId=numericId_(safeRows[safeRows.length-1][idIdx]);
+      }
+    }finally{
+      lock.releaseLock();
+    }
+  }
+  const finalTotalRows=Math.max(0,sheet.getLastRow()-1);
+  storeRejectedMeta_(sheetName,{maxId,totalRows:finalTotalRows});
+  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,appendedCount,maxId,totalRows:finalTotalRows,updatedAt:new Date().toISOString()});
 }
 
 function rejectedHeaderToken_(value){

@@ -112,7 +112,15 @@
   async function resolveRejectedDatasetEndpoint(){
     const candidates=await rejectedEndpointCandidates();
     for(const url of candidates){if(await probeRejectedDatasetEndpoint(url))return url;}
-    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy Code-v346.gs, then save that deployment /exec URL in Agents settings. The endpoint must report the exact DataSets spreadsheet ID.');
+    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy the v370 Code.gs, then save that deployment /exec URL in Agents settings. The endpoint must report the exact DataSets spreadsheet ID.');
+  }
+  async function readRejectedStateFromEndpoint(url){
+    const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});
+    if(!r?.ok)throw new Error(r?.error||'Could not read Rejected Shipments watermark.');
+    const d=r?.data||{};
+    if(d?.ok===false)throw new Error(d.error||'Could not read Rejected Shipments watermark.');
+    if(String(d.spreadsheetId||'')!==REJECTED_DATASETS_SPREADSHEET_ID)throw new Error('Rejected Shipments endpoint points to a different spreadsheet.');
+    return {maxId:Number(d.maxId)||0,totalRows:Number(d.totalRows)||0};
   }
   function updateScheduleControls(){
     const enabled=$('enabled').checked,type=$('scheduleType').value;
@@ -222,9 +230,9 @@
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,retry:JOBS[id].retry||getJob(id).retry};
       if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
       if(id==='rejected-shipments-sync'){
-        mini.textContent='Reading latest Rejected Shipments ID from DataSets…';
-        const cursor=await window.DigiExpressPlatform.call('sheets.maxNumericColumn',{spreadsheetId:REJECTED_DATASETS_SPREADSHEET_ID,sheetName:REJECTED_DATASETS_SHEET,column:'id'});
-        const maxId=Number(cursor?.result?.maxId??cursor?.maxId??0)||0;
+        mini.textContent='Reading latest Rejected Shipments watermark…';
+        const cursor=await readRejectedStateFromEndpoint(url);
+        const maxId=Number(cursor.maxId)||0;
         job.inputs={...(job.inputs||{}),previousMaxId:maxId};
         mini.textContent=`Starting after ID ${maxId.toLocaleString('en-US')}…`;
       }
