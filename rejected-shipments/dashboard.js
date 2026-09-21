@@ -163,14 +163,14 @@ async function requestScheduledDashboardRefresh(){
   dashboardLastRefreshRequestAt=Date.now();
   try{
     const r=await withTimeout(
-      chrome.runtime.sendMessage({type:'refreshDashboardNow'}).catch(err=>({ok:false,error:String(err)})),
+      chrome.runtime.sendMessage({type:'refreshDashboardNow',source:'scheduled'}).catch(err=>({ok:false,error:String(err)})),
       70000,
       {ok:false,error:'Automatic dashboard refresh timed out'}
     );
     // Do not depend only on the adapter event: apply the returned fresh payload here too.
     // This makes the 5-minute update reliable even if an event is delayed/throttled.
     if(r?.ok&&Array.isArray(r.rows)){
-      applyDashboardPayload(r,{preserveBadge:false,fromCache:r.dataSource==='local-cache'});
+      applyDashboardPayload(r,{preserveBadge:true,fromCache:r.dataSource==='local-cache'});
       setSyncState(r.dataSource==='local-cache'?'Cached data':'Up to date',r.dataSource==='local-cache'?'neutral':'good',false);
     }else if(r?.retryScheduled){
       setSyncState('Refresh retry scheduled','neutral',false);
