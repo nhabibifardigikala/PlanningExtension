@@ -5,6 +5,7 @@ let chartFilters = {};
 let serverKpis = null;
 let dashboardAutoRefreshTimer = null;
 let dashboardLastRefreshRequestAt = 0;
+let dashboardRefreshInFlight = false;
 const chartMeta = new WeakMap();
 const $ = id => document.getElementById(id);
 
@@ -156,9 +157,32 @@ async function saveAllSettings(){
   if(r?.ok){settings=r.settings;$('settingsSaved').textContent='Saved';toast('Dashboard settings saved');await refreshStatus();} else toast(r?.error||'Failed to save settings');
 }
 
-function requestScheduledDashboardRefresh(){
+async function requestScheduledDashboardRefresh(){
+  if(dashboardRefreshInFlight)return;
+  dashboardRefreshInFlight=true;
   dashboardLastRefreshRequestAt=Date.now();
-  chrome.runtime.sendMessage({type:'refreshDashboardNow'}).catch(()=>{});
+  try{
+    const r=await withTimeout(
+      chrome.runtime.sendMessage({type:'refreshDashboardNow'}).catch(err=>({ok:false,error:String(err)})),
+      70000,
+      {ok:false,error:'Automatic dashboard refresh timed out'}
+    );
+    // Do not depend only on the adapter event: apply the returned fresh payload here too.
+    // This makes the 5-minute update reliable even if an event is delayed/throttled.
+    if(r?.ok&&Array.isArray(r.rows)){
+      applyDashboardPayload(r,{preserveBadge:false,fromCache:r.dataSource==='local-cache'});
+      setSyncState(r.dataSource==='local-cache'?'Cached data':'Up to date',r.dataSource==='local-cache'?'neutral':'good',false);
+    }else if(r?.retryScheduled){
+      setSyncState('Refresh retry scheduled','neutral',false);
+    }else if(r?.error){
+      setSyncState('Automatic refresh failed','bad',false);
+    }
+  }catch(e){
+    console.warn('Automatic dashboard refresh failed',e);
+    setSyncState('Automatic refresh failed','bad',false);
+  }finally{
+    dashboardRefreshInFlight=false;
+  }
 }
 
 function startDashboardAutoRefresh(){
@@ -175,7 +199,9 @@ function startDashboardAutoRefresh(){
   };
   document.addEventListener('visibilitychange',catchUp);
   window.addEventListener('focus',catchUp);
+  window.addEventListener('online',()=>requestScheduledDashboardRefresh());
 }
+
 
 async function refreshAfterSync(syncResult){
   const expected=Number(syncResult?.maxId||syncResult?.lastMaxId||0);

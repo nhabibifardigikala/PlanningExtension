@@ -6,7 +6,7 @@
   "workflow": [
     {
       "action": "open",
-      "url": "https://nhabibifardigikala.github.io/PlanningExtension/rejected-shipments/dashboard.html?v=360",
+      "url": "https://nhabibifardigikala.github.io/PlanningExtension/rejected-shipments/dashboard.html?v=367",
       "active": true,
       "completeTimeoutMs": 30000,
       "progress": "Opening Rejected Shipments dashboard…"
@@ -14,7 +14,7 @@
   ],
   "successMessage": "Rejected Shipments dashboard opened.",
   "runtimeContract": "stable-host-13.0.2",
-  "businessLogicOwner": "remote-v360",
+  "businessLogicOwner": "remote-v367",
   "output": {
     "type": "internal"
   },

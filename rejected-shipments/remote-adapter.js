@@ -1,4 +1,4 @@
-/* Rejected Shipments Remote adapter v360
+/* Rejected Shipments Remote adapter v367
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */

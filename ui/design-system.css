@@ -2,7 +2,7 @@
 :root{
   color-scheme:light;
   --dx-font-latin:"Gilroy Medium","Gilroy","Segoe UI",Arial,sans-serif;
-  --dx-font-fa:"Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",sans-serif;
+  --dx-font-fa:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif;
   --dx-bg:#f5f7fb;--dx-surface:#ffffff;--dx-surface-soft:#f8faff;--dx-surface-raised:#ffffff;
   --dx-text:#10213f;--dx-muted:#6f7f99;--dx-line:#e2e8f2;--dx-line-strong:#cfd8e6;
   --dx-primary:#2563eb;--dx-primary-hover:#1d4ed8;--dx-primary-soft:#eaf1ff;

@@ -27,7 +27,7 @@ html, body {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: "Yekan Bakh FaNum", "YekanBakhFaNum", "Yekan Bakh", Tahoma, Arial, sans-serif;
+  font-family: "Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif;
   font-size: 14px;
   font-feature-settings: "ss01" 1;
 }

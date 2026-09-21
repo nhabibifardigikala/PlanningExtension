@@ -662,7 +662,7 @@ html[data-theme="dark"] #operationView>.settings-card,html[data-theme="dark"] #s
 :root{--accent:#2563eb!important;--accent-2:#3b82f6!important;--border:#e3e9f2!important}
 :root[data-theme="dark"]{--accent:#60a5fa!important;--accent-2:#818cf8!important;--border:#26334d!important}
 html,body,button,input,select,textarea{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
-:lang(fa),[dir="rtl"]{font-family:"Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",sans-serif!important;font-feature-settings:"tnum" 1}
+:lang(fa),[dir="rtl"]{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important;font-feature-settings:"tnum" 1}
 .op-card[hidden],.op-card.filtered-out{display:none!important}
 .favorites-section{margin-top:24px;margin-bottom:28px}.favorites-section[hidden]{display:none!important}.favorites-heading{padding-top:0!important;margin-bottom:12px!important}.favorites-heading .eyebrow{color:#7c3aed!important}.favorites-grid{padding:2px 0 4px}.favorites-grid:empty{display:none!important}
 .op-card{position:relative!important;padding:0!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;display:block!important;height:116px!important;min-height:116px!important}
