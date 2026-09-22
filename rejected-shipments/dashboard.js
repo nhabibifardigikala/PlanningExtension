@@ -1,4 +1,4 @@
-const RAW_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date','extracted_at'];
+const RAW_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date','extracted_at','destination'];
 const LATEST_HEADERS = ['reference_id','user_id','ready_date','created_at','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date'];
 let allRows = [], baseFilteredRows = [], filteredRows = [], page = 1, settings = {};
 let chartFilters = {};

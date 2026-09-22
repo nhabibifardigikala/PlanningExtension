@@ -1,4 +1,4 @@
-/* Rejected Shipments Remote adapter v372
+/* Rejected Shipments Remote adapter v373
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
@@ -8,7 +8,7 @@
   const CACHE_KEY='dxRejectedDashboardCacheV4'; // legacy chrome.storage cache; migrated away in v371
   const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const CANONICAL_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
-  const EXPECTED_API_VERSION='372-refresh-v2';
+  const EXPECTED_API_VERSION='373-destination-v1';
   const DATASETS_SHEET='Rejected Shipments';
   const META_KEY='dxRejectedDashboardMetaV5';
   const IDB_NAME='digiexpress-rejected-dashboard-v1';
@@ -125,7 +125,7 @@
     let d;
     try{d=await http({action:'readRejectedDashboardSnapshot',sheetName:DATASETS_SHEET,limit:safeLimit});}
     catch(e){
-      if(/Unsupported action/i.test(String(e?.message||e)))throw new Error('Rejected Shipments Apps Script is outdated. Deploy the v372 Code.gs to the existing Web App deployment.');
+      if(/Unsupported action/i.test(String(e?.message||e)))throw new Error('Rejected Shipments Apps Script is outdated. Deploy the v373 Code.gs to the existing Web App deployment.');
       throw e;
     }
     const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();

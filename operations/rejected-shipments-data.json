@@ -529,10 +529,203 @@
         }
       ],
       "successMessage": "Shipment opened."
+    },
+    {
+      "id": "resolve-destination",
+      "title": "Resolve Destination coverage polygon",
+      "requiresCredentials": true,
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipment/",
+          "active": false,
+          "progress": "Opening shipment {{shipmentId}}…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 7000,
+          "progress": "Checking Drop Shipping authentication…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[name=\"id\"]",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "progress": "Waiting for shipment ID search…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "fill",
+          "selector": "input[name=\"id\"]",
+          "value": "{{shipmentId}}",
+          "progress": "Searching shipment {{shipmentId}}…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "press",
+          "selector": "input[name=\"id\"]",
+          "key": "Enter",
+          "progress": "Submitting shipment search…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "waitFor",
+          "selector": "a[title=\"Routes\"][href*=\"/shipments-routes/\"], a[href*=\"/shipments-routes/\"][href*=\"shipment_id=\"]",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "progress": "Waiting for Routes…",
+          "error": "Routes link was not found for shipment {{shipmentId}}.",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "click",
+          "selector": "a[title=\"Routes\"][href*=\"/shipments-routes/\"], a[href*=\"/shipments-routes/\"][href*=\"shipment_id=\"]",
+          "afterMs": 500,
+          "progress": "Opening shipment Routes…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "waitFor",
+          "selector": "a[title=\"Steps\"][href*=\"/route-steps/\"], a[href*=\"/route-steps/\"][href*=\"shipment_route_id=\"]",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "progress": "Waiting for route Steps…",
+          "error": "Steps link was not found for shipment {{shipmentId}}.",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "click",
+          "selector": "a[title=\"Steps\"][href*=\"/route-steps/\"], a[href*=\"/route-steps/\"][href*=\"shipment_route_id=\"]",
+          "afterMs": 500,
+          "progress": "Opening route Steps…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "waitFor",
+          "selector": "table tbody tr",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "progress": "Waiting for route-step table…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "click",
+          "selector": "table tbody tr a[href*=\"shipping-network-capacity\"], table tbody tr a[href*=\"shipping_network_capacity\"], table tbody tr a[href*=\"shipping-network-capacities\"]",
+          "afterMs": 500,
+          "progress": "Opening shipping network capacity…",
+          "error": "Shipping network capacity link was not found.",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "waitFor",
+          "selector": "table tbody tr:first-child a[href*=\"shipping-network\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "progress": "Waiting for Shipping Network…",
+          "error": "Shipping Network link was not found in the first row.",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "click",
+          "selector": "table tbody tr:first-child a[href*=\"shipping-network\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
+          "afterMs": 500,
+          "progress": "Opening Shipping Network…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "waitFor",
+          "selector": "table thead th, table tbody tr",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "progress": "Waiting for coverage polygon information…",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        },
+        {
+          "action": "extractPaginatedTable",
+          "maxPages": 1,
+          "timeoutMs": 30000,
+          "stableMs": 500,
+          "pollMs": 250,
+          "dedupe": false,
+          "ignoreLastActionColumn": false,
+          "parser": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "svgBoolean": false
+          },
+          "progress": "Reading Destination coverage polygon…",
+          "error": "Coverage polygon table could not be read.",
+          "when": {
+            "left": "{{shipmentId}}",
+            "operator": "gt",
+            "right": 0
+          }
+        }
+      ],
+      "successMessage": "Destination resolved for shipment {{shipmentId}}."
     }
   ],
   "runtimeContract": "stable-host-13.0.2",
-  "businessLogicOwner": "remote-v346",
+  "businessLogicOwner": "remote-v373",
   "closeTabOnError": true,
   "minHostVersion": "13.0.2"
 }
