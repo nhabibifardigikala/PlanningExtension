@@ -1,3 +1,4 @@
+const DIGIEXPRESS_DATASETS_API_VERSION = '372-refresh-v2';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments']);
 const REJECTED_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date','extracted_at'];
@@ -24,6 +25,7 @@ function doPost(e){
     if(action==='replaceDataset')return replaceDataset_(body);
     if(action==='readDataset')return readDataset_(body);
     if(action==='rejectedState')return rejectedState_(body);
+    if(action==='readRejectedDashboardSnapshot')return readRejectedDashboardSnapshot_(body);
     if(action==='readRejectedDashboardDelta')return readRejectedDashboardDelta_(body);
     if(action==='appendRejected')return appendRejected_(body);
     throw new Error('Unsupported action.');
@@ -89,7 +91,14 @@ function rejectedSheetInfo_(sheet){
   const idIdx=canonical.indexOf('id');
   if(idIdx<0)throw new Error('Rejected Shipments: id column was not found.');
   const totalRows=Math.max(0,lastRow-1);
-  const maxId=totalRows?numericId_(sheet.getRange(lastRow,idIdx+1,1,1).getDisplayValue()):0;
+  // Do not assume the physical last row always has the highest/non-empty ID.
+  // Read only a tiny tail of the ID column and take the maximum numeric value.
+  let maxId=0;
+  if(totalRows){
+    const probe=Math.min(50,totalRows);
+    const ids=sheet.getRange(lastRow-probe+1,idIdx+1,probe,1).getDisplayValues();
+    for(const r of ids){const n=numericId_(r[0]);if(n>maxId)maxId=n;}
+  }
   return {headers,canonical,idIdx,lastRow,lastCol,totalRows,maxId};
 }
 
@@ -107,8 +116,32 @@ function rejectedState_(body){
   const sheetName=String(body.sheetName||'Rejected Shipments');
   const sheet=requireSheet_(sheetName);
   const info=rejectedSheetInfo_(sheet);
-  storeRejectedMeta_(sheetName,{maxId:info.maxId,totalRows:info.totalRows});
-  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,maxId:info.maxId,totalRows:info.totalRows,updatedAt:new Date().toISOString(),mode:'tail-metadata'});
+  return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,spreadsheetId:SPREADSHEET_ID,sheetName,maxId:info.maxId,totalRows:info.totalRows,updatedAt:new Date().toISOString(),mode:'tail-metadata'});
+}
+
+function readRejectedDashboardSnapshot_(body){
+  const sheetName=String(body.sheetName||'Rejected Shipments');
+  const sheet=requireSheet_(sheetName);
+  const info=rejectedSheetInfo_(sheet);
+  const limit=Math.max(1,Math.min(300,Number(body.limit)||120));
+  const take=Math.min(info.totalRows,limit);
+  const startDataRow=take?info.totalRows-take+1:1;
+  const startSheetRow=take?startDataRow+1:info.lastRow+1;
+  const rows=take?sheet.getRange(startSheetRow,1,take,info.lastCol).getDisplayValues():[];
+  return json_({
+    ok:true,
+    apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,
+    spreadsheetId:SPREADSHEET_ID,
+    sheetName,
+    headers:info.headers,
+    rows,
+    totalRows:info.totalRows,
+    maxId:info.maxId,
+    startDataRow,
+    endDataRow:info.totalRows,
+    updatedAt:new Date().toISOString(),
+    mode:'tail-snapshot'
+  });
 }
 
 function readRejectedDashboardDelta_(body){
@@ -126,9 +159,9 @@ function readRejectedDashboardDelta_(body){
   const rows=take?sheet.getRange(startSheetRow,1,take,info.lastCol).getDisplayValues():[];
   const cursorRow=take?afterRow+take:afterRow;
   const truncated=available>take;
-  storeRejectedMeta_(sheetName,{maxId:info.maxId,totalRows:info.totalRows});
   return json_({
     ok:true,
+    apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,
     spreadsheetId:SPREADSHEET_ID,
     sheetName,
     headers:info.headers,
@@ -232,7 +265,7 @@ function appendRejected_(body){
   }
   const finalTotalRows=Math.max(0,sheet.getLastRow()-1);
   storeRejectedMeta_(sheetName,{maxId,totalRows:finalTotalRows});
-  return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,appendedCount,maxId,totalRows:finalTotalRows,updatedAt:new Date().toISOString()});
+  return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,spreadsheetId:SPREADSHEET_ID,sheetName,appendedCount,maxId,totalRows:finalTotalRows,updatedAt:new Date().toISOString()});
 }
 
 function rejectedHeaderToken_(value){
@@ -416,5 +449,5 @@ function shippingSizeNumber_(value){
   const any=s.match(/\d+/);return any?Number(any[0]):'';
 }
 
-function doGet(){return json_({ok:true,service:'Digiexpress Agents'});}
+function doGet(){return json_({ok:true,service:'Digiexpress Agents',apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,spreadsheetId:SPREADSHEET_ID});}
 function json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);}

@@ -119,7 +119,7 @@ function bindNavigation(){
 }
 
 function bindActions(){
-  $('refreshDataBtn').addEventListener('click', async()=>{ setSyncState('Refreshing…','neutral',true); const r=await chrome.runtime.sendMessage({type:'refreshDashboardNow'}); if(r?.ok){ if(Array.isArray(r.rows)) applyDashboardPayload(r,{preserveBadge:false,fromCache:r.dataSource==='local-cache'}); setSyncState('Up to date','good',false); } else { setSyncState('Refresh retry scheduled','neutral',false); toast(r?.error||'Refresh failed; retry scheduled automatically'); } });
+  $('refreshDataBtn').addEventListener('click', async()=>{ setSyncState('Refreshing…','neutral',true); const r=await chrome.runtime.sendMessage({type:'refreshDashboardNow'}); if(r?.ok){ const cached=r.dataSource==='local-cache'; if(Array.isArray(r.rows)) applyDashboardPayload(r,{preserveBadge:false,fromCache:cached}); setSyncState(cached?'Cached data':'Up to date',cached?'neutral':'good',false); if(r.warning)toast(r.warning); } else { setSyncState('Refresh failed','bad',false); toast(r?.error||'Refresh failed'); } });
   ['filterService','filterDestination','filterUser','filterShippingSize'].forEach(id => $(id).addEventListener('change',()=>applyFilters()));
   $('trendBucket').addEventListener('change',()=>{delete chartFilters.trend;applyFilters();});
   $('trendPointCount').addEventListener('change',()=>renderCharts());

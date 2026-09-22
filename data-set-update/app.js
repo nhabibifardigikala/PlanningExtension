@@ -6,6 +6,7 @@
   const ORIGIN=location.origin;
   const REJECTED_DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const REJECTED_DATASETS_SHEET='Rejected Shipments';
+  const REJECTED_DATASETS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
   const JOBS={
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
@@ -33,7 +34,7 @@
       retry:{attempts:3,delayMs:60000,backoff:1},
       inputs:{keepScrapeTabOpen:false},
       pipeline:{
-        beforePlatformRequest:{method:'sheets.maxNumericColumn',args:{spreadsheetId:REJECTED_DATASETS_SPREADSHEET_ID,sheetName:REJECTED_DATASETS_SHEET,column:'id'}},
+        beforeRequest:{action:'rejectedState',sheetName:'{{job.sheetName}}'},
         cursorResponsePath:'maxId',cursorInput:'previousMaxId',
         recordDefaults:{extracted_at:'{{now}}'},
         afterRequest:{action:'appendRejected',sheetName:'{{job.sheetName}}',rows:'{{records}}'}
@@ -95,6 +96,7 @@
   async function rejectedEndpointCandidates(){
     const out=[];
     const add=v=>{const u=String(v||'').trim();if(u&&!out.includes(u))out.push(u);};
+    add(REJECTED_DATASETS_WEB_APP_URL);
     add(currentState?.jobs?.['rejected-shipments-sync']?.webAppUrl);
     for(const id of Object.keys(JOBS))add(currentState?.jobs?.[id]?.webAppUrl);
     try{const legacy=await chrome.storage.sync.get({webAppUrl:''});add(legacy.webAppUrl);}catch(_){}
@@ -106,7 +108,7 @@
     try{
       const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});
       const d=r?.data||{};
-      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET);
+      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET&&(!d.apiVersion||String(d.apiVersion)==='372-refresh-v2'));
     }catch(_){return false;}
   }
   async function resolveRejectedDatasetEndpoint(){
@@ -193,7 +195,7 @@
       const opOk=cur?.operationId===defs.operationId&&String(cur?.sheetName||'')===String(defs.sheetName||'');
       const pipelineOk=JSON.stringify(cur?.pipeline||null)===JSON.stringify(defs.pipeline||null);
       const retryOk=JSON.stringify(cur?.retry||null)===JSON.stringify(defs.retry||null);
-      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
+      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:id==='rejected-shipments-sync'?REJECTED_DATASETS_WEB_APP_URL:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
     }
     migrationDone=true;return changed?request('getState'):state;
   }

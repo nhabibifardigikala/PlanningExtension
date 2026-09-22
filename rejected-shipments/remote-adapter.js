@@ -1,4 +1,4 @@
-/* Rejected Shipments Remote adapter v371
+/* Rejected Shipments Remote adapter v372
  * All dashboard behavior is Remote-owned. Host 13 only supplies generic storage,
  * HTTP and operation capabilities through platform-client.js.
  */
@@ -7,6 +7,8 @@
   let retryTimer=null,retryAttempt=0,audioCtx=null,alertTimer=null,activeOscillators=[];
   const CACHE_KEY='dxRejectedDashboardCacheV4'; // legacy chrome.storage cache; migrated away in v371
   const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
+  const CANONICAL_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
+  const EXPECTED_API_VERSION='372-refresh-v2';
   const DATASETS_SHEET='Rejected Shipments';
   const META_KEY='dxRejectedDashboardMetaV5';
   const IDB_NAME='digiexpress-rejected-dashboard-v1';
@@ -19,6 +21,7 @@
     const x=await chrome.storage.local.get(['dxStableJobsV1','dxDatasetUpdateJobsV1']);
     const stable=x.dxStableJobsV1||{}, legacy=x.dxDatasetUpdateJobsV1||{};
     const out=[]; const add=v=>{const u=String(v||'').trim();if(u&&!out.includes(u))out.push(u);};
+    add(CANONICAL_WEB_APP_URL);
     add(stable['rejected-shipments-sync']?.webAppUrl);
     add(legacy['rejected-shipments-sync']?.webAppUrl);
     for(const pool of [stable,legacy])for(const j of Object.values(pool||{}))add(j?.webAppUrl);
@@ -47,6 +50,7 @@
     for(const url of ordered){
       try{
         const data=await rawHttp(url,{...payload,sheetName:payload.sheetName||c.sheetName});
+        if(String(data?.spreadsheetId||'') && String(data.spreadsheetId)!==DATASETS_SPREADSHEET_ID)throw new Error('Rejected Shipments endpoint points to a different spreadsheet.');
         resolvedConnectionUrl=url;
         return data;
       }catch(e){ lastError=e; if(url===resolvedConnectionUrl)resolvedConnectionUrl=''; }
@@ -116,6 +120,17 @@
     try{await cachePayload(payload);return '';}
     catch(e){console.warn('[RejectedDashboard] cache save failed',e);return String(e?.message||e||'Dashboard cache save failed.');}
   }
+  async function readRejectedSnapshot(limit=120){
+    const safeLimit=Math.max(20,Math.min(300,Number(limit)||120));
+    let d;
+    try{d=await http({action:'readRejectedDashboardSnapshot',sheetName:DATASETS_SHEET,limit:safeLimit});}
+    catch(e){
+      if(/Unsupported action/i.test(String(e?.message||e)))throw new Error('Rejected Shipments Apps Script is outdated. Deploy the v372 Code.gs to the existing Web App deployment.');
+      throw e;
+    }
+    const rows=rowsFrom(d),totalRows=Number(d.totalRows)||rows.length,updatedAt=d.updatedAt||new Date().toISOString();
+    return {rows,totalRows,updatedAt,maxId:Number(d.maxId)||maxRowId(rows),startDataRow:Number(d.startDataRow)||Math.max(1,totalRows-rows.length+1),apiVersion:String(d.apiVersion||''),mode:String(d.mode||'tail-snapshot')};
+  }
   async function readRejectedDelta(afterRow=null,limit=80){
     const safeLimit=Math.max(1,Math.min(300,Number(limit)||80));
     const payload={action:'readRejectedDashboardDelta',sheetName:DATASETS_SHEET,limit:safeLimit};
@@ -131,33 +146,56 @@
   }
   async function incrementalFresh(limit=50000){
     const c=await cached(limit);
+    // Every refresh begins with a small authoritative tail snapshot. This validates the
+    // current Sheet size/max ID and prevents a stale browser cursor from getting stuck forever.
+    const snap=await readRejectedSnapshot(120);
+    if(snap.apiVersion && snap.apiVersion!==EXPECTED_API_VERSION){
+      throw new Error(`Rejected Shipments Apps Script version mismatch. Expected ${EXPECTED_API_VERSION}, received ${snap.apiVersion}.`);
+    }
+
     if(!c.ok){
-      // First use: seed only a small tail. This is intentionally bounded so a fresh browser
-      // never asks Apps Script to serialize the whole sheet.
-      const seed=await readRejectedDelta(null,180);
-      const payload={ok:true,rows:seed.rows.slice(-limit),kpis:null,totalRows:seed.totalRows,maxId:seed.maxId,cursorRow:seed.cursorRow,cacheUpdatedAt:seed.updatedAt,dataSource:'apps-script-delta-seed'};
+      const payload={ok:true,rows:snap.rows.slice(-limit),kpis:null,totalRows:snap.totalRows,maxId:snap.maxId,cursorRow:snap.totalRows,cacheUpdatedAt:snap.updatedAt,dataSource:'apps-script-tail-seed'};
       const cacheWarning=await saveCacheBestEffort(payload);
       return cacheWarning?{...payload,warning:'Fresh Google Sheet data loaded, but local cache could not be saved: '+cacheWarning}:payload;
     }
 
-    let cursor=Number(c.cursorRow??c.totalRows??0)||0;
-    let rows=c.rows;
-    let latestTotal=Number(c.totalRows)||cursor;
-    let latestMax=Number(c.maxId)||maxRowId(rows);
-    let updatedAt=c.cacheUpdatedAt||new Date().toISOString();
-    // Normally this loop runs once and returns zero or a handful of new rows. If the browser
-    // was closed for a while, catch up in at most three small chunks to avoid quota spikes.
-    for(let i=0;i<3;i++){
-      const part=await readRejectedDelta(cursor,80);
-      latestTotal=part.totalRows;latestMax=Math.max(latestMax,part.maxId||0);updatedAt=part.updatedAt;
-      if(part.rows.length)rows=mergeRows(rows,part.rows,limit);
-      cursor=part.cursorRow;
-      if(!part.truncated||!part.remainingRows||part.rows.length===0)break;
+    let rows=c.rows||[];
+    let cursor=Math.max(0,Number(c.cursorRow??c.totalRows??0)||0);
+    const oldTotal=Math.max(0,Number(c.totalRows)||0);
+    const oldMax=Math.max(0,Number(c.maxId)||maxRowId(rows));
+    const remoteTotal=Math.max(0,Number(snap.totalRows)||0);
+    const remoteMax=Math.max(0,Number(snap.maxId)||0);
+
+    // Always merge the latest tail first. This picks up corrections to recent rows even when
+    // row count is unchanged, and guarantees the newest records are visible immediately.
+    rows=mergeRows(rows,snap.rows,limit);
+
+    // If the Sheet was truncated/rebuilt, the old row cursor no longer has meaning. Reset the
+    // cache to the authoritative tail rather than remaining permanently stuck at an old cursor.
+    if(remoteTotal<cursor || (remoteTotal===oldTotal && remoteMax && oldMax && remoteMax<oldMax)){
+      rows=snap.rows.slice(-limit);
+      cursor=remoteTotal;
+    }else if(remoteTotal>cursor){
+      // Catch up exact missing rows in bounded chunks. Up to 10 chunks (= 800 rows) per refresh.
+      // The tail snapshot above already makes the newest data visible while the historical gap
+      // catches up over one or more cycles.
+      for(let i=0;i<10 && cursor<remoteTotal;i++){
+        const part=await readRejectedDelta(cursor,80);
+        if(part.rows.length)rows=mergeRows(rows,part.rows,limit);
+        const next=Math.max(cursor,Number(part.cursorRow)||cursor);
+        if(next===cursor)break;
+        cursor=next;
+        if(!part.truncated||!part.remainingRows)break;
+      }
+    }else{
+      cursor=remoteTotal;
     }
-    const payload={ok:true,rows,kpis:null,totalRows:latestTotal,maxId:latestMax,cursorRow:cursor,cacheUpdatedAt:updatedAt,dataSource:'apps-script-row-delta'};
+
+    const payload={ok:true,rows,kpis:null,totalRows:remoteTotal,maxId:Math.max(remoteMax,maxRowId(rows)),cursorRow:Math.min(cursor,remoteTotal),cacheUpdatedAt:snap.updatedAt,dataSource:cursor<remoteTotal?'apps-script-tail-plus-catchup':'apps-script-tail-snapshot'};
     const cacheWarning=await saveCacheBestEffort(payload);
     return cacheWarning?{...payload,warning:'Fresh Google Sheet data loaded, but local cache could not be saved: '+cacheWarning}:payload;
   }
+
   async function directFull(limit=500){
     const safeLimit=Math.max(25,Math.min(500,Number(limit)||500));
     const direct=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASETS_SHEET,limit:safeLimit});
@@ -179,7 +217,7 @@
       // Important: do not create a second hidden retry timer after a quota error. The dashboard
       // already has one five-minute scheduler; duplicate retry loops were multiplying requests.
       emit({type:'dashboardRefreshFailed',error:String(e?.message||e),retryAttempt:1,nextRetry:new Date(Date.now()+5*60*1000).toISOString()});
-      if(c.ok)return {...c,dataSource:'local-cache',warning:isQuotaError(e)?'Google Sheet quota is busy; showing cached data. The next delta refresh will run in 5 min.':`Google Sheet refresh failed; showing cached data. Next automatic refresh in 5 min.`,retryScheduled:true,nextRetryMs:5*60*1000};
+      if(c.ok)return {...c,dataSource:'local-cache',warning:isQuotaError(e)?'Google Sheet quota is busy; showing cached data. Next refresh in 5 min.':`Google Sheet refresh failed: ${String(e?.message||e)}. Showing cached data; next refresh in 5 min.`,retryScheduled:true,nextRetryMs:5*60*1000,error:String(e?.message||e)};
       // No cache: make one very small direct attempt only.
       try{return await directFull(250);}catch(fullError){return {ok:false,error:`Dashboard data could not be loaded. ${fullError.message}`,retryScheduled:true,nextRetryMs:5*60*1000};}
     }
