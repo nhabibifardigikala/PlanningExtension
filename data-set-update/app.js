@@ -119,13 +119,13 @@
     try{
       const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});
       const d=r?.data||{};
-      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET&&String(d.apiVersion||'')==='375-destination-v3');
+      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET&&String(d.apiVersion||'')==='376-destination-v4');
     }catch(_){return false;}
   }
   async function resolveRejectedDatasetEndpoint(){
     const candidates=await rejectedEndpointCandidates();
     for(const url of candidates){if(await probeRejectedDatasetEndpoint(url))return url;}
-    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy the v375 Code.gs, then save that deployment /exec URL in Agents settings. The endpoint must report apiVersion 375-destination-v3 and the exact DataSets spreadsheet ID.');
+    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy the v376 Code.gs, then save that deployment /exec URL in Agents settings. The endpoint must report apiVersion 376-destination-v4 and the exact DataSets spreadsheet ID.');
   }
   async function readRejectedStateFromEndpoint(url){
     const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});

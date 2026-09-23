@@ -1,4 +1,4 @@
-const DIGIEXPRESS_DATASETS_API_VERSION = '375-destination-v3';
+const DIGIEXPRESS_DATASETS_API_VERSION = '376-destination-v4';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments']);
 const REJECTED_SOURCE_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date'];
@@ -292,8 +292,9 @@ function completeRejectedDestination_(body){
   if(!id)return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,skipped:true,reason:'no-pending-destination'});
   const headers=Array.isArray(body.headers)?body.headers:[];
   const rows=Array.isArray(body.rows)?body.rows:[];
-  const destination=findCoveragePolygonIdFromTable_(headers,rows);
-  if(!destination)throw new Error('Rejected Shipments: coverage polygon id was not found on the Shipping Network page. Headers: '+headers.join(' | '));
+  const resolvedDestination=findCoveragePolygonIdFromTable_(headers,rows);
+  // A valid navigation path can legitimately end with no rows/result. Mark it and continue.
+  const destination=resolvedDestination || 'یافت نشد';
   const sheet=requireSheet_(sheetName);
   ensureRejectedDestinationColumn_(sheet);
   const info=rejectedSheetInfo_(sheet),destinationIdx=info.canonical.indexOf('destination');
@@ -310,7 +311,7 @@ function completeRejectedDestination_(body){
     let claim=null;try{claim=JSON.parse(props.getProperty(key)||'null');}catch(_){claim=null;}
     if(Number(claim?.id)===id)props.deleteProperty(key);
   }finally{lock.releaseLock();}
-  return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,sheetName,id,rowNumber,destination,updatedAt:new Date().toISOString()});
+  return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,sheetName,id,rowNumber,destination,found:!!resolvedDestination,updatedAt:new Date().toISOString()});
 }
 
 function updateRejectedDestination_(body){
