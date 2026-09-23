@@ -1,4 +1,4 @@
-const DIGIEXPRESS_DATASETS_API_VERSION = '374-destination-v2';
+const DIGIEXPRESS_DATASETS_API_VERSION = '375-destination-v3';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments']);
 const REJECTED_SOURCE_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date'];
@@ -44,6 +44,22 @@ function requireSheet_(sheetName){
   const ss=SpreadsheetApp.openById(SPREADSHEET_ID),sheet=ss.getSheetByName(name);
   if(!sheet)throw new Error('Target sheet not found: '+name);
   return sheet;
+}
+
+function ensureRejectedDestinationColumn_(sheet){
+  if(!sheet)throw new Error('Rejected Shipments: target sheet is unavailable.');
+  let lastRow=sheet.getLastRow(),lastCol=sheet.getLastColumn();
+  if(lastRow<1||lastCol<1){
+    const headers=REJECTED_HEADERS.map(h=>h==='destination'?'Destination':h);
+    sheet.getRange(1,1,1,headers.length).setValues([headers]);
+    return headers.length-1;
+  }
+  const headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0].map(v=>String(v||'').trim());
+  const canonical=headers.map(canonicalRejectedField_);
+  const existing=canonical.indexOf('destination');
+  if(existing>=0)return existing;
+  sheet.getRange(1,lastCol+1).setValue('Destination');
+  return lastCol;
 }
 
 function replaceDataset_(body){
