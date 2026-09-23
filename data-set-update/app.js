@@ -7,30 +7,31 @@
   const REJECTED_DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const REJECTED_DATASETS_SHEET='Rejected Shipments';
   const REJECTED_DATASETS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
+  const AGENTS_ACCESS_GATE={operationId:'agents-access-gate',inputs:{}};
   const JOBS={
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
-      preOperations:[{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:300}}]
+      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:300}}]
     },
     'pickup-polygons':{
       id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'sheet'},enabled:false,
-      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
     },
     'delivery-polygons':{
       id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'sheet'},enabled:false,
-      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[]
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
     }
 ,
     'iata-code-synchronizer':{
       id:'iata-code-synchronizer',label:'IATA Code Synchronizer',operationId:'sync-iata',sheetName:'IATA Synchronizer Log',output:{type:'none'},enabled:false,
-      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[],
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
       inputs:{syncTargets:['shipping-points','shipping-polygons'],pointExceptions:'',polygonExceptions:''}
     }
 ,
     'rejected-shipments-sync':{
       id:'rejected-shipments-sync',label:'Rejected Shipments Synchronizer',operationId:'rejected-shipments-sync',sheetName:'Rejected Shipments',output:{type:'internal'},enabled:true,minHostVersion:'13.0.2',
-      schedule:{type:'interval',time:'12:00',intervalHours:1,intervalMinutes:15},preOperations:[],
+      schedule:{type:'interval',time:'12:00',intervalHours:1,intervalMinutes:15},preOperations:[AGENTS_ACCESS_GATE],
       retry:{attempts:3,delayMs:60000,backoff:1},
       inputs:{keepScrapeTabOpen:false},
       pipeline:{
@@ -64,6 +65,13 @@
       return window.DigiExpressPlatform.call(method,payload).then(r=>r?.result??r);
     }
     return Promise.reject(new Error('Stable Host 13.0.0 platform bridge is not available. Reload the extension.'));
+  }
+
+  async function assertAgentsAccess(){
+    if(!window.DigiExpressPlatform?.runtime?.sendMessage)throw new Error('Stable Host access bridge is not available. Reload the extension.');
+    const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'CHECK_OPERATION_ACCESS',op:'agents-access-gate'});
+    if(!r?.ok||!r?.allowed)throw new Error(r?.error||'Access denied for Agents.');
+    return true;
   }
 
   const fmt=v=>v?new Date(v).toLocaleString():'—';
@@ -191,7 +199,7 @@
     for(const id of Object.keys(JOBS)){
       const cur=state?.jobs?.[id];const defs=JOBS[id];
       const pre=Array.isArray(cur?.preOperations)?cur.preOperations:[];
-      const preOk=id!=='distribution-centers'||pre.some(x=>x?.operationId==='dc-user-assignment'&&Number(x?.inputs?.dcCount)===300&&x?.inputs?.useConfiguredEmail===true);
+      const preOk=JSON.stringify(pre)===JSON.stringify(defs.preOperations||[]);
       const opOk=cur?.operationId===defs.operationId&&String(cur?.sheetName||'')===String(defs.sheetName||'');
       const pipelineOk=JSON.stringify(cur?.pipeline||null)===JSON.stringify(defs.pipeline||null);
       const retryOk=JSON.stringify(cur?.retry||null)===JSON.stringify(defs.retry||null);
@@ -216,7 +224,7 @@
     finally{btn.disabled=false}
   });
   $('saveSchedule').addEventListener('click',async()=>{
-    const btn=$('saveSchedule');try{btn.disabled=true;const job=collectJob(activeJobId);if(job.enabled)await assertJobHostCompatibility(JOBS[activeJobId]);if(activeJobId==='iata-code-synchronizer'&&!job.inputs.syncTargets.length)throw new Error('Select at least one IATA synchronization target.');await request('saveJob',{job});await refresh({quiet:true});toast(`${JOBS[activeJobId].label} settings saved`);closeModal('datasetSettingsModal')}
+    const btn=$('saveSchedule');try{btn.disabled=true;const job=collectJob(activeJobId);if(job.enabled){await assertAgentsAccess();await assertJobHostCompatibility(JOBS[activeJobId]);}if(activeJobId==='iata-code-synchronizer'&&!job.inputs.syncTargets.length)throw new Error('Select at least one IATA synchronization target.');await request('saveJob',{job});await refresh({quiet:true});toast(`${JOBS[activeJobId].label} settings saved`);closeModal('datasetSettingsModal')}
     catch(e){$('datasetError').hidden=false;$('datasetError').textContent=e.message}
     finally{btn.disabled=false}
   });
@@ -225,6 +233,7 @@
     const id=run.dataset.runJob,st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
     if(st.running){try{setRunButtonVisual(run,true,JOBS[id].label);mini.textContent='Stopping operation…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Operation stopped');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
+      await assertAgentsAccess();
       await assertJobHostCompatibility(JOBS[id]);
       run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl();

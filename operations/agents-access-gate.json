@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Internal authorization preflight for Agents scheduled jobs.",
+  "workflow": [
+    {
+      "action": "wait",
+      "ms": 1
+    }
+  ],
+  "successMessage": "Agents access verified.",
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
+}
