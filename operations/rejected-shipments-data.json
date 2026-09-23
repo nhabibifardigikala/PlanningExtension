@@ -572,7 +572,7 @@
           "action": "fill",
           "selector": "input[name=\"id\"]",
           "value": "{{shipmentId}}",
-          "progress": "Searching shipment {{shipmentId}}…",
+          "progress": "Setting shipment ID {{shipmentId}}…",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -580,10 +580,12 @@
           }
         },
         {
-          "action": "press",
+          "action": "submitNearestForm",
           "selector": "input[name=\"id\"]",
-          "key": "Enter",
-          "progress": "Submitting shipment search…",
+          "waitForNavigation": true,
+          "completeTimeoutMs": 30000,
+          "progress": "Submitting shipment ID search…",
+          "error": "Shipment ID search form could not be submitted.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -595,7 +597,7 @@
           "selector": "a[title=\"Routes\"][href*=\"/shipments-routes/\"], a[href*=\"/shipments-routes/\"][href*=\"shipment_id=\"]",
           "timeoutMs": 30000,
           "intervalMs": 300,
-          "progress": "Waiting for Routes…",
+          "progress": "Waiting for Routes icon…",
           "error": "Routes link was not found for shipment {{shipmentId}}.",
           "when": {
             "left": "{{shipmentId}}",
@@ -604,10 +606,14 @@
           }
         },
         {
-          "action": "click",
+          "action": "clickAndWait",
           "selector": "a[title=\"Routes\"][href*=\"/shipments-routes/\"], a[href*=\"/shipments-routes/\"][href*=\"shipment_id=\"]",
-          "afterMs": 500,
-          "progress": "Opening shipment Routes…",
+          "successSelector": "a[title=\"Steps\"][href*=\"/route-steps/\"], a[href*=\"/route-steps/\"][href*=\"shipment_route_id=\"]",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "attempts": 3,
+          "progress": "Opening Routes…",
+          "error": "Routes opened, but the Steps link did not appear.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -615,23 +621,14 @@
           }
         },
         {
-          "action": "waitFor",
+          "action": "clickAndWait",
           "selector": "a[title=\"Steps\"][href*=\"/route-steps/\"], a[href*=\"/route-steps/\"][href*=\"shipment_route_id=\"]",
+          "successSelector": "table tbody tr",
           "timeoutMs": 30000,
           "intervalMs": 300,
-          "progress": "Waiting for route Steps…",
-          "error": "Steps link was not found for shipment {{shipmentId}}.",
-          "when": {
-            "left": "{{shipmentId}}",
-            "operator": "gt",
-            "right": 0
-          }
-        },
-        {
-          "action": "click",
-          "selector": "a[title=\"Steps\"][href*=\"/route-steps/\"], a[href*=\"/route-steps/\"][href*=\"shipment_route_id=\"]",
-          "afterMs": 500,
-          "progress": "Opening route Steps…",
+          "attempts": 3,
+          "progress": "Opening Steps…",
+          "error": "Steps opened, but the route-step table did not appear.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -640,10 +637,11 @@
         },
         {
           "action": "waitFor",
-          "selector": "table tbody tr",
+          "selector": "table tbody tr a[href*=\"shipping-network-capacity\"], table tbody tr a[href*=\"shipping_network_capacity\"], table tbody tr a[href*=\"shipping-network-capacities\"], table tbody tr a[href*=\"shipping_network_capacities\"], table tbody tr a[href*=\"shipping-network-capacity-id\"], table tbody tr a[href*=\"shipping_network_capacity_id\"], table tbody tr a[href*=\"shipping_network_capacity_id=\"], table tbody tr td[data-code=\"shipping_network_capacity_id\"] a, table tbody tr td[data-field=\"shipping_network_capacity_id\"] a",
           "timeoutMs": 30000,
           "intervalMs": 300,
-          "progress": "Waiting for route-step table…",
+          "progress": "Locating shipping network capacity id…",
+          "error": "No clickable value was found in the shipping network capacity id column.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -651,11 +649,14 @@
           }
         },
         {
-          "action": "click",
-          "selector": "table tbody tr a[href*=\"shipping-network-capacity\"], table tbody tr a[href*=\"shipping_network_capacity\"], table tbody tr a[href*=\"shipping-network-capacities\"]",
-          "afterMs": 500,
-          "progress": "Opening shipping network capacity…",
-          "error": "Shipping network capacity link was not found.",
+          "action": "clickAndWait",
+          "selector": "table tbody tr a[href*=\"shipping-network-capacity\"], table tbody tr a[href*=\"shipping_network_capacity\"], table tbody tr a[href*=\"shipping-network-capacities\"], table tbody tr a[href*=\"shipping_network_capacities\"], table tbody tr a[href*=\"shipping-network-capacity-id\"], table tbody tr a[href*=\"shipping_network_capacity_id\"], table tbody tr a[href*=\"shipping_network_capacity_id=\"], table tbody tr td[data-code=\"shipping_network_capacity_id\"] a, table tbody tr td[data-field=\"shipping_network_capacity_id\"] a",
+          "successSelector": "table tbody tr:first-child td[data-code=\"shipping_network\"] a, table tbody tr:first-child td[data-field=\"shipping_network\"] a, table tbody tr:first-child a[href*=\"shipping-network-id\"], table tbody tr:first-child a[href*=\"shipping_network_id\"], table tbody tr:first-child a[href*=\"shipping_network_id=\"], table tbody tr:first-child a[href*=\"/shipping-networks/\"], table tbody tr:first-child a[href*=\"/shipping-network/\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
+          "timeoutMs": 30000,
+          "intervalMs": 300,
+          "attempts": 3,
+          "progress": "Opening shipping network capacity id…",
+          "error": "Shipping network capacity opened, but the Shipping Network link did not appear.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -664,10 +665,10 @@
         },
         {
           "action": "waitFor",
-          "selector": "table tbody tr:first-child a[href*=\"shipping-network\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
+          "selector": "table tbody tr:first-child td[data-code=\"shipping_network\"] a, table tbody tr:first-child td[data-field=\"shipping_network\"] a, table tbody tr:first-child a[href*=\"shipping-network-id\"], table tbody tr:first-child a[href*=\"shipping_network_id\"], table tbody tr:first-child a[href*=\"shipping_network_id=\"], table tbody tr:first-child a[href*=\"/shipping-networks/\"], table tbody tr:first-child a[href*=\"/shipping-network/\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
           "timeoutMs": 30000,
           "intervalMs": 300,
-          "progress": "Waiting for Shipping Network…",
+          "progress": "Locating Shipping Network in the first row…",
           "error": "Shipping Network link was not found in the first row.",
           "when": {
             "left": "{{shipmentId}}",
@@ -677,9 +678,10 @@
         },
         {
           "action": "click",
-          "selector": "table tbody tr:first-child a[href*=\"shipping-network\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
-          "afterMs": 500,
-          "progress": "Opening Shipping Network…",
+          "selector": "table tbody tr:first-child td[data-code=\"shipping_network\"] a, table tbody tr:first-child td[data-field=\"shipping_network\"] a, table tbody tr:first-child a[href*=\"shipping-network-id\"], table tbody tr:first-child a[href*=\"shipping_network_id\"], table tbody tr:first-child a[href*=\"shipping_network_id=\"], table tbody tr:first-child a[href*=\"/shipping-networks/\"], table tbody tr:first-child a[href*=\"/shipping-network/\"]:not([href*=\"capacity\"]), table tbody tr:first-child a[href*=\"shipping_network\"]:not([href*=\"capacity\"])",
+          "afterMs": 1200,
+          "progress": "Opening the first Shipping Network…",
+          "error": "The first Shipping Network could not be opened.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -691,7 +693,7 @@
           "selector": "table thead th, table tbody tr",
           "timeoutMs": 30000,
           "intervalMs": 300,
-          "progress": "Waiting for coverage polygon information…",
+          "progress": "Waiting for Shipping Network details…",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -702,7 +704,7 @@
           "action": "extractPaginatedTable",
           "maxPages": 1,
           "timeoutMs": 30000,
-          "stableMs": 500,
+          "stableMs": 700,
           "pollMs": 250,
           "dedupe": false,
           "ignoreLastActionColumn": false,
@@ -712,8 +714,8 @@
             "rowSelector": "tbody tr",
             "svgBoolean": false
           },
-          "progress": "Reading Destination coverage polygon…",
-          "error": "Coverage polygon table could not be read.",
+          "progress": "Reading coverage polygon id…",
+          "error": "Shipping Network details table could not be read.",
           "when": {
             "left": "{{shipmentId}}",
             "operator": "gt",
@@ -725,7 +727,7 @@
     }
   ],
   "runtimeContract": "stable-host-13.0.2",
-  "businessLogicOwner": "remote-v373",
+  "businessLogicOwner": "remote-v374",
   "closeTabOnError": true,
   "minHostVersion": "13.0.2"
 }

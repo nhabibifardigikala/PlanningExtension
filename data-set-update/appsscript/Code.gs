@@ -1,4 +1,4 @@
-const DIGIEXPRESS_DATASETS_API_VERSION = '373-destination-v1';
+const DIGIEXPRESS_DATASETS_API_VERSION = '374-destination-v2';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments']);
 const REJECTED_SOURCE_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date'];
@@ -184,43 +184,11 @@ function readRejectedDashboardDelta_(body){
 }
 
 
-function rejectedDestinationBaselineKey_(sheetName){
-  return 'rejected.destination.baseline.'+String(sheetName||'Rejected Shipments');
-}
-
-function ensureRejectedDestinationColumn_(sheet){
-  let lastCol=sheet.getLastColumn();
-  if(lastCol<1){
-    sheet.getRange(1,1,1,REJECTED_HEADERS.length).setValues([REJECTED_HEADERS.map(h=>h==='destination'?'Destination':h)]);
-    return {headers:REJECTED_HEADERS.map(h=>h==='destination'?'Destination':h),destinationCol:REJECTED_HEADERS.length};
-  }
-  let headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0].map(v=>String(v||'').trim());
-  let canonical=headers.map(canonicalRejectedField_);
-  let idx=canonical.indexOf('destination');
-  if(idx<0){
-    idx=lastCol;
-    sheet.getRange(1,idx+1).setValue('Destination');
-    headers.push('Destination');
-  }
-  return {headers,destinationCol:idx+1};
-}
-
-function ensureRejectedDestinationBaseline_(sheetName,currentMaxId){
-  const props=PropertiesService.getScriptProperties();
-  const key=rejectedDestinationBaselineKey_(sheetName);
-  const raw=props.getProperty(key);
-  if(raw!==null&&raw!=='')return Number(raw)||0;
-  const baseline=Number(currentMaxId)||0;
-  props.setProperty(key,String(baseline));
-  return baseline;
-}
-
 function getRejectedDestinationPending_(body){
   const sheetName=String(body.sheetName||'Rejected Shipments');
   const sheet=requireSheet_(sheetName);
   ensureRejectedDestinationColumn_(sheet);
   const info=rejectedSheetInfo_(sheet);
-  const baseline=ensureRejectedDestinationBaseline_(sheetName,info.maxId);
   const destinationIdx=info.canonical.indexOf('destination');
   const idIdx=info.idIdx;
   if(destinationIdx<0)throw new Error('Rejected Shipments: Destination column was not found.');
@@ -228,6 +196,8 @@ function getRejectedDestinationPending_(body){
   const pending=[];
   let endRow=info.lastRow;
   const chunkSize=250;
+  // Read newest rows first. This guarantees newly appended rejected shipments are enriched first,
+  // while older blank Destination cells are also gradually backfilled instead of being hidden by a baseline.
   while(endRow>=2&&pending.length<limit){
     const startRow=Math.max(2,endRow-chunkSize+1);
     const count=endRow-startRow+1;
@@ -235,22 +205,16 @@ function getRejectedDestinationPending_(body){
     const maxCol=Math.max(idIdx,destinationIdx)+1;
     const values=sheet.getRange(startRow,minCol,count,maxCol-minCol+1).getDisplayValues();
     const idOff=idIdx-(minCol-1),destOff=destinationIdx-(minCol-1);
-    let reachedBaseline=false;
-    for(let i=values.length-1;i>=0;i--){
+    for(let i=values.length-1;i>=0&&pending.length<limit;i--){
       const id=numericId_(values[i][idOff]);
-      if(id&&id<=baseline){reachedBaseline=true;break;}
       if(!id)continue;
       const destination=String(values[i][destOff]||'').trim();
       if(!destination)pending.push({id,rowNumber:startRow+i});
-      if(pending.length>=limit)break;
     }
-    if(reachedBaseline||pending.length>=limit)break;
     endRow=startRow-1;
   }
-  pending.reverse();
-  return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,spreadsheetId:SPREADSHEET_ID,sheetName,baseline,maxId:info.maxId,pending,count:pending.length,updatedAt:new Date().toISOString()});
+  return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,spreadsheetId:SPREADSHEET_ID,sheetName,maxId:info.maxId,pending,count:pending.length,updatedAt:new Date().toISOString()});
 }
-
 
 function rejectedDestinationClaimKey_(sheetName){
   return 'rejected.destination.claim.'+String(sheetName||'Rejected Shipments');
@@ -263,12 +227,11 @@ function claimRejectedDestination_(body){
   const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
     const info=rejectedSheetInfo_(sheet);
-    const baseline=ensureRejectedDestinationBaseline_(sheetName,info.maxId);
     const destinationIdx=info.canonical.indexOf('destination');
     if(destinationIdx<0)throw new Error('Rejected Shipments: Destination column was not found.');
     const props=PropertiesService.getScriptProperties(),claimKey=rejectedDestinationClaimKey_(sheetName);
     let claim=null;try{claim=JSON.parse(props.getProperty(claimKey)||'null');}catch(_){claim=null;}
-    if(claim&&Number(claim.id)>baseline&&Date.now()-Number(claim.claimedAt||0)<15*60*1000){
+    if(claim&&Date.now()-Number(claim.claimedAt||0)<15*60*1000){
       const rowNumber=Number(claim.rowNumber)||0;
       if(rowNumber>=2&&rowNumber<=sheet.getLastRow()){
         const rowId=numericId_(sheet.getRange(rowNumber,info.idIdx+1).getDisplayValue());
@@ -278,20 +241,18 @@ function claimRejectedDestination_(body){
     }
     props.deleteProperty(claimKey);
     let endRow=info.lastRow,found=null;const chunkSize=250;
+    // Claim the newest row with an empty Destination. No baseline is used: missed rows remain recoverable.
     while(endRow>=2&&!found){
       const startRow=Math.max(2,endRow-chunkSize+1),count=endRow-startRow+1;
       const minCol=Math.min(info.idIdx,destinationIdx)+1,maxCol=Math.max(info.idIdx,destinationIdx)+1;
       const values=sheet.getRange(startRow,minCol,count,maxCol-minCol+1).getDisplayValues();
       const idOff=info.idIdx-(minCol-1),destOff=destinationIdx-(minCol-1);
-      let reachedBaseline=false;
-      for(let i=0;i<values.length;i++){
+      for(let i=values.length-1;i>=0;i--){
         const id=numericId_(values[i][idOff]);
         if(!id)continue;
-        if(id<=baseline){reachedBaseline=true;continue;}
         const destination=String(values[i][destOff]||'').trim();
         if(!destination){found={id,rowNumber:startRow+i};break;}
       }
-      if(found||reachedBaseline)break;
       endRow=startRow-1;
     }
     if(!found)return json_({ok:true,apiVersion:DIGIEXPRESS_DATASETS_API_VERSION,shipmentId:0,rowNumber:0,claimed:false});
@@ -366,7 +327,6 @@ function appendRejected_(body){
   const sheet=requireSheet_(sheetName);
   ensureRejectedDestinationColumn_(sheet);
   const preAppendInfo=rejectedSheetInfo_(sheet);
-  ensureRejectedDestinationBaseline_(sheetName,preAppendInfo.maxId);
   const incoming=Array.isArray(body.rows)?body.rows:[];
   let lastRow=sheet.getLastRow(),lastCol=sheet.getLastColumn();
   let headers=[];
