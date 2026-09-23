@@ -1,0 +1,5 @@
+These historical Destination feature notes can be removed from the Remote repository if present:
+REJECTED_DESTINATION_V373_FA.md
+REJECTED_DESTINATION_V374_FA.md
+REJECTED_DESTINATION_V375_FA.md
+REJECTED_DESTINATION_V376_FA.md

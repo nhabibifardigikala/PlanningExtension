@@ -8,7 +8,7 @@
   const CACHE_KEY='dxRejectedDashboardCacheV4'; // legacy chrome.storage cache; migrated away in v371
   const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const CANONICAL_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
-  const EXPECTED_API_VERSION='376-destination-v4';
+  const EXPECTED_API_VERSION='377-core-v1';
   const DATASETS_SHEET='Rejected Shipments';
   const META_KEY='dxRejectedDashboardMetaV5';
   const IDB_NAME='digiexpress-rejected-dashboard-v1';

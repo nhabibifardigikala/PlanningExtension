@@ -40,17 +40,6 @@
         afterRequest:{action:'appendRejected',sheetName:'{{job.sheetName}}',rows:'{{records}}'}
       }
     },
-    'rejected-destination-sync':{
-      id:'rejected-destination-sync',label:'Rejected Shipments Destination Worker',operationId:'rejected-shipments-sync',sheetName:'Rejected Shipments',output:{type:'internal'},enabled:true,minHostVersion:'13.0.2',
-      schedule:{type:'interval',time:'12:00',intervalHours:1,intervalMinutes:1},preOperations:[],
-      retry:{attempts:3,delayMs:60000,backoff:1},
-      inputs:{__subOperationId:'resolve-destination',shipmentId:0},
-      pipeline:{
-        beforeRequest:{action:'claimRejectedDestination',sheetName:'{{job.sheetName}}'},
-        cursorResponsePath:'shipmentId',cursorInput:'shipmentId',
-        afterRequest:{action:'completeRejectedDestination',sheetName:'{{job.sheetName}}',id:'{{inputs.shipmentId}}',headers:'{{result.headers}}',rows:'{{result.rows}}'}
-      }
-    }
   };
   const $=id=>document.getElementById(id);
 
@@ -119,13 +108,13 @@
     try{
       const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});
       const d=r?.data||{};
-      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET&&String(d.apiVersion||'')==='376-destination-v4');
+      return !!(r?.ok&&d&&d.ok!==false&&String(d.spreadsheetId||'')===REJECTED_DATASETS_SPREADSHEET_ID&&String(d.sheetName||'')===REJECTED_DATASETS_SHEET&&String(d.apiVersion||'')==='377-core-v1');
     }catch(_){return false;}
   }
   async function resolveRejectedDatasetEndpoint(){
     const candidates=await rejectedEndpointCandidates();
     for(const url of candidates){if(await probeRejectedDatasetEndpoint(url))return url;}
-    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy the v376 Code.gs, then save that deployment /exec URL in Agents settings. The endpoint must report apiVersion 376-destination-v4 and the exact DataSets spreadsheet ID.');
+    throw new Error('Rejected Shipments endpoint is not the current DataSets Web App. Deploy the v377 Code.gs, then save that deployment /exec URL in Agents settings. The endpoint must report apiVersion 377-core-v1 and the exact DataSets spreadsheet ID.');
   }
   async function readRejectedStateFromEndpoint(url){
     const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'rejectedState',sheetName:REJECTED_DATASETS_SHEET}),responseType:'json',timeoutMs:15000,credentials:'include'}});
