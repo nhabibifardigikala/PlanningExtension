@@ -1,11 +1,11 @@
 {
-  "configVersion": 380,
+  "configVersion": 381,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 380
+    "configVersion": 381
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -138,13 +138,13 @@
           }
         }
       ],
-      "iconSvgPath": "M12 7a5 5 0 1 1-10 0 5 5 0 0 1 10 0Zm34 0a5 5 0 1 1-10 0 5 5 0 0 1 10 0ZM29 41a5 5 0 1 1-10 0 5 5 0 0 1 10 0ZM9.5 11.2l11.7 24.1 3.6-1.8L13.1 9.4l-3.6 1.8Zm29 0L26.8 35.3l3.6 1.8L42.1 13l-3.6-1.8ZM12 5v4h24V5H12Z",
       "enabled": true,
       "category": "network",
       "output": {
         "type": "excel"
       },
-      "minHostVersion": "13.0.5"
+      "minHostVersion": "13.0.5",
+      "iconImage": "icons/apps/ganje-network-management.webp?v=381"
     },
     {
       "id": "ganje-network-worker",
