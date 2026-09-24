@@ -1,11 +1,11 @@
 {
-  "configVersion": 381,
+  "configVersion": 382,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 381
+    "configVersion": 382
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -123,7 +123,7 @@
         "GANJE Network Management"
       ],
       "accessControl": "column",
-      "config": "operations/ganje-network-management.json?v=380",
+      "config": "operations/ganje-network-management.json?v=382",
       "description": "Create, activate and deactivate GANJE/GANJDAR networks, capacity and Time Distance from Excel.",
       "runLabel": "Open GANJE Network Management",
       "uiMode": "form",
@@ -144,7 +144,7 @@
         "type": "excel"
       },
       "minHostVersion": "13.0.5",
-      "iconImage": "icons/apps/ganje-network-management.webp?v=381"
+      "iconImage": "icons/apps/ganje-network-management.webp?v=382"
     },
     {
       "id": "ganje-network-worker",

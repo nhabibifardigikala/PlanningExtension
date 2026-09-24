@@ -7,14 +7,45 @@
 <script src="../ui/platform-client.js?v=378"></script>
 <script src="./xlsx-lite.js"></script>
 <style>
-:root{color-scheme:light;--bg:#f7f8fb;--card:#fff;--text:#10213f;--muted:#667085;--line:#e2e8f0;--line-strong:#d7dee9;--primary:#2563eb;--primary-soft:#eef4ff;--navy:#071a33;--success:#079455;--danger:#d92d20;--warning:#f79009;--shadow:0 8px 26px rgba(15,23,42,.05)}
-html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--text:#fff;--muted:#b6c1d2;--line:#263b59;--line-strong:#344866;--primary:#60a5fa;--primary-soft:#102d55;--navy:#06152a;--success:#32d583;--danger:#f97066;--warning:#fdb022;--shadow:none}
-*{box-sizing:border-box}html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{padding:16px}button,input{font:inherit}.page{max-width:1180px;margin:0 auto}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}.stack{display:grid;gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.card-title{font-size:15px;font-weight:800;margin:0 0 12px}.card-subtitle,.hint,.field-help{font-size:11.5px;line-height:1.75;color:var(--muted)}
-.guide summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800}.guide summary::-webkit-details-marker{display:none}.guide summary:after{content:'⌄';font-size:18px;color:var(--muted);transition:.18s}.guide[open] summary:after{transform:rotate(180deg)}.guide-body{padding-top:12px;color:var(--muted);font-size:12px;line-height:1.85}.guide-body p{margin:0 0 10px}.warning-box,.inline-warning,.choice-note{border:1px solid #fedf89;background:#fffaeb;color:#7a2e0e;border-radius:12px;padding:11px 12px;display:grid;gap:4px;font-size:11.5px;line-height:1.65}html[data-theme="dark"] .warning-box,html[data-theme="dark"] .inline-warning{background:#3b2b0d;border-color:#7a4f14;color:#ffd99b}.requirements{display:grid;gap:8px}.requirements>div{display:grid;grid-template-columns:180px 1fr;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:var(--bg)}.requirements b{color:var(--text)}
-.file-label,.section-label{display:block;font-size:12px;font-weight:800;margin-bottom:8px}.file-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.file-picker{position:relative;overflow:hidden}.file-picker input{position:absolute;inset:0;opacity:0;cursor:pointer}.button{min-height:40px;border:1px solid var(--line-strong);border-radius:11px;padding:9px 13px;background:var(--card);color:var(--text);font-weight:800;cursor:pointer;transition:.15s}.button:hover{border-color:var(--primary);background:var(--primary-soft)}.button.primary{border-color:var(--navy);background:var(--navy);color:#fff}.button.primary:hover{filter:brightness(1.08)}.button.danger{border-color:#fecdca;color:#b42318;background:#fff}.button:disabled{opacity:.45;cursor:not-allowed}.file-info{margin-top:8px;font-size:11.5px;color:var(--muted)}.file-info.is-error{color:var(--danger)}
-.options{display:grid;gap:8px}.operation-row{border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:var(--card);display:grid!important;grid-template-columns:auto 30px 1fr;gap:9px;align-items:start;margin:0!important}.operation-row:has(input:checked){border-color:color-mix(in srgb,var(--primary) 55%,var(--line));background:color-mix(in srgb,var(--primary-soft) 55%,var(--card))}.operation-row input{margin-top:4px}.step{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--primary-soft);color:var(--primary);font-weight:900;font-size:11px}.operation-row b{display:block;font-size:12.5px}.operation-row small{display:block;color:var(--muted);font-size:11.5px;line-height:1.65;margin-top:3px}.activation-choices{margin:-1px 10px 4px;border:1px solid var(--line);border-top:0;border-radius:0 0 13px 13px;padding:11px 13px;background:var(--bg);display:grid;gap:8px}.activation-choices[hidden]{display:none!important}.check-row{display:flex;gap:8px;align-items:flex-start;font-size:12px}.check-row small{display:block;color:var(--muted);line-height:1.6;margin-top:2px}.text-field{width:100%;height:40px;border:1px solid var(--line-strong);border-radius:10px;background:var(--card);color:var(--text);padding:8px 10px;outline:none}.text-field:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 12%,transparent)}.field-label{font-size:11.5px;font-weight:800}.safety{font-size:11.5px;line-height:1.75;color:var(--muted);border-inline-start:3px solid var(--warning)}.safety b{color:var(--text)}
-.action-row{display:flex;gap:8px;flex-wrap:wrap}.action-row .primary{min-width:150px}.progress-track{height:8px;border-radius:999px;background:var(--primary-soft);overflow:hidden;margin-top:14px}.progress-bar{height:100%;width:0;background:var(--primary);border-radius:999px;transition:width .25s}.status-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.status-head b{font-size:14px}.status-head span{font-size:11.5px;color:var(--muted)}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.metric{padding:10px 8px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:center}.metric strong{display:block;font-size:17px}.metric span{display:block;margin-top:3px;color:var(--muted);font-size:10.5px}.log{height:300px;margin:12px 0 0;overflow:auto;border-radius:12px;padding:11px;background:#081426;color:#d0d5dd;font:11px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;direction:ltr;text-align:left;white-space:pre-wrap}.table-wrap{overflow:auto;max-height:330px;border:1px solid var(--line);border-radius:13px}.table{border-collapse:collapse;width:100%;min-width:1150px;font-size:10.5px}.table th,.table td{padding:8px 9px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}.table th{position:sticky;top:0;background:var(--bg);z-index:1}.screen-reader-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:900px){body{padding:12px}.layout{grid-template-columns:1fr}.requirements>div{grid-template-columns:1fr}.log{height:220px}}
+:root{
+  color-scheme:light;
+  --bg:#f3f6fb;--card:#fff;--surface:#f8faff;--text:#10213f;--muted:#69758a;
+  --line:#dfe6f0;--line-strong:#cfd9e8;--primary:#3557ff;--primary-strong:#233fd6;
+  --primary-soft:#eef2ff;--navy:#0b1930;--success:#12a66a;--success-soft:#eafaf3;
+  --danger:#e5484d;--danger-soft:#fff0f1;--warning:#f59e0b;--warning-soft:#fff7e8;
+  --cyan:#0ea5e9;--cyan-soft:#ecf8ff;--violet:#7c3aed;--violet-soft:#f3efff;
+  --shadow:0 12px 34px rgba(37,54,88,.07);--shadow-soft:0 5px 18px rgba(37,54,88,.05)
+}
+html[data-theme="dark"]{
+  color-scheme:dark;--bg:#07172c;--card:#0d213d;--surface:#102743;--text:#f8fbff;--muted:#aebbd0;
+  --line:#263b59;--line-strong:#36506f;--primary:#7894ff;--primary-strong:#9aacff;--primary-soft:#152e57;
+  --navy:#07162b;--success:#43d59a;--success-soft:#103a31;--danger:#ff7a7f;--danger-soft:#3d2028;
+  --warning:#fdb94d;--warning-soft:#3d2f14;--cyan:#45c2ff;--cyan-soft:#0d3349;--violet:#b091ff;--violet-soft:#2d2450;
+  --shadow:none;--shadow-soft:none
+}
+*{box-sizing:border-box}
+html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{padding:18px;scrollbar-color:var(--line-strong) transparent;scrollbar-width:thin}
+body::-webkit-scrollbar,.log::-webkit-scrollbar,.table-wrap::-webkit-scrollbar{width:8px;height:8px}
+body::-webkit-scrollbar-thumb,.log::-webkit-scrollbar-thumb,.table-wrap::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:999px}
+body::-webkit-scrollbar-track,.log::-webkit-scrollbar-track,.table-wrap::-webkit-scrollbar-track{background:transparent}
+button,input{font:inherit}.page{max-width:1210px;margin:0 auto}.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:16px;align-items:start}.stack{display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow-soft)}
+.card-title{font-size:15px;font-weight:900;margin:0 0 12px}.card-subtitle,.hint,.field-help{font-size:11.5px;line-height:1.8;color:var(--muted)}
+.section-kicker{display:flex;align-items:center;gap:8px;color:var(--primary);font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}.section-kicker:before{content:"";width:20px;height:3px;border-radius:999px;background:var(--primary)}
+.guide{padding:0;overflow:hidden}.guide summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;font-size:14px;font-weight:900}.guide summary::-webkit-details-marker{display:none}.guide summary:after{content:'⌄';display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:var(--surface);color:var(--muted);font-size:18px;transition:.18s}.guide[open] summary:after{transform:rotate(180deg)}
+.summary-title{display:flex;align-items:center;gap:10px}.summary-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}.summary-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.guide-body{padding:0 18px 18px;color:var(--muted);font-size:12px;line-height:1.9;border-top:1px solid var(--line)}
+.guide-intro{margin-top:14px;display:grid;grid-template-columns:64px 1fr;gap:13px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}.guide-intro img{width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 8px 18px rgba(53,87,255,.16)}.guide-intro p{margin:0}.guide-intro strong{display:block;color:var(--text);font-size:12.5px;margin-bottom:3px}
+.warning-box,.inline-warning,.choice-note{border:1px solid #fbd38d;background:var(--warning-soft);color:#7a4310;border-radius:13px;padding:11px 12px;display:grid;gap:4px;font-size:11.5px;line-height:1.7}.warning-box{margin-top:10px}.warning-box b,.inline-warning b,.choice-note b{display:flex;align-items:center;gap:6px}html[data-theme="dark"] .warning-box,html[data-theme="dark"] .inline-warning,html[data-theme="dark"] .choice-note{color:#ffd99b;border-color:#6e511f}
+.requirement-title{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:900;margin:13px 0 8px}.requirements{display:grid;grid-template-columns:1fr 1fr;gap:8px}.requirements>div{display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--card)}.req-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}.req-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.requirements b{display:block;color:var(--text);font-size:11.5px;margin-bottom:2px}.requirements span{font-size:10.8px;line-height:1.55}
+.file-card{position:relative;overflow:hidden}.file-card:after{content:"";position:absolute;inset:auto -36px -50px auto;width:150px;height:150px;border-radius:50%;background:var(--primary-soft);opacity:.65;pointer-events:none}.file-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.file-title{display:flex;align-items:center;gap:10px}.file-symbol{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--cyan-soft);color:var(--cyan)}.file-symbol svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.file-label,.section-label{display:block;font-size:13px;font-weight:900;margin:0}.file-actions{position:relative;z-index:1;display:flex;align-items:stretch;gap:9px;flex-wrap:wrap}.file-picker{position:relative;overflow:hidden}.file-picker input{position:absolute;inset:0;opacity:0;cursor:pointer}.button{min-height:42px;border:1px solid var(--line-strong);border-radius:12px;padding:9px 14px;background:var(--card);color:var(--text);font-weight:900;cursor:pointer;transition:transform .15s,border-color .15s,background .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:7px}.button svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.button:hover{border-color:var(--primary);background:var(--primary-soft);transform:translateY(-1px);box-shadow:0 6px 14px rgba(53,87,255,.08)}.button:focus-visible{outline:3px solid color-mix(in srgb,var(--primary) 28%,transparent);outline-offset:2px}.button.primary{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 8px 18px rgba(53,87,255,.20)}.button.primary:hover{background:var(--primary-strong)}.button.danger{border-color:#f4b3b6;color:var(--danger);background:var(--card)}.button:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}.file-info{position:relative;z-index:1;margin-top:9px;font-size:11.5px;color:var(--muted)}.file-info.is-error{color:var(--danger)}
+.options{display:grid;gap:9px}.options-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}.options-head small{color:var(--muted);font-size:10.5px}.operation-row{--tone:var(--primary);--tone-soft:var(--primary-soft);border:1px solid var(--line);border-radius:16px;padding:12px 13px;background:var(--card);display:grid!important;grid-template-columns:auto 46px 1fr;gap:11px;align-items:center;margin:0!important;position:relative;overflow:hidden;transition:border-color .16s,background .16s,transform .16s,box-shadow .16s}.operation-row:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone);opacity:0;transition:opacity .16s}.operation-row:hover{border-color:color-mix(in srgb,var(--tone) 38%,var(--line));transform:translateY(-1px);box-shadow:var(--shadow-soft)}.operation-row:has(input:checked){border-color:color-mix(in srgb,var(--tone) 55%,var(--line));background:color-mix(in srgb,var(--tone-soft) 68%,var(--card))}.operation-row:has(input:checked):before{opacity:1}.operation-row input{margin:0;width:17px;height:17px;accent-color:var(--tone)}.operation-row.tone-danger{--tone:var(--danger);--tone-soft:var(--danger-soft)}.operation-row.tone-create{--tone:var(--success);--tone-soft:var(--success-soft)}.operation-row.tone-capacity{--tone:var(--cyan);--tone-soft:var(--cyan-soft)}.operation-row.tone-activate{--tone:var(--warning);--tone-soft:var(--warning-soft)}.operation-row.tone-time{--tone:var(--violet);--tone-soft:var(--violet-soft)}
+.step{width:42px;height:42px;border-radius:13px;background:var(--tone-soft);color:var(--tone);display:grid;place-items:center;position:relative}.step svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.step-no{position:absolute;inset:-5px -5px auto auto;width:18px;height:18px;border-radius:999px;background:var(--tone);color:#fff;border:2px solid var(--card);display:grid;place-items:center;font-size:8px;font-weight:900}.operation-row b{display:block;font-size:12.7px}.operation-row small{display:block;color:var(--muted);font-size:11.4px;line-height:1.7;margin-top:3px}.activation-choices{margin:-2px 14px 4px;border:1px solid var(--line);border-top:0;border-radius:0 0 15px 15px;padding:12px 14px;background:var(--surface);display:grid;gap:9px}.activation-choices[hidden]{display:none!important}.check-row{display:flex;gap:8px;align-items:flex-start;font-size:12px}.check-row input{accent-color:var(--primary)}.check-row small{display:block;color:var(--muted);line-height:1.65;margin-top:2px}.text-field{width:100%;height:42px;border:1px solid var(--line-strong);border-radius:11px;background:var(--card);color:var(--text);padding:8px 11px;outline:none}.text-field:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 12%,transparent)}.field-label{font-size:11.5px;font-weight:900}.safety{font-size:11.5px;line-height:1.8;color:var(--muted);border-inline-start:4px solid var(--warning);background:linear-gradient(90deg,var(--card),var(--warning-soft))}.safety b{color:var(--text)}
+.action-card{padding:14px 16px}.action-row{display:flex;gap:8px;flex-wrap:wrap}.action-row .primary{min-width:160px}.progress-track{height:8px;border-radius:999px;background:var(--primary-soft);overflow:hidden;margin-top:13px}.progress-bar{height:100%;width:0;background:var(--primary);border-radius:999px;transition:width .25s}.status-card{position:sticky;top:16px;overflow:hidden;padding:0}.status-top{padding:18px 18px 14px;border-bottom:1px solid var(--line);background:var(--surface)}.status-visual{height:92px;margin-bottom:12px;border:1px solid var(--line);border-radius:16px;background:var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.status-visual:before,.status-visual:after{content:"";position:absolute;border-radius:50%;background:var(--primary-soft)}.status-visual:before{width:86px;height:86px;right:-24px;top:-30px}.status-visual:after{width:54px;height:54px;left:-14px;bottom:-18px}.status-visual svg{width:210px;height:82px;position:relative;z-index:1}.status-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.status-head b{font-size:14px}.status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px!important;padding:5px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary)!important;font-weight:900}.status-pill:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 3px color-mix(in srgb,var(--success) 16%,transparent)}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.metric{padding:11px 8px;border:1px solid var(--line);border-radius:13px;background:var(--card);text-align:center}.metric strong{display:block;font-size:18px}.metric span{display:block;margin-top:3px;color:var(--muted);font-size:10px}.console-head{padding:13px 18px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}.console-head b{font-size:11.5px}.console-head span{font-size:10px;color:var(--muted)}.log{height:300px;margin:10px 14px 14px;overflow:auto;border:1px solid #17263d;border-radius:14px;padding:12px;background:#081426;color:#d0d5dd;font:11px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;direction:ltr;text-align:left;white-space:pre-wrap}.table-wrap{overflow:auto;max-height:330px;border:1px solid var(--line);border-radius:15px;background:var(--card)}.table{border-collapse:collapse;width:100%;min-width:1150px;font-size:10.5px}.table th,.table td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}.table th{position:sticky;top:0;background:var(--surface);z-index:1}.screen-reader-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:900px){body{padding:12px}.layout{grid-template-columns:1fr}.status-card{position:static}.requirements{grid-template-columns:1fr}.log{height:220px}}
+@media(max-width:520px){.guide-intro{grid-template-columns:52px 1fr}.guide-intro img{width:52px;height:52px}.file-head,.options-head{align-items:flex-start;flex-direction:column}.file-actions>.button{flex:1 1 100%}.operation-row{grid-template-columns:auto 42px 1fr}.card{padding:14px}}
 </style>
 </head>
 <body>
@@ -23,63 +54,68 @@ html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--text:#ff
   <div class="layout">
     <section class="stack">
       <details class="card guide" open>
-        <summary>راهنمای برنامه</summary>
+        <summary><span class="summary-title"><span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg></span>راهنمای برنامه</span></summary>
         <div class="guide-body">
-          <p>این ربات برای مدیریت نتورک گنجه و گنجدار است؛ می‌توانید نتورک جدید ایجاد کنید، برای Hub Network ظرفیت بسازید، نتورک‌های فعال یا غیرفعال را طبق گزینه انتخابی تغییر وضعیت دهید و Time Distance نتورک را غیرفعال کنید.</p>
-          <div class="warning-box"><b>هشدار پیش از غیرفعال‌سازی</b><span>نتورک جایگزین باید ظرفیت‌دهی شده، فعال و قابل استفاده باشد. فقط بعد از اطمینان از آماده‌بودن نتورک جایگزین، مراحل غیرفعال‌سازی را اجرا کنید.</span></div>
-          <div style="height:10px"></div>
-          <b style="display:block;color:var(--text);margin-bottom:7px">ستون‌های لازم Excel برای هر فعالیت</b>
+          <div class="guide-intro">
+            <img src="../icons/apps/ganje-network-management.webp?v=382" alt="">
+            <p><strong>مدیریت مرحله‌به‌مرحله شبکه گنجه و گنجدار</strong>این ربات برای مدیریت نتورک گنجه و گنجدار است؛ می‌توانید نتورک جدید ایجاد کنید، برای Hub Network ظرفیت بسازید، نتورک‌های فعال یا غیرفعال را طبق گزینه انتخابی تغییر وضعیت دهید و Time Distance نتورک را غیرفعال کنید.</p>
+          </div>
+          <div class="warning-box"><b>⚠ هشدار پیش از غیرفعال‌سازی</b><span>نتورک جایگزین باید ظرفیت‌دهی شده، فعال و قابل استفاده باشد. فقط بعد از اطمینان از آماده‌بودن نتورک جایگزین، مراحل غیرفعال‌سازی را اجرا کنید.</span></div>
+          <div class="requirement-title"><span class="summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></svg></span>ستون‌های لازم Excel برای هر فعالیت</div>
           <div class="requirements">
-            <div><b>غیرفعال‌کردن نتورک</b><span>نام مرکز</span></div>
-            <div><b>ایجاد نتورک جدید</b><span>نام مرکز، کد پرنت، تاریخ شروع، تاریخ پایان</span></div>
-            <div><b>ایجاد ظرفیت</b><span>نام مرکز، نام پرنت، تاریخ شروع، تاریخ پایان</span></div>
-            <div><b>فعال‌کردن نتورک</b><span>نام مرکز، نام پرنت</span></div>
-            <div><b>غیرفعال‌سازی Time Distance</b><span>نام مرکز؛ می‌تواند به‌تنهایی اجرا شود و نتورک غیرفعال مرکز را پیدا می‌کند.</span></div>
+            <div><span class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></span><span><b>غیرفعال‌کردن نتورک</b>نام مرکز</span></div>
+            <div><span class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span><span><b>ایجاد نتورک جدید</b>نام مرکز، کد پرنت، تاریخ شروع، تاریخ پایان</span></div>
+            <div><span class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></svg></span><span><b>ایجاد ظرفیت</b>نام مرکز، نام پرنت، تاریخ شروع، تاریخ پایان</span></div>
+            <div><span class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg></span><span><b>فعال‌کردن نتورک</b>نام مرکز، نام پرنت</span></div>
+            <div><span class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span><span><b>غیرفعال‌سازی Time Distance</b>نام مرکز؛ می‌تواند به‌تنهایی اجرا شود و نتورک غیرفعال مرکز را پیدا می‌کند.</span></div>
           </div>
         </div>
       </details>
 
-      <section class="card">
-        <label class="file-label" for="excelFile">فایل Excel</label>
+      <section class="card file-card">
+        <div class="file-head">
+          <div class="file-title"><span class="file-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></svg></span><div><div class="section-kicker">Input</div><label class="file-label" for="excelFile">فایل Excel عملیات</label></div></div>
+          <span class="hint">.xlsx / .xlsm</span>
+        </div>
         <div class="file-actions">
-          <label class="button file-picker">انتخاب Excel<input id="excelFile" type="file" accept=".xlsx,.xlsm"></label>
-          <button id="templateBtn" class="button" type="button">دانلود تمپلیت</button>
+          <label class="button primary file-picker"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>انتخاب Excel<input id="excelFile" type="file" accept=".xlsx,.xlsm"></label>
+          <button id="templateBtn" class="button" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"/></svg>دانلود تمپلیت</button>
         </div>
         <div class="hint">ستون‌های مورد استفاده بسته به عملیات: نام مرکز، نام پرنت، کد پرنت و تاریخ‌ها</div>
         <div id="fileInfo" class="file-info"></div>
       </section>
 
       <section class="card options">
-        <div class="section-label">عملیات</div>
-        <label class="check-row operation-row"><input id="doDeactivate" type="checkbox"><span class="step">۱</span><span><b>غیرفعال کردن نتورک</b><small>مرکز در To Shipping Point و صفحه DETAILS کنترل می‌شود.</small></span></label>
+        <div class="options-head"><div><div class="section-kicker">Workflow</div><div class="section-label">عملیات</div></div><small>ترتیب اصلی عملیات حفظ شده است</small></div>
+        <label class="check-row operation-row tone-danger"><input id="doDeactivate" type="checkbox"><span class="step"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg><span class="step-no">۱</span></span><span><b>غیرفعال کردن نتورک</b><small>مرکز در To Shipping Point و صفحه DETAILS کنترل می‌شود.</small></span></label>
         <div id="deactivateChoices" class="activation-choices" hidden>
-          <div class="inline-warning"><b>قبل از غیرفعال‌سازی بررسی کنید</b><span>نتورک تا روزی که ظرفیت دارد نباید غیرفعال شود. پس از پایان بازه ظرفیت، نتورک و Time Distance آن را غیرفعال کنید. اگر نتورک جایگزین وجود دارد، نتورک جدید باید ظرفیت‌دهی شده و قابل استفاده باشد.</span></div>
+          <div class="inline-warning"><b>⚠ قبل از غیرفعال‌سازی بررسی کنید</b><span>نتورک تا روزی که ظرفیت دارد نباید غیرفعال شود. پس از پایان بازه ظرفیت، نتورک و Time Distance آن را غیرفعال کنید. اگر نتورک جایگزین وجود دارد، نتورک جدید باید ظرفیت‌دهی شده و قابل استفاده باشد.</span></div>
           <label class="check-row"><input type="radio" name="deactivateMode" value="oldest" checked><span><b>قدیمی‌ترین نتورک مرکز</b><small>فقط قدیمی‌ترین رکورد فعال انتخاب می‌شود.</small></span></label>
           <label class="check-row"><input type="radio" name="deactivateMode" value="all"><span><b>همه ردیف‌های فعال</b><small>تمام رکوردهای فعال مطابق مرکز غیرفعال می‌شوند.</small></span></label>
           <label class="check-row"><input id="allowSingleActive" type="checkbox"><span><b>اگر فقط یک رکورد فعال بود، آن را هم غیرفعال کن</b><small>در حالت خاموش، تنها رکورد فعال برای ایمنی حفظ می‌شود.</small></span></label>
         </div>
 
-        <label class="check-row operation-row"><input id="doCreate" type="checkbox"><span class="step">۲</span><span><b>ایجاد نتورک جدید</b><small>نتورک جدید از اطلاعات هر ردیف Excel ساخته می‌شود.</small></span></label>
+        <label class="check-row operation-row tone-create"><input id="doCreate" type="checkbox"><span class="step"><svg viewBox="0 0 24 24"><path d="M5 17a4 4 0 0 1 0-8 5 5 0 0 1 9-2 4 4 0 1 1 2 10H5z"/><path d="M12 10v6M9 13h6"/></svg><span class="step-no">۲</span></span><span><b>ایجاد نتورک جدید</b><small>نتورک جدید از اطلاعات هر ردیف Excel ساخته می‌شود.</small></span></label>
         <div id="createChoices" class="activation-choices" hidden><div class="choice-note"><b>اطلاعات لازم</b><span>نام مرکز، کد پرنت، تاریخ شروع و تاریخ پایان</span></div></div>
 
-        <label class="check-row operation-row"><input id="doCapacity" type="checkbox"><span class="step">۳</span><span><b>ایجاد ظرفیت</b><small>Hub Network با نام مرکز و نام پرنت دقیق انتخاب و تاریخ‌ها ثبت می‌شوند.</small></span></label>
+        <label class="check-row operation-row tone-capacity"><input id="doCapacity" type="checkbox"><span class="step"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg><span class="step-no">۳</span></span><span><b>ایجاد ظرفیت</b><small>Hub Network با نام مرکز و نام پرنت دقیق انتخاب و تاریخ‌ها ثبت می‌شوند.</small></span></label>
         <div id="capacityChoices" class="activation-choices" hidden>
           <div class="choice-note"><b>تطبیق Hub Network</b><span>End Hub باید دقیقاً نام مرکز و Start Hub باید دقیقاً نام پرنت باشد.</span></div>
           <div class="choice-note"><b>گروه‌بندی تاریخ</b><span>مراکز با تاریخ شروع و پایان یکسان، یک‌جا انتخاب می‌شوند؛ تاریخ‌های متفاوت در ظرفیت‌های جدا ذخیره می‌شوند.</span></div>
           <div class="field-help">این عملیات مستقل است. اگر همراه «ایجاد نتورک جدید» انتخاب شود، فقط نتورک‌هایی که با موفقیت ایجاد شده‌اند وارد مرحله ظرفیت می‌شوند.</div>
         </div>
 
-        <label class="check-row operation-row"><input id="doActivate" type="checkbox"><span class="step">۴</span><span><b>فعال کردن نتورک</b><small>نام مرکز و نام پرنت هر دو دقیقاً مطابقت داده می‌شوند.</small></span></label>
+        <label class="check-row operation-row tone-activate"><input id="doActivate" type="checkbox"><span class="step"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg><span class="step-no">۴</span></span><span><b>فعال کردن نتورک</b><small>نام مرکز و نام پرنت هر دو دقیقاً مطابقت داده می‌شوند.</small></span></label>
         <div id="activateChoices" class="activation-choices" hidden>
-          <div class="inline-warning"><b>هشدار Time Distance</b><span>با فعال‌کردن یک نتورک موجود، Time Distance برای آن ساخته نمی‌شود؛ در صورت نیاز باید دستی ایجاد شود. فقط هنگام ایجاد نتورک جدید برای گنجه و گنجدار، Time Distance به‌صورت خودکار ایجاد می‌شود.</span></div>
+          <div class="inline-warning"><b>⚠ هشدار Time Distance</b><span>با فعال‌کردن یک نتورک موجود، Time Distance برای آن ساخته نمی‌شود؛ در صورت نیاز باید دستی ایجاد شود. فقط هنگام ایجاد نتورک جدید برای گنجه و گنجدار، Time Distance به‌صورت خودکار ایجاد می‌شود.</span></div>
           <label class="check-row"><input type="radio" name="activateOrder" value="oldest" checked><span><b>قدیمی‌ترین نتورک</b></span></label>
           <label class="check-row"><input type="radio" name="activateOrder" value="newest"><span><b>جدیدترین نتورک</b></span></label>
           <label class="check-row"><input type="radio" name="activateOrder" value="all"><span><b>همه نتورک‌های غیرفعال</b></span></label>
         </div>
 
-        <label class="check-row operation-row"><input id="doDeactivateTimeDistance" type="checkbox"><span class="step">۵</span><span><b>غیرفعال‌سازی Time Distance نتورک</b><small>مستقل اجرا می‌شود؛ اگر نتورک از قبل غیرفعال باشد، ID آن از روی نام مرکز پیدا می‌شود.</small></span></label>
+        <label class="check-row operation-row tone-time"><input id="doDeactivateTimeDistance" type="checkbox"><span class="step"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2M5 4l2 2M19 4l-2 2"/></svg><span class="step-no">۵</span></span><span><b>غیرفعال‌سازی Time Distance نتورک</b><small>مستقل اجرا می‌شود؛ اگر نتورک از قبل غیرفعال باشد، ID آن از روی نام مرکز پیدا می‌شود.</small></span></label>
         <div id="timeDistanceChoices" class="activation-choices" hidden>
-          <div class="inline-warning"><b>قبل از غیرفعال‌سازی بررسی کنید</b><span>Time Distance را تا روزی که نتورک ظرفیت دارد غیرفعال نکنید. پس از پایان بازه ظرفیت، نتورک و Time Distance را غیرفعال کنید. اگر جایگزین وجود دارد، نتورک جدید باید ظرفیت‌دهی شده و قابل استفاده باشد.</span></div>
+          <div class="inline-warning"><b>⚠ قبل از غیرفعال‌سازی بررسی کنید</b><span>Time Distance را تا روزی که نتورک ظرفیت دارد غیرفعال نکنید. پس از پایان بازه ظرفیت، نتورک و Time Distance را غیرفعال کنید. اگر جایگزین وجود دارد، نتورک جدید باید ظرفیت‌دهی شده و قابل استفاده باشد.</span></div>
           <label class="check-row"><input type="radio" name="timeDistanceMode" value="all" checked><span><b>همه تایم‌ها</b><small>همه Time Distanceهای فعال مربوط به نتورک غیرفعال می‌شوند.</small></span></label>
           <label class="check-row"><input type="radio" name="timeDistanceMode" value="oldest"><span><b>تایم قدیمی</b><small>قدیمی‌ترین رکورد فعال بر اساس Created At انتخاب می‌شود.</small></span></label>
           <label class="check-row"><input type="radio" name="timeDistanceMode" value="newest"><span><b>تایم جدید</b><small>جدیدترین رکورد فعال بر اساس Created At انتخاب می‌شود.</small></span></label>
@@ -90,20 +126,36 @@ html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--text:#ff
       </section>
 
       <section class="card safety"><b>منطق ایمنی:</b> تا بارگذاری نتیجه فیلترشده صبر می‌شود. نام مرکز در ردیف و صفحه جزئیات دوباره کنترل می‌شود. قبل از غیرفعال‌سازی، از آماده‌بودن نتورک جایگزین مطمئن شوید.</section>
-      <section class="card">
-        <div class="action-row"><button id="startBtn" class="button primary" type="button">شروع عملیات</button><button id="stopBtn" class="button" type="button" disabled>توقف بعد از مرحله جاری</button><button id="downloadReportBtn" class="button" type="button" disabled>دانلود گزارش CSV</button></div>
+      <section class="card action-card">
+        <div class="action-row"><button id="startBtn" class="button primary" type="button"><svg viewBox="0 0 24 24"><path d="m9 6 9 6-9 6z"/></svg>شروع عملیات</button><button id="stopBtn" class="button" type="button" disabled><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1"/></svg>توقف بعد از مرحله جاری</button><button id="downloadReportBtn" class="button" type="button" disabled><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 20h14"/></svg>دانلود گزارش CSV</button></div>
         <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
       </section>
       <section id="results" class="table-wrap" hidden></section>
     </section>
 
-    <aside class="card">
-      <div class="status-head"><b>وضعیت</b><span id="progressText">آماده</span></div>
-      <div class="summary"><div class="metric"><strong id="mDone">0</strong><span>پردازش‌شده</span></div><div class="metric"><strong id="mOk">0</strong><span>موفق</span></div><div class="metric"><strong id="mFail">0</strong><span>خطادار</span></div></div>
+    <aside class="card status-card">
+      <div class="status-top">
+        <div class="status-visual" aria-hidden="true">
+          <svg viewBox="0 0 240 88" fill="none">
+            <path d="M26 52 78 24l48 28 48-30 40 25" stroke="var(--line-strong)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M78 24v42M126 52v20M174 22v45" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 6"/>
+            <circle cx="26" cy="52" r="9" fill="var(--cyan-soft)" stroke="var(--cyan)" stroke-width="3"/>
+            <circle cx="78" cy="24" r="11" fill="var(--primary-soft)" stroke="var(--primary)" stroke-width="3"/>
+            <circle cx="126" cy="52" r="9" fill="var(--success-soft)" stroke="var(--success)" stroke-width="3"/>
+            <circle cx="174" cy="22" r="10" fill="var(--violet-soft)" stroke="var(--violet)" stroke-width="3"/>
+            <circle cx="214" cy="47" r="8" fill="var(--warning-soft)" stroke="var(--warning)" stroke-width="3"/>
+            <circle cx="78" cy="66" r="5" fill="var(--primary)"/><circle cx="126" cy="72" r="5" fill="var(--success)"/><circle cx="174" cy="67" r="5" fill="var(--violet)"/>
+          </svg>
+        </div>
+        <div class="status-head"><b>وضعیت اجرا</b><span id="progressText" class="status-pill">آماده</span></div>
+        <div class="summary"><div class="metric"><strong id="mDone">0</strong><span>پردازش‌شده</span></div><div class="metric"><strong id="mOk">0</strong><span>موفق</span></div><div class="metric"><strong id="mFail">0</strong><span>خطادار</span></div></div>
+      </div>
+      <div class="console-head"><b>کنسول عملیات</b><span>Live log</span></div>
       <pre id="log" class="log"></pre>
     </aside>
   </div>
 </main>
+
 <script>
 const OP='ganje-network-management',WORKER='ganje-network-worker';
 const $=id=>document.getElementById(id);
