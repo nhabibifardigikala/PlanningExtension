@@ -829,6 +829,17 @@ html[data-theme="dark"] .settings-gear svg{fill:currentColor!important}
 <style id="dx-remote-global-font-v378">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
 </style>
+<style>
+#ganjeNetworkEmbedded.ganje-network-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:560px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--card);margin-top:6px}
+#ganjeNetworkEmbedded.ganje-network-embedded iframe{width:100%;height:100%;border:0;background:transparent}.ganje-network-theme-frame{display:none!important}html[data-theme="light"] #ganjeNetworkFrameLight{display:block!important;color-scheme:light!important}html[data-theme="dark"] #ganjeNetworkFrameDark{display:block!important;color-scheme:dark!important}
+#operationView:has(#operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]) .settings-heading p{display:none}
+#operationView:has(#operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]) #ganjeNetworkEmbedded.ganje-network-embedded{display:block!important;flex:1 1 auto;height:auto!important;min-height:0!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+</style>
 </head>
 <body>
   <main class="app-shell">
@@ -850,7 +861,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v378</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v379</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -927,6 +938,8 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
       <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
       <section id="voiceTypingEmbedded" class="voice-typing-embedded" aria-label="Voice Typing"><iframe id="voiceTypingFrame" title="Voice Typing" src="voice-typing.html?v=348" allow="microphone"></iframe></section>
       <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=348" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
+
+      <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=379&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=379&theme=dark" loading="lazy"></iframe></section>
       <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=378&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=378&theme=dark" loading="lazy"></iframe></section>
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
@@ -1068,7 +1081,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 377;
+const EXPECTED_REMOTE_CONFIG_VERSION = 379;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 

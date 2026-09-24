@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "GANJE Network Management workspace.",
+  "inputs": [
+    {
+      "name": "__ganjeNetworkEmbedded",
+      "label": "",
+      "type": "text",
+      "showWhen": {
+        "field": "__never__",
+        "equals": "true"
+      }
+    }
+  ],
+  "workflow": [],
+  "successMessage": "GANJE Network Management ready.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "excel"
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "configVersion": 378,
+  "configVersion": 379,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 376
+    "configVersion": 379
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -114,6 +114,54 @@
       "output": {
         "type": "excel"
       }
+    },
+    {
+      "id": "ganje-network-management",
+      "title": "GANJE Network Management",
+      "subtitle": "Ganjeh & Ganjdar network operations",
+      "accessHeaders": [
+        "GANJE Network Management"
+      ],
+      "accessControl": "column",
+      "config": "operations/ganje-network-management.json?v=379",
+      "description": "Create, activate and deactivate GANJE/GANJDAR networks, capacity and Time Distance from Excel.",
+      "runLabel": "Open GANJE Network Management",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__ganjeNetworkEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ],
+      "iconSvgPath": "M8 9h13l3 6 3-6h13a5 5 0 0 1 5 5v20a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V14a5 5 0 0 1 5-5Zm4 8v14h5V17h-5Zm9 5v9h5v-9h-5Zm9-5v14h5V17h-5Z",
+      "enabled": true,
+      "category": "network",
+      "output": {
+        "type": "excel"
+      },
+      "minHostVersion": "13.0.5"
+    },
+    {
+      "id": "ganje-network-worker",
+      "title": "GANJE Network Worker",
+      "subtitle": "Internal GANJE workflow",
+      "accessHeaders": [
+        "GANJE Network Management"
+      ],
+      "accessControl": "column",
+      "config": "operations/ganje-network-worker.json?v=379",
+      "enabled": true,
+      "internalOnly": true,
+      "category": "network",
+      "output": {
+        "type": "internal"
+      },
+      "minHostVersion": "13.0.5"
     },
     {
       "id": "extract-dc",

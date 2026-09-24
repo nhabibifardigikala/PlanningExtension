@@ -1,0 +1,800 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "requiredHosts": [
+    "https://drop-shipping.digikala.com/*",
+    "https://flex.digikala.com/*",
+    "https://auth.mydigikala.com/*"
+  ],
+  "description": "Internal worker for GANJE Network Management.",
+  "workflow": [],
+  "successMessage": "GANJE worker ready.",
+  "output": {
+    "type": "internal"
+  },
+  "subOperations": [
+    {
+      "id": "search-active",
+      "title": "search-active",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://drop-shipping.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "NETWORK_SEARCH_DONE",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/?order=1&order_by=created_at&order_type=ASC",
+          "active": false,
+          "progress": "Opening Shipping Network…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "timeoutMs": 20000,
+          "error": "To Shipping Point filter was not found."
+        },
+        {
+          "action": "autocomplete",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "value": "{{centerName}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1200,
+            "pressEnter": true,
+            "commitWaitMs": 900,
+            "outsideWaitMs": 350,
+            "exactMatch": true,
+            "matchTransforms": [
+              "normalizeUnicode",
+              {
+                "type": "regexReplace",
+                "pattern": "^\\s*\\[[^\\]]+\\]\\s*[-–—:]?\\s*",
+                "replacement": ""
+              },
+              "collapseWhitespace",
+              "trim",
+              "caseFold"
+            ]
+          },
+          "error": "Exact To Shipping Point could not be selected."
+        },
+        {
+          "action": "autocomplete",
+          "when": {
+            "left": "{{parentName}}",
+            "operator": "truthy"
+          },
+          "selector": "input[placeholder*='From Shipping Point' i],input[aria-label*='From Shipping Point' i]",
+          "value": "{{parentName}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1200,
+            "pressEnter": true,
+            "commitWaitMs": 900,
+            "outsideWaitMs": 350,
+            "exactMatch": true,
+            "matchTransforms": [
+              "normalizeUnicode",
+              {
+                "type": "regexReplace",
+                "pattern": "^\\s*\\[[^\\]]+\\]\\s*[-–—:]?\\s*",
+                "replacement": ""
+              },
+              "collapseWhitespace",
+              "trim",
+              "caseFold"
+            ]
+          },
+          "error": "Exact From Shipping Point could not be selected."
+        },
+        {
+          "action": "submitNearestForm",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "waitForNavigation": true,
+          "completeTimeoutMs": 30000,
+          "options": {
+            "submitMode": "native-form",
+            "hiddenFields": {
+              "order": "1",
+              "order_by": "created_at",
+              "order_type": "ASC",
+              "per_page": "1000",
+              "active": "1"
+            }
+          },
+          "progress": "Applying exact Shipping Network filters…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "table",
+          "timeoutMs": 20000,
+          "error": "Shipping Network result table did not load."
+        },
+        {
+          "action": "extractPaginatedTable",
+          "maxPages": 20,
+          "timeoutMs": 6000,
+          "stableMs": 700,
+          "pollMs": 250,
+          "afterPageMs": 500,
+          "dedupe": true,
+          "ignoreLastActionColumn": true,
+          "parser": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "svgBoolean": false
+          },
+          "nextSelector": "a[rel='next'],a[aria-label='Next page'],a[title*='Next'],.uk-pagination-next a",
+          "progress": "Reading matching Shipping Networks…"
+        }
+      ]
+    },
+    {
+      "id": "search-inactive",
+      "title": "search-inactive",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://drop-shipping.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "NETWORK_SEARCH_DONE",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/?order=1&order_by=created_at&order_type=ASC",
+          "active": false,
+          "progress": "Opening Shipping Network…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "timeoutMs": 20000,
+          "error": "To Shipping Point filter was not found."
+        },
+        {
+          "action": "autocomplete",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "value": "{{centerName}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1200,
+            "pressEnter": true,
+            "commitWaitMs": 900,
+            "outsideWaitMs": 350,
+            "exactMatch": true,
+            "matchTransforms": [
+              "normalizeUnicode",
+              {
+                "type": "regexReplace",
+                "pattern": "^\\s*\\[[^\\]]+\\]\\s*[-–—:]?\\s*",
+                "replacement": ""
+              },
+              "collapseWhitespace",
+              "trim",
+              "caseFold"
+            ]
+          },
+          "error": "Exact To Shipping Point could not be selected."
+        },
+        {
+          "action": "autocomplete",
+          "when": {
+            "left": "{{parentName}}",
+            "operator": "truthy"
+          },
+          "selector": "input[placeholder*='From Shipping Point' i],input[aria-label*='From Shipping Point' i]",
+          "value": "{{parentName}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1200,
+            "pressEnter": true,
+            "commitWaitMs": 900,
+            "outsideWaitMs": 350,
+            "exactMatch": true,
+            "matchTransforms": [
+              "normalizeUnicode",
+              {
+                "type": "regexReplace",
+                "pattern": "^\\s*\\[[^\\]]+\\]\\s*[-–—:]?\\s*",
+                "replacement": ""
+              },
+              "collapseWhitespace",
+              "trim",
+              "caseFold"
+            ]
+          },
+          "error": "Exact From Shipping Point could not be selected."
+        },
+        {
+          "action": "submitNearestForm",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "waitForNavigation": true,
+          "completeTimeoutMs": 30000,
+          "options": {
+            "submitMode": "native-form",
+            "hiddenFields": {
+              "order": "1",
+              "order_by": "created_at",
+              "order_type": "ASC",
+              "per_page": "1000",
+              "active": "0"
+            }
+          },
+          "progress": "Applying exact Shipping Network filters…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "table",
+          "timeoutMs": 20000,
+          "error": "Shipping Network result table did not load."
+        },
+        {
+          "action": "extractPaginatedTable",
+          "maxPages": 20,
+          "timeoutMs": 6000,
+          "stableMs": 700,
+          "pollMs": 250,
+          "afterPageMs": 500,
+          "dedupe": true,
+          "ignoreLastActionColumn": true,
+          "parser": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "svgBoolean": false
+          },
+          "nextSelector": "a[rel='next'],a[aria-label='Next page'],a[title*='Next'],.uk-pagination-next a",
+          "progress": "Reading matching Shipping Networks…"
+        }
+      ]
+    },
+    {
+      "id": "search-all",
+      "title": "search-all",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://drop-shipping.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "NETWORK_SEARCH_DONE",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/?order=1&order_by=created_at&order_type=ASC",
+          "active": false,
+          "progress": "Opening Shipping Network…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000,
+          "progress": "Checking authentication…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "timeoutMs": 20000,
+          "error": "To Shipping Point filter was not found."
+        },
+        {
+          "action": "autocomplete",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "value": "{{centerName}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1200,
+            "pressEnter": true,
+            "commitWaitMs": 900,
+            "outsideWaitMs": 350,
+            "exactMatch": true,
+            "matchTransforms": [
+              "normalizeUnicode",
+              {
+                "type": "regexReplace",
+                "pattern": "^\\s*\\[[^\\]]+\\]\\s*[-–—:]?\\s*",
+                "replacement": ""
+              },
+              "collapseWhitespace",
+              "trim",
+              "caseFold"
+            ]
+          },
+          "error": "Exact To Shipping Point could not be selected."
+        },
+        {
+          "action": "autocomplete",
+          "when": {
+            "left": "{{parentName}}",
+            "operator": "truthy"
+          },
+          "selector": "input[placeholder*='From Shipping Point' i],input[aria-label*='From Shipping Point' i]",
+          "value": "{{parentName}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1200,
+            "pressEnter": true,
+            "commitWaitMs": 900,
+            "outsideWaitMs": 350,
+            "exactMatch": true,
+            "matchTransforms": [
+              "normalizeUnicode",
+              {
+                "type": "regexReplace",
+                "pattern": "^\\s*\\[[^\\]]+\\]\\s*[-–—:]?\\s*",
+                "replacement": ""
+              },
+              "collapseWhitespace",
+              "trim",
+              "caseFold"
+            ]
+          },
+          "error": "Exact From Shipping Point could not be selected."
+        },
+        {
+          "action": "submitNearestForm",
+          "selector": "input[placeholder*='To Shipping Point' i],input[aria-label*='To Shipping Point' i]",
+          "waitForNavigation": true,
+          "completeTimeoutMs": 30000,
+          "options": {
+            "submitMode": "native-form",
+            "hiddenFields": {
+              "order": "1",
+              "order_by": "created_at",
+              "order_type": "ASC",
+              "per_page": "1000"
+            }
+          },
+          "progress": "Applying exact Shipping Network filters…"
+        },
+        {
+          "action": "waitFor",
+          "selector": "table",
+          "timeoutMs": 20000,
+          "error": "Shipping Network result table did not load."
+        },
+        {
+          "action": "extractPaginatedTable",
+          "maxPages": 20,
+          "timeoutMs": 6000,
+          "stableMs": 700,
+          "pollMs": 250,
+          "afterPageMs": 500,
+          "dedupe": true,
+          "ignoreLastActionColumn": true,
+          "parser": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "svgBoolean": false
+          },
+          "nextSelector": "a[rel='next'],a[aria-label='Next page'],a[title*='Next'],.uk-pagination-next a",
+          "progress": "Reading matching Shipping Networks…"
+        }
+      ]
+    },
+    {
+      "id": "create-network",
+      "title": "Create GANJE network",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://drop-shipping.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "NETWORK_CREATED",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/batch-configs",
+          "active": false,
+          "progress": "Opening Batch Config…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "input.uk-select.es-input",
+          "timeoutMs": 20000,
+          "error": "Batch Config inputs were not found."
+        },
+        {
+          "action": "autocomplete",
+          "selector": "input.uk-select.es-input",
+          "selectorIndex": 0,
+          "value": "{{parentCode}}",
+          "attempts": 3,
+          "verifyNonEmpty": true,
+          "options": {
+            "selectorIndex": 0,
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1400,
+            "pressEnter": true,
+            "commitWaitMs": 1000,
+            "outsideWaitMs": 350
+          },
+          "error": "Origin Shipping Point could not be selected by parent code."
+        },
+        {
+          "action": "autocomplete",
+          "selector": "input.uk-select.es-input",
+          "selectorIndex": 1,
+          "value": "{{centerName}}",
+          "attempts": 4,
+          "verifyNonEmpty": true,
+          "options": {
+            "selectorIndex": 1,
+            "focusWaitMs": 400,
+            "typingDelayMs": 55,
+            "autocompleteWaitMs": 1600,
+            "pressEnter": true,
+            "commitWaitMs": 1100,
+            "outsideWaitMs": 400
+          },
+          "error": "Destination Shipping Point could not be selected."
+        },
+        {
+          "action": "jalaliDate",
+          "selector": "#form-field-from_date,input[data-name='from_date'],input[name='from_date']",
+          "value": "{{startDate}}",
+          "options": {
+            "slashFormat": true,
+            "waitBeforeOutsideMs": 500,
+            "pressShift": true,
+            "outsideX": 100,
+            "outsideY": 100,
+            "afterOutsideMs": 300
+          },
+          "error": "From Date could not be entered."
+        },
+        {
+          "action": "jalaliDate",
+          "selector": "#form-field-to_date,input[data-name='to_date'],input[name='to_date']",
+          "value": "{{endDate}}",
+          "options": {
+            "slashFormat": true,
+            "waitBeforeOutsideMs": 500,
+            "pressShift": true,
+            "outsideX": 100,
+            "outsideY": 100,
+            "afterOutsideMs": 300
+          },
+          "error": "To Date could not be entered."
+        },
+        {
+          "action": "wait",
+          "ms": 1200
+        },
+        {
+          "action": "click",
+          "selector": "button,a,input[type='button'],input[type='submit']",
+          "textContains": "ADD BATCH CONFIG",
+          "afterMs": 2200,
+          "error": "ADD BATCH CONFIG was not found or could not be clicked."
+        }
+      ]
+    },
+    {
+      "id": "deactivate-network",
+      "title": "deactivate-network",
+      "requiresCredentials": true,
+      "successMessage": "NETWORK_TOGGLED",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/item/{{networkId}}/",
+          "active": false,
+          "progress": "Opening Shipping Network {{networkId}}…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[name='active'][type='checkbox'],#form-field-active[type='checkbox'],input[type='checkbox']",
+          "timeoutMs": 20000,
+          "error": "Active checkbox was not found."
+        },
+        {
+          "action": "setChecked",
+          "selector": "input[name='active'][type='checkbox'],#form-field-active[type='checkbox'],input[type='checkbox']",
+          "checked": false,
+          "progress": "Updating Active status…"
+        },
+        {
+          "action": "click",
+          "selector": "button.form-save-button,button.admin-submit-button,button[type='submit'],input[type='submit']",
+          "textContains": "SAVE",
+          "afterMs": 1800,
+          "error": "SAVE button was not found."
+        }
+      ]
+    },
+    {
+      "id": "activate-network",
+      "title": "activate-network",
+      "requiresCredentials": true,
+      "successMessage": "NETWORK_TOGGLED",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/item/{{networkId}}/",
+          "active": false,
+          "progress": "Opening Shipping Network {{networkId}}…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[name='active'][type='checkbox'],#form-field-active[type='checkbox'],input[type='checkbox']",
+          "timeoutMs": 20000,
+          "error": "Active checkbox was not found."
+        },
+        {
+          "action": "setChecked",
+          "selector": "input[name='active'][type='checkbox'],#form-field-active[type='checkbox'],input[type='checkbox']",
+          "checked": true,
+          "progress": "Updating Active status…"
+        },
+        {
+          "action": "click",
+          "selector": "button.form-save-button,button.admin-submit-button,button[type='submit'],input[type='submit']",
+          "textContains": "SAVE",
+          "afterMs": 1800,
+          "error": "SAVE button was not found."
+        }
+      ]
+    },
+    {
+      "id": "time-distance-list",
+      "title": "Read Time Distance",
+      "requiresCredentials": true,
+      "successMessage": "TIME_DISTANCE_LIST_READY",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/time-distance-config/?id=&shipping_network_id={{networkId}}&time_scope_id=0&active=1&per_page=1000&crud_tab_id=",
+          "active": false,
+          "progress": "Opening Time Distance…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "table",
+          "timeoutMs": 20000,
+          "error": "Time Distance table did not load."
+        },
+        {
+          "action": "extractPaginatedTable",
+          "maxPages": 5,
+          "timeoutMs": 20000,
+          "stableMs": 700,
+          "pollMs": 250,
+          "dedupe": true,
+          "ignoreLastActionColumn": true,
+          "parser": {
+            "tableSelector": "table",
+            "headerSelector": "thead th",
+            "rowSelector": "tbody tr",
+            "svgBoolean": false
+          },
+          "nextSelector": "a[rel='next'],a[aria-label='Next page'],a[title*='Next'],.uk-pagination-next a",
+          "progress": "Reading active Time Distance records…"
+        }
+      ]
+    },
+    {
+      "id": "deactivate-time-distance",
+      "title": "Deactivate Time Distance",
+      "requiresCredentials": true,
+      "successMessage": "TIME_DISTANCE_DEACTIVATED",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://drop-shipping.digikala.com/shipping-network/time-distance-config/item/{{timeDistanceId}}/",
+          "active": false,
+          "progress": "Opening Time Distance {{timeDistanceId}}…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "input[name='active'][type='checkbox'],#form-field-active[type='checkbox'],input[type='checkbox']",
+          "timeoutMs": 20000,
+          "error": "Time Distance Active checkbox was not found."
+        },
+        {
+          "action": "setChecked",
+          "selector": "input[name='active'][type='checkbox'],#form-field-active[type='checkbox'],input[type='checkbox']",
+          "checked": false
+        },
+        {
+          "action": "click",
+          "selector": "button.form-save-button,button.admin-submit-button,button[type='submit'],input[type='submit']",
+          "textContains": "SAVE",
+          "afterMs": 1500,
+          "error": "Time Distance SAVE button was not found."
+        }
+      ]
+    },
+    {
+      "id": "create-capacity",
+      "title": "Create GANJE capacity",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://flex.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "CAPACITY_CREATED",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://flex.digikala.com/pudo-auto-config/mid-mile-capacity?_back=https%3A%2F%2Fflex.digikala.com%2Fmidmile%2Fcapacity%2F",
+          "active": false,
+          "progress": "Opening Mid-mile Capacity…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "#input-hub_network_ids .chooseItemLink,[data-nameid='hub_network_ids'] .chooseItemLink,#form-field-hub_network_ids .chooseItemLink",
+          "timeoutMs": 25000,
+          "error": "Hub Network chooser was not found."
+        },
+        {
+          "action": "click",
+          "selector": "#input-hub_network_ids .chooseItemLink,[data-nameid='hub_network_ids'] .chooseItemLink,#form-field-hub_network_ids .chooseItemLink",
+          "afterMs": 900,
+          "progress": "Opening Hub Network chooser…"
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "searchSelector": "input[placeholder='Start Hub'],input[aria-label='Start Hub']",
+          "values": "{{parentName}}",
+          "frameTimeoutMs": 20000,
+          "options": {
+            "separatorRegex": "\\u0000",
+            "selectionMode": "revoke",
+            "checkboxSelector": "input[data-ganje-never-match='1']",
+            "idAttribute": "data-ganje-never-match",
+            "resultTimeoutMs": 1200,
+            "pollMs": 200,
+            "afterEachMs": 250,
+            "clickChoose": false
+          },
+          "progress": "Filtering Start Hub…",
+          "error": "Start Hub filter could not be filled."
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "searchSelector": "input[placeholder='End Hub'],input[aria-label='End Hub']",
+          "values": "{{centerName}}",
+          "frameTimeoutMs": 20000,
+          "options": {
+            "separatorRegex": "\\u0000",
+            "selectionMode": "revoke",
+            "checkboxSelector": "input[data-ganje-never-match='1']",
+            "idAttribute": "data-ganje-never-match",
+            "resultTimeoutMs": 1200,
+            "pollMs": 200,
+            "afterEachMs": 250,
+            "clickChoose": false
+          },
+          "progress": "Filtering End Hub…",
+          "error": "End Hub filter could not be filled."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button[type='submit'],input[type='submit']",
+          "successSelector": "table tbody tr input[type='checkbox']",
+          "frameTimeoutMs": 20000,
+          "timeoutMs": 15000,
+          "intervalMs": 250,
+          "requireSourceGone": false,
+          "progress": "Searching exact Hub Network…",
+          "error": "Hub Network search did not return a selectable row."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "table tbody tr input[type='checkbox']",
+          "successSelector": "button.admin-dynamic-choose[data-action-type='choose'],button[type='button']",
+          "frameTimeoutMs": 20000,
+          "timeoutMs": 10000,
+          "intervalMs": 250,
+          "requireSourceGone": false,
+          "progress": "Selecting matching Hub Network…",
+          "error": "Matching Hub Network checkbox could not be selected."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button.admin-dynamic-choose[data-action-type='choose']",
+          "successSelector": "#form-field-from_date,input[name='from_date']",
+          "frameTimeoutMs": 20000,
+          "timeoutMs": 15000,
+          "intervalMs": 250,
+          "requireSourceGone": false,
+          "progress": "Applying Hub Network…",
+          "error": "CHOOSE could not be applied."
+        },
+        {
+          "action": "jalaliDate",
+          "selector": "#form-field-from_date,input[name='from_date']",
+          "value": "{{startDate}}",
+          "options": {
+            "slashFormat": true,
+            "waitBeforeOutsideMs": 300,
+            "pressShift": true,
+            "outsideX": 100,
+            "outsideY": 100,
+            "afterOutsideMs": 250
+          },
+          "error": "Capacity From Date could not be entered."
+        },
+        {
+          "action": "jalaliDate",
+          "selector": "#form-field-to_date,input[name='to_date']",
+          "value": "{{endDate}}",
+          "options": {
+            "slashFormat": true,
+            "waitBeforeOutsideMs": 300,
+            "pressShift": true,
+            "outsideX": 100,
+            "outsideY": 100,
+            "afterOutsideMs": 250
+          },
+          "error": "Capacity To Date could not be entered."
+        },
+        {
+          "action": "click",
+          "selector": "button.form-save-button,button.admin-submit-button,button[type='submit'],input[type='submit']",
+          "textContains": "SAVE",
+          "afterMs": 1800,
+          "progress": "Saving capacity…",
+          "error": "Capacity SAVE button was not found."
+        }
+      ]
+    }
+  ]
+}
