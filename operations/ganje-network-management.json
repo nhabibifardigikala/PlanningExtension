@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "GANJE Network Management workspace.",
+  "description": "GANJE Network Management workspace. UI mirrors DigiExpress while preserving the source extension operation structure and ordering.",
   "inputs": [
     {
       "name": "__ganjeNetworkEmbedded",

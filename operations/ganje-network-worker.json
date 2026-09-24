@@ -795,6 +795,169 @@
           "error": "Capacity SAVE button was not found."
         }
       ]
+    },
+    {
+      "id": "capacity-group-begin",
+      "title": "Begin GANJE capacity group",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://flex.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "CAPACITY_GROUP_READY",
+      "workflow": [
+        {
+          "action": "open",
+          "url": "https://flex.digikala.com/pudo-auto-config/mid-mile-capacity?_back=https%3A%2F%2Fflex.digikala.com%2Fmidmile%2Fcapacity%2F",
+          "active": false,
+          "progress": "Opening Mid-mile Capacity…"
+        },
+        {
+          "action": "ensureLogin",
+          "detectTimeoutMs": 5000
+        },
+        {
+          "action": "waitFor",
+          "selector": "#input-hub_network_ids .chooseItemLink,[data-nameid='hub_network_ids'] .chooseItemLink,#form-field-hub_network_ids .chooseItemLink",
+          "timeoutMs": 25000,
+          "error": "Hub Network chooser was not found."
+        },
+        {
+          "action": "click",
+          "selector": "#input-hub_network_ids .chooseItemLink,[data-nameid='hub_network_ids'] .chooseItemLink,#form-field-hub_network_ids .chooseItemLink",
+          "afterMs": 900,
+          "progress": "Opening Hub Network chooser…"
+        }
+      ]
+    },
+    {
+      "id": "capacity-group-select-row",
+      "title": "Select GANJE capacity row",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://flex.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "CAPACITY_ROW_SELECTED",
+      "workflow": [
+        {
+          "action": "selectItemsBySearchValues",
+          "searchSelector": "input[placeholder='Start Hub'],input[aria-label='Start Hub']",
+          "values": "{{parentName}}",
+          "frameTimeoutMs": 20000,
+          "options": {
+            "separatorRegex": "\\u0000",
+            "selectionMode": "revoke",
+            "checkboxSelector": "input[data-ganje-never-match='1']",
+            "idAttribute": "data-ganje-never-match",
+            "resultTimeoutMs": 1200,
+            "pollMs": 200,
+            "afterEachMs": 250,
+            "clickChoose": false
+          },
+          "progress": "Filtering Start Hub…",
+          "error": "Start Hub filter could not be filled."
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "searchSelector": "input[placeholder='End Hub'],input[aria-label='End Hub']",
+          "values": "{{centerName}}",
+          "frameTimeoutMs": 20000,
+          "options": {
+            "separatorRegex": "\\u0000",
+            "selectionMode": "revoke",
+            "checkboxSelector": "input[data-ganje-never-match='1']",
+            "idAttribute": "data-ganje-never-match",
+            "resultTimeoutMs": 1200,
+            "pollMs": 200,
+            "afterEachMs": 250,
+            "clickChoose": false
+          },
+          "progress": "Filtering End Hub…",
+          "error": "End Hub filter could not be filled."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button[type='submit'],input[type='submit']",
+          "successSelector": "table tbody tr input[type='checkbox']",
+          "frameTimeoutMs": 20000,
+          "timeoutMs": 15000,
+          "intervalMs": 250,
+          "requireSourceGone": false,
+          "progress": "Searching exact Hub Network…",
+          "error": "Hub Network search did not return a selectable row."
+        },
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "table tbody tr input[type='checkbox']",
+          "successSelector": "button.admin-dynamic-choose[data-action-type='choose'],button[type='button']",
+          "frameTimeoutMs": 20000,
+          "timeoutMs": 10000,
+          "intervalMs": 250,
+          "requireSourceGone": false,
+          "progress": "Selecting matching Hub Network…",
+          "error": "Matching Hub Network checkbox could not be selected."
+        }
+      ]
+    },
+    {
+      "id": "capacity-group-finish",
+      "title": "Save GANJE capacity group",
+      "requiresCredentials": true,
+      "requiredHosts": [
+        "https://flex.digikala.com/*",
+        "https://auth.mydigikala.com/*"
+      ],
+      "successMessage": "CAPACITY_GROUP_CREATED",
+      "workflow": [
+        {
+          "action": "clickInFrameAndWait",
+          "selector": "button.admin-dynamic-choose[data-action-type='choose']",
+          "successSelector": "#form-field-from_date,input[name='from_date']",
+          "frameTimeoutMs": 20000,
+          "timeoutMs": 15000,
+          "intervalMs": 250,
+          "requireSourceGone": false,
+          "progress": "Applying Hub Network…",
+          "error": "CHOOSE could not be applied."
+        },
+        {
+          "action": "jalaliDate",
+          "selector": "#form-field-from_date,input[name='from_date']",
+          "value": "{{startDate}}",
+          "options": {
+            "slashFormat": true,
+            "waitBeforeOutsideMs": 300,
+            "pressShift": true,
+            "outsideX": 100,
+            "outsideY": 100,
+            "afterOutsideMs": 250
+          },
+          "error": "Capacity From Date could not be entered."
+        },
+        {
+          "action": "jalaliDate",
+          "selector": "#form-field-to_date,input[name='to_date']",
+          "value": "{{endDate}}",
+          "options": {
+            "slashFormat": true,
+            "waitBeforeOutsideMs": 300,
+            "pressShift": true,
+            "outsideX": 100,
+            "outsideY": 100,
+            "afterOutsideMs": 250
+          },
+          "error": "Capacity To Date could not be entered."
+        },
+        {
+          "action": "click",
+          "selector": "button.form-save-button,button.admin-submit-button,button[type='submit'],input[type='submit']",
+          "textContains": "SAVE",
+          "afterMs": 1800,
+          "progress": "Saving capacity…",
+          "error": "Capacity SAVE button was not found."
+        }
+      ]
     }
   ]
 }
