@@ -91,6 +91,11 @@ button{font-family:inherit}
 .table-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
 .table-head b{font-size:14px}
 .table-head span{font-size:12px;color:var(--muted)}
+.table-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.collapse-all-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:9px;padding:6px 9px;font-size:11px;font-weight:800;cursor:pointer;transition:.16s ease}
+.collapse-all-btn:hover{border-color:var(--primary2);background:var(--soft)}
+.collapse-all-btn:focus-visible{outline:2px solid var(--primary2);outline-offset:2px}
+.collapse-all-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .table-wrap,.plan-list{overflow:auto}
 .table-wrap{max-height:calc(100vh - 180px)}
 .plan-list{max-height:calc(100vh - 230px)}
@@ -213,7 +218,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         <div class="field"><label>Planning</label><select id="planningFilter" autocomplete="off"><option value="">All tasks</option><option value="planned">Planned</option><option value="unplanned">Unplanned</option><option value="done">Completed</option></select></div>
       </div>
       <div class="table-card">
-        <div class="table-head"><b>Tasks</b><span id="taskCount">0 tasks</span></div>
+        <div class="table-head"><b>Tasks</b><div class="table-head-actions"><button class="collapse-all-btn" id="collapseAllTasksBtn" type="button" aria-label="Collapse all task groups"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"></path></svg><span id="collapseAllTasksLabel">Collapse all</span></button><span id="taskCount">0 tasks</span></div></div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Task</th><th>Group</th><th>Priority</th><th>Time</th><th>Responsible</th><th>Save</th><th>Plan</th></tr></thead>
@@ -333,6 +338,34 @@ function renderTaskLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra
 function renderPlanLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''} plan-row" data-row="${t.rowNumber}"><td><input class="done-box" type="checkbox" ${isDone(t)?'checked':''} title="Toggle done"></td><td class="plan-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.priority)}</td><td>${esc(t.time)}</td><td class="done-date">${isDone(t)?esc(t.completionDate):'—'}</td></tr>`; }
 function taskFiltersActive(){ return !!(norm($('search').value) || $('groupFilter').value || $('priorityFilter').value || $('respFilter').value || $('statusFilter').value || $('planningFilter').value); }
 function resetTaskFilters(){ $('search').value=''; $('groupFilter').value=''; $('priorityFilter').value=''; $('respFilter').value=''; $('statusFilter').value=''; $('planningFilter').value=''; }
+function taskHierarchyKeys(){
+  const l1=projectModels().map(p=>p.l1);
+  const l2=[];
+  for(const p of projectModels()) for(const g of groupModels(p.l1)) l2.push(`${p.l1}.${g.l2}`);
+  return {l1,l2};
+}
+function updateCollapseAllTasksButton(){
+  const btn=$('collapseAllTasksBtn'), label=$('collapseAllTasksLabel');
+  if(!btn||!label) return;
+  const keys=taskHierarchyKeys();
+  const allCollapsed=keys.l1.length>0 && keys.l1.every(k=>collapseState.tasks.l1.has(k));
+  label.textContent=allCollapsed?'Expand all':'Collapse all';
+  btn.setAttribute('aria-label',allCollapsed?'Expand all task groups':'Collapse all task groups');
+  btn.classList.toggle('is-collapsed',allCollapsed);
+  const svg=btn.querySelector('svg');
+  if(svg) svg.style.transform=allCollapsed?'rotate(-90deg)':'';
+}
+function toggleAllTaskGroups(){
+  const keys=taskHierarchyKeys();
+  const allCollapsed=keys.l1.length>0 && keys.l1.every(k=>collapseState.tasks.l1.has(k));
+  collapseState.tasks.l1.clear();
+  collapseState.tasks.l2.clear();
+  if(!allCollapsed){
+    keys.l1.forEach(k=>collapseState.tasks.l1.add(k));
+    keys.l2.forEach(k=>collapseState.tasks.l2.add(k));
+  }
+  renderTasks();
+}
 function renderTasks(){
   const body=$('tasksBody');
   // Tasks is the master sheet view. With no explicit filters, every non-empty Google Sheet row is included,
@@ -340,7 +373,9 @@ function renderTasks(){
   const filtered=taskFiltersActive() ? tasks.filter(taskMatchesFilters) : [...tasks];
   const filteredRows=new Set(filtered.map(t=>t.rowNumber));
   let html='', zebraIndex=0;
-  const rendered=new Set();
+  // "accounted" tracks rows that belong to a valid hierarchy even when that hierarchy is collapsed.
+  // Using only visibly rendered rows caused hidden children to be repeated under Other rows.
+  const accounted=new Set();
   const projects=projectModels();
 
   for(const p of projects){
@@ -359,31 +394,33 @@ function renderTasks(){
     if(!projectMatches&&!projectChildren.length&&!directLeaves.length) continue;
 
     const descendantRows=[];
-    if(projectMatches&&projectRow) descendantRows.push(projectRow);
-    for(const block of projectChildren){ if(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)) descendantRows.push(block.groupRow); descendantRows.push(...block.children); }
+    if(projectMatches&&projectRow){ descendantRows.push(projectRow); accounted.add(projectRow.rowNumber); }
+    for(const block of projectChildren){
+      if(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)){ descendantRows.push(block.groupRow); accounted.add(block.groupRow.rowNumber); }
+      descendantRows.push(...block.children);
+      block.children.forEach(t=>accounted.add(t.rowNumber));
+    }
     descendantRows.push(...directLeaves);
-    html+=renderHierarchyHeader('tasks',1,p.l1,p.name,hierarchySummary(descendantRows));
-    if(projectRow&&projectMatches) rendered.add(projectRow.rowNumber);
+    directLeaves.forEach(t=>accounted.add(t.rowNumber));
 
+    html+=renderHierarchyHeader('tasks',1,p.l1,p.name,hierarchySummary(descendantRows));
     if(!collapseState.tasks.l1.has(p.l1)){
-      for(const t of directLeaves){ html+=renderTaskLeafRow(t,zebraIndex%2===1); rendered.add(t.rowNumber); zebraIndex++; }
+      for(const t of directLeaves){ html+=renderTaskLeafRow(t,zebraIndex%2===1); zebraIndex++; }
       for(const block of projectChildren){
         const groupKey=`${p.l1}.${block.g.l2}`;
         const groupSummaryRows=[...(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)?[block.groupRow]:[]),...block.children];
         html+=renderHierarchyHeader('tasks',2,groupKey,block.g.name,hierarchySummary(groupSummaryRows));
-        if(block.groupRow&&filteredRows.has(block.groupRow.rowNumber)) rendered.add(block.groupRow.rowNumber);
         if(!collapseState.tasks.l2.has(groupKey)){
-          for(const t of block.children){ html+=renderTaskLeafRow(t,zebraIndex%2===1); rendered.add(t.rowNumber); zebraIndex++; }
+          for(const t of block.children){ html+=renderTaskLeafRow(t,zebraIndex%2===1); zebraIndex++; }
         }
       }
     }
   }
 
-  // Any record that cannot be represented by the normal L1/L2 hierarchy is still shown here.
-  // This guarantees that Tasks never drops a non-empty Google Sheet row.
-  const remaining=filtered.filter(t=>!rendered.has(t.rowNumber)).sort((a,b)=>a.rowNumber-b.rowNumber);
+  // Only genuinely non-hierarchical records belong here. Collapsed children are already accounted for above.
+  const remaining=filtered.filter(t=>!accounted.has(t.rowNumber)).sort((a,b)=>a.rowNumber-b.rowNumber);
   if(remaining.length){
-    html+=`<tr class="hierarchy-row level-2"><td class="hierarchy-cell" colspan="7"><div class="hierarchy-bar"><div class="task-title">Other rows</div><span class="summary-pill">${remaining.length} row${remaining.length===1?'':'s'}</span></div></td></tr>`;
+    html+=`<tr class="hierarchy-row level-2"><td class="hierarchy-cell" colspan="7"><div class="hierarchy-bar"><div class="task-title">Other Tasks</div><span class="summary-pill">${remaining.length} row${remaining.length===1?'':'s'}</span></div></td></tr>`;
     for(const t of remaining){ html+=renderTaskLeafRow(t,zebraIndex%2===1); zebraIndex++; }
   }
 
@@ -391,6 +428,7 @@ function renderTasks(){
   body.innerHTML=html||`<tr><td colspan="7" class="empty">No rows match the current filters.</td></tr>`;
   bindHierarchyToggles();
   bindTaskRows();
+  updateCollapseAllTasksButton();
 }
 function bindHierarchyToggles(){ document.querySelectorAll('.toggle-btn[data-tree]').forEach(btn=>{ btn.onclick = ()=>{ const tree=btn.dataset.tree, level=Number(btn.dataset.level), key=btn.dataset.key; const bucket=collapseState[tree][level===1?'l1':'l2']; if(bucket.has(key)) bucket.delete(key); else bucket.add(key); if(tree==='tasks') renderTasks(); else renderPlan(); }; }); }
 function bindTaskRows(){ document.querySelectorAll('#tasksBody tr[data-row]').forEach(tr=>{ const row=+tr.dataset.row; const mark=()=>{ dirtyRows.add(row); tr.querySelector('[data-action="save"]')?.classList.add('dirty'); }; tr.querySelectorAll('.edit-priority,.edit-time,.edit-responsible').forEach(el=>el.addEventListener('change',mark)); tr.querySelector('.edit-time')?.addEventListener('input',mark); tr.querySelector('[data-action="save"]')?.addEventListener('click',()=>saveInlineRow(tr).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); tr.querySelector('[data-action="plan"]')?.addEventListener('click',()=>planToday(row).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); }); }
@@ -446,6 +484,7 @@ $('newProjectName').addEventListener('input', updateHierarchyPreview);
 $('newGroupName').addEventListener('input', updateHierarchyPreview);
 $('newTaskBtn').onclick=()=>{ renderPlanSelectors(); renderHierarchySelectors(); openModal('taskModal'); };
 $('settingsBtn').onclick=openSettings;
+$('collapseAllTasksBtn').onclick=toggleAllTaskGroups;
 $('refreshBtn').onclick=loadTasks;
 $('openSheetBtn').onclick=()=>chrome.tabs.create({ url:SPREADSHEET_URL });
 $('createTaskBtn').onclick=()=>createTask().catch(e=>showToast(e.message||String(e),'error'));
