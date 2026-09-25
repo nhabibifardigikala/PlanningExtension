@@ -26,7 +26,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 383;
+const EXPECTED_REMOTE_CONFIG_VERSION = 384;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -248,20 +248,11 @@ function iconMarkup(op) {
   return `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8h32v32H8zM14 14v20h20V14z"></path></svg>`;
 }
 
-const SMART_USAGE_KEY='opsOperationUsageV1';
 const FAVORITES_KEY='opsFavoritesV1';
 let visibleOperationsCache=[];
 let favoriteOperationIds=new Set();
-async function getOperationUsage(){const x=await chrome.storage.local.get(SMART_USAGE_KEY);return x?.[SMART_USAGE_KEY]||{};}
 async function getFavorites(){const x=await chrome.storage.local.get(FAVORITES_KEY);const rows=Array.isArray(x?.[FAVORITES_KEY])?x[FAVORITES_KEY]:[];return new Set(rows.map(String));}
 async function saveFavorites(){await chrome.storage.local.set({[FAVORITES_KEY]:[...favoriteOperationIds]});}
-async function recordOperationUsage(opId){const usage=await getOperationUsage();const id=String(opId);const prev=usage[id]||{};usage[id]={count:Number(prev.count||0)+1,lastUsed:Date.now()};await chrome.storage.local.set({[SMART_USAGE_KEY]:usage});await renderSmartSidebar();}
-async function renderSmartSidebar(){
-  const box=$('smartSidebarItems'); if(!box)return;
-  const usage=await getOperationUsage();
-  const ranked=visibleOperationsCache.filter(op=>Number(usage[String(op.id)]?.count||0)>0).sort((a,b)=>{const A=usage[String(a.id)]||{},B=usage[String(b.id)]||{};return Number(B.count||0)-Number(A.count||0)||Number(B.lastUsed||0)-Number(A.lastUsed||0);}).slice(0,12);
-  box.innerHTML=ranked.map(op=>`<button class="smart-op" data-smart-op="${escapeHtml(op.id)}" aria-label="${escapeHtml(op.title||op.id)}"><span class="op-icon">${iconMarkup(op)}</span></button>`).join('');
-}
 function createOperationCard(op,{favoriteCopy=false}={}){
   const card=document.createElement('article');
   card.className='op-card';
@@ -328,7 +319,6 @@ async function refreshOperationVisibility(emailOverride = null) {
     const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && allowed.has(String(op.id)));
     visibleOperationsCache=operations.slice();
     favoriteOperationIds=await getFavorites();
-    await renderSmartSidebar();
     renderOperationCards();
     initOperationDiscoveryUi();
     applyOperationFilters();
@@ -785,8 +775,6 @@ $('clearCredentials').addEventListener('click', async () => {
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 
-$('smartSidebarItems')?.addEventListener('click',(event)=>{const b=event.target.closest('[data-smart-op]');if(!b)return;const card=menu.querySelector(`[data-op="${CSS.escape(String(b.dataset.smartOp))}"]`);if(card)card.click();});
-
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   if(String(catalogOp.id)==='authenticator'){
@@ -819,7 +807,6 @@ async function handleOperationCardClick(event){
   const openButton=event.target.closest('.op-card-open');
   const card=(openButton||event.target).closest?.('[data-op]'); if(!card)return;
   const catalogOp=(remoteBundle.operations||[]).find(x=>String(x.id)===String(card.dataset.op)); if(!catalogOp)return;
-  recordOperationUsage(catalogOp.id).catch(()=>{});
   card.classList.add('is-loading');
   try {
     await openOperationById(catalogOp.id);

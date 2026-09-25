@@ -559,12 +559,6 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__processLearn
 /* Config 269: compact IATA wordmark icon */
 .op-card[data-op="sync-iata"] .op-icon span{font-size:13px!important;font-weight:900;letter-spacing:-.3px;line-height:1}
 
-/* v270 — Smart edge sidebar: usage-ranked operation shortcuts. */
-.smart-sidebar{position:fixed;z-index:950;right:0;top:92px;width:38px;max-height:calc(100vh - 120px);padding:7px 4px;background:color-mix(in srgb,var(--navy) 94%,transparent);border:1px solid color-mix(in srgb,var(--accent) 42%,transparent);border-right:0;border-radius:12px 0 0 12px;box-shadow:-8px 10px 24px #0003;transform:translateX(34px);opacity:.2;transition:transform .18s ease,opacity .18s ease;overflow:hidden}
-.smart-sidebar:hover,.smart-sidebar:focus-within{transform:translateX(0);opacity:1}
-.smart-sidebar-items{display:flex;flex-direction:column;align-items:center;gap:6px;overflow-y:auto;max-height:calc(100vh - 140px);scrollbar-width:none}.smart-sidebar-items::-webkit-scrollbar{display:none}
-.smart-op{width:29px;height:29px;min-height:29px;border:0;border-radius:7px;background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer;padding:3px;transition:background .15s ease,transform .15s ease}.smart-op:hover,.smart-op:focus-visible{background:var(--accent);color:#071a33;transform:scale(1.06);outline:none}.smart-op svg{width:23px;height:23px;fill:currentColor}.smart-op .smart-text{font-size:8px;font-weight:900;line-height:1}
-
 /* v301 — Data Set Update embedded operation */
 #dataSetUpdateEmbedded.data-set-update-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:480px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
 #dataSetUpdateEmbedded.data-set-update-embedded iframe{width:100%;height:100%;border:0;background:transparent}.data-set-update-theme-frame{display:none!important}html[data-theme="light"] #dataSetUpdateFrameLight{display:block!important;color-scheme:light!important}html[data-theme="dark"] #dataSetUpdateFrameDark{display:block!important;color-scheme:dark!important}
@@ -861,7 +855,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v383</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v384</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -977,9 +971,6 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <div class="validation-modal"><div class="spinner" aria-hidden="true"></div><div id="validationTitle" class="validation-title">Validating credentials</div><div id="validationMessage" class="validation-message">Please wait. Settings are locked during validation.</div></div>
     </div>
 
-    <aside id="smartSidebar" class="smart-sidebar" aria-label="Frequently used operations">
-      <div id="smartSidebarItems" class="smart-sidebar-items"></div>
-    </aside>
   </main>
 
 <!-- Shell runtime is embedded and remains Remote-owned. Host 13 only provides the stable platform bridge. -->
@@ -1081,7 +1072,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 383;
+const EXPECTED_REMOTE_CONFIG_VERSION = 384;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1338,20 +1329,11 @@ function iconMarkup(op) {
   return `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 8h32v32H8zM14 14v20h20V14z"></path></svg>`;
 }
 
-const SMART_USAGE_KEY='opsOperationUsageV1';
 const FAVORITES_KEY='opsFavoritesV1';
 let visibleOperationsCache=[];
 let favoriteOperationIds=new Set();
-async function getOperationUsage(){const x=await chrome.storage.local.get(SMART_USAGE_KEY);return x?.[SMART_USAGE_KEY]||{};}
 async function getFavorites(){const x=await chrome.storage.local.get(FAVORITES_KEY);const rows=Array.isArray(x?.[FAVORITES_KEY])?x[FAVORITES_KEY]:[];return new Set(rows.map(String));}
 async function saveFavorites(){await chrome.storage.local.set({[FAVORITES_KEY]:[...favoriteOperationIds]});}
-async function recordOperationUsage(opId){const usage=await getOperationUsage();const id=String(opId);const prev=usage[id]||{};usage[id]={count:Number(prev.count||0)+1,lastUsed:Date.now()};await chrome.storage.local.set({[SMART_USAGE_KEY]:usage});await renderSmartSidebar();}
-async function renderSmartSidebar(){
-  const box=$('smartSidebarItems'); if(!box)return;
-  const usage=await getOperationUsage();
-  const ranked=visibleOperationsCache.filter(op=>Number(usage[String(op.id)]?.count||0)>0).sort((a,b)=>{const A=usage[String(a.id)]||{},B=usage[String(b.id)]||{};return Number(B.count||0)-Number(A.count||0)||Number(B.lastUsed||0)-Number(A.lastUsed||0);}).slice(0,12);
-  box.innerHTML=ranked.map(op=>`<button class="smart-op" data-smart-op="${escapeHtml(op.id)}" aria-label="${escapeHtml(op.title||op.id)}"><span class="op-icon">${iconMarkup(op)}</span></button>`).join('');
-}
 function createOperationCard(op,{favoriteCopy=false}={}){
   const card=document.createElement('article');
   card.className='op-card';
@@ -1418,7 +1400,6 @@ async function refreshOperationVisibility(emailOverride = null) {
     const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && op.internalOnly !== true && (op.accessControl === 'public' || allowed.has(String(op.id))));
     visibleOperationsCache=operations.slice();
     favoriteOperationIds=await getFavorites();
-    await renderSmartSidebar();
     renderOperationCards();
     initOperationDiscoveryUi();
     applyOperationFilters();
@@ -1875,8 +1856,6 @@ $('clearCredentials').addEventListener('click', async () => {
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 
-$('smartSidebarItems')?.addEventListener('click',(event)=>{const b=event.target.closest('[data-smart-op]');if(!b)return;const card=menu.querySelector(`[data-op="${CSS.escape(String(b.dataset.smartOp))}"]`);if(card)card.click();});
-
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   await assertOperationHostCompatibility(catalogOp);
@@ -1911,7 +1890,6 @@ async function handleOperationCardClick(event){
   const openButton=event.target.closest('.op-card-open');
   const card=(openButton||event.target).closest?.('[data-op]'); if(!card)return;
   const catalogOp=(remoteBundle.operations||[]).find(x=>String(x.id)===String(card.dataset.op)); if(!catalogOp)return;
-  recordOperationUsage(catalogOp.id).catch(()=>{});
   card.classList.add('is-loading');
   try {
     await openOperationById(catalogOp.id);
