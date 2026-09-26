@@ -1,11 +1,11 @@
 {
-  "configVersion": 385,
+  "configVersion": 386,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 385
+    "configVersion": 386
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -403,7 +403,7 @@
         "Weekly Planning"
       ],
       "config": "operations/weekly-planning.json?v=383",
-      "description": "Plan and manage hierarchical Tasks from Google Sheets with inline editing, employee plans, completion tracking and new-task creation.",
+      "description": "Plan and manage hierarchical Tasks from Google Sheets with inline editing, employee plans, completion tracking, new-task creation, and a performance Report with weekly progress Trend.",
       "runLabel": "Open Weekly Planning",
       "uiMode": "form",
       "inputs": [
