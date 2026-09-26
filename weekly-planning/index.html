@@ -141,6 +141,13 @@ html[data-theme="dark"] .level-2 .summary-pill{background:rgba(247,232,180,.12)}
 .stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:82px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .stat b{display:block;font-size:26px;line-height:1.1;text-align:center}
 .stat span{font-size:12px;color:var(--muted);text-align:center}
+#planView #planResponsible,#planView #planDate{font-size:39px;line-height:1.08;font-weight:800;color:var(--navy);padding:14px 13px;min-height:62px}
+#planView #planResponsible option{font-size:39px;font-weight:700}
+#planView .stat{min-height:126px;padding:14px 8px}
+#planView .stat b{font-size:96px;line-height:.92;font-weight:900;letter-spacing:-.055em;color:#17304f}
+#planView .stat span{margin-top:8px;font-size:13px;font-weight:800;color:#17304f}
+html[data-theme="dark"] #planView #planResponsible,html[data-theme="dark"] #planView #planDate{color:#dce9f7}
+html[data-theme="dark"] #planView .stat b,html[data-theme="dark"] #planView .stat span{color:#b9d2eb}
 .progress-card{padding:0;margin-top:8px;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
 .progress-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;height:16px}
 .progress-track{height:16px;border-radius:999px;background:var(--soft);overflow:hidden;border:1px solid var(--line)}
@@ -236,8 +243,8 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
             <div class="field"><label>Planned Date · Jalali YYYYMMDD</label><input id="planDate" inputmode="numeric" maxlength="8" placeholder="14050628"></div>
           </div>
           <div class="side-grid">
-            <div class="stat"><b id="planPlannedHours">0</b><span>Planned Hours</span></div>
-            <div class="stat"><b id="planCompletedHours">0</b><span>Completed Hours</span></div>
+            <div class="stat"><b id="planPlannedHours">0</b><span>Planned</span></div>
+            <div class="stat"><b id="planCompletedHours">0</b><span>Completed</span></div>
           </div>
         </aside>
 
@@ -311,6 +318,7 @@ function codeOf(t){ return [t.l1 || '0', t.l2 || '0', t.l3 || '0'].join('.'); }
 function isDone(t){ return !!norm(t.completionDate); }
 function timeNumber(v){ const s=norm(v).replace(',','.'); if(!s) return 0; if(/^\d{1,3}:\d{2}$/.test(s)){ const [h,m] = s.split(':').map(Number); return h + m/60; } const n=Number(s); return Number.isFinite(n) ? n : 0; }
 function fmtHours(n){ return (Math.round(Number(n || 0) * 10) / 10).toFixed(1).replace('.0','') + ' h'; }
+function fmtPlanHours(n){ return (Math.round(Number(n || 0) * 10) / 10).toFixed(1).replace('.0',''); }
 function showToast(msg,type=''){ const t=$('toast'); t.textContent=msg; t.className='toast show '+type; clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>t.className='toast',2600); }
 function setStatus(msg,state=''){ $('statusText').textContent=msg; $('statusbar').className='statusbar '+state; }
 function setLoading(on){ document.body.classList.toggle('loading', !!on); }
@@ -457,7 +465,7 @@ function renderPlan(){ const holder=$('planList'); let date=''; try{ date=validJ
   bindHierarchyToggles();
   holder.querySelectorAll('.plan-row .done-box').forEach(cb=>cb.addEventListener('change', async e=>{ const row=+e.target.closest('.plan-row').dataset.row; const checked=e.target.checked; try{ if(checked) await markDone(row); else await unmarkDone(row); } catch(err){ e.target.checked=!checked; setStatus(err.message||String(err),'err'); showToast(err.message||String(err),'error'); } }));
 }
-function setPlanStats(rows){ const planned=rows.reduce((a,t)=>a+timeNumber(t.time),0); const completed=rows.filter(isDone).reduce((a,t)=>a+timeNumber(t.time),0); const pct=planned>0?Math.min(100,Math.round(completed/planned*100)):(rows.length?Math.round(rows.filter(isDone).length/rows.length*100):0); $('planPlannedHours').textContent=fmtHours(planned); $('planCompletedHours').textContent=fmtHours(completed); $('planProgress').textContent=pct+'%'; $('planProgressBar').style.width=pct+'%'; }
+function setPlanStats(rows){ const planned=rows.reduce((a,t)=>a+timeNumber(t.time),0); const completed=rows.filter(isDone).reduce((a,t)=>a+timeNumber(t.time),0); const pct=planned>0?Math.min(100,Math.round(completed/planned*100)):(rows.length?Math.round(rows.filter(isDone).length/rows.length*100):0); $('planPlannedHours').textContent=fmtPlanHours(planned); $('planCompletedHours').textContent=fmtPlanHours(completed); $('planProgress').textContent=pct+'%'; $('planProgressBar').style.width=pct+'%'; }
 function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const master=ctx.createGain(); master.gain.setValueAtTime(0.0001,now); master.gain.exponentialRampToValueAtTime(0.055,now+0.025); master.gain.exponentialRampToValueAtTime(0.0001,now+0.75); master.connect(ctx.destination); [[659.25,0],[783.99,0.09],[987.77,0.18]].forEach(([freq,delay],i)=>{ const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type=i===0?'sine':'triangle'; osc.frequency.setValueAtTime(freq,now+delay); gain.gain.setValueAtTime(0.0001,now+delay); gain.gain.exponentialRampToValueAtTime(i===0?0.8:0.45,now+delay+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.42); osc.connect(gain); gain.connect(master); osc.start(now+delay); osc.stop(now+delay+0.45); }); } catch(_){} }
 async function markDone(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':d } }); t.completionDate=d; playDing(); showToast('Completion Date set to ' + d + '.', 'ok'); renderPlan(); renderTasks(); }
 async function unmarkDone(row){ const t=taskByRow(row); if(!t) return; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':'' } }); t.completionDate=''; showToast('Completion Date cleared.','ok'); renderPlan(); renderTasks(); }
