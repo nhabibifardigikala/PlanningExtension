@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Charging Items workspace. Uses the saved credential username before @, submits PM login with Enter, reuses the PM session, scans request details in one background batch, and compares requested quantities with ROP + EOQ from the fixed inventory Google Sheet.",
+  "description": "Charging Items workspace. Uses the saved credential username before @, uses resilient PM login selectors, enters the username before @, submits with Enter and a safe detected-submit fallback, reuses the PM session, scans request details in one background batch, and compares requested quantities with ROP + EOQ from the fixed inventory Google Sheet.",
   "inputs": [
     {
       "name": "__chargingItemsEmbedded",

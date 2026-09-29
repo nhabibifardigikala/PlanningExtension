@@ -90,24 +90,34 @@ function normalizeHeader(v){return norm(v).toLowerCase().replace(/[\-_\/]+/g,' '
 function parseCsv(text){const rows=[];let row=[],cell='',q=false;const src=String(text||'').replace(/^\uFEFF/,'');for(let i=0;i<src.length;i++){const ch=src[i];if(q){if(ch==='"'&&src[i+1]==='"'){cell+='"';i++}else if(ch==='"')q=false;else cell+=ch}else if(ch==='"')q=true;else if(ch===','){row.push(cell);cell=''}else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=ch}if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row)}return rows.filter(r=>r.some(x=>String(x).trim()))}
 function makeRunId(prefix){return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
 async function runUniversal(def,inputs={},prefix='chg'){const runId=makeRunId(prefix);activeRunId=runId;const r=await chrome.runtime.sendMessage({type:'RUN_UNIVERSAL_WORKFLOW',op:OP_ID,definition:def,inputs,runId});if(!r?.ok)throw new Error(r?.error||'Universal workflow failed.');return r}
+const PM_USER_SELECTOR='input[name="form[USR_USERNAME]"],input[id="form[USR_USERNAME]"]';
+const PM_PASS_SELECTOR='input[name="form[USR_PASSWORD_MASK]"],input[id="form[USR_PASSWORD_MASK]"]';
+const PM_HIDDEN_PASS_SELECTOR='input[name="form[USR_PASSWORD]"]';
+const PM_SUBMIT_SELECTOR='input.module_app_button___gray[type="submit"],button[type="submit"],input[type="submit"]';
 function loginNodes(session){return[
-  {type:'dom',session,command:{op:'fill',selector:'[id="form[USR_USERNAME]"]',value:''}},
-  {type:'dom',session,command:{op:'type',selector:'[id="form[USR_USERNAME]"]',value:'{{vars.loginUser}}'}},
-  {type:'dom',session,command:{op:'fill',selector:'[id="form[USR_PASSWORD_MASK]"]',value:''}},
-  {type:'dom',session,command:{op:'type',selector:'[id="form[USR_PASSWORD_MASK]"]',value:'{{secret.credentials.password}}'}},
-  {type:'dom',session,command:{op:'focus',selector:'[id="form[USR_PASSWORD_MASK]"]'}},
-  {type:'dom',session,command:{op:'press',selector:'[id="form[USR_PASSWORD_MASK]"]',key:'Enter'}},
-  {type:'sleep',ms:260},
-  {type:'dom',session,command:{op:'exists',selector:'[id="form[USR_USERNAME]"]'},storeAs:'vars.loginStillVisible'},
+  {type:'dom.wait',session,selector:PM_USER_SELECTOR,timeoutMs:8000,error:'فیلد نام کاربری صفحه ورود PM پیدا نشد.'},
+  {type:'dom.wait',session,selector:PM_PASS_SELECTOR,timeoutMs:8000,error:'فیلد رمز عبور صفحه ورود PM پیدا نشد.'},
+  {type:'dom',session,command:{op:'fill',selector:PM_USER_SELECTOR,value:''}},
+  {type:'dom',session,command:{op:'type',selector:PM_USER_SELECTOR,value:'{{vars.loginUser}}'}},
+  {type:'dom',session,command:{op:'fill',selector:PM_PASS_SELECTOR,value:''}},
+  {type:'dom',session,command:{op:'type',selector:PM_PASS_SELECTOR,value:'{{secret.credentials.password}}'}},
+  {type:'dom',session,command:{op:'exists',selector:PM_HIDDEN_PASS_SELECTOR},storeAs:'vars.hasHiddenPassword'},
+  {type:'if',condition:{left:'{{vars.hasHiddenPassword}}',operator:'truthy'},then:[
+    {type:'dom',session,command:{op:'fill',selector:PM_HIDDEN_PASS_SELECTOR,value:'{{secret.credentials.password}}'}}
+  ]},
+  {type:'dom',session,command:{op:'focus',selector:PM_PASS_SELECTOR}},
+  {type:'dom',session,command:{op:'press',selector:PM_PASS_SELECTOR,key:'Enter'}},
+  {type:'sleep',ms:180},
+  {type:'dom',session,command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.loginStillVisible'},
   {type:'if',condition:{left:'{{vars.loginStillVisible}}',operator:'truthy'},then:[
-    {type:'dom',session,command:{op:'focus',selector:'[id="form[USR_PASSWORD_MASK]"]'}},
-    {type:'dom',session,command:{op:'press',selector:'[id="form[USR_PASSWORD_MASK]"]',key:'Enter'}},
-    {type:'sleep',ms:320},
-    {type:'dom',session,command:{op:'exists',selector:'[id="form[USR_USERNAME]"]'},storeAs:'vars.loginStillVisible2'},
-    {type:'if',condition:{left:'{{vars.loginStillVisible2}}',operator:'truthy'},then:[
-      {type:'dom',session,command:{op:'click',selector:'button[type="submit"],input[type="submit"]'}},
-      {type:'sleep',ms:350}
-    ]}
+    {type:'dom',session,command:{op:'exists',selector:PM_SUBMIT_SELECTOR},storeAs:'vars.hasLoginSubmit'},
+    {type:'if',condition:{left:'{{vars.hasLoginSubmit}}',operator:'truthy'},then:[
+      {type:'dom',session,command:{op:'click',selector:PM_SUBMIT_SELECTOR}}
+    ],else:[
+      {type:'dom',session,command:{op:'focus',selector:PM_PASS_SELECTOR}},
+      {type:'dom',session,command:{op:'press',selector:PM_PASS_SELECTOR,key:'Enter'}}
+    ]},
+    {type:'sleep',ms:220}
   ]}
 ]}
 function makeListDefinition(startUrl){return{id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
@@ -115,7 +125,7 @@ function makeListDefinition(startUrl){return{id:OP_ID,lifecycle:{closeTabsOnFini
   {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'trim'},{type:'regexReplace',pattern:'@.*$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
   {type:'set',path:'result.cases',value:[]},
   {type:'tab.open',session:'pm-list',url:startUrl||PM_LOGIN,active:false,timeoutMs:20000},
-  {type:'dom',session:'pm-list',command:{op:'exists',selector:'[id="form[USR_USERNAME]"]'},storeAs:'vars.needsLogin'},
+  {type:'dom',session:'pm-list',command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.needsLogin'},
   {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:loginNodes('pm-list')},
   {type:'dom.wait',session:'pm-list',selector:'#my_cases',timeoutMs:18000,error:'ورود به ProcessMaker انجام نشد یا جدول درخواست‌ها در دسترس نیست.'},
   {type:'dom',session:'pm-list',command:{op:'snapshot',maxText:1800},storeAs:'vars.listSnapshot'},
@@ -138,7 +148,7 @@ const inspectBatchDefinition={id:OP_ID,lifecycle:{closeTabsOnFinish:true},workfl
   {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'trim'},{type:'regexReplace',pattern:'@.*$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
   {type:'set',path:'result.pages',value:[]},
   {type:'tab.open',session:'pm-batch',url:'{{input.startUrl}}',active:false,timeoutMs:20000},
-  {type:'dom',session:'pm-batch',command:{op:'exists',selector:'[id="form[USR_USERNAME]"]'},storeAs:'vars.needsLogin'},
+  {type:'dom',session:'pm-batch',command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.needsLogin'},
   {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:[
     ...loginNodes('pm-batch'),
     {type:'tab.navigate',session:'pm-batch',url:'{{input.startUrl}}',timeoutMs:20000}
