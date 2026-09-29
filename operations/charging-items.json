@@ -2,18 +2,23 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Charging Items workspace. Reviews ProcessMaker requests and compares requested quantities with ROP + EOQ from the inventory Google Sheet.",
+  "description": "Charging Items workspace. Reviews ProcessMaker requests and compares requested quantities with ROP + EOQ from the inventory Google Sheet. PM login uses the credential username before @ and submits with Enter.",
   "inputs": [
     {
       "name": "__chargingItemsEmbedded",
       "label": "",
       "type": "text",
-      "showWhen": {"field": "__never__", "equals": "true"}
+      "showWhen": {
+        "field": "__never__",
+        "equals": "true"
+      }
     }
   ],
   "workflow": [],
   "successMessage": "Charging Items ready.",
   "runtimeContract": "stable-host-13",
   "businessLogicOwner": "remote",
-  "output": {"type": "internal"}
+  "output": {
+    "type": "internal"
+  }
 }
