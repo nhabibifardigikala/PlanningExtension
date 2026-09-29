@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Charging Items workspace. Reviews ProcessMaker requests and compares requested quantities with ROP + EOQ from the inventory Google Sheet. PM login uses the credential username before @ and submits with Enter.",
+  "description": "Charging Items workspace. Uses the saved credential username before @, submits PM login with Enter, reuses the PM session, scans request details in one background batch, and compares requested quantities with ROP + EOQ from the fixed inventory Google Sheet.",
   "inputs": [
     {
       "name": "__chargingItemsEmbedded",
