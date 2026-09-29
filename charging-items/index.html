@@ -36,11 +36,11 @@ html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--surface:
     <div class="card">
       <div class="section-head"><div class="section-title"><i><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 9h16M9 9v10"/></svg></i><span>منبع موجودی</span></div><span class="muted">Google Sheets</span></div>
       <div class="source-row">
-        <div class="field"><label for="sheetTab">نام Tab شیت (اختیاری)</label><input id="sheetTab" class="input" type="text" autocomplete="off" placeholder="برای شیت خصوصی، نام Tab را وارد کنید"></div>
+        <div class="field"><label>Google Sheet</label><div class="input" style="display:flex;align-items:center;direction:ltr;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">1PyacEbdCweR9rp5yZO5uZFbJDzwmndRBkPpZUC0_-co</div></div>
         <button id="testSheetBtn" class="btn" type="button"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>بررسی شیت</button>
       </div>
-      <div class="source-meta"><span class="pill"><b>ROP</b> ستون مرجع</span><span class="pill"><b>EOQ</b> ستون مرجع</span><span class="pill"><b>Code</b> تشخیص خودکار کد M</span></div>
-      <div id="sheetNote" class="note">منبع ثابت: <span dir="ltr">1PyacEbdCweR9rp5yZO5uZFbJDzwmndRBkPpZUC0_-co</span> · کد کالا از متن «کالا / خدمات» استخراج و با ROP + EOQ تطبیق داده می‌شود.</div>
+      <div class="source-meta"><span class="pill"><b>Tab</b> ChargingItems</span><span class="pill"><b>کد کالا</b> جستجوی دقیق</span><span class="pill"><b>ROP + EOQ</b> حد مجاز</span></div>
+      <div id="sheetNote" class="note">تب ثابت <b>ChargingItems</b> با ستون‌های «کد کالا، عنوان، انبار، ROP، EOQ» خوانده می‌شود.</div>
     </div>
     <div class="card status-card">
       <div class="section-title"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i><span>وضعیت اجرا</span></div>
@@ -63,7 +63,7 @@ html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--surface:
     <div class="table-wrap">
       <div id="emptyState" class="empty"><div><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg><b>نتیجه‌ای برای نمایش نیست</b><span>دکمه «بررسی درخواست‌ها» را بزنید.</span></div></div>
       <table id="resultTable" class="table" hidden>
-        <thead><tr><th>شماره کار</th><th>کالا / خدمات</th><th>کد کالا</th><th class="num">تعداد درخواست</th><th class="num">ROP</th><th class="num">EOQ</th><th class="num">ROP + EOQ</th><th>نتیجه</th></tr></thead>
+        <thead><tr><th>شماره کار</th><th>کالا / خدمات</th><th>کد کالا</th><th class="num">تعداد درخواست</th><th class="num">ROP</th><th class="num">EOQ</th><th class="num">ROP + EOQ</th><th>نتیجه</th><th>اقدام</th></tr></thead>
         <tbody id="resultBody"></tbody>
       </table>
     </div>
@@ -74,131 +74,133 @@ html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--surface:
 const OP_ID='charging-items';
 const PM_LOGIN='https://pm.digiexpress.ir/sysworkflow/fa/modern/login/login';
 const SHEET_ID='1PyacEbdCweR9rp5yZO5uZFbJDzwmndRBkPpZUC0_-co';
-const SHEET_URL='https://docs.google.com/spreadsheets/d/1PyacEbdCweR9rp5yZO5uZFbJDzwmndRBkPpZUC0_-co/edit?usp=sharing';
+const SHEET_TAB='ChargingItems';
 const SHEET_CACHE_MS=5*60*1000;
 const $=id=>document.getElementById(id);
 let running=false,stopRequested=false,activeRunId='',inventory=null,inventoryLoadedAt=0,lastRows=[];
 function toast(text,error=false){const el=$('toast');el.textContent=String(text||'');el.classList.toggle('error',error);el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),3200)}
-function setStatus(text,kind='idle'){ $('statusText').textContent=text; $('statusDot').className='status-dot'+(kind==='running'?' running':kind==='ok'?' ok':kind==='err'?' err':''); }
+function setStatus(text,kind='idle'){$('statusText').textContent=text;$('statusDot').className='status-dot'+(kind==='running'?' running':kind==='ok'?' ok':kind==='err'?' err':'')}
 function setProgress(done,total,label=''){const pct=total?Math.round(done/total*100):0;$('progressBar').style.width=pct+'%';$('progressPct').textContent=pct+'%';$('progressLabel').textContent=label||'—'}
-function setRunning(v){running=v;$('scanBtn').disabled=v;$('testSheetBtn').disabled=v;$('stopBtn').disabled=!v;$('sheetTab').disabled=v}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function setRunning(v){running=v;$('scanBtn').disabled=v;$('testSheetBtn').disabled=v;$('stopBtn').disabled=!v}
 function faDigitsToEn(v){return String(v??'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c))}
 function num(v){const s=faDigitsToEn(v).replace(/[٬,\s]/g,'').replace(/[^0-9.\-]/g,'');const n=Number(s);return Number.isFinite(n)?n:0}
 function norm(v){return faDigitsToEn(v).normalize('NFKC').replace(/\u200c/g,' ').replace(/\s+/g,' ').trim()}
 function normalizeHeader(v){return norm(v).toLowerCase().replace(/[\-_\/]+/g,' ').replace(/\s+/g,' ')}
-function parseCsv(text){const rows=[];let row=[],cell='',q=false;const src=String(text||'').replace(/^\uFEFF/,'');for(let i=0;i<src.length;i++){const ch=src[i];if(q){if(ch==='"'&&src[i+1]==='"'){cell+='"';i++}else if(ch==='"')q=false;else cell+=ch}else if(ch==='"')q=true;else if(ch===','){row.push(cell);cell=''}else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=ch}if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row)}return rows.filter(r=>r.some(x=>String(x).trim()))}
 function makeRunId(prefix){return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
 async function runUniversal(def,inputs={},prefix='chg'){const runId=makeRunId(prefix);activeRunId=runId;const r=await chrome.runtime.sendMessage({type:'RUN_UNIVERSAL_WORKFLOW',op:OP_ID,definition:def,inputs,runId});if(!r?.ok)throw new Error(r?.error||'Universal workflow failed.');return r}
-const PM_USER_SELECTOR='input[name="form[USR_USERNAME]"],input[id="form[USR_USERNAME]"]';
-const PM_PASS_SELECTOR='input[name="form[USR_PASSWORD_MASK]"],input[id="form[USR_PASSWORD_MASK]"]';
-const PM_HIDDEN_PASS_SELECTOR='input[name="form[USR_PASSWORD]"]';
-const PM_SUBMIT_SELECTOR='input.module_app_button___gray[type="submit"],button[type="submit"],input[type="submit"]';
+const PM_USER_SELECTOR='input[id="form[USR_USERNAME]"][name="form[USR_USERNAME]"]';
+const PM_PASS_SELECTOR='input[id="form[USR_PASSWORD_MASK]"][name="form[USR_PASSWORD_MASK]"]';
+const PM_CASES_SELECTOR='#my_cases';
+const PM_SEARCH_SELECTOR='#my_cases_filter input[type="search"]';
+const PM_ITEMS_SELECTOR='#PURCHASEREQUEST_ITEMS-body';
+const PM_SAVE_SELECTOR='button[id="form[submit0000000001]"]';
+const PM_CONTINUE_SELECTOR='input#btnContinue[name="btnContinue_1"]';
 function loginNodes(session){return[
-  {type:'dom.wait',session,selector:PM_USER_SELECTOR,timeoutMs:8000,error:'فیلد نام کاربری صفحه ورود PM پیدا نشد.'},
-  {type:'dom.wait',session,selector:PM_PASS_SELECTOR,timeoutMs:8000,error:'فیلد رمز عبور صفحه ورود PM پیدا نشد.'},
+  {type:'dom.wait',session,selector:PM_USER_SELECTOR,timeoutMs:10000,error:'فیلد نام کاربری PM پیدا نشد.'},
+  {type:'dom.wait',session,selector:PM_PASS_SELECTOR,timeoutMs:10000,error:'فیلد رمز عبور PM پیدا نشد.'},
   {type:'dom',session,command:{op:'fill',selector:PM_USER_SELECTOR,value:''}},
   {type:'dom',session,command:{op:'type',selector:PM_USER_SELECTOR,value:'{{vars.loginUser}}'}},
   {type:'dom',session,command:{op:'fill',selector:PM_PASS_SELECTOR,value:''}},
   {type:'dom',session,command:{op:'type',selector:PM_PASS_SELECTOR,value:'{{secret.credentials.password}}'}},
-  {type:'dom',session,command:{op:'exists',selector:PM_HIDDEN_PASS_SELECTOR},storeAs:'vars.hasHiddenPassword'},
-  {type:'if',condition:{left:'{{vars.hasHiddenPassword}}',operator:'truthy'},then:[
-    {type:'dom',session,command:{op:'fill',selector:PM_HIDDEN_PASS_SELECTOR,value:'{{secret.credentials.password}}'}}
-  ]},
   {type:'dom',session,command:{op:'focus',selector:PM_PASS_SELECTOR}},
   {type:'dom',session,command:{op:'press',selector:PM_PASS_SELECTOR,key:'Enter'}},
-  {type:'sleep',ms:180},
-  {type:'dom',session,command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.loginStillVisible'},
-  {type:'if',condition:{left:'{{vars.loginStillVisible}}',operator:'truthy'},then:[
-    {type:'dom',session,command:{op:'exists',selector:PM_SUBMIT_SELECTOR},storeAs:'vars.hasLoginSubmit'},
-    {type:'if',condition:{left:'{{vars.hasLoginSubmit}}',operator:'truthy'},then:[
-      {type:'dom',session,command:{op:'click',selector:PM_SUBMIT_SELECTOR}}
-    ],else:[
-      {type:'dom',session,command:{op:'focus',selector:PM_PASS_SELECTOR}},
-      {type:'dom',session,command:{op:'press',selector:PM_PASS_SELECTOR,key:'Enter'}}
-    ]},
-    {type:'sleep',ms:220}
-  ]}
+  {type:'dom.wait',session,selector:PM_CASES_SELECTOR,timeoutMs:20000,error:'ورود به PM انجام نشد؛ پس از واردکردن یوزر و پسورد و Enter جدول درخواست‌ها باز نشد.'}
 ]}
-function makeListDefinition(startUrl){return{id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
+function makeListDefinition(){return{id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
   {type:'secret',kind:'credentials',storeAs:'secret.credentials'},
   {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'trim'},{type:'regexReplace',pattern:'@.*$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
   {type:'set',path:'result.cases',value:[]},
-  {type:'tab.open',session:'pm-list',url:startUrl||PM_LOGIN,active:false,timeoutMs:20000},
+  {type:'tab.open',session:'pm-list',url:PM_LOGIN,active:false,timeoutMs:20000},
   {type:'dom',session:'pm-list',command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.needsLogin'},
   {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:loginNodes('pm-list')},
-  {type:'dom.wait',session:'pm-list',selector:'#my_cases',timeoutMs:18000,error:'ورود به ProcessMaker انجام نشد یا جدول درخواست‌ها در دسترس نیست.'},
-  {type:'dom',session:'pm-list',command:{op:'snapshot',maxText:1800},storeAs:'vars.listSnapshot'},
+  {type:'dom.wait',session:'pm-list',selector:PM_CASES_SELECTOR,timeoutMs:12000,error:'جدول درخواست‌های PM پیدا نشد.'},
+  {type:'dom',session:'pm-list',command:{op:'snapshot',maxText:1200},storeAs:'vars.listSnapshot'},
   {type:'dom',session:'pm-list',command:{op:'exists',selector:'#my_cases_length select option[value="25"]'},storeAs:'vars.has25'},
-  {type:'if',condition:{left:'{{vars.has25}}',operator:'truthy'},then:[{type:'dom',session:'pm-list',command:{op:'select',selector:'#my_cases_length select',value:'25'}},{type:'sleep',ms:160}]},
+  {type:'if',condition:{left:'{{vars.has25}}',operator:'truthy'},then:[{type:'dom',session:'pm-list',command:{op:'select',selector:'#my_cases_length select',value:'25'}},{type:'sleep',ms:90}]},
   {type:'set',path:'vars.more',value:true},
   {type:'while',condition:{left:'{{vars.more}}',operator:'truthy'},maxIterations:100,steps:[
-    {type:'dom',session:'pm-list',command:{op:'table',selector:'#my_cases'},storeAs:'vars.pageTable'},
+    {type:'dom',session:'pm-list',command:{op:'table',selector:PM_CASES_SELECTOR},storeAs:'vars.pageTable'},
     {type:'forEach',items:'{{vars.pageTable.rows}}',item:'caseRow',index:'caseIndex',steps:[
       {type:'dom',session:'pm-list',command:{op:'attr',selector:'#my_cases tbody tr td:nth-child(2) a',index:'{{caseIndex}}',name:'href'},storeAs:'vars.caseHref'},
-      {type:'array.push',path:'result.cases',value:{caseNumber:'{{caseRow.1}}',sender:'{{caseRow.2}}',process:'{{caseRow.3}}',task:'{{caseRow.4}}',title:'{{caseRow.5}}',deadline:'{{caseRow.6}}',updated:'{{caseRow.7}}',priority:'{{caseRow.8}}',href:'{{vars.caseHref}}'}}
+      {type:'array.push',path:'result.cases',value:{caseNumber:'{{caseRow.1}}',sender:'{{caseRow.2}}',process:'{{caseRow.3}}',task:'{{caseRow.4}}',href:'{{vars.caseHref}}'}}
     ]},
     {type:'dom',session:'pm-list',command:{op:'exists',selector:'#my_cases_paginate li.next:not(.disabled) a'},storeAs:'vars.more'},
-    {type:'if',condition:{left:'{{vars.more}}',operator:'truthy'},then:[{type:'dom',session:'pm-list',command:{op:'click',selector:'#my_cases_paginate li.next:not(.disabled) a'}},{type:'sleep',ms:180}]}
+    {type:'if',condition:{left:'{{vars.more}}',operator:'truthy'},then:[{type:'dom',session:'pm-list',command:{op:'click',selector:'#my_cases_paginate li.next:not(.disabled) a'}},{type:'sleep',ms:100}]}
   ]},
   {type:'set',path:'result.listUrl',value:'{{vars.listSnapshot.url}}'}
 ]}}
-const inspectBatchDefinition={id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
+function makeInspectDefinition(){return{id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
   {type:'secret',kind:'credentials',storeAs:'secret.credentials'},
   {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'trim'},{type:'regexReplace',pattern:'@.*$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
   {type:'set',path:'result.pages',value:[]},
-  {type:'tab.open',session:'pm-batch',url:'{{input.startUrl}}',active:false,timeoutMs:20000},
-  {type:'dom',session:'pm-batch',command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.needsLogin'},
-  {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:[
-    ...loginNodes('pm-batch'),
-    {type:'tab.navigate',session:'pm-batch',url:'{{input.startUrl}}',timeoutMs:20000}
-  ]},
-  {type:'set',path:'vars.itemsHtml',value:''},
-  {type:'dom',session:'pm-batch',command:{op:'exists',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'vars.hasItems'},
-  {type:'if',condition:{left:'{{vars.hasItems}}',operator:'falsy'},then:[{type:'sleep',ms:220},{type:'dom',session:'pm-batch',command:{op:'exists',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'vars.hasItems'}]},
-  {type:'if',condition:{left:'{{vars.hasItems}}',operator:'truthy'},then:[{type:'dom',session:'pm-batch',command:{op:'html',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'vars.itemsHtml'}]},
-  {type:'array.push',path:'result.pages',value:{caseNumber:'{{input.firstCase.caseNumber}}',sender:'{{input.firstCase.sender}}',process:'{{input.firstCase.process}}',task:'{{input.firstCase.task}}',url:'{{input.firstCase.url}}',html:'{{vars.itemsHtml}}'}},
-  {type:'forEach',items:'{{input.remainingCases}}',item:'caseItem',index:'caseIndex',steps:[
-    {type:'tab.navigate',session:'pm-batch',url:'{{caseItem.url}}',timeoutMs:20000},
-    {type:'set',path:'vars.itemsHtml',value:''},
-    {type:'dom',session:'pm-batch',command:{op:'exists',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'vars.hasItems'},
-    {type:'if',condition:{left:'{{vars.hasItems}}',operator:'falsy'},then:[{type:'sleep',ms:180},{type:'dom',session:'pm-batch',command:{op:'exists',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'vars.hasItems'}]},
-    {type:'if',condition:{left:'{{vars.hasItems}}',operator:'truthy'},then:[{type:'dom',session:'pm-batch',command:{op:'html',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'vars.itemsHtml'}]},
-    {type:'array.push',path:'result.pages',value:{caseNumber:'{{caseItem.caseNumber}}',sender:'{{caseItem.sender}}',process:'{{caseItem.process}}',task:'{{caseItem.task}}',url:'{{caseItem.url}}',html:'{{vars.itemsHtml}}'}}
+  {type:'tab.open',session:'pm-inspect',url:'{{input.listUrl}}',active:false,timeoutMs:20000},
+  {type:'dom',session:'pm-inspect',command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.needsLogin'},
+  {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:loginNodes('pm-inspect')},
+  {type:'dom.wait',session:'pm-inspect',selector:PM_CASES_SELECTOR,timeoutMs:12000,error:'لیست درخواست‌های PM در دسترس نیست.'},
+  {type:'forEach',items:'{{input.cases}}',item:'caseItem',index:'caseIndex',steps:[
+    {type:'dom',session:'pm-inspect',command:{op:'fill',selector:PM_SEARCH_SELECTOR,value:''}},
+    {type:'dom',session:'pm-inspect',command:{op:'type',selector:PM_SEARCH_SELECTOR,value:'{{caseItem.caseNumber}}'}},
+    {type:'sleep',ms:100},
+    {type:'dom.wait',session:'pm-inspect',selector:'#my_cases tbody tr td:nth-child(2) a[href*="APP_UID={{caseItem.appUid}}"]',timeoutMs:6000,error:'لینک شماره کار در جدول PM پیدا نشد.'},
+    {type:'dom',session:'pm-inspect',command:{op:'click',selector:'#my_cases tbody tr td:nth-child(2) a[href*="APP_UID={{caseItem.appUid}}"]'}},
+    {type:'dom.wait',session:'pm-inspect',selector:PM_ITEMS_SELECTOR,timeoutMs:10000,error:'جدول اقلام درخواست باز نشد.'},
+    {type:'dom',session:'pm-inspect',command:{op:'html',selector:PM_ITEMS_SELECTOR},storeAs:'vars.itemsHtml'},
+    {type:'array.push',path:'result.pages',value:{caseNumber:'{{caseItem.caseNumber}}',sender:'{{caseItem.sender}}',process:'{{caseItem.process}}',task:'{{caseItem.task}}',url:'{{caseItem.url}}',appUid:'{{caseItem.appUid}}',html:'{{vars.itemsHtml}}'}},
+    {type:'tab.navigate',session:'pm-inspect',url:'{{input.listUrl}}',timeoutMs:20000},
+    {type:'dom.wait',session:'pm-inspect',selector:PM_CASES_SELECTOR,timeoutMs:10000,error:'بازگشت به لیست درخواست‌ها انجام نشد.'}
   ]}
-]};
-async function getPmStartUrl(){try{const s=await chrome.storage.local.get(['chargingItemsPmListUrl']);const u=String(s.chargingItemsPmListUrl||'');if(/^https:\/\/pm\.digiexpress\.ir\//i.test(u)&&!u.includes('/login/login'))return u}catch(_){}return PM_LOGIN}
-async function rememberPmListUrl(url){const u=String(url||'');if(!/^https:\/\/pm\.digiexpress\.ir\//i.test(u)||u.includes('/login/login'))return;try{await chrome.storage.local.set({chargingItemsPmListUrl:u})}catch(_){}}
-function sheetDefinition(url){return{id:OP_ID,workflow:[{type:'fetch',url,format:'text',storeAs:'result.csv'}]}}
-function inventoryUrl(){const base=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;const tab=$('sheetTab').value.trim();return tab?base+`&sheet=${encodeURIComponent(tab)}`:base}
-function buildInventoryMatrix(headers,rows){headers=(headers||[]).map(String);rows=Array.isArray(rows)?rows:[];if(!headers.length||!rows.length)throw new Error('داده‌ای از Google Sheet دریافت نشد. اشتراک‌گذاری فایل یا نام Tab را بررسی کنید.');const nh=headers.map(normalizeHeader);const rop=nh.findIndex(h=>h==='rop'||h.includes(' rop')||h.startsWith('rop '));const eoq=nh.findIndex(h=>h==='eoq'||h.includes(' eoq')||h.startsWith('eoq '));if(rop<0||eoq<0)throw new Error('ستون‌های ROP و EOQ در Google Sheet پیدا نشدند.');const aliases=['کد کالا','کد محصول','item code','product code','material code','sku','code'];let code=-1;for(const a of aliases){const n=normalizeHeader(a);const i=nh.findIndex(h=>h===n||h.includes(n));if(i>=0){code=i;break}}if(code<0){let best=-1,bestScore=0;for(let c=0;c<headers.length;c++){let score=0;for(let r=0;r<Math.min(rows.length,250);r++)if(/\bM\d{5,}\b/i.test(String(rows[r]?.[c]||'')))score++;if(score>bestScore){bestScore=score;best=c}}code=bestScore?best:-1}if(code<0)throw new Error('ستون کد کالا در Google Sheet قابل تشخیص نبود.');const map=new Map();for(let r=0;r<rows.length;r++){const raw=String(rows[r]?.[code]||'');const m=raw.match(/\bM\d{5,}\b/i);const key=(m?m[0]:raw).trim().toUpperCase();if(!key)continue;map.set(key,{rop:num(rows[r]?.[rop]),eoq:num(rows[r]?.[eoq]),row:r+2})}return{headers,code,rop,eoq,map,count:map.size}}
-function buildInventoryCsv(csv){const matrix=parseCsv(csv);if(matrix.length<2)throw new Error('داده‌ای از Google Sheet دریافت نشد.');return buildInventoryMatrix(matrix[0],matrix.slice(1))}
-async function loadInventory(show=true,{force=false}={}){if(!force&&inventory&&Date.now()-inventoryLoadedAt<SHEET_CACHE_MS)return inventory;if(show){setStatus('در حال خواندن Google Sheet…','running');setProgress(0,1,'Google Sheet')}const tab=$('sheetTab').value.trim();let inv=null;let source='';if(tab&&globalThis.DigiExpressPlatform){try{const data=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:SHEET_ID,sheetName:tab,limit:100000});inv=buildInventoryMatrix(data?.headers||[],data?.rows||[]);source=`Tab: ${tab}`}catch(e){throw new Error(`خواندن Tab «${tab}» ناموفق بود: ${String(e?.message||e)}`)}}else{try{const r=await runUniversal(sheetDefinition(inventoryUrl()),{},'sheet');inv=buildInventoryCsv(r.result?.csv||'');source='اولین Tab فایل'}catch(e){throw new Error(`Google Sheet قابل خواندن نیست. اگر فایل خصوصی است، نام Tab را وارد کنید. ${String(e?.message||e)}`)}}inventory=inv;inventoryLoadedAt=Date.now();try{await chrome.storage.local.set({chargingItemsSheetTab:tab})}catch(_){}$('sheetNote').textContent=`${inventory.count.toLocaleString()} کد کالا خوانده شد · ${source} · Code: ${inventory.headers[inventory.code]} · ROP: ${inventory.headers[inventory.rop]} · EOQ: ${inventory.headers[inventory.eoq]}`;if(show){setStatus('Google Sheet آماده است','ok');setProgress(1,1,'Google Sheet');toast('Google Sheet با موفقیت خوانده شد.')}return inventory}
-function extractItems(html,caseInfo,caseUrl){const doc=new DOMParser().parseFromString(`<div id="root">${html||''}</div>`,'text/html');const rows=[...doc.querySelectorAll('#root .pmdynaform-grid-row')];const out=[];for(const row of rows){const kala=row.querySelector('select[name*="[PRI_KALA]"] option:checked, input[name*="[PRI_KALA_label]"]');const count=row.querySelector('input[name*="[PRI_COUNT]"]');const charge=row.querySelector('select[name*="[PRI_WAREHOUSECHARGE]"] option:checked, input[name*="[PRI_WAREHOUSECHARGE_label]"]');const itemText=norm(kala?.textContent||kala?.value||'');const qty=num(count?.value||count?.getAttribute('value')||'');const chargeText=norm(charge?.textContent||charge?.value||'');if(!itemText||!qty)continue;if(chargeText&&chargeText!=='بله'&&chargeText!=='1'&&!/^yes$/i.test(chargeText))continue;const m=itemText.match(/\bM\d{5,}\b/i);const code=m?m[0].toUpperCase():'';out.push({caseNumber:caseInfo.caseNumber,item:itemText,code,requested:qty,caseUrl,sender:caseInfo.sender||'',process:caseInfo.process||'',task:caseInfo.task||''})}return out}
-function compareRows(items){return items.map(x=>{const ref=x.code?inventory?.map.get(x.code):null;if(!ref)return{...x,rop:null,eoq:null,limit:null,state:'missing'};const limit=ref.rop+ref.eoq;return{...x,rop:ref.rop,eoq:ref.eoq,limit,state:x.requested<=limit?'ok':'bad'}})}
+]}}
+function makeApproveDefinition(){return{id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
+  {type:'secret',kind:'credentials',storeAs:'secret.credentials'},
+  {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'trim'},{type:'regexReplace',pattern:'@.*$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
+  {type:'set',path:'result.approved',value:[]},
+  {type:'tab.open',session:'pm-approve',url:'{{input.listUrl}}',active:false,timeoutMs:20000},
+  {type:'dom',session:'pm-approve',command:{op:'exists',selector:PM_USER_SELECTOR},storeAs:'vars.needsLogin'},
+  {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:loginNodes('pm-approve')},
+  {type:'dom.wait',session:'pm-approve',selector:PM_CASES_SELECTOR,timeoutMs:12000,error:'لیست درخواست‌های PM برای ثبت تایید در دسترس نیست.'},
+  {type:'forEach',items:'{{input.cases}}',item:'caseItem',index:'caseIndex',steps:[
+    {type:'dom',session:'pm-approve',command:{op:'fill',selector:PM_SEARCH_SELECTOR,value:''}},
+    {type:'dom',session:'pm-approve',command:{op:'type',selector:PM_SEARCH_SELECTOR,value:'{{caseItem.caseNumber}}'}},
+    {type:'sleep',ms:100},
+    {type:'dom.wait',session:'pm-approve',selector:'#my_cases tbody tr td:nth-child(2) a[href*="APP_UID={{caseItem.appUid}}"]',timeoutMs:6000,error:'لینک درخواست تاییدشدنی در PM پیدا نشد.'},
+    {type:'dom',session:'pm-approve',command:{op:'click',selector:'#my_cases tbody tr td:nth-child(2) a[href*="APP_UID={{caseItem.appUid}}"]'}},
+    {type:'dom.wait',session:'pm-approve',selector:PM_ITEMS_SELECTOR,timeoutMs:10000,error:'جدول اقلام درخواست برای تایید باز نشد.'},
+    {type:'forEach',items:'{{caseItem.rows}}',item:'approval',index:'approvalIndex',steps:[
+      {type:'dom.wait',session:'pm-approve',selector:'select[id="form[PURCHASEREQUEST_ITEMS][{{approval.rowIndex}}][PRI_MIDDLEMANAGER]"]',timeoutMs:5000,error:'ستون نظر مدیر میانی برای یکی از اقلام پیدا نشد.'},
+      {type:'dom',session:'pm-approve',command:{op:'select',selector:'select[id="form[PURCHASEREQUEST_ITEMS][{{approval.rowIndex}}][PRI_MIDDLEMANAGER]"]',value:'1'}}
+    ]},
+    {type:'dom.wait',session:'pm-approve',selector:PM_SAVE_SELECTOR,timeoutMs:5000,error:'دکمه ذخیره درخواست پیدا نشد.'},
+    {type:'dom',session:'pm-approve',command:{op:'click',selector:PM_SAVE_SELECTOR}},
+    {type:'dom.wait',session:'pm-approve',selector:PM_CONTINUE_SELECTOR,timeoutMs:15000,error:'پس از ذخیره، دکمه ادامه نمایش داده نشد.'},
+    {type:'dom',session:'pm-approve',command:{op:'click',selector:PM_CONTINUE_SELECTOR}},
+    {type:'dom.wait',session:'pm-approve',selector:PM_CASES_SELECTOR,timeoutMs:15000,error:'پس از ادامه، لیست درخواست‌ها باز نشد.'},
+    {type:'array.push',path:'result.approved',value:'{{caseItem.caseNumber}}'}
+  ]}
+]}}
+function buildInventoryMatrix(headers,rows){headers=(headers||[]).map(String);rows=Array.isArray(rows)?rows:[];if(!headers.length)throw new Error('Headerهای تب ChargingItems خوانده نشد.');const nh=headers.map(normalizeHeader);const code=nh.findIndex(h=>h==='کد کالا');const title=nh.findIndex(h=>h==='عنوان');const warehouse=nh.findIndex(h=>h==='انبار');const rop=nh.findIndex(h=>h==='rop');const eoq=nh.findIndex(h=>h==='eoq');if(code<0||rop<0||eoq<0)throw new Error('در تب ChargingItems ستون‌های «کد کالا»، ROP و EOQ باید دقیقاً وجود داشته باشند.');const map=new Map();for(let r=0;r<rows.length;r++){const raw=norm(rows[r]?.[code]||'').toUpperCase();const m=raw.match(/M\d{5,}/i);const key=(m?m[0]:raw).toUpperCase();if(!key)continue;map.set(key,{rop:num(rows[r]?.[rop]),eoq:num(rows[r]?.[eoq]),title:title>=0?norm(rows[r]?.[title]||''):'',warehouse:warehouse>=0?norm(rows[r]?.[warehouse]||''):'',row:r+2})}return{headers,code,title,warehouse,rop,eoq,map,count:map.size}}
+async function loadInventory(show=true,{force=false}={}){if(!force&&inventory&&Date.now()-inventoryLoadedAt<SHEET_CACHE_MS)return inventory;if(show){setStatus('در حال خواندن تب ChargingItems…','running');setProgress(0,1,'Google Sheet')}if(!globalThis.DigiExpressPlatform)throw new Error('Stable Host bridge در دسترس نیست. اکستنشن را Reload کنید.');const data=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:SHEET_ID,sheetName:SHEET_TAB,limit:100000});inventory=buildInventoryMatrix(data?.headers||[],data?.rows||[]);inventoryLoadedAt=Date.now();$('sheetNote').textContent=`${inventory.count.toLocaleString()} کد کالا از تب ChargingItems خوانده شد · ROP + EOQ مبنای تصمیم است.`;if(show){setStatus('تب ChargingItems آماده است','ok');setProgress(1,1,'Google Sheet');toast('اطلاعات ChargingItems خوانده شد.')}return inventory}
+function extractItems(html,caseInfo,caseUrl){const doc=new DOMParser().parseFromString(`<div id="root">${html||''}</div>`,'text/html');const rows=[...doc.querySelectorAll('#root .pmdynaform-grid-row')];const out=[];for(const row of rows){const kala=row.querySelector('input[name*="[PRI_KALA_label]"]')||row.querySelector('select[name*="[PRI_KALA]"] option:checked');const count=row.querySelector('input[name*="[PRI_COUNT]"]');const manager=row.querySelector('select[name*="[PRI_MIDDLEMANAGER]"]');const itemText=norm(kala?.value||kala?.textContent||'');const qty=num(count?.value||count?.getAttribute('value')||'');const name=manager?.getAttribute('name')||'';const rm=name.match(/\[PURCHASEREQUEST_ITEMS\]\[(\d+)\]\[PRI_MIDDLEMANAGER\]/);const rowIndex=rm?Number(rm[1]):0;if(!itemText||!rowIndex)continue;const m=itemText.match(/M\d{5,}/i);const code=m?m[0].toUpperCase():'';out.push({caseNumber:caseInfo.caseNumber,item:itemText,code,requested:qty,rowIndex,caseUrl,appUid:caseInfo.appUid||'',sender:caseInfo.sender||'',process:caseInfo.process||'',task:caseInfo.task||'',action:'pending'})}return out}
+function compareRows(items){return items.map(x=>{const ref=x.code?inventory?.map.get(x.code):null;if(!ref)return{...x,rop:null,eoq:null,limit:null,state:'missing',action:'blocked'};const limit=ref.rop+ref.eoq;const state=x.requested<=limit?'ok':'bad';return{...x,rop:ref.rop,eoq:ref.eoq,limit,state,action:state==='ok'?'ready':'blocked'}})}
+function buildApprovalPlans(rows,cases){const byCase=new Map();for(const r of rows){if(!byCase.has(r.caseNumber))byCase.set(r.caseNumber,[]);byCase.get(r.caseNumber).push(r)}const out=[];for(const c of cases){const rr=byCase.get(c.caseNumber)||[];if(!rr.length||!rr.every(x=>x.state==='ok'))continue;out.push({caseNumber:c.caseNumber,appUid:c.appUid,url:c.url,rows:rr.map(x=>({rowIndex:x.rowIndex}))})}return out}
 function tdText(value,className=''){const td=document.createElement('td');if(className)td.className=className;td.textContent=String(value??'');return td}
-function render(rows,casesCount){lastRows=rows;const ok=rows.filter(x=>x.state==='ok').length,bad=rows.filter(x=>x.state==='bad').length,missing=rows.filter(x=>x.state==='missing').length;$('metricCases').textContent=casesCount;$('metricItems').textContent=rows.length;$('metricOk').textContent=ok;$('metricBad').textContent=bad;$('metricMissing').textContent=missing;$('resultMeta').textContent=`${rows.length} قلم از ${casesCount} درخواست · ${ok} مجاز · ${bad} بالاتر از حد`;$('emptyState').hidden=rows.length>0;$('resultTable').hidden=!rows.length;const body=$('resultBody');body.textContent='';for(const r of rows){const tr=document.createElement('tr');tr.className='state-'+r.state;const caseTd=document.createElement('td');const caseBtn=document.createElement('button');caseBtn.type='button';caseBtn.className='case-link';caseBtn.dataset.url=String(r.caseUrl||'');caseBtn.textContent=String(r.caseNumber||'—');caseTd.appendChild(caseBtn);tr.appendChild(caseTd);tr.appendChild(tdText(r.item,'item-name'));tr.appendChild(tdText(r.code||'—'));tr.appendChild(tdText(r.requested,'num'));tr.appendChild(tdText(r.rop==null?'—':r.rop,'num'));tr.appendChild(tdText(r.eoq==null?'—':r.eoq,'num'));tr.appendChild(tdText(r.limit==null?'—':r.limit,'num'));const decisionTd=document.createElement('td');const decision=document.createElement('span');decision.className='decision '+r.state;const dot=document.createElement('i');decision.appendChild(dot);decision.appendChild(document.createTextNode(r.state==='ok'?'مجاز':r.state==='bad'?'بیشتر از حد':'یافت نشد'));decisionTd.appendChild(decision);tr.appendChild(decisionTd);body.appendChild(tr)}}
-async function scan(){if(running)return;stopRequested=false;setRunning(true);setStatus('در حال دریافت هم‌زمان شیت و درخواست‌ها…','running');setProgress(0,1,'آماده‌سازی سریع');try{
-  const pmStart=await getPmStartUrl();
-  const inventoryPromise=loadInventory(false);
-  const listPromise=runUniversal(makeListDefinition(pmStart),{},'cases');
-  const [inv,list]=await Promise.all([inventoryPromise,listPromise]); inventory=inv;
-  if(stopRequested)throw new Error('OP-CANCEL');
-  const cases=Array.isArray(list.result?.cases)?list.result.cases:[];
-  const listUrl=String(list.result?.listUrl||pmStart||PM_LOGIN); await rememberPmListUrl(listUrl);
-  if(!cases.length){render([],0);setStatus('درخواستی برای بررسی وجود ندارد','ok');setProgress(1,1,'بدون درخواست');return}
-  const normalized=cases.map((c,i)=>{let url='';try{url=new URL(String(c.href||''),listUrl).href}catch(_){url=String(c.href||'')}return{...c,caseNumber:norm(c.caseNumber||'').replace(/\s+/g,' '),url,index:i}}).filter(x=>x.url);
-  if(!normalized.length)throw new Error('لینک درخواست‌های ProcessMaker قابل استخراج نبود.');
-  setStatus(`در حال بررسی سریع ${normalized.length} درخواست…`,'running');setProgress(0,normalized.length,'پردازش در یک نشست');
-  const batch=await runUniversal(inspectBatchDefinition,{startUrl:normalized[0].url,firstCase:normalized[0],remainingCases:normalized.slice(1)},'casebatch');
-  if(stopRequested)throw new Error('OP-CANCEL');
-  const pages=Array.isArray(batch.result?.pages)?batch.result.pages:[];const all=[];
-  for(let i=0;i<pages.length;i++){const p=pages[i]||{};setProgress(i+1,normalized.length,`درخواست ${Math.min(i+1,normalized.length)} از ${normalized.length}`);if(!p.html)continue;all.push(...extractItems(p.html,{caseNumber:p.caseNumber,sender:p.sender,process:p.process,task:p.task},p.url))}
-  const compared=compareRows(all);render(compared,cases.length);setProgress(normalized.length,normalized.length,'تکمیل شد');setStatus('بررسی درخواست‌ها تکمیل شد','ok');toast('بررسی Charging Items تکمیل شد.');
+function actionLabel(r){if(r.action==='saved')return'تایید + ذخیره شد';if(r.action==='ready')return'آماده تایید';if(r.state==='bad')return'ثبت نشد؛ بالاتر از حد';if(r.state==='missing')return'ثبت نشد؛ کد یافت نشد';return'ثبت نشد'}
+function render(rows,casesCount){lastRows=rows;const ok=rows.filter(x=>x.state==='ok').length,bad=rows.filter(x=>x.state==='bad').length,missing=rows.filter(x=>x.state==='missing').length,saved=rows.filter(x=>x.action==='saved').length;$('metricCases').textContent=casesCount;$('metricItems').textContent=rows.length;$('metricOk').textContent=ok;$('metricBad').textContent=bad;$('metricMissing').textContent=missing;$('resultMeta').textContent=`${rows.length} قلم از ${casesCount} درخواست · ${saved} قلم ثبت‌شده`;$('emptyState').hidden=rows.length>0;$('resultTable').hidden=!rows.length;const body=$('resultBody');body.textContent='';for(const r of rows){const tr=document.createElement('tr');tr.className='state-'+r.state;const caseTd=document.createElement('td');const caseBtn=document.createElement('button');caseBtn.type='button';caseBtn.className='case-link';caseBtn.dataset.url=String(r.caseUrl||'');caseBtn.textContent=String(r.caseNumber||'—');caseTd.appendChild(caseBtn);tr.appendChild(caseTd);tr.appendChild(tdText(r.item,'item-name'));tr.appendChild(tdText(r.code||'—'));tr.appendChild(tdText(r.requested,'num'));tr.appendChild(tdText(r.rop==null?'—':r.rop,'num'));tr.appendChild(tdText(r.eoq==null?'—':r.eoq,'num'));tr.appendChild(tdText(r.limit==null?'—':r.limit,'num'));const decisionTd=document.createElement('td');const decision=document.createElement('span');decision.className='decision '+r.state;const dot=document.createElement('i');decision.appendChild(dot);decision.appendChild(document.createTextNode(r.state==='ok'?'مجاز':r.state==='bad'?'بیشتر از حد':'یافت نشد'));decisionTd.appendChild(decision);tr.appendChild(decisionTd);tr.appendChild(tdText(actionLabel(r)));body.appendChild(tr)}}
+async function scan(){if(running)return;stopRequested=false;setRunning(true);setStatus('در حال ورود به PM و خواندن ChargingItems…','running');setProgress(0,4,'ورود و دریافت اطلاعات');try{
+  const [inv,list]=await Promise.all([loadInventory(false),runUniversal(makeListDefinition(),{},'cases')]);inventory=inv;if(stopRequested)throw new Error('OP-CANCEL');
+  const casesRaw=Array.isArray(list.result?.cases)?list.result.cases:[];const listUrl=String(list.result?.listUrl||'');if(!casesRaw.length){render([],0);setStatus('درخواستی برای بررسی وجود ندارد','ok');setProgress(4,4,'بدون درخواست');return}
+  const cases=casesRaw.map(c=>{let url='';try{url=new URL(String(c.href||''),listUrl).href}catch(_){url=String(c.href||'')}let appUid='';try{appUid=new URL(url).searchParams.get('APP_UID')||''}catch(_){}return{...c,caseNumber:norm(c.caseNumber||'').replace(/\s+/g,' '),url,appUid}}).filter(x=>x.url&&x.appUid);
+  if(!cases.length)throw new Error('لینک شماره کارهای PM قابل استخراج نبود.');
+  setProgress(1,4,`باز کردن ${cases.length} درخواست`);setStatus(`در حال باز کردن ${cases.length} شماره کار از داخل جدول PM…`,'running');
+  const inspected=await runUniversal(makeInspectDefinition(),{listUrl,cases},'inspect');if(stopRequested)throw new Error('OP-CANCEL');
+  const pages=Array.isArray(inspected.result?.pages)?inspected.result.pages:[];const all=[];for(const p of pages){if(!p?.html)continue;all.push(...extractItems(p.html,{caseNumber:norm(p.caseNumber),sender:p.sender,process:p.process,task:p.task,appUid:p.appUid},p.url))}
+  const compared=compareRows(all);const plans=buildApprovalPlans(compared,cases);render(compared,cases.length);setProgress(2,4,`${plans.length} درخواست کاملاً مجاز`);
+  if(!plans.length){setStatus('بررسی تمام شد؛ هیچ درخواست کاملاً مجازی برای ثبت وجود ندارد.','ok');setProgress(4,4,'بدون ثبت');return}
+  setStatus(`در حال تایید و ذخیره ${plans.length} درخواست کاملاً مجاز…`,'running');setProgress(3,4,'تایید، ذخیره و ادامه');
+  const applied=await runUniversal(makeApproveDefinition(),{listUrl,cases:plans},'approve');if(stopRequested)throw new Error('OP-CANCEL');const approved=new Set((applied.result?.approved||[]).map(x=>norm(x)));
+  const finalRows=compared.map(r=>approved.has(norm(r.caseNumber))?{...r,action:'saved'}:r);render(finalRows,cases.length);setProgress(4,4,'تکمیل شد');setStatus(`${approved.size} درخواست تایید، ذخیره و ادامه داده شد.`,'ok');toast('Charging Items با موفقیت تکمیل شد.');
 }catch(e){const msg=String(e?.message||e);if(msg==='OP-CANCEL'||/cancelled/i.test(msg)){setStatus('عملیات متوقف شد','err');toast('عملیات متوقف شد.',true)}else{setStatus(msg,'err');toast(msg,true)}}finally{activeRunId='';setRunning(false)}}
 $('scanBtn').addEventListener('click',scan);$('testSheetBtn').addEventListener('click',()=>loadInventory(true,{force:true}).catch(e=>{setStatus(String(e.message||e),'err');toast(String(e.message||e),true)}));$('stopBtn').addEventListener('click',async()=>{stopRequested=true;if(activeRunId)try{await chrome.runtime.sendMessage({type:'UNIVERSAL_CONTROL',runId:activeRunId,action:'cancel'})}catch(_){}$('stopBtn').disabled=true;setStatus('در حال توقف…','running')});$('resultBody').addEventListener('click',async e=>{const b=e.target.closest('.case-link');if(!b)return;try{await chrome.tabs.create({url:b.dataset.url,active:true})}catch(err){toast(String(err.message||err),true)}});
 window.addEventListener('message',e=>{if(e.data?.type==='DIGIEXPRESS_THEME'){const t=String(e.data.theme||'').toLowerCase();if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}});try{parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*')}catch(_){}
-(async()=>{try{const s=await chrome.storage.local.get(['chargingItemsSheetTab']);$('sheetTab').value=String(s.chargingItemsSheetTab||'')}catch(_){}})();
 </script>
 </body>
 </html>

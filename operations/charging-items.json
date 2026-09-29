@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Charging Items workspace. Uses the saved credential username before @, uses resilient PM login selectors, enters the username before @, submits with Enter and a safe detected-submit fallback, reuses the PM session, scans request details in one background batch, and compares requested quantities with ROP + EOQ from the fixed inventory Google Sheet.",
+  "description": "Charging Items workspace. Logs into pm.digiexpress.ir with the saved extension username before @ and password, presses Enter, opens each case from the PM work-number link, reads item code and quantity, compares against ROP + EOQ in the fixed ChargingItems sheet tab, sets PRI_MIDDLEMANAGER=1 for every row only when the entire request is eligible, clicks Save, then clicks Continue.",
   "inputs": [
     {
       "name": "__chargingItemsEmbedded",
