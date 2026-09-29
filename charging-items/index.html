@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Charging Items</title>
+<script src="../ui/platform-client.js?v=378"></script>
+<style>
+:root{color-scheme:light;--bg:#f3f6fb;--card:#fff;--surface:#f8faff;--text:#10213f;--muted:#6b778d;--line:#dfe6f0;--line2:#cfd9e8;--navy:#102a4c;--navy2:#183b69;--blue:#3557ff;--blueSoft:#edf2ff;--green:#079455;--greenSoft:#e9f9f1;--red:#d92d20;--redSoft:#fff0ee;--amber:#b54708;--amberSoft:#fff7e8;--shadow:0 8px 24px rgba(28,49,82,.06)}
+html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--surface:#102743;--text:#f8fbff;--muted:#aebbd0;--line:#263b59;--line2:#36506f;--navy:#d8e8ff;--navy2:#c2daf8;--blue:#7894ff;--blueSoft:#152e57;--green:#43d59a;--greenSoft:#103a31;--red:#ff7a7f;--redSoft:#3d2028;--amber:#fdb94d;--amberSoft:#3d2f14;--shadow:none}
+*{box-sizing:border-box}html,body,button,input,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{padding:18px;scrollbar-color:var(--line2) transparent;scrollbar-width:thin}*::-webkit-scrollbar{width:8px;height:8px}*::-webkit-scrollbar-thumb{background:var(--line2);border-radius:999px}*::-webkit-scrollbar-track{background:transparent}
+.page{max-width:1320px;margin:0 auto;display:grid;gap:14px}.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:18px 20px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(135deg,var(--card),var(--surface));box-shadow:var(--shadow);overflow:hidden;position:relative}.hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;left:-72px;top:-95px;background:radial-gradient(circle,rgba(53,87,255,.16),transparent 66%);pointer-events:none}.hero-copy{display:flex;align-items:center;gap:14px;min-width:0}.hero-icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--navy);color:#fff;box-shadow:0 10px 24px rgba(16,42,76,.2);flex:0 0 auto}.hero-icon svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.hero h1{font-size:20px;margin:0 0 4px;font-weight:950;letter-spacing:-.01em}.hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.8}.actions{display:flex;gap:8px;align-items:center}.btn{min-height:42px;border:1px solid var(--line2);border-radius:12px;padding:9px 14px;background:var(--card);color:var(--text);font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.16s}.btn:hover{border-color:var(--blue);background:var(--blueSoft);transform:translateY(-1px)}.btn:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 30%,transparent);outline-offset:2px}.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy2)}.btn.danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line2))}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.grid-top{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(290px,.8fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-title{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:950}.section-title i{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--blueSoft);color:var(--blue);font-style:normal}.section-title svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.muted{color:var(--muted);font-size:11px;line-height:1.8}.source-row{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end}.field label{display:block;font-size:11px;font-weight:900;margin-bottom:6px}.input{width:100%;min-height:42px;border:1px solid var(--line2);border-radius:11px;background:var(--surface);color:var(--text);padding:8px 11px;font:inherit;outline:none}.input:focus{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 16%,transparent)}.input::placeholder{color:var(--muted)}.source-meta{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 9px;font-size:10.5px;color:var(--muted)}.pill b{color:var(--text)}
+.status-card{display:grid;gap:10px}.status-line{display:flex;align-items:center;gap:9px}.status-dot{width:10px;height:10px;border-radius:50%;background:var(--line2);box-shadow:0 0 0 4px color-mix(in srgb,var(--line2) 20%,transparent)}.status-dot.running{background:var(--blue);box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 18%,transparent);animation:pulse 1.3s infinite}.status-dot.ok{background:var(--green)}.status-dot.err{background:var(--red)}@keyframes pulse{50%{opacity:.45}}.status-text{font-size:12px;font-weight:850;line-height:1.7}.progress{height:8px;border-radius:999px;background:var(--surface);overflow:hidden;border:1px solid var(--line)}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),#7a92ff);transition:width .25s}.progress-meta{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.metric{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px 14px;min-width:0}.metric strong{display:block;font-size:25px;line-height:1.1;color:var(--navy);font-weight:950}.metric span{display:block;margin-top:5px;color:var(--muted);font-size:10.5px}.metric.good strong{color:var(--green)}.metric.bad strong{color:var(--red)}.metric.warn strong{color:var(--amber)}
+.results-card{padding:0;overflow:hidden}.results-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.table-wrap{overflow:auto;max-height:calc(100vh - 380px);min-height:260px;scrollbar-gutter:stable}.table{width:100%;border-collapse:separate;border-spacing:0;font-size:11.5px;min-width:1000px}.table th{position:sticky;top:0;background:var(--surface);z-index:2;color:var(--muted);font-weight:900;padding:10px 11px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}.table td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:middle}.table tbody tr:last-child td{border-bottom:0}.table tr.state-ok td{background:color-mix(in srgb,var(--greenSoft) 78%,var(--card))}.table tr.state-bad td{background:color-mix(in srgb,var(--redSoft) 78%,var(--card))}.table tr.state-missing td{background:color-mix(in srgb,var(--amberSoft) 70%,var(--card))}.item-name{font-weight:850;max-width:360px;white-space:normal;line-height:1.7}.case-link{border:0;background:none;color:var(--blue);font:inherit;font-weight:900;cursor:pointer;padding:0}.case-link:hover{text-decoration:underline}.num{font-variant-numeric:tabular-nums;text-align:center}.decision{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:900;white-space:nowrap}.decision.ok{background:var(--greenSoft);color:var(--green)}.decision.bad{background:var(--redSoft);color:var(--red)}.decision.missing{background:var(--amberSoft);color:var(--amber)}.decision i{width:7px;height:7px;border-radius:50%;background:currentColor}.empty{height:260px;display:grid;place-items:center;text-align:center;color:var(--muted);padding:30px}.empty svg{width:44px;height:44px;stroke:var(--line2);fill:none;stroke-width:1.5;margin-bottom:10px}.empty b{display:block;color:var(--text);font-size:13px;margin-bottom:4px}.note{margin-top:9px;font-size:10.5px;color:var(--muted);line-height:1.7}
+.toast{position:fixed;left:18px;bottom:18px;max-width:min(420px,calc(100vw - 36px));padding:10px 13px;border-radius:12px;background:var(--navy);color:#fff;font-size:11.5px;box-shadow:0 12px 30px rgba(16,42,76,.28);opacity:0;transform:translateY(10px);pointer-events:none;transition:.18s;z-index:50}.toast.show{opacity:1;transform:none}.toast.error{background:#8b1e19}
+@media(max-width:980px){.grid-top{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}.table-wrap{max-height:none}.hero{grid-template-columns:1fr}.actions{justify-content:flex-start}}
+@media(max-width:620px){body{padding:12px}.metrics{grid-template-columns:repeat(2,1fr)}.source-row{grid-template-columns:1fr}.hero-copy{align-items:flex-start}.hero-icon{width:46px;height:46px}.actions{flex-wrap:wrap}.btn{flex:1}.metric strong{font-size:22px}}
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="hero-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h10v4H7zM6 8h12v12H6z"/><path d="m13 10-3 5h3l-2 4 5-6h-3z"/></svg></div>
+      <div><h1>Charging Items</h1><p>بررسی خودکار درخواست‌های اقلام شارژی در ProcessMaker و مقایسه مقدار درخواست با ROP + EOQ.</p></div>
+    </div>
+    <div class="actions">
+      <button id="stopBtn" class="btn danger" type="button" disabled><svg viewBox="0 0 24 24"><path d="M7 7h10v10H7z"/></svg>توقف</button>
+      <button id="scanBtn" class="btn primary" type="button"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h8"/><path d="m17 15 3 3-3 3"/></svg>بررسی درخواست‌ها</button>
+    </div>
+  </section>
+
+  <section class="grid-top">
+    <div class="card">
+      <div class="section-head"><div class="section-title"><i><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 9h16M9 9v10"/></svg></i><span>منبع موجودی</span></div><span class="muted">Google Sheets</span></div>
+      <div class="source-row">
+        <div class="field"><label for="sheetTab">نام Tab شیت (اختیاری)</label><input id="sheetTab" class="input" type="text" autocomplete="off" placeholder="برای شیت خصوصی، نام Tab را وارد کنید"></div>
+        <button id="testSheetBtn" class="btn" type="button"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>بررسی شیت</button>
+      </div>
+      <div class="source-meta"><span class="pill"><b>ROP</b> ستون مرجع</span><span class="pill"><b>EOQ</b> ستون مرجع</span><span class="pill"><b>Code</b> تشخیص خودکار کد M</span></div>
+      <div id="sheetNote" class="note">کد کالا از متن «کالا / خدمات» استخراج می‌شود و با ردیف متناظر در شیت تطبیق داده می‌شود.</div>
+    </div>
+    <div class="card status-card">
+      <div class="section-title"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i><span>وضعیت اجرا</span></div>
+      <div class="status-line"><span id="statusDot" class="status-dot"></span><span id="statusText" class="status-text">آماده بررسی</span></div>
+      <div class="progress"><span id="progressBar"></span></div>
+      <div class="progress-meta"><span id="progressLabel">—</span><span id="progressPct">0%</span></div>
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="Summary">
+    <div class="metric"><strong id="metricCases">0</strong><span>درخواست‌ها</span></div>
+    <div class="metric"><strong id="metricItems">0</strong><span>اقلام شارژی</span></div>
+    <div class="metric good"><strong id="metricOk">0</strong><span>در محدوده ROP + EOQ</span></div>
+    <div class="metric bad"><strong id="metricBad">0</strong><span>بیشتر از ROP + EOQ</span></div>
+    <div class="metric warn"><strong id="metricMissing">0</strong><span>بدون تطبیق شیت</span></div>
+  </section>
+
+  <section class="card results-card">
+    <div class="results-head"><div class="section-title"><i><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M9 5v14"/></svg></i><span>نتیجه بررسی</span></div><span id="resultMeta" class="muted">هنوز بررسی انجام نشده است</span></div>
+    <div class="table-wrap">
+      <div id="emptyState" class="empty"><div><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg><b>نتیجه‌ای برای نمایش نیست</b><span>دکمه «بررسی درخواست‌ها» را بزنید.</span></div></div>
+      <table id="resultTable" class="table" hidden>
+        <thead><tr><th>شماره کار</th><th>کالا / خدمات</th><th>کد کالا</th><th class="num">تعداد درخواست</th><th class="num">ROP</th><th class="num">EOQ</th><th class="num">ROP + EOQ</th><th>نتیجه</th></tr></thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+const OP_ID='charging-items';
+const PM_LOGIN='https://pm.digiexpress.ir/sysworkflow/fa/modern/login/login';
+const SHEET_ID='1PyacEbdCweR9rp5yZO5uZFbJDzwmndRBkPpZUC0_-co';
+const $=id=>document.getElementById(id);
+let running=false,stopRequested=false,activeRunId='',inventory=null,lastRows=[];
+function toast(text,error=false){const el=$('toast');el.textContent=String(text||'');el.classList.toggle('error',error);el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),3200)}
+function setStatus(text,kind='idle'){ $('statusText').textContent=text; $('statusDot').className='status-dot'+(kind==='running'?' running':kind==='ok'?' ok':kind==='err'?' err':''); }
+function setProgress(done,total,label=''){const pct=total?Math.round(done/total*100):0;$('progressBar').style.width=pct+'%';$('progressPct').textContent=pct+'%';$('progressLabel').textContent=label||'—'}
+function setRunning(v){running=v;$('scanBtn').disabled=v;$('testSheetBtn').disabled=v;$('stopBtn').disabled=!v;$('sheetTab').disabled=v}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function faDigitsToEn(v){return String(v??'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c))}
+function num(v){const s=faDigitsToEn(v).replace(/[٬,\s]/g,'').replace(/[^0-9.\-]/g,'');const n=Number(s);return Number.isFinite(n)?n:0}
+function norm(v){return faDigitsToEn(v).normalize('NFKC').replace(/\u200c/g,' ').replace(/\s+/g,' ').trim()}
+function normalizeHeader(v){return norm(v).toLowerCase().replace(/[\-_\/]+/g,' ').replace(/\s+/g,' ')}
+function parseCsv(text){const rows=[];let row=[],cell='',q=false;const src=String(text||'').replace(/^\uFEFF/,'');for(let i=0;i<src.length;i++){const ch=src[i];if(q){if(ch==='"'&&src[i+1]==='"'){cell+='"';i++}else if(ch==='"')q=false;else cell+=ch}else if(ch==='"')q=true;else if(ch===','){row.push(cell);cell=''}else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=ch}if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row)}return rows.filter(r=>r.some(x=>String(x).trim()))}
+function makeRunId(prefix){return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
+async function runUniversal(def,inputs={},prefix='chg'){const runId=makeRunId(prefix);activeRunId=runId;const r=await chrome.runtime.sendMessage({type:'RUN_UNIVERSAL_WORKFLOW',op:OP_ID,definition:def,inputs,runId});if(!r?.ok)throw new Error(r?.error||'Universal workflow failed.');return r}
+const listDefinition={id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
+  {type:'secret',kind:'credentials',storeAs:'secret.credentials'},
+  {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'regexReplace',pattern:'@digikala\\.com$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
+  {type:'set',path:'result.cases',value:[]},
+  {type:'tab.open',session:'pm-list',url:PM_LOGIN,active:false,timeoutMs:30000},
+  {type:'dom',session:'pm-list',command:{op:'exists',selector:'[id="form[USR_USERNAME]"]'},storeAs:'vars.needsLogin'},
+  {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:[
+    {type:'dom',session:'pm-list',command:{op:'fill',selector:'[id="form[USR_USERNAME]"]',value:'{{vars.loginUser}}'}},
+    {type:'dom',session:'pm-list',command:{op:'fill',selector:'[id="form[USR_PASSWORD_MASK]"]',value:'{{secret.credentials.password}}'}},
+    {type:'dom',session:'pm-list',command:{op:'click',selector:'[id="form[BSUBMIT]"]'}},
+    {type:'sleep',ms:900}
+  ]},
+  {type:'dom.wait',session:'pm-list',selector:'#my_cases',timeoutMs:40000,error:'جدول درخواست‌های ProcessMaker پیدا نشد. ورود یا دسترسی کاربر را بررسی کنید.'},
+  {type:'dom',session:'pm-list',command:{op:'snapshot',maxText:3000},storeAs:'vars.listSnapshot'},
+  {type:'dom',session:'pm-list',command:{op:'exists',selector:'#my_cases_length select option[value="25"]'},storeAs:'vars.has25'},
+  {type:'if',condition:{left:'{{vars.has25}}',operator:'truthy'},then:[{type:'dom',session:'pm-list',command:{op:'select',selector:'#my_cases_length select',value:'25'}},{type:'sleep',ms:500}]},
+  {type:'set',path:'vars.more',value:true},
+  {type:'while',condition:{left:'{{vars.more}}',operator:'truthy'},maxIterations:100,steps:[
+    {type:'dom',session:'pm-list',command:{op:'table',selector:'#my_cases'},storeAs:'vars.pageTable'},
+    {type:'forEach',items:'{{vars.pageTable.rows}}',item:'caseRow',index:'caseIndex',steps:[
+      {type:'dom',session:'pm-list',command:{op:'attr',selector:'#my_cases tbody tr td:nth-child(2) a',index:'{{caseIndex}}',name:'href'},storeAs:'vars.caseHref'},
+      {type:'array.push',path:'result.cases',value:{caseNumber:'{{caseRow.1}}',sender:'{{caseRow.2}}',process:'{{caseRow.3}}',task:'{{caseRow.4}}',title:'{{caseRow.5}}',deadline:'{{caseRow.6}}',updated:'{{caseRow.7}}',priority:'{{caseRow.8}}',href:'{{vars.caseHref}}'}}
+    ]},
+    {type:'dom',session:'pm-list',command:{op:'exists',selector:'#my_cases_paginate li.next:not(.disabled) a'},storeAs:'vars.more'},
+    {type:'if',condition:{left:'{{vars.more}}',operator:'truthy'},then:[{type:'dom',session:'pm-list',command:{op:'click',selector:'#my_cases_paginate li.next:not(.disabled) a'}},{type:'sleep',ms:650}]}
+  ]},
+  {type:'set',path:'result.listUrl',value:'{{vars.listSnapshot.url}}'}
+]};
+const inspectDefinition={id:OP_ID,lifecycle:{closeTabsOnFinish:true},workflow:[
+  {type:'secret',kind:'credentials',storeAs:'secret.credentials'},
+  {type:'transform',value:'{{secret.credentials.username}}',transforms:[{type:'regexReplace',pattern:'@digikala\\.com$','flags':'i',replacement:''}],storeAs:'vars.loginUser'},
+  {type:'tab.open',session:'pm-case',url:'{{input.caseUrl}}',active:false,timeoutMs:30000},
+  {type:'dom',session:'pm-case',command:{op:'exists',selector:'[id="form[USR_USERNAME]"]'},storeAs:'vars.needsLogin'},
+  {type:'if',condition:{left:'{{vars.needsLogin}}',operator:'truthy'},then:[
+    {type:'dom',session:'pm-case',command:{op:'fill',selector:'[id="form[USR_USERNAME]"]',value:'{{vars.loginUser}}'}},
+    {type:'dom',session:'pm-case',command:{op:'fill',selector:'[id="form[USR_PASSWORD_MASK]"]',value:'{{secret.credentials.password}}'}},
+    {type:'dom',session:'pm-case',command:{op:'click',selector:'[id="form[BSUBMIT]"]'}},
+    {type:'sleep',ms:900},
+    {type:'tab.navigate',session:'pm-case',url:'{{input.caseUrl}}',timeoutMs:30000}
+  ]},
+  {type:'dom.wait',session:'pm-case',selector:'#PURCHASEREQUEST_ITEMS-body',timeoutMs:40000,error:'جدول اقلام این درخواست پیدا نشد.'},
+  {type:'dom',session:'pm-case',command:{op:'html',selector:'#PURCHASEREQUEST_ITEMS-body'},storeAs:'result.itemsHtml'}
+]};
+function sheetDefinition(url){return{id:OP_ID,workflow:[{type:'fetch',url,format:'text',storeAs:'result.csv'}]}}
+function inventoryUrl(){const base=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;const tab=$('sheetTab').value.trim();return tab?base+`&sheet=${encodeURIComponent(tab)}`:base}
+function buildInventoryMatrix(headers,rows){headers=(headers||[]).map(String);rows=Array.isArray(rows)?rows:[];if(!headers.length||!rows.length)throw new Error('داده‌ای از Google Sheet دریافت نشد. اشتراک‌گذاری فایل یا نام Tab را بررسی کنید.');const nh=headers.map(normalizeHeader);const rop=nh.findIndex(h=>h==='rop'||h.includes(' rop')||h.startsWith('rop '));const eoq=nh.findIndex(h=>h==='eoq'||h.includes(' eoq')||h.startsWith('eoq '));if(rop<0||eoq<0)throw new Error('ستون‌های ROP و EOQ در Google Sheet پیدا نشدند.');const aliases=['کد کالا','کد محصول','item code','product code','material code','sku','code'];let code=-1;for(const a of aliases){const n=normalizeHeader(a);const i=nh.findIndex(h=>h===n||h.includes(n));if(i>=0){code=i;break}}if(code<0){let best=-1,bestScore=0;for(let c=0;c<headers.length;c++){let score=0;for(let r=0;r<Math.min(rows.length,250);r++)if(/\bM\d{5,}\b/i.test(String(rows[r]?.[c]||'')))score++;if(score>bestScore){bestScore=score;best=c}}code=bestScore?best:-1}if(code<0)throw new Error('ستون کد کالا در Google Sheet قابل تشخیص نبود.');const map=new Map();for(let r=0;r<rows.length;r++){const raw=String(rows[r]?.[code]||'');const m=raw.match(/\bM\d{5,}\b/i);const key=(m?m[0]:raw).trim().toUpperCase();if(!key)continue;map.set(key,{rop:num(rows[r]?.[rop]),eoq:num(rows[r]?.[eoq]),row:r+2})}return{headers,code,rop,eoq,map,count:map.size}}
+function buildInventoryCsv(csv){const matrix=parseCsv(csv);if(matrix.length<2)throw new Error('داده‌ای از Google Sheet دریافت نشد.');return buildInventoryMatrix(matrix[0],matrix.slice(1))}
+async function loadInventory(show=true){if(show){setStatus('در حال خواندن Google Sheet…','running');setProgress(0,1,'Google Sheet')}const tab=$('sheetTab').value.trim();let inv=null;let source='';if(tab&&globalThis.DigiExpressPlatform){try{const data=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:SHEET_ID,sheetName:tab,limit:100000});inv=buildInventoryMatrix(data?.headers||[],data?.rows||[]);source=`Tab: ${tab}`}catch(e){throw new Error(`خواندن Tab «${tab}» ناموفق بود: ${String(e?.message||e)}`)}}else{try{const r=await runUniversal(sheetDefinition(inventoryUrl()),{},'sheet');inv=buildInventoryCsv(r.result?.csv||'');source='اولین Tab فایل'}catch(e){throw new Error(`Google Sheet قابل خواندن نیست. اگر فایل خصوصی است، نام Tab را وارد کنید. ${String(e?.message||e)}`)}}inventory=inv;try{await chrome.storage.local.set({chargingItemsSheetTab:tab})}catch(_){}$('sheetNote').textContent=`${inventory.count.toLocaleString()} کد کالا خوانده شد · ${source} · Code: ${inventory.headers[inventory.code]} · ROP: ${inventory.headers[inventory.rop]} · EOQ: ${inventory.headers[inventory.eoq]}`;if(show){setStatus('Google Sheet آماده است','ok');setProgress(1,1,'Google Sheet');toast('Google Sheet با موفقیت خوانده شد.')}return inventory}
+function extractItems(html,caseInfo,caseUrl){const doc=new DOMParser().parseFromString(`<div id="root">${html||''}</div>`,'text/html');const rows=[...doc.querySelectorAll('#root .pmdynaform-grid-row')];const out=[];for(const row of rows){const kala=row.querySelector('select[name*="[PRI_KALA]"] option:checked, input[name*="[PRI_KALA_label]"]');const count=row.querySelector('input[name*="[PRI_COUNT]"]');const charge=row.querySelector('select[name*="[PRI_WAREHOUSECHARGE]"] option:checked, input[name*="[PRI_WAREHOUSECHARGE_label]"]');const itemText=norm(kala?.textContent||kala?.value||'');const qty=num(count?.value||count?.getAttribute('value')||'');const chargeText=norm(charge?.textContent||charge?.value||'');if(!itemText||!qty)continue;if(chargeText&&chargeText!=='بله'&&chargeText!=='1'&&!/^yes$/i.test(chargeText))continue;const m=itemText.match(/\bM\d{5,}\b/i);const code=m?m[0].toUpperCase():'';out.push({caseNumber:caseInfo.caseNumber,item:itemText,code,requested:qty,caseUrl,sender:caseInfo.sender||'',process:caseInfo.process||'',task:caseInfo.task||''})}return out}
+function compareRows(items){return items.map(x=>{const ref=x.code?inventory?.map.get(x.code):null;if(!ref)return{...x,rop:null,eoq:null,limit:null,state:'missing'};const limit=ref.rop+ref.eoq;return{...x,rop:ref.rop,eoq:ref.eoq,limit,state:x.requested<=limit?'ok':'bad'}})}
+function tdText(value,className=''){const td=document.createElement('td');if(className)td.className=className;td.textContent=String(value??'');return td}
+function render(rows,casesCount){lastRows=rows;const ok=rows.filter(x=>x.state==='ok').length,bad=rows.filter(x=>x.state==='bad').length,missing=rows.filter(x=>x.state==='missing').length;$('metricCases').textContent=casesCount;$('metricItems').textContent=rows.length;$('metricOk').textContent=ok;$('metricBad').textContent=bad;$('metricMissing').textContent=missing;$('resultMeta').textContent=`${rows.length} قلم از ${casesCount} درخواست · ${ok} مجاز · ${bad} بالاتر از حد`;$('emptyState').hidden=rows.length>0;$('resultTable').hidden=!rows.length;const body=$('resultBody');body.textContent='';for(const r of rows){const tr=document.createElement('tr');tr.className='state-'+r.state;const caseTd=document.createElement('td');const caseBtn=document.createElement('button');caseBtn.type='button';caseBtn.className='case-link';caseBtn.dataset.url=String(r.caseUrl||'');caseBtn.textContent=String(r.caseNumber||'—');caseTd.appendChild(caseBtn);tr.appendChild(caseTd);tr.appendChild(tdText(r.item,'item-name'));tr.appendChild(tdText(r.code||'—'));tr.appendChild(tdText(r.requested,'num'));tr.appendChild(tdText(r.rop==null?'—':r.rop,'num'));tr.appendChild(tdText(r.eoq==null?'—':r.eoq,'num'));tr.appendChild(tdText(r.limit==null?'—':r.limit,'num'));const decisionTd=document.createElement('td');const decision=document.createElement('span');decision.className='decision '+r.state;const dot=document.createElement('i');decision.appendChild(dot);decision.appendChild(document.createTextNode(r.state==='ok'?'مجاز':r.state==='bad'?'بیشتر از حد':'یافت نشد'));decisionTd.appendChild(decision);tr.appendChild(decisionTd);body.appendChild(tr)}}
+async function scan(){if(running)return;stopRequested=false;setRunning(true);setStatus('در حال آماده‌سازی…','running');setProgress(0,1,'آماده‌سازی');try{await loadInventory(false);if(stopRequested)throw new Error('OP-CANCEL');setStatus('در حال خواندن درخواست‌های ProcessMaker…','running');const list=await runUniversal(listDefinition,{},'cases');const cases=Array.isArray(list.result?.cases)?list.result.cases:[];const listUrl=String(list.result?.listUrl||PM_LOGIN);if(!cases.length){render([],0);setStatus('درخواستی برای بررسی وجود ندارد','ok');setProgress(1,1,'بدون درخواست');return}const all=[];for(let i=0;i<cases.length;i++){if(stopRequested)throw new Error('OP-CANCEL');const c=cases[i];const caseUrl=new URL(String(c.href||''),listUrl).href;setStatus(`در حال بررسی درخواست ${c.caseNumber||i+1}…`,'running');setProgress(i,cases.length,`درخواست ${i+1} از ${cases.length}`);try{const detail=await runUniversal(inspectDefinition,{caseUrl},'case');all.push(...extractItems(detail.result?.itemsHtml||'',c,caseUrl))}catch(e){if(stopRequested)throw e;console.warn('Case skipped',c.caseNumber,e)}}const compared=compareRows(all);render(compared,cases.length);setProgress(cases.length,cases.length,'تکمیل شد');setStatus('بررسی درخواست‌ها تکمیل شد','ok');toast('بررسی Charging Items تکمیل شد.')}catch(e){const msg=String(e?.message||e);if(msg==='OP-CANCEL'||/cancelled/i.test(msg)){setStatus('عملیات متوقف شد','err');toast('عملیات متوقف شد.',true)}else{setStatus(msg,'err');toast(msg,true)}}finally{activeRunId='';setRunning(false)}}
+$('scanBtn').addEventListener('click',scan);$('testSheetBtn').addEventListener('click',()=>loadInventory(true).catch(e=>{setStatus(String(e.message||e),'err');toast(String(e.message||e),true)}));$('stopBtn').addEventListener('click',async()=>{stopRequested=true;if(activeRunId)try{await chrome.runtime.sendMessage({type:'UNIVERSAL_CONTROL',runId:activeRunId,action:'cancel'})}catch(_){}$('stopBtn').disabled=true;setStatus('در حال توقف…','running')});$('resultBody').addEventListener('click',async e=>{const b=e.target.closest('.case-link');if(!b)return;try{await chrome.tabs.create({url:b.dataset.url,active:true})}catch(err){toast(String(err.message||err),true)}});
+window.addEventListener('message',e=>{if(e.data?.type==='DIGIEXPRESS_THEME'){const t=String(e.data.theme||'').toLowerCase();if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}});try{parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*')}catch(_){}
+(async()=>{try{const s=await chrome.storage.local.get(['chargingItemsSheetTab']);$('sheetTab').value=String(s.chargingItemsSheetTab||'')}catch(_){}})();
+</script>
+</body>
+</html>

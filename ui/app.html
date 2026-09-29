@@ -320,6 +320,18 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__weeklyPlanni
 #operationView.active:has(#operationInputs [data-field-wrap="__weeklyPlanningEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
 #operationView:has(#operationInputs [data-field-wrap="__weeklyPlanningEmbedded"]) #weeklyPlanningEmbedded.weekly-planning-embedded{flex:1 1 auto;height:auto!important;min-height:0!important}
 
+/* v387 — Charging Items embedded workspace. */
+#chargingItemsEmbedded.charging-items-embedded{display:none!important;width:100%;height:calc(100vh - 126px);min-height:600px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--card);margin-top:6px}
+#chargingItemsEmbedded.charging-items-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
+html[data-theme="dark"] #chargingItemsFrame{color-scheme:dark}
+#operationView:has(#operationInputs [data-field-wrap="__chargingItemsEmbedded"]) .settings-heading{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__chargingItemsEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__chargingItemsEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__chargingItemsEmbedded"]) #chargingItemsEmbedded.charging-items-embedded{display:block!important;flex:1 1 auto;height:auto!important;min-height:0!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__chargingItemsEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__chargingItemsEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__chargingItemsEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__chargingItemsEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+
 /* v64 — embedded Daily Planner. No host logic required. */
 .daily-planner-embedded{display:none;width:100%;min-height:calc(100vh - 170px);margin-top:8px}
 .daily-planner-embedded iframe{display:block;width:100%;height:calc(100vh - 178px);min-height:620px;border:0;border-radius:14px;background:var(--card,#fff)}
@@ -855,7 +867,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v386</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v387</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -926,6 +938,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
       <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
       <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=386" loading="lazy"></iframe></section>
+      <section id="chargingItemsEmbedded" class="charging-items-embedded" aria-label="Charging Items"><iframe id="chargingItemsFrame" title="Charging Items" src="https://nhabibifardigikala.github.io/PlanningExtension/charging-items/index.html?v=387" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
@@ -1072,7 +1085,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 386;
+const EXPECTED_REMOTE_CONFIG_VERSION = 387;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 

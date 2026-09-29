@@ -1,11 +1,11 @@
 {
-  "configVersion": 386,
+  "configVersion": 387,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 386
+    "configVersion": 387
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -425,6 +425,37 @@
       "enabled": true,
       "accessControl": "column",
       "minHostVersion": "13.0.5"
+    },
+    {
+      "id": "charging-items",
+      "title": "Charging Items",
+      "subtitle": "Charging request review",
+      "accessHeaders": [
+        "Charging Items"
+      ],
+      "accessControl": "column",
+      "config": "operations/charging-items.json?v=387",
+      "description": "Review charging-item requests from ProcessMaker and compare requested quantities with ROP + EOQ from Google Sheets.",
+      "runLabel": "Open Charging Items",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__chargingItemsEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ],
+      "enabled": true,
+      "category": "utilities",
+      "output": {
+        "type": "internal"
+      },
+      "minHostVersion": "13.0.5",
+      "iconSvgPath": "M10 5h28v7H10V5Zm-3 7h34v29H7V12Zm9 7v14h4V19h-4Zm10-3-6 10h6l-3 9 11-14h-6l3-5h-5Z"
     },
     {
       "id": "follow-up",
@@ -1037,7 +1068,7 @@
   "runtime": "runtime.json?v=378",
   "runtimeVersion": "13.0.0",
   "remoteUI": {
-    "html": "ui/app.html?v=378",
+    "html": "ui/app.html?v=387",
     "css": "ui/app.css?v=378"
   },
   "version": 378,

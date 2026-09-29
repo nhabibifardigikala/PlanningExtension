@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Charging Items workspace. Reviews ProcessMaker requests and compares requested quantities with ROP + EOQ from the inventory Google Sheet.",
+  "inputs": [
+    {
+      "name": "__chargingItemsEmbedded",
+      "label": "",
+      "type": "text",
+      "showWhen": {"field": "__never__", "equals": "true"}
+    }
+  ],
+  "workflow": [],
+  "successMessage": "Charging Items ready.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "remote",
+  "output": {"type": "internal"}
+}
