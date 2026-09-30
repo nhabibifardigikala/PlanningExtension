@@ -1,11 +1,11 @@
 {
-  "configVersion": 393,
+  "configVersion": 394,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 393
+    "configVersion": 394
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -434,8 +434,8 @@
         "Charging Items"
       ],
       "accessControl": "column",
-      "config": "operations/charging-items.json?v=393",
-      "description": "Review PM charging-item requests, compare quantity with ROP + EOQ from ChargingItems, automatically approve every item only when the whole request is within limits, then Save and Continue.",
+      "config": "operations/charging-items.json?v=394",
+      "description": "Paste request text from PM, extract item code/name/quantity, and compare each item with ROP + EOQ from the ChargingItems sheet.",
       "runLabel": "Open Charging Items",
       "uiMode": "form",
       "inputs": [
