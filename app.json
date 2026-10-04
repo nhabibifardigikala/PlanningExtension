@@ -1,11 +1,11 @@
 {
-  "configVersion": 396,
+  "configVersion": 398,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 396
+    "configVersion": 398
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -258,10 +258,9 @@
       "title": "Agents",
       "subtitle": "Automated operations",
       "accessHeaders": [
-        "Agents",
-        "Data Set Update"
+        "Agents"
       ],
-      "config": "operations/data-set-update.json?v=378",
+      "config": "operations/data-set-update.json?v=397",
       "iconSvgPath": "M24 4a6 6 0 0 1 6 6v2h2a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6h2v-2a6 6 0 0 1 6-6Zm0 4a2 2 0 0 0-2 2v2h4v-2a2 2 0 0 0-2-2Zm-8 10a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V20a2 2 0 0 0-2-2H16Zm4 4a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm8 0a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM19 30h10v4H19v-4ZM6 20H2v10h4V20Zm40 0h-4v10h4V20Z",
       "description": "Run and schedule operational agents from one place.",
       "runLabel": "Agents",
@@ -281,7 +280,8 @@
       "category": "agents",
       "output": {
         "type": "internal"
-      }
+      },
+      "accessControl": "column"
     },
     {
       "id": "agents-access-gate",
@@ -291,14 +291,15 @@
       "accessHeaders": [
         "Agents"
       ],
-      "config": "operations/agents-access-gate.json?v=378",
+      "config": "operations/agents-access-gate.json?v=397",
       "category": "agents",
       "internalOnly": true,
       "enabled": true,
       "requiresCredentials": false,
       "output": {
         "type": "internal"
-      }
+      },
+      "accessControl": "column"
     },
     {
       "id": "capacity-report",
