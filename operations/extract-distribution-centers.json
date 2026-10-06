@@ -246,9 +246,20 @@
       "sheetName": "Distribution Centers",
       "saveAs": false,
       "prependColumns": []
-    }
+    },
+    "rowDefaults": [
+      {
+        "fieldAliases": [
+          "active",
+          "Active",
+          "فعال"
+        ],
+        "value": 0,
+        "whenBlank": true
+      }
+    ]
   },
-  "remoteBehaviorVersion": 12,
+  "remoteBehaviorVersion": 13,
   "runtimeContract": "stable-host-12",
   "businessLogicOwner": "remote",
   "keepTabActive": true,

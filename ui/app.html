@@ -61,6 +61,15 @@ html[data-theme="dark"] :is(.dx-card,.settings-card,.stats-card,.panel,.card,.mo
 html[data-theme="dark"] :is(input,select,textarea){background:var(--dx-surface-raised)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
 html[data-theme="dark"] :is(th,.subtle,.soft-panel,.info-box,.notice,.empty-state){background:var(--dx-surface-soft)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
 
+
+/* v399 Role Assignment live execution report */
+.role-live-card{display:grid;gap:12px}.role-live-head,.role-live-results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.role-live-head>div:first-child{min-width:220px}.role-live-counters{display:flex;gap:7px;flex-wrap:wrap}.role-live-counters span{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--muted)}.role-live-counters .ok{color:#087443;border-color:color-mix(in srgb,#16a36a 38%,var(--border));background:color-mix(in srgb,#16a36a 9%,var(--card))}.role-live-counters .bad{color:#b42318;border-color:color-mix(in srgb,#d92d20 38%,var(--border));background:color-mix(in srgb,#d92d20 8%,var(--card))}.role-live-events{max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:12px;background:color-mix(in srgb,var(--card) 88%,var(--bg));padding:7px}.role-live-event{display:grid;grid-template-columns:10px 72px 1fr;align-items:start;gap:8px;padding:7px 6px;border-bottom:1px solid color-mix(in srgb,var(--border) 70%,transparent)}.role-live-event:last-child{border-bottom:0}.role-live-event time{font:600 10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.role-live-event strong{display:block;font-size:11px;line-height:1.45}.role-live-event small{display:block;margin-top:2px;color:var(--muted);font-size:10.5px}.role-live-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;background:#5b8def}.role-live-event.success .role-live-dot{background:#16a36a}.role-live-event.error .role-live-dot{background:#d92d20}.role-live-event.error strong{color:#b42318}.role-live-event.success strong{color:#087443}.role-live-empty{padding:16px;text-align:center;color:var(--muted);font-size:11px}.role-live-results-head{padding-top:2px}.role-live-results-head>span{color:var(--muted);font-size:11px;margin-inline-start:auto}.role-result-success td{background:color-mix(in srgb,#16a36a 9%,var(--card))}.role-result-error td{background:color-mix(in srgb,#d92d20 9%,var(--card))}.role-result-error td{color:color-mix(in srgb,#b42318 86%,var(--text))}.role-live-scroll{max-height:340px}@media(max-width:680px){.role-live-event{grid-template-columns:10px 58px 1fr}.role-live-events{max-height:190px}.role-live-counters{width:100%}}
+
+/* v400 — Capacity Report: center/title anchored to the right of each chart header. */
+.capacity-chart-host .chart-head{direction:rtl;text-align:right}
+.capacity-chart-host .chart-head>strong{margin-left:auto;text-align:right}
+.capacity-chart-host .chart-legend{direction:ltr;margin-right:auto}
+
 </style>
 <style id="dx-app-inline">
 /* v327 compatibility gate: intentionally visible by default. Host 12.7+ removes it after version validation. */
@@ -869,7 +878,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link" id="sidebarSettingsBtn" type="button"><span>⚙</span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v398</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v400</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -941,7 +950,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
       <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=386" loading="lazy"></iframe></section>
       <section id="chargingItemsEmbedded" class="charging-items-embedded" aria-label="Charging Items"><iframe id="chargingItemsFrame" title="Charging Items" src="https://nhabibifardigikala.github.io/PlanningExtension/charging-items/index.html?v=396" loading="lazy"></iframe></section>
-      <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
+      <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy" allow="clipboard-write"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
       <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
@@ -1081,13 +1090,14 @@ let activeLogId = null;
 const activityByOp=new Map();
 const runningOps=new Set();
 const liveReportsByOp=new Map();
+const roleLiveByOp=new Map();
 let operationRunning = false;
 let flexPauseRequested = false;
 let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 398;
+const EXPECTED_REMOTE_CONFIG_VERSION = 400;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1169,7 +1179,58 @@ function setOperationStatus(text, kind='') {
   if(kind==='error' && text){const e=classifyOperationError(text);operationStatus.innerHTML=`<div class="dx-error-card"><strong>${escapeHtml(e.title)}</strong><p>${escapeHtml(e.reason)}</p><p><b>What to do:</b> ${escapeHtml(e.action)}</p><details><summary>Technical details</summary><div class="dx-code">${escapeHtml(e.details)}</div></details><div class="dx-error-actions"><button id="dxErrorRetry" type="button">Retry</button><button id="dxErrorOpenLg" type="button">Open LG</button><button id="dxErrorDiagnostics" type="button">View diagnostics</button></div></div>`;bindOperationErrorActions();}
   else operationStatus.textContent = text || '';
 }
-function resetLiveReport(opId){if(opId)liveReportsByOp.delete(opId);const host=$('operationResult');if(host){host.innerHTML='';host.classList.add('hidden');}}
+function roleLiveState(opId='role-assignment'){
+  let state=roleLiveByOp.get(opId);
+  if(!state){state={events:[],headers:[],rows:[],title:'Live access report',exportCfg:{}};roleLiveByOp.set(opId,state);}
+  return state;
+}
+function resetRoleLive(opId='role-assignment'){roleLiveByOp.delete(opId);}
+function roleLiveKind(text,kind=''){
+  const t=String(text||'').toLowerCase();
+  if(kind==='error'||/failed|error|could not|not found|denied|invalid|timeout/.test(t))return'error';
+  if(kind==='ok'||kind==='success'||/success|completed|saved|assigned|revoked|copied|updated|done/.test(t))return'success';
+  return'progress';
+}
+function addRoleLiveEvent(text,kind='progress',detail=''){
+  if(!text||currentOperation?.id!=='role-assignment')return;
+  const state=roleLiveState('role-assignment'),message=String(text).trim(),last=state.events.at(-1);
+  if(last&&last.text===message&&last.kind===roleLiveKind(message,kind))return;
+  state.events.push({time:Date.now(),text:message,detail:String(detail||''),kind:roleLiveKind(message,kind)});
+  if(state.events.length>160)state.events.splice(0,state.events.length-160);
+  renderRoleLiveWorkspace('role-assignment');
+}
+function setRoleLiveResults(headers,rows,opts={}){
+  const state=roleLiveState('role-assignment');
+  state.headers=Array.isArray(headers)?headers.slice():[];
+  state.rows=Array.isArray(rows)?rows.map(r=>Array.isArray(r)?r.slice():[]):[];
+  if(opts.title)state.title=opts.title;
+  if(opts.exportCfg)state.exportCfg={...state.exportCfg,...opts.exportCfg};
+  renderRoleLiveWorkspace('role-assignment');
+}
+function appendRoleLiveResult(message){
+  if(!Array.isArray(message?.reportHeaders)||!Array.isArray(message?.reportRow))return;
+  const state=roleLiveState('role-assignment');
+  if(!state.headers.length)state.headers=message.reportHeaders.slice();
+  const key=JSON.stringify(message.reportRow),exists=state.rows.some(r=>JSON.stringify(r)===key);
+  if(!exists)state.rows.push(message.reportRow.slice());
+  if(message.reportTitle)state.title=message.reportTitle;
+  if(message.reportExport)state.exportCfg={...state.exportCfg,...message.reportExport};
+  renderRoleLiveWorkspace('role-assignment');
+}
+function roleLiveStatusIndex(state){return state.headers.findIndex(h=>/status|result|وضعیت|نتیجه/i.test(String(h||'')));}
+function roleLiveRowKind(row,state){const i=roleLiveStatusIndex(state),v=String(i>=0?row?.[i]:'').toLowerCase();if(/fail|error|denied|not found|invalid|could not/.test(v))return'error';if(/success|updated|done|assigned|revoked|copied|ok/.test(v))return'success';return'';}
+function renderRoleLiveWorkspace(opId='role-assignment'){
+  if(currentOperation?.id!==opId)return;
+  const host=$('operationResult');if(!host)return;const state=roleLiveState(opId);host.classList.remove('hidden');
+  const good=state.rows.filter(r=>roleLiveRowKind(r,state)==='success').length,bad=state.rows.filter(r=>roleLiveRowKind(r,state)==='error').length;
+  const eventHtml=state.events.slice(-60).map(e=>`<div class="role-live-event ${e.kind}"><span class="role-live-dot" aria-hidden="true"></span><time>${escapeHtml(new Date(e.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'}))}</time><div><strong>${escapeHtml(e.text)}</strong>${e.detail?`<small>${escapeHtml(e.detail)}</small>`:''}</div></div>`).join('');
+  const tableHtml=state.headers.length?`<div class="role-live-results-head"><strong>${escapeHtml(state.title||'Access results')}</strong><span>${state.rows.length} result${state.rows.length===1?'':'s'}</span><button id="roleLiveDownload" class="save-button compact" type="button" ${state.rows.length?'':'disabled'}>${escapeHtml(state.exportCfg.buttonLabel||state.exportCfg.downloadButtonLabel||'Download Report')}</button></div><div class="table-scroll role-live-scroll"><table class="result-table"><thead><tr>${state.headers.map(x=>`<th>${escapeHtml(x)}</th>`).join('')}</tr></thead><tbody>${state.rows.map(r=>`<tr class="role-result-${roleLiveRowKind(r,state)||'neutral'}">${r.map(x=>`<td>${escapeHtml(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'';
+  host.innerHTML=`<section class="role-live-card" aria-live="polite"><div class="role-live-head"><div><strong>Live execution report</strong><div class="field-help">Every Role Assignment mode reports progress, completed access and failures here.</div></div><div class="role-live-counters"><span>${state.events.length} events</span><span class="ok">${good} successful</span><span class="bad">${bad} failed</span></div></div><div class="role-live-events">${eventHtml||'<div class="role-live-empty">Waiting for the first operation event…</div>'}</div>${tableHtml}</section>`;
+  const dl=host.querySelector('#roleLiveDownload');if(dl)dl.onclick=async()=>{dl.disabled=true;try{const exp=state.exportCfg||{},idx=roleLiveStatusIndex(state);const rowFills=idx>=0?state.rows.map(r=>roleLiveRowKind(r,state)==='success'?(exp.successFill||'C6EFCE'):roleLiveRowKind(r,state)==='error'?(exp.failureFill||'FFC7CE'):null):null;const out=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers:state.headers,rows:state.rows,sheetName:exp.sheetName||'Role Access Results',filename:exp.filename||'role_access_results.xlsx',saveAs:false,rowFills});if(!out?.ok)throw new Error(out?.error||'Could not download report.');}catch(e){setOperationStatus(e.message||String(e),'error')}finally{dl.disabled=false}};
+  const ev=host.querySelector('.role-live-events');if(ev)requestAnimationFrame(()=>{ev.scrollTop=ev.scrollHeight;});
+  const sc=host.querySelector('.role-live-scroll');if(sc)requestAnimationFrame(()=>{sc.scrollTop=sc.scrollHeight;});
+}
+function resetLiveReport(opId){if(opId)liveReportsByOp.delete(opId);if(opId==='role-assignment')resetRoleLive(opId);const host=$('operationResult');if(host){host.innerHTML='';host.classList.add('hidden');}}
 function renderLiveReport(opId,message){
   if(!Array.isArray(message?.reportHeaders)||!Array.isArray(message?.reportRow))return;
   let report=liveReportsByOp.get(opId);
@@ -1973,7 +2034,7 @@ async function runSingleOrExcelWorkflowProcessor(op,values){
     succeeded=reportRows.filter(r=>String(r[2])==='Success').length;failed=reportRows.length-succeeded;
     renderLive();
   };
-  const renderLive=()=>{host.innerHTML=`<div class="capacity-result-toolbar"><div><strong>${succeeded} successful • ${failed} failed</strong><div class="field-help">${reportRows.length} role assignment result${reportRows.length===1?'':'s'} • background-safe</div></div><button id="workflowReportDownload" class="save-button compact" type="button" ${reportRows.length?'':'disabled'}>${escapeHtml(cfg.downloadButtonLabel||'Download Report')}</button></div><div class="table-scroll role-live-scroll"><table class="result-table"><thead><tr>${reportHeaders.map(x=>`<th>${escapeHtml(x)}</th>`).join('')}</tr></thead><tbody>${reportRows.map(r=>`<tr>${r.map(x=>`<td>${escapeHtml(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;const button=host.querySelector('#workflowReportDownload');if(button)button.onclick=async()=>{const exp=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers:reportHeaders,rows:reportRows,sheetName:cfg.sheetName||'Results',filename:cfg.filename||'role_assignment_results.xlsx',saveAs:false,rowFills:reportRows.map(r=>String(r[2])==='Success'?(cfg.successFill||'C6EFCE'):(cfg.failureFill||'FFC7CE'))});if(!exp?.ok)setOperationStatus(exp?.error||'Could not download report.','error');};const sc=host.querySelector('.role-live-scroll');if(sc)requestAnimationFrame(()=>{sc.scrollTop=sc.scrollHeight;});};
+  const renderLive=()=>{if(op.id==='role-assignment'){setRoleLiveResults(reportHeaders,reportRows,{title:op.subOperationTitle||'Role access results',exportCfg:{downloadButtonLabel:cfg.downloadButtonLabel||'Download Report',sheetName:cfg.sheetName||'Results',filename:cfg.filename||'role_assignment_results.xlsx',successFill:cfg.successFill||'C6EFCE',failureFill:cfg.failureFill||'FFC7CE'}});return;}host.innerHTML=`<div class="capacity-result-toolbar"><div><strong>${succeeded} successful • ${failed} failed</strong><div class="field-help">${reportRows.length} role assignment result${reportRows.length===1?'':'s'} • background-safe</div></div><button id="workflowReportDownload" class="save-button compact" type="button" ${reportRows.length?'':'disabled'}>${escapeHtml(cfg.downloadButtonLabel||'Download Report')}</button></div><div class="table-scroll role-live-scroll"><table class="result-table"><thead><tr>${reportHeaders.map(x=>`<th>${escapeHtml(x)}</th>`).join('')}</tr></thead><tbody>${reportRows.map(r=>`<tr>${r.map(x=>`<td>${escapeHtml(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;const button=host.querySelector('#workflowReportDownload');if(button)button.onclick=async()=>{const exp=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers:reportHeaders,rows:reportRows,sheetName:cfg.sheetName||'Results',filename:cfg.filename||'role_assignment_results.xlsx',saveAs:false,rowFills:reportRows.map(r=>String(r[2])==='Success'?(cfg.successFill||'C6EFCE'):(cfg.failureFill||'FFC7CE'))});if(!exp?.ok)setOperationStatus(exp?.error||'Could not download report.','error');};const sc=host.querySelector('.role-live-scroll');if(sc)requestAnimationFrame(()=>{sc.scrollTop=sc.scrollHeight;});};
   const batchItems=[];
   for(let i=0;i<items.length;i++){
     const item=items[i];
@@ -1982,6 +2043,7 @@ async function runSingleOrExcelWorkflowProcessor(op,values){
     if(!/^\s*\d+(?:\s+\d+)*\s*$/.test(item.roleIds)){baseRows.push([item.identifier,item.roleIds,'Failed','Role IDs must be numeric and separated by spaces']);continue;}
     const workflowInputs={userIdentifier:item.identifier,roleIds:item.roleIds};for(const field of(cfg.passthroughFields||[]))workflowInputs[field]=values[field];if(op.subOperationId)workflowInputs.__subOperationId=op.subOperationId;
     batchItems.push({inputs:workflowInputs,meta:{identifier:item.identifier,roleIds:item.roleIds,sourceIndex:i}});
+    if(op.id==='role-assignment'){const verb=op.subOperationId==='copy-roles'?'Queued role copy':String(values.accessAction||'assign')==='revoke'?'Queued revoke':'Queued assign';addRoleLiveEvent(`${verb}: ${item.identifier}`,'progress',op.subOperationId==='copy-roles'?`Target: ${item.roleIds}`:`Role IDs: ${item.roleIds}`);}
   }
   rebuild();
   if(!batchItems.length){setOperationStatus(`Completed: ${succeeded} successful, ${failed} failed.`,failed?'':'ok');setProgress('Done',true);return{records:reportRows.length,succeeded,failed};}
@@ -1996,10 +2058,11 @@ async function runSingleOrExcelWorkflowProcessor(op,values){
   const listener=(message)=>{
     if(message?.type!=='REMOTE_BATCH_STATUS'||message.jobId!==jobId)return;
     if(message.phase==='item-started'){
-      const name=message.meta?.identifier||'';setOperationStatus(`Processing user ${Number(message.index||0)+1}/${message.total}: ${name}…`);
+      const name=message.meta?.identifier||'';setOperationStatus(`Processing user ${Number(message.index||0)+1}/${message.total}: ${name}…`);if(op.id==='role-assignment')addRoleLiveEvent(`Processing ${name}`,'progress',`${Number(message.index||0)+1} of ${message.total}`);
       const fill=$('progressFill');if(fill)fill.style.width=`${Math.round((Number(message.completed||0)/Math.max(1,Number(message.total||1)))*100)}%`;
     }else if(message.phase==='item-completed'&&message.outcome){
-      outcomes.set(Number(message.index||0),rowsFromOutcome(message.outcome));rebuild();
+      const completedRows=rowsFromOutcome(message.outcome);outcomes.set(Number(message.index||0),completedRows);rebuild();
+      if(op.id==='role-assignment'){const name=message.outcome?.meta?.identifier||message.meta?.identifier||'';const ok=completedRows.filter(r=>String(r[2])==='Success').length,bad=completedRows.length-ok;addRoleLiveEvent(`${name}: ${ok} successful${bad?`, ${bad} failed`:''}`,bad?'error':'success');}
       const fill=$('progressFill');if(fill)fill.style.width=`${Math.round((Number(message.completed||0)/Math.max(1,Number(message.total||1)))*100)}%`;
     }
   };
@@ -2233,6 +2296,11 @@ function gpTpl(text,ctx={}){
 }
 function gpHeaderIndex(headers,aliases){return normalizedHeaderIndex(headers,aliases||[]);}
 function gpNumber(v){const n=Number(String(v??'').replace(/[^\d.-]/g,''));return Number.isFinite(n)?n:null;}
+function gpApplyRowDefaults(headers,rows,rules){
+  const out=(rows||[]).map(r=>Array.isArray(r)?[...r]:r);
+  for(const rule of(rules||[])){const idx=gpHeaderIndex(headers,rule.fieldAliases||[]);if(idx<0)continue;for(const row of out){if(!Array.isArray(row))continue;const blank=String(row[idx]??'').trim()==='';if(rule.whenBlank===false||blank)row[idx]=blank?(rule.value??''):row[idx];}}
+  return out;
+}
 function gpTransformInput(spec,inputs){
   if(spec==null)return''; if(typeof spec==='string')return gpTpl(spec,{input:inputs,inputs});
   const v=inputs?.[spec.from];
@@ -2312,7 +2380,7 @@ async function runDataPipelineProcessor(op,inputs){
   const srcInputs={...inputs};for(const [k,v] of Object.entries(src.inputs||{}))srcInputs[k]=gpTransformInput(v,inputs);
   setOperationStatus(gpTpl(src.status||'Running report…',{inputs,input:inputs}));
   const resp=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:src.operationId||op.id,inputs:srcInputs,awaitCompletion:true,silentDone:true});if(!resp?.ok)throw new Error(resp?.error||'Remote operation failed.');
-  const result=resp.result||{},headers=result.headers||[],rows=result.rows||[],partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
+  const result=resp.result||{},headers=result.headers||[],rows=gpApplyRowDefaults(result.headers||[],result.rows||[],cp.rowDefaults||[]),partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
   const partition=items.length?gpPartitionRows(headers,rows,items,partCfg):{buckets:[rows],unmatched:[]};
   const parts=[];for(let i=0;i<(items.length?items.length:1);i++){const item=items[i]||{id:'all',name:'All'},rr=partition.buckets[i]||[];const groups=gpGroupRows(headers,rr,cp.groups||[]).map(g=>({...g,metrics:gpBuildMetrics(cp.metrics||[],headers,g.rows)}));parts.push({id:String(item?.[partCfg.itemId||'id']??'all'),label:String(item?.[partCfg.itemLabel||'name']??'All'),rows:rr,groups});}
   const matched=parts.reduce((n,x)=>n+x.rows.length,0);if(items.length>1&&!matched)throw new Error('Results were returned, but could not be partitioned reliably. Check remote partition aliases.');
@@ -2333,13 +2401,15 @@ async function runBatchDataPipelineProcessor(op,values){
 }
 
 async function runDirectWorkflowProcessor(op,values){
+  if(op.id==='role-assignment'){const label=op.subOperationId==='access-diff'?`Comparing ${values.userAIdentifier||'User A'} with ${values.userBIdentifier||'User B'}`:`Starting ${op.subOperationTitle||op.title}`;addRoleLiveEvent(label,'progress');}
   const resp=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:op.id,inputs:{...values,__subOperationId:op.subOperationId||''},awaitCompletion:true,silentDone:true});
   if(!resp?.ok)throw new Error(resp?.error||'Operation failed.');
   const result=resp.result||{},headers=Array.isArray(result.headers)?result.headers:[],rows=Array.isArray(result.rows)?result.rows:[];
   if(headers.length){
     const host=$('operationResult');host.classList.remove('hidden');
-    host.innerHTML=`<div class="capacity-result-toolbar"><div><strong>${escapeHtml(op.resultTitle||op.subOperationTitle||op.title||'Result')}</strong><div class="field-help">${rows.length} row${rows.length===1?'':'s'}</div></div>${op.resultDownload===false?'':`<div class="capacity-result-actions"><button id="directResultDownload" class="save-button compact" type="button">${escapeHtml(op.downloadButtonLabel||'Download Excel')}</button></div>`}</div><div class="table-scroll"><table class="result-table"><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtml(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
-    const dl=host.querySelector('#directResultDownload');if(dl)dl.onclick=async()=>{dl.disabled=true;try{const e=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers,rows,sheetName:op.sheetName||op.subOperationTitle||'Role Access',filename:op.filename||'role_access_result.xlsx',saveAs:true});if(!e?.ok)throw new Error(e?.error||'Excel download failed.');}catch(e){setOperationStatus(e.message||String(e),'error')}finally{dl.disabled=false}};
+    if(op.id==='role-assignment'){setRoleLiveResults(headers,rows,{title:op.resultTitle||op.subOperationTitle||op.title||'Result',exportCfg:{downloadButtonLabel:op.downloadButtonLabel||'Download Excel',sheetName:op.sheetName||op.subOperationTitle||'Role Access',filename:op.filename||'role_access_result.xlsx'}});addRoleLiveEvent(`${op.subOperationTitle||'Role Assignment'} completed with ${rows.length} result row${rows.length===1?'':'s'}.`,'success');}
+    else{host.innerHTML=`<div class="capacity-result-toolbar"><div><strong>${escapeHtml(op.resultTitle||op.subOperationTitle||op.title||'Result')}</strong><div class="field-help">${rows.length} row${rows.length===1?'':'s'}</div></div>${op.resultDownload===false?'':`<div class="capacity-result-actions"><button id="directResultDownload" class="save-button compact" type="button">${escapeHtml(op.downloadButtonLabel||'Download Excel')}</button></div>`}</div><div class="table-scroll"><table class="result-table"><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${escapeHtml(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    const dl=host.querySelector('#directResultDownload');if(dl)dl.onclick=async()=>{dl.disabled=true;try{const e=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers,rows,sheetName:op.sheetName||op.subOperationTitle||'Role Access',filename:op.filename||'role_access_result.xlsx',saveAs:true});if(!e?.ok)throw new Error(e?.error||'Excel download failed.');}catch(e){setOperationStatus(e.message||String(e),'error')}finally{dl.disabled=false}};}
   }
   setOperationStatus(op.successMessage||'Completed.','ok');setProgress('Done',true);return {records:Number(result.records||rows.length||0),headers,rows};
 }
@@ -2406,6 +2476,7 @@ $('runOperation').addEventListener('click', async () => {
   const op=currentOperation; if(runningOps.has(op.id))return; const btn=$('runOperation'); btn.disabled=true; $('capacityStats').classList.add('hidden'); resetLiveReport(op.id);
   try {
     const inputs=collectOperationInputs(op); if(op.subOperationId)inputs.__subOperationId=op.subOperationId;
+    if(op.id==='role-assignment'){const mode=op.subOperationTitle||op.subOperationId||'Role Assignment';addRoleLiveEvent(`Starting ${mode}`,'progress');}
     await assertOperationHostCompatibility(op);
     await ensureOperationHostPermissions(op);
     await startActivity(op); setOperationRunning(true,op.id); setProgress('Preparing…');
@@ -2422,7 +2493,7 @@ $('runOperation').addEventListener('click', async () => {
     const response=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:op.id,inputs});
     if(!response?.ok) throw new Error(response?.error || 'Could not start operation.');
     setOperationStatus('Operation started.','ok');
-  } catch(error){ await finishActivity('error',String(error?.message||error),op.id); setOperationRunning(false,op.id); if(isAccessDeniedError(error)){showToast(error.message,'error');setOperationStatus('');}else setOperationStatus(error.message,'error'); btn.disabled=false; }
+  } catch(error){ if(op.id==='role-assignment')addRoleLiveEvent(error?.message||String(error),'error'); await finishActivity('error',String(error?.message||error),op.id); setOperationRunning(false,op.id); if(isAccessDeniedError(error)){showToast(error.message,'error');setOperationStatus('');}else setOperationStatus(error.message,'error'); btn.disabled=false; }
 });
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -2430,7 +2501,8 @@ chrome.runtime.onMessage.addListener((message) => {
     if(message.done){setOperationRunning(false,message.opId);finishActivity(message.kind==='error'?'error':'success',message.records!=null?`${message.records} rows ${message.text}`:message.text,message.opId);}
     if(message.opId!==currentOperation?.id)return;
     setStatus(message.text,message.kind||''); setOperationStatus(message.text,message.kind||'');
-    if(message.reportRow) renderLiveReport(message.opId,message);
+    if(message.opId==='role-assignment'){addRoleLiveEvent(message.text,message.kind|| (message.done?'success':'progress'));if(message.reportRow)appendRoleLiveResult(message);}
+    else if(message.reportRow) renderLiveReport(message.opId,message);
     if(typeof message.progress==='number'){ const fill=$('progressFill'); if(fill) fill.style.width=`${Math.max(0,Math.min(100,message.progress))}%`; }
     setProgress(message.text,!!message.done);
     if(message.stats) renderCapacityStats(message.stats);

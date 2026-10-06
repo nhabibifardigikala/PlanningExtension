@@ -1,0 +1,5 @@
+PUDO Auto Config was removed from the app catalog. Full v400 also removes:
+- operations/pudo-auto-config.json
+- templates/PUDO_Auto_Config_Template.xlsx
+- icons/apps/pudo-auto-config.webp
+If you deploy Changed Files over an existing repository, these orphan files may remain physically but are not loaded or shown. Delete them manually if you want the repository cleaned too.
