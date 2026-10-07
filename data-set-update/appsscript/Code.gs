@@ -66,15 +66,19 @@ function replaceDataset_(body){
     const result=prepareDeliveryPolygons_(headers,rows);
     headers=result.headers;rows=result.rows;
   }
+
   if(sheetName==='Distribution Centers (LG)'){
     const activeIdx=headers.findIndex(h=>String(h||'').trim().toLowerCase()==='active');
     if(activeIdx>=0){
-      rows=rows.map(r=>{
-        const row=Array.isArray(r)?r.slice():[];
-        const value=String(row[activeIdx]??'').trim();
-        if(value==='')row[activeIdx]=0;
-        return row;
+      const invalid=[];
+      rows.forEach((r,i)=>{
+        const value=String((Array.isArray(r)?r[activeIdx]:'')??'').trim();
+        if(value!=='0'&&value!=='1')invalid.push(i+2);
       });
+      if(invalid.length){
+        const preview=invalid.slice(0,12).join(', ');
+        throw new Error('Distribution Centers: Active could not be read as 0/1 for sheet row(s): '+preview+(invalid.length>12?' ...':'')+'. No data was written.');
+      }
     }
   }
 

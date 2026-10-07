@@ -31,3 +31,10 @@ Update the existing Data Set Update Apps Script deployment with the included `ap
 - خروجی نهایی: `Name`, `coordinates`, `distribution center id`, `IATA`, `district`, `time scope`, `shipping nature id`.
 - shipping nature: عادی=1، متوسط=2، سنگین=3؛ نام‌های باربری=4، بیزنس=5، تحویل فوری=6.
 - ردیف‌های بدون coordinates حذف می‌شوند و تب `Delivery Polygons` قبل از جایگزینی پاک می‌شود.
+
+
+### v404 - Distribution Centers integrity
+- Host 13.0.5 is unchanged.
+- The incorrect Active fallback/column insertion was removed.
+- Distribution Centers keeps 1000 rows per extraction page and the preparation assignment remains 100 DCs.
+- Google Sheet publishing now refuses incomplete Active values instead of guessing 0 or shifting columns.

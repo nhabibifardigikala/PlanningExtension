@@ -1,0 +1,260 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Extract Distribution Center data and prepare an Excel file for download.",
+  "inputs": [
+    {
+      "name": "_openPage",
+      "label": "",
+      "type": "text",
+      "showWhen": {
+        "field": "__never__",
+        "equals": "true"
+      }
+    }
+  ],
+  "navigation": {
+    "retryCount": 8,
+    "retryDelayMs": 500,
+    "completeTimeoutMs": 60000
+  },
+  "successMessage": "Extraction completed. {{rowCount}} rows are ready.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "progress": "Opening Distribution Centers…",
+      "active": true
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking authentication…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "progress": "Opening Distribution Center list…",
+      "completeTimeoutMs": 60000,
+      "active": true
+    },
+    {
+      "action": "wait",
+      "ms": 16000,
+      "progress": "Keeping Distribution Centers active while the page loads…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 5000,
+      "intervalMs": 250,
+      "progress": "Waiting for table…",
+      "error": "Distribution Center table was not found.",
+      "stepAttempts": 6,
+      "stepRetryDelayMs": 750
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 12000,
+      "intervalMs": 300,
+      "progress": "Waiting for rows…",
+      "error": "Distribution Center rows were not available.",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 900
+    },
+    {
+      "action": "setPageZoom",
+      "zoom": 0.2,
+      "progress": "Preparing page…"
+    },
+    {
+      "action": "configureColumns",
+      "columns": {
+        "id": 1,
+        "name": 1,
+        "city": 1,
+        "iata": 1,
+        "vehicle_types": 0,
+        "district": 1,
+        "active": 1,
+        "has_fresh": 1,
+        "sort": 1,
+        "is_in_person": 1,
+        "is_large": 1,
+        "critical_time": 1,
+        "is_suburbs": 1,
+        "parent_dc_id": 1,
+        "postal_code": 0,
+        "is_drop_shipping_active": 1,
+        "is_ganje": 1,
+        "is_jet": 1,
+        "is_third_party": 1,
+        "child_dc_ids": 1,
+        "hash_id": 1,
+        "reference_id": 1,
+        "address": 0,
+        "alt_submit_type": 0,
+        "capacity": 0,
+        "city_id": 0,
+        "city_id--preview": 0,
+        "description": 0,
+        "direct": 0,
+        "distribution_center_district": 0,
+        "distribution_center_district--preview": 0,
+        "fmcg_warehouse_location_id": 0,
+        "fmcg_warehouse_location_id--preview": 0,
+        "has_time_scope": 0,
+        "iata_code": 0,
+        "is_deleted": 0,
+        "is_dms_active": 0,
+        "latitude": 0,
+        "longitude": 0,
+        "marketplace_seller_id": 0,
+        "marketplace_seller_id--preview": 0,
+        "non_fmcg_warehouse_location_id": 0,
+        "non_fmcg_warehouse_location_id--preview": 0,
+        "parent_dc_id--preview": 0,
+        "payment_source_id": 0,
+        "payment_source_id--preview": 0,
+        "picking_time_limitation": 0,
+        "prime_capacity_percentage": 0,
+        "provider_reference": 0,
+        "sla_from": 0,
+        "sla_to": 0,
+        "state_id": 0,
+        "state_id--preview": 0,
+        "virtual": 0
+      },
+      "options": {
+        "buttonSelector": "button",
+        "buttonText": "Columns",
+        "checkboxSelector": "ul#adminColumns input[type=\"checkbox\"]",
+        "menuTimeoutMs": 12000,
+        "afterEachMs": 50,
+        "closeAfter": false
+      },
+      "progress": "Preparing table columns…",
+      "error": "Could not prepare the Distribution Center table."
+    },
+    {
+      "action": "clickOutside",
+      "center": true,
+      "progress": "Applying table settings…"
+    },
+    {
+      "action": "wait",
+      "ms": 10000,
+      "progress": "Waiting for table update…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
+      "progress": "Refreshing Distribution Center data…",
+      "completeTimeoutMs": 60000,
+      "active": true
+    },
+    {
+      "action": "wait",
+      "ms": 16000,
+      "progress": "Keeping refreshed Distribution Centers active while data loads…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 5000,
+      "intervalMs": 250,
+      "progress": "Waiting for refreshed table…",
+      "error": "Distribution Center table was not available after refresh.",
+      "stepAttempts": 6,
+      "stepRetryDelayMs": 750
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 12000,
+      "intervalMs": 300,
+      "progress": "Waiting for refreshed rows…",
+      "error": "Distribution Center rows were not available after refresh.",
+      "stepAttempts": 4,
+      "stepRetryDelayMs": 900
+    },
+    {
+      "action": "setPageZoom",
+      "zoom": 0.2,
+      "progress": "Preparing refreshed page…"
+    },
+    {
+      "action": "wait",
+      "ms": 18000,
+      "progress": "Waiting for data to finish loading…"
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "timeoutMs": 90000,
+      "expectedRowsPerPage": 1000,
+      "allowLastPagePartial": true,
+      "pollMs": 750,
+      "afterPageMs": 900,
+      "dedupe": false,
+      "maxPages": 1000,
+      "ignoreLastActionColumn": true,
+      "parser": {
+        "tableSelector": "table",
+        "svgBoolean": true
+      },
+      "pageProgress": "Extracting Distribution Center page {{page}}…",
+      "progress": "Extracting Distribution Centers…",
+      "error": "No Distribution Center rows were found."
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing Agent tab…"
+    }
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1500
+  },
+  "uiMode": "form",
+  "runLabel": "Run Extraction",
+  "clientProcessor": {
+    "type": "data-pipeline",
+    "source": {
+      "type": "remote-operation",
+      "operationId": "extract-dc",
+      "inputs": {},
+      "status": "Extracting Distribution Centers…"
+    },
+    "groups": [],
+    "metrics": [],
+    "charts": [],
+    "presentation": {
+      "partitionTitle": "Distribution Centers",
+      "partitionSubtitle": "",
+      "dashboardButtonLabel": "Open dashboard",
+      "downloadButtonLabel": "Download Excel",
+      "hideDashboardButton": true
+    },
+    "export": {
+      "enabled": true,
+      "type": "xlsx",
+      "buttonLabel": "Download Excel",
+      "filename": "distribution_centers_{{today}}.xlsx",
+      "sheetName": "Distribution Centers",
+      "saveAs": false,
+      "prependColumns": []
+    }
+  },
+  "remoteBehaviorVersion": 12,
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote",
+  "keepTabActive": true,
+  "foregroundReason": "LG defers table rendering in background tabs. DC User Assignment and Distribution Centers are both kept in the foreground during critical loading and selection windows through remote configuration.",
+  "output": {
+    "type": "excel"
+  },
+  "closeTabOnError": true
+}
