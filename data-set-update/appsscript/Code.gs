@@ -66,6 +66,17 @@ function replaceDataset_(body){
     const result=prepareDeliveryPolygons_(headers,rows);
     headers=result.headers;rows=result.rows;
   }
+  if(sheetName==='Distribution Centers (LG)'){
+    const activeIdx=headers.findIndex(h=>String(h||'').trim().toLowerCase()==='active');
+    if(activeIdx>=0){
+      rows=rows.map(r=>{
+        const row=Array.isArray(r)?r.slice():[];
+        const value=String(row[activeIdx]??'').trim();
+        if(value==='')row[activeIdx]=0;
+        return row;
+      });
+    }
+  }
 
   const width=headers.length;
   const normalized=rows.map(r=>Array.from({length:width},(_,i)=>r[i]??''));

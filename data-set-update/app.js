@@ -12,7 +12,7 @@
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
-      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:300}}]
+      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:100}}]
     },
     'pickup-polygons':{
       id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'sheet'},enabled:false,
@@ -235,7 +235,7 @@
     try{
       await assertAgentsAccess();
       await assertJobHostCompatibility(JOBS[id]);
-      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 300 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
+      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 100 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl();
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,retry:JOBS[id].retry||getJob(id).retry};

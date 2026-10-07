@@ -3,7 +3,7 @@
 ## Data sets
 
 ### Distribution Centers
-- Runs DC User Assignment first and assigns 300 DCs to the configured Digiexpress user.
+- Runs DC User Assignment first and assigns 100 DCs to the configured Digiexpress user.
 - Runs the existing Extract Distribution Centers workflow.
 - Replaces the contents of `Distribution Centers (LG)` in the configured Google Sheet.
 
