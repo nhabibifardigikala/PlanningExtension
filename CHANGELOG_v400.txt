@@ -1,0 +1,6 @@
+DigiExpress Remote v400
+
+- Host remains unchanged at 13.0.5.
+- Distribution Centers Extractor no longer derives active from SVG icon shape.
+- Remote workflow now extracts explicit active=1 and active=0 server-filtered datasets and appends the Active state as a guaranteed 0/1 column.
+- If the real Active filter is not present in the DOM, extraction fails explicitly instead of silently publishing blanks.

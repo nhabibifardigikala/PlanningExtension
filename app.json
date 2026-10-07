@@ -5,10 +5,10 @@
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 360",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 400
+    "configVersion": 399
   },
   "theme": "theme.json?v=378",
-  "settings": "settings.json?v=400",
+  "settings": "settings.json?v=378",
   "messages": "messages.json?v=378",
   "operations": [
     {
@@ -79,6 +79,43 @@
       }
     },
     {
+      "id": "pudo-auto-config",
+      "title": "PUDO Auto Config",
+      "subtitle": "Batch configuration",
+      "accessHeaders": [
+        "PUDO Auto Config"
+      ],
+      "config": "operations/pudo-auto-config.json?v=378",
+      "iconSvgPath": "M8 6h32a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4Zm4 8v4h24v-4H12Zm0 9v4h10v-4H12Zm0 9v4h10v-4H12Zm18-10 3 3 6-7 3 3-9 10-6-6 3-3Z",
+      "description": "Create PUDO batch configurations from a five-column Excel template. Parent selection uses Parent Code and each save is verified by the Done!!!! confirmation.",
+      "runLabel": "Start PUDO Auto Config",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "templateDownload",
+          "label": "PUDO Auto Config Template",
+          "type": "download",
+          "buttonLabel": "Download Template",
+          "asset": "templates/PUDO_Auto_Config_Template.xlsx",
+          "filename": "PUDO_Auto_Config_Template.xlsx",
+          "help": "Template columns: نام مرکز، نام پرنت، کد پرنت، تاریخ شروع، تاریخ پایان."
+        },
+        {
+          "name": "pudoFile",
+          "label": "PUDO configuration Excel",
+          "type": "file",
+          "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "required": true,
+          "help": "Use the five-column template. Parent is selected by کد پرنت. Jalali dates: YYYYMMDD or YYYY/MM/DD."
+        }
+      ],
+      "iconImage": "icons/apps/pudo-auto-config.webp?v=378",
+      "category": "network",
+      "output": {
+        "type": "excel"
+      }
+    },
+    {
       "id": "ganje-network-management",
       "title": "GANJE Network Management",
       "subtitle": "Ganjeh & Ganjdar network operations",
@@ -135,7 +172,7 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=378",
+      "config": "operations/extract-distribution-centers.json?v=400",
       "description": "Extract Distribution Center data and download the result as an Excel file.",
       "runLabel": "Run Extraction",
       "uiMode": "form",

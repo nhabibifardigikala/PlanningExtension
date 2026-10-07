@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract Distribution Center data and prepare an Excel file for download.",
+  "description": "Extract Distribution Center data with Active derived from explicit server-side active=1/0 filters so the output never depends on SVG icon parsing.",
   "inputs": [
     {
       "name": "_openPage",
@@ -78,7 +78,7 @@
         "iata": 1,
         "vehicle_types": 0,
         "district": 1,
-        "active": 1,
+        "active": 0,
         "has_fresh": 1,
         "sort": 1,
         "is_in_person": 1,
@@ -191,23 +191,49 @@
       "progress": "Waiting for data to finish loading…"
     },
     {
-      "action": "extractPaginatedTable",
-      "nextSelector": "a[aria-label=\"Next page\"]",
-      "timeoutMs": 90000,
-      "expectedRowsPerPage": 1000,
-      "allowLastPagePartial": true,
-      "pollMs": 2000,
-      "afterPageMs": 500,
-      "dedupe": false,
-      "maxPages": 1000,
-      "ignoreLastActionColumn": true,
-      "parser": {
-        "tableSelector": "table",
-        "svgBoolean": true
+      "action": "extractSearchVariants",
+      "storeAs": "distributionCentersByActive",
+      "makeCurrent": true,
+      "values": [
+        1,
+        0
+      ],
+      "valueColumn": "active",
+      "resetUrl": "https://lg.digikala.com/distribution-center/?active={{value}}&per_page=1000",
+      "afterResetMs": 1800,
+      "waitForSelector": "input[name=\"active\"], select[name=\"active\"], #form-field-active",
+      "waitTimeoutMs": 20000,
+      "waitIntervalMs": 300,
+      "waitError": "Distribution Center Active filter was not found. Extraction stopped to avoid publishing blank active values.",
+      "searchSelector": "input[name=\"active\"], select[name=\"active\"], #form-field-active",
+      "afterSearchInputMs": 700,
+      "searchButtonSelector": "button[type=\"submit\"]",
+      "searchButtonText": "search",
+      "searchButtonRequired": false,
+      "afterSearchMs": 1800,
+      "resultsSelector": "table tbody tr",
+      "resultsTimeoutMs": 30000,
+      "resultsIntervalMs": 300,
+      "resultsError": "No Distribution Center rows were available for active={{value}}.",
+      "valueProgress": "Extracting Distribution Centers with active={{value}}…",
+      "pageProgress": "Extracting active={{value}} page {{page}}…",
+      "pagination": {
+        "nextSelector": "a[aria-label=\"Next page\"]",
+        "timeoutMs": 90000,
+        "expectedRowsPerPage": 1000,
+        "allowLastPagePartial": true,
+        "pollMs": 2000,
+        "afterPageMs": 500,
+        "dedupe": false,
+        "maxPages": 1000,
+        "ignoreLastActionColumn": true,
+        "parser": {
+          "tableSelector": "table",
+          "svgBoolean": false
+        }
       },
-      "pageProgress": "Extracting Distribution Center page {{page}}…",
-      "progress": "Extracting Distribution Centers…",
-      "error": "No Distribution Center rows were found."
+      "progress": "Extracting Distribution Centers by explicit Active state…",
+      "error": "Distribution Center extraction failed before Active values could be guaranteed."
     },
     {
       "action": "closeTab",
@@ -246,18 +272,7 @@
       "sheetName": "Distribution Centers",
       "saveAs": false,
       "prependColumns": []
-    },
-    "rowDefaults": [
-      {
-        "fieldAliases": [
-          "active",
-          "Active",
-          "فعال"
-        ],
-        "value": 0,
-        "whenBlank": true
-      }
-    ]
+    }
   },
   "remoteBehaviorVersion": 13,
   "runtimeContract": "stable-host-12",

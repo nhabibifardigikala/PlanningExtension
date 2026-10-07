@@ -64,12 +64,6 @@ html[data-theme="dark"] :is(th,.subtle,.soft-panel,.info-box,.notice,.empty-stat
 
 /* v399 Role Assignment live execution report */
 .role-live-card{display:grid;gap:12px}.role-live-head,.role-live-results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.role-live-head>div:first-child{min-width:220px}.role-live-counters{display:flex;gap:7px;flex-wrap:wrap}.role-live-counters span{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--muted)}.role-live-counters .ok{color:#087443;border-color:color-mix(in srgb,#16a36a 38%,var(--border));background:color-mix(in srgb,#16a36a 9%,var(--card))}.role-live-counters .bad{color:#b42318;border-color:color-mix(in srgb,#d92d20 38%,var(--border));background:color-mix(in srgb,#d92d20 8%,var(--card))}.role-live-events{max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:12px;background:color-mix(in srgb,var(--card) 88%,var(--bg));padding:7px}.role-live-event{display:grid;grid-template-columns:10px 72px 1fr;align-items:start;gap:8px;padding:7px 6px;border-bottom:1px solid color-mix(in srgb,var(--border) 70%,transparent)}.role-live-event:last-child{border-bottom:0}.role-live-event time{font:600 10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}.role-live-event strong{display:block;font-size:11px;line-height:1.45}.role-live-event small{display:block;margin-top:2px;color:var(--muted);font-size:10.5px}.role-live-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;background:#5b8def}.role-live-event.success .role-live-dot{background:#16a36a}.role-live-event.error .role-live-dot{background:#d92d20}.role-live-event.error strong{color:#b42318}.role-live-event.success strong{color:#087443}.role-live-empty{padding:16px;text-align:center;color:var(--muted);font-size:11px}.role-live-results-head{padding-top:2px}.role-live-results-head>span{color:var(--muted);font-size:11px;margin-inline-start:auto}.role-result-success td{background:color-mix(in srgb,#16a36a 9%,var(--card))}.role-result-error td{background:color-mix(in srgb,#d92d20 9%,var(--card))}.role-result-error td{color:color-mix(in srgb,#b42318 86%,var(--text))}.role-live-scroll{max-height:340px}@media(max-width:680px){.role-live-event{grid-template-columns:10px 58px 1fr}.role-live-events{max-height:190px}.role-live-counters{width:100%}}
-
-/* v400 — Capacity Report: center/title anchored to the right of each chart header. */
-.capacity-chart-host .chart-head{direction:rtl;text-align:right}
-.capacity-chart-host .chart-head>strong{margin-left:auto;text-align:right}
-.capacity-chart-host .chart-legend{direction:ltr;margin-right:auto}
-
 </style>
 <style id="dx-app-inline">
 /* v327 compatibility gate: intentionally visible by default. Host 12.7+ removes it after version validation. */
@@ -950,7 +944,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
       <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=386" loading="lazy"></iframe></section>
       <section id="chargingItemsEmbedded" class="charging-items-embedded" aria-label="Charging Items"><iframe id="chargingItemsFrame" title="Charging Items" src="https://nhabibifardigikala.github.io/PlanningExtension/charging-items/index.html?v=396" loading="lazy"></iframe></section>
-      <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy" allow="clipboard-write"></iframe></section>
+      <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
       <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
@@ -2296,11 +2290,6 @@ function gpTpl(text,ctx={}){
 }
 function gpHeaderIndex(headers,aliases){return normalizedHeaderIndex(headers,aliases||[]);}
 function gpNumber(v){const n=Number(String(v??'').replace(/[^\d.-]/g,''));return Number.isFinite(n)?n:null;}
-function gpApplyRowDefaults(headers,rows,rules){
-  const out=(rows||[]).map(r=>Array.isArray(r)?[...r]:r);
-  for(const rule of(rules||[])){const idx=gpHeaderIndex(headers,rule.fieldAliases||[]);if(idx<0)continue;for(const row of out){if(!Array.isArray(row))continue;const blank=String(row[idx]??'').trim()==='';if(rule.whenBlank===false||blank)row[idx]=blank?(rule.value??''):row[idx];}}
-  return out;
-}
 function gpTransformInput(spec,inputs){
   if(spec==null)return''; if(typeof spec==='string')return gpTpl(spec,{input:inputs,inputs});
   const v=inputs?.[spec.from];
@@ -2380,7 +2369,7 @@ async function runDataPipelineProcessor(op,inputs){
   const srcInputs={...inputs};for(const [k,v] of Object.entries(src.inputs||{}))srcInputs[k]=gpTransformInput(v,inputs);
   setOperationStatus(gpTpl(src.status||'Running report…',{inputs,input:inputs}));
   const resp=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:src.operationId||op.id,inputs:srcInputs,awaitCompletion:true,silentDone:true});if(!resp?.ok)throw new Error(resp?.error||'Remote operation failed.');
-  const result=resp.result||{},headers=result.headers||[],rows=gpApplyRowDefaults(result.headers||[],result.rows||[],cp.rowDefaults||[]),partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
+  const result=resp.result||{},headers=result.headers||[],rows=result.rows||[],partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
   const partition=items.length?gpPartitionRows(headers,rows,items,partCfg):{buckets:[rows],unmatched:[]};
   const parts=[];for(let i=0;i<(items.length?items.length:1);i++){const item=items[i]||{id:'all',name:'All'},rr=partition.buckets[i]||[];const groups=gpGroupRows(headers,rr,cp.groups||[]).map(g=>({...g,metrics:gpBuildMetrics(cp.metrics||[],headers,g.rows)}));parts.push({id:String(item?.[partCfg.itemId||'id']??'all'),label:String(item?.[partCfg.itemLabel||'name']??'All'),rows:rr,groups});}
   const matched=parts.reduce((n,x)=>n+x.rows.length,0);if(items.length>1&&!matched)throw new Error('Results were returned, but could not be partitioned reliably. Check remote partition aliases.');

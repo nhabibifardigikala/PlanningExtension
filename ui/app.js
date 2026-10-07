@@ -1189,11 +1189,6 @@ function gpTpl(text,ctx={}){
 }
 function gpHeaderIndex(headers,aliases){return normalizedHeaderIndex(headers,aliases||[]);}
 function gpNumber(v){const n=Number(String(v??'').replace(/[^\d.-]/g,''));return Number.isFinite(n)?n:null;}
-function gpApplyRowDefaults(headers,rows,rules){
-  const out=(rows||[]).map(r=>Array.isArray(r)?[...r]:r);
-  for(const rule of(rules||[])){const idx=gpHeaderIndex(headers,rule.fieldAliases||[]);if(idx<0)continue;for(const row of out){if(!Array.isArray(row))continue;const blank=String(row[idx]??'').trim()==='';if(rule.whenBlank===false||blank)row[idx]=blank?(rule.value??''):row[idx];}}
-  return out;
-}
 function gpTransformInput(spec,inputs){
   if(spec==null)return''; if(typeof spec==='string')return gpTpl(spec,{input:inputs,inputs});
   const v=inputs?.[spec.from];
@@ -1273,7 +1268,7 @@ async function runDataPipelineProcessor(op,inputs){
   const srcInputs={...inputs};for(const [k,v] of Object.entries(src.inputs||{}))srcInputs[k]=gpTransformInput(v,inputs);
   setOperationStatus(gpTpl(src.status||'Running report…',{inputs,input:inputs}));
   const resp=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:src.operationId||op.id,inputs:srcInputs,awaitCompletion:true,silentDone:true});if(!resp?.ok)throw new Error(resp?.error||'Remote operation failed.');
-  const result=resp.result||{},headers=result.headers||[],rows=gpApplyRowDefaults(result.headers||[],result.rows||[],cp.rowDefaults||[]),partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
+  const result=resp.result||{},headers=result.headers||[],rows=result.rows||[],partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
   const partition=items.length?gpPartitionRows(headers,rows,items,partCfg):{buckets:[rows],unmatched:[]};
   const parts=[];for(let i=0;i<(items.length?items.length:1);i++){const item=items[i]||{id:'all',name:'All'},rr=partition.buckets[i]||[];const groups=gpGroupRows(headers,rr,cp.groups||[]).map(g=>({...g,metrics:gpBuildMetrics(cp.metrics||[],headers,g.rows)}));parts.push({id:String(item?.[partCfg.itemId||'id']??'all'),label:String(item?.[partCfg.itemLabel||'name']??'All'),rows:rr,groups});}
   const matched=parts.reduce((n,x)=>n+x.rows.length,0);if(items.length>1&&!matched)throw new Error('Results were returned, but could not be partitioned reliably. Check remote partition aliases.');
