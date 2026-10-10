@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 331;
+  const VERSION = 332;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
@@ -525,7 +525,62 @@
     const pts=series.map(s=>data.map((o,i)=>o[s.key]==null?'':`<circle class="point-${s.cls}" cx="${x(i)}" cy="${y(o[s.key])}" r="3"><title>${esc(s.label)} • ${esc(o.date)}: ${fmt(o[s.key])}</title></circle>`).join('')).join('');
     const labelY=H-12;const labels=data.map((o,i)=>{const day=jalaliWeekdayLabel(o.date),xx=x(i);return `<text class="axis-text axis-date" x="${xx-4}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${xx-4} ${labelY})">${esc(o.date)}</text>${day?`<text class="axis-text axis-weekday" x="${xx+7}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${xx+7} ${labelY})">${esc(day)}</text>`:''}`}).join('');
     const legend=`<div class="legend">${series.map(s=>`<span><i class="${s.cls}"></i>${esc(s.label)}</span>`).join('')}</div>`;
-    return `${legend}<div class="chart"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity trend by date">${grid}${paths}${pts}${labels}</svg></div>`;
+    return `<div class="chart-toolbar">${legend}<button type="button" class="secondary copy-chart-jpg" title="Copy this chart as a JPG image">Copy JPG</button></div><div class="chart"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity trend by date">${grid}${paths}${pts}${labels}</svg></div>`;
+  }
+
+  function svgCloneWithInlineStyles(svg) {
+    const clone=svg.cloneNode(true);
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    const src=[svg,...svg.querySelectorAll('*')], dst=[clone,...clone.querySelectorAll('*')];
+    const props=['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','opacity','font-family','font-size','font-weight','font-style','text-anchor','dominant-baseline'];
+    src.forEach((el,i)=>{const out=dst[i];if(!out)return;const cs=getComputedStyle(el);for(const p of props){const v=cs.getPropertyValue(p);if(v)out.style.setProperty(p,v)}});
+    return clone;
+  }
+
+  function canvasToBlob(canvas,type='image/jpeg',quality=.95){
+    return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not create the chart image.')),type,quality));
+  }
+
+  async function chartJpegBlob(button) {
+    const group=button.closest('.group-card');
+    const svg=group?.querySelector('.chart svg');
+    if(!svg)throw new Error('Chart SVG was not found.');
+    const clone=svgCloneWithInlineStyles(svg);
+    const vb=(svg.getAttribute('viewBox')||'0 0 1000 330').trim().split(/\s+/).map(Number);
+    const W=Number.isFinite(vb[2])&&vb[2]>0?vb[2]:1000, H=Number.isFinite(vb[3])&&vb[3]>0?vb[3]:330;
+    clone.setAttribute('width',String(W));clone.setAttribute('height',String(H));
+    const xml=new XMLSerializer().serializeToString(clone);
+    const url=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));
+    try{
+      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error('Could not render the chart image.'));x.src=url;});
+      const title=group?.querySelector('.group-title')?.textContent?.trim()||'Capacity Report';
+      const legendSpans=[...(group?.querySelectorAll('.chart-toolbar .legend span')||[])];
+      const scale=2, pad=24, titleH=32, legendH=30;
+      const canvas=document.createElement('canvas');canvas.width=Math.round((W+pad*2)*scale);canvas.height=Math.round((H+pad*2+titleH+legendH)*scale);
+      const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas is not available.');ctx.scale(scale,scale);
+      const bg=getComputedStyle(group).backgroundColor||'#ffffff';const text=getComputedStyle(group).color||'#101828';const muted=getComputedStyle(group.querySelector('.legend')||group).color||text;
+      ctx.fillStyle=bg;ctx.fillRect(0,0,W+pad*2,H+pad*2+titleH+legendH);
+      ctx.fillStyle=text;ctx.font=`700 15px ${getComputedStyle(group).fontFamily||'Arial'}`;ctx.textBaseline='middle';ctx.fillText(title,pad,pad+12);
+      let lx=pad,ly=pad+titleH+10;ctx.font=`600 11px ${getComputedStyle(group).fontFamily||'Arial'}`;
+      for(const span of legendSpans){const dot=span.querySelector('i'),label=span.textContent.trim(),color=dot?getComputedStyle(dot).backgroundColor:text;ctx.fillStyle=color;ctx.beginPath();ctx.arc(lx+4,ly,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=muted;ctx.fillText(label,lx+13,ly);lx+=13+ctx.measureText(label).width+18;}
+      ctx.drawImage(img,pad,pad+titleH+legendH,W,H);
+      return await canvasToBlob(canvas,'image/jpeg',.95);
+    }finally{URL.revokeObjectURL(url)}
+  }
+
+  async function copyChartJpg(button) {
+    const original=button.textContent;button.disabled=true;button.textContent='Copying…';
+    try{
+      const blob=await chartJpegBlob(button);
+      if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')throw new Error('Image clipboard is not available in this browser.');
+      await navigator.clipboard.write([new ClipboardItem({'image/jpeg':blob})]);
+      button.textContent='Copied ✓';setStatus('Chart JPG copied to clipboard.','ok');
+      setTimeout(()=>{button.textContent=original;button.disabled=false},1400);
+    }catch(err){
+      try{const blob=await chartJpegBlob(button);const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`capacity_chart_${Date.now()}.jpg`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);setStatus(`JPG clipboard copy was blocked, so the chart was downloaded instead. ${err?.message||''}`,'error');}
+      catch(e){setStatus(e?.message||err?.message||'Could not create the chart JPG.','error')}
+      button.textContent=original;button.disabled=false;
+    }
   }
 
   function renderModel(model, dashboard=false) {
@@ -541,6 +596,7 @@
       const gl=qs('.group-list',sec);
       for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=`<div class="metrics${model.source==='flex'?' flex-metrics':''}"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Reserved',m.reserved)}</div>`;const groupTitle=(model.aggregate||model.reportByHub)?'':(model.source==='flex'?`Time Slot: ${group.label}`:group.label);g.innerHTML=`${groupTitle?`<div class="group-title">${esc(groupTitle)}</div>`:''}${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
     }
+    qsa('.copy-chart-jpg',host).forEach(btn=>btn.onclick=()=>copyChartJpg(btn));
     $('downloadExcel').onclick=()=>downloadModelXlsx(model);
     const db=$('openDashboard');if(db)db.onclick=()=>{try{localStorage.setItem(CACHE_KEY,JSON.stringify(model));}catch(_){}const u=new URL(location.href);u.searchParams.set('dashboard','1');u.searchParams.set('theme',theme);window.open(u.href,'_blank','noopener,noreferrer')};
   }
