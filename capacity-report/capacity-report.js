@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 332;
+  const VERSION = 333;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
@@ -525,7 +525,7 @@
     const pts=series.map(s=>data.map((o,i)=>o[s.key]==null?'':`<circle class="point-${s.cls}" cx="${x(i)}" cy="${y(o[s.key])}" r="3"><title>${esc(s.label)} • ${esc(o.date)}: ${fmt(o[s.key])}</title></circle>`).join('')).join('');
     const labelY=H-12;const labels=data.map((o,i)=>{const day=jalaliWeekdayLabel(o.date),xx=x(i);return `<text class="axis-text axis-date" x="${xx-4}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${xx-4} ${labelY})">${esc(o.date)}</text>${day?`<text class="axis-text axis-weekday" x="${xx+7}" y="${labelY}" text-anchor="start" transform="rotate(-90 ${xx+7} ${labelY})">${esc(day)}</text>`:''}`}).join('');
     const legend=`<div class="legend">${series.map(s=>`<span><i class="${s.cls}"></i>${esc(s.label)}</span>`).join('')}</div>`;
-    return `<div class="chart-toolbar">${legend}<button type="button" class="secondary copy-chart-jpg" title="Copy this chart as a JPG image">Copy JPG</button></div><div class="chart"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity trend by date">${grid}${paths}${pts}${labels}</svg></div>`;
+    return `<div class="chart-toolbar">${legend}<button type="button" class="secondary copy-chart-jpg" title="Copy this chart image to clipboard (JPG preferred, PNG fallback)">Copy Chart</button></div><div class="chart"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Capacity trend by date">${grid}${paths}${pts}${labels}</svg></div>`;
   }
 
   function svgCloneWithInlineStyles(svg) {
@@ -541,8 +541,36 @@
     return new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not create the chart image.')),type,quality));
   }
 
-  async function chartJpegBlob(button) {
+  function roundedRect(ctx,x,y,w,h,r){
+    const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();
+  }
+
+  function chartExportMeta(button){
     const group=button.closest('.group-card');
+    const card=button.closest('.report-card');
+    const result=$('result');
+    const topStrong=result?.querySelector('.result-toolbar strong')?.textContent?.trim()||'Capacity Report';
+    const topSmall=result?.querySelector('.result-toolbar small')?.textContent?.trim()||'';
+    const cardStrong=card?.querySelector('.report-title strong')?.textContent?.trim()||'';
+    const cardSmall=card?.querySelector('.report-title small')?.textContent?.trim()||'';
+    const groupTitle=group?.querySelector('.group-title')?.textContent?.trim()||'';
+    const metrics=[...(group?.querySelectorAll('.metrics .metric')||[])].map(metric=>({
+      label:metric.querySelector('span')?.textContent?.trim()||'',
+      values:[...metric.querySelectorAll('.metric-values > div')].map(box=>({
+        key:box.querySelector('small')?.textContent?.trim()||'',
+        value:box.querySelector('strong')?.textContent?.trim()||''
+      })).filter(v=>v.value)
+    })).filter(m=>m.label&&m.values.length);
+    return {group,topStrong,topSmall,cardStrong,cardSmall,groupTitle,metrics};
+  }
+
+  function safeFileName(value){
+    return String(value||'capacity_chart').replace(/[\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim().slice(0,120)||'capacity_chart';
+  }
+
+  async function chartImageBlob(button,type='image/jpeg') {
+    const meta=chartExportMeta(button);
+    const group=meta.group;
     const svg=group?.querySelector('.chart svg');
     if(!svg)throw new Error('Chart SVG was not found.');
     const clone=svgCloneWithInlineStyles(svg);
@@ -553,32 +581,86 @@
     const url=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));
     try{
       const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error('Could not render the chart image.'));x.src=url;});
-      const title=group?.querySelector('.group-title')?.textContent?.trim()||'Capacity Report';
       const legendSpans=[...(group?.querySelectorAll('.chart-toolbar .legend span')||[])];
-      const scale=2, pad=24, titleH=32, legendH=30;
-      const canvas=document.createElement('canvas');canvas.width=Math.round((W+pad*2)*scale);canvas.height=Math.round((H+pad*2+titleH+legendH)*scale);
+      const fontFamily=getComputedStyle(group).fontFamily||'Arial';
+      const css=getComputedStyle(group);
+      const bg=css.backgroundColor||'#ffffff';
+      const text=css.color||'#101828';
+      const border=getComputedStyle(document.documentElement).getPropertyValue('--border').trim()||'rgba(15,23,42,.12)';
+      const card2=getComputedStyle(document.documentElement).getPropertyValue('--card2').trim()||'#f4f6f8';
+      const muted=getComputedStyle(group.querySelector('.legend')||group).color||text;
+      const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2563eb';
+      const scale=2,pad=24,headerH=86,legendH=28,footerH=26;
+      const metricRows=Math.max(1,Math.ceil(meta.metrics.length/3));
+      const metricsH=metricRows*54 + (metricRows-1)*10 + 16;
+      const totalW=W+pad*2,totalH=pad*2+headerH+legendH+metricsH+H+footerH;
+      const canvas=document.createElement('canvas');canvas.width=Math.round(totalW*scale);canvas.height=Math.round(totalH*scale);
       const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas is not available.');ctx.scale(scale,scale);
-      const bg=getComputedStyle(group).backgroundColor||'#ffffff';const text=getComputedStyle(group).color||'#101828';const muted=getComputedStyle(group.querySelector('.legend')||group).color||text;
-      ctx.fillStyle=bg;ctx.fillRect(0,0,W+pad*2,H+pad*2+titleH+legendH);
-      ctx.fillStyle=text;ctx.font=`700 15px ${getComputedStyle(group).fontFamily||'Arial'}`;ctx.textBaseline='middle';ctx.fillText(title,pad,pad+12);
-      let lx=pad,ly=pad+titleH+10;ctx.font=`600 11px ${getComputedStyle(group).fontFamily||'Arial'}`;
-      for(const span of legendSpans){const dot=span.querySelector('i'),label=span.textContent.trim(),color=dot?getComputedStyle(dot).backgroundColor:text;ctx.fillStyle=color;ctx.beginPath();ctx.arc(lx+4,ly,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=muted;ctx.fillText(label,lx+13,ly);lx+=13+ctx.measureText(label).width+18;}
-      ctx.drawImage(img,pad,pad+titleH+legendH,W,H);
-      return await canvasToBlob(canvas,'image/jpeg',.95);
+      ctx.fillStyle=bg;ctx.fillRect(0,0,totalW,totalH);
+      ctx.textBaseline='alphabetic';
+
+      const reportTitle=meta.cardStrong||meta.topStrong||'Capacity Report';
+      const reportSub=[meta.cardSmall,meta.groupTitle].filter(Boolean).join(' • ');
+      const rangeLine=meta.topSmall||'';
+      ctx.fillStyle=text;ctx.font=`700 20px ${fontFamily}`;ctx.fillText(reportTitle,pad,pad+22);
+      if(reportSub){ctx.fillStyle=muted;ctx.font=`600 12px ${fontFamily}`;ctx.fillText(reportSub,pad,pad+44);}
+      if(rangeLine){ctx.fillStyle=muted;ctx.font=`600 12px ${fontFamily}`;ctx.fillText(`Range: ${rangeLine}`,pad,pad+64);}
+      const brand=meta.topStrong && meta.topStrong!==reportTitle ? meta.topStrong : '';
+      if(brand){ctx.textAlign='right';ctx.fillStyle=accent;ctx.font=`700 12px ${fontFamily}`;ctx.fillText(brand,totalW-pad,pad+20);ctx.textAlign='left';}
+
+      let lx=pad,ly=pad+headerH-10;ctx.font=`600 11px ${fontFamily}`;
+      for(const span of legendSpans){const dot=span.querySelector('i'),label=span.textContent.trim(),color=dot?getComputedStyle(dot).backgroundColor:text;ctx.fillStyle=color;ctx.beginPath();ctx.arc(lx+4,ly,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=muted;ctx.fillText(label,lx+13,ly+4);lx+=13+ctx.measureText(label).width+18;}
+
+      const boxGap=12, cols=Math.min(3, Math.max(1, meta.metrics.length));
+      const boxW=(totalW-pad*2 - boxGap*(cols-1))/cols;
+      let startY=pad+headerH+legendH;
+      meta.metrics.forEach((metric,idx)=>{
+        const col=idx%cols,row=Math.floor(idx/cols),x=pad+col*(boxW+boxGap),y=startY+row*64;
+        ctx.save();
+        ctx.fillStyle=card2; roundedRect(ctx,x,y,boxW,54,12); ctx.fill();
+        ctx.strokeStyle=border; ctx.lineWidth=1; roundedRect(ctx,x,y,boxW,54,12); ctx.stroke();
+        ctx.fillStyle=muted; ctx.font=`700 11px ${fontFamily}`; ctx.fillText(metric.label,x+12,y+17);
+        const chunks=metric.values.slice(0,3); const innerW=(boxW-24)/Math.max(1,chunks.length);
+        chunks.forEach((v,i)=>{
+          const tx=x+12+i*innerW;ctx.fillStyle=muted;ctx.font=`600 10px ${fontFamily}`;ctx.fillText(v.key||'',tx,y+34);
+          ctx.fillStyle=text;ctx.font=`700 12px ${fontFamily}`;ctx.fillText(v.value||'',tx,y+48);
+        });
+        ctx.restore();
+      });
+
+      const chartY=pad+headerH+legendH+metricsH;
+      ctx.drawImage(img,pad,chartY,W,H);
+      ctx.fillStyle=muted;ctx.font=`600 10px ${fontFamily}`;ctx.fillText('Generated by DigiExpress Capacity Report',pad,totalH-pad+4);
+      return await canvasToBlob(canvas,type,type==='image/jpeg' ? .95 : undefined);
     }finally{URL.revokeObjectURL(url)}
+  }
+
+  async function writeImageToClipboard(blob,type){
+    if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')throw new Error('Image clipboard is not available in this browser.');
+    await navigator.clipboard.write([new ClipboardItem({[type]:blob})]);
   }
 
   async function copyChartJpg(button) {
     const original=button.textContent;button.disabled=true;button.textContent='Copying…';
     try{
-      const blob=await chartJpegBlob(button);
-      if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')throw new Error('Image clipboard is not available in this browser.');
-      await navigator.clipboard.write([new ClipboardItem({'image/jpeg':blob})]);
-      button.textContent='Copied ✓';setStatus('Chart JPG copied to clipboard.','ok');
-      setTimeout(()=>{button.textContent=original;button.disabled=false},1400);
+      const jpgBlob=await chartImageBlob(button,'image/jpeg');
+      try{
+        await writeImageToClipboard(jpgBlob,'image/jpeg');
+        button.textContent='Copied ✓';setStatus('Chart image copied to clipboard as JPG.','ok');
+      }catch(jpgErr){
+        const pngBlob=await chartImageBlob(button,'image/png');
+        await writeImageToClipboard(pngBlob,'image/png');
+        button.textContent='Copied PNG ✓';setStatus(`Clipboard does not support JPG, so the chart was copied as PNG instead. ${jpgErr?.message||''}`,'ok');
+      }
+      setTimeout(()=>{button.textContent=original;button.disabled=false},1600);
     }catch(err){
-      try{const blob=await chartJpegBlob(button);const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`capacity_chart_${Date.now()}.jpg`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);setStatus(`JPG clipboard copy was blocked, so the chart was downloaded instead. ${err?.message||''}`,'error');}
-      catch(e){setStatus(e?.message||err?.message||'Could not create the chart JPG.','error')}
+      try{
+        const blob=await chartImageBlob(button,'image/jpeg');
+        const meta=chartExportMeta(button);
+        const fileBase=safeFileName([meta.cardStrong,meta.groupTitle||'chart'].filter(Boolean).join(' - '));
+        const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${fileBase}.jpg`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+        setStatus(`Clipboard copy was blocked, so the chart JPG was downloaded instead. ${err?.message||''}`,'error');
+      }catch(e){setStatus(e?.message||err?.message||'Could not create the chart image.','error')}
       button.textContent=original;button.disabled=false;
     }
   }
