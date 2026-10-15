@@ -27,7 +27,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 407;
+const EXPECTED_REMOTE_CONFIG_VERSION = 408;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -169,27 +169,13 @@ function showView(view, options={}) {
   operationView.classList.toggle('active', view === 'operation');
   currentViewName = view;
   if(options.syncHash!==false)updateUrlState(view);
-  if (view !== 'operation') { setOperationStatus(''); setVoicePermissionBrokerVisible(false); }
+  if (view !== 'operation') { setOperationStatus(''); }
 }
 function goBackView(){
   const target = viewHistory.pop() || 'home';
   showView(target,{record:false});
 }
 function goHomeView(){ viewHistory.length=0; showView('home',{record:false}); }
-
-let voicePermissionBrokerInitialized=false;
-function setVoicePermissionBrokerVisible(visible){ const b=$('voicePermissionBroker'); if(b)b.classList.toggle('active',!!visible); }
-function initVoicePermissionBroker(){
-  if(voicePermissionBrokerInitialized)return; voicePermissionBrokerInitialized=true;
-  const broker=$('voicePermissionBroker'), fallback=$('voicePermissionFallback');
-  if(!broker)return;
-  const frame=()=>document.getElementById('voiceTypingFrame');
-  const tell=(type,message='')=>{try{frame()?.contentWindow?.postMessage({type,message},'*')}catch(_){}};
-  const refresh=async()=>{try{const q=await navigator.permissions?.query?.({name:'microphone'});if(q?.state==='granted')tell('DIGIEXPRESS_VOICE_PERMISSION_GRANTED');else tell('DIGIEXPRESS_VOICE_PERMISSION_DENIED','Microphone permission is not granted yet. Click Enable microphone.');}catch(_){}};
-  if(fallback){fallback.classList.remove('hidden');fallback.onclick=async()=>{try{await chrome.tabs.create({url:chrome.runtime.getURL('voice-permission.html'),active:true});}catch(e){tell('DIGIEXPRESS_VOICE_PERMISSION_DENIED',String(e?.message||e));}};}
-  chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&changes.dxVoiceMicGrantedAt?.newValue){tell('DIGIEXPRESS_VOICE_PERMISSION_GRANTED');}});
-  refresh();
-}
 
 function setValidationBusy(busy) {
   validationInProgress = !!busy;
@@ -572,7 +558,7 @@ function renderOperationForm(op, subId='') {
   op = effectiveSubOperation(op,subId);
   currentSubOperationId = op.subOperationId||'';
   currentOperation = op;
-  initVoicePermissionBroker(); setVoicePermissionBrokerVisible(op.id==='voice-typing');
+
   operationRunning=runningOps.has(op.id); syncFlexControls(); if($('runOperation'))$('runOperation').disabled=operationRunning;
   $('operationTitle').textContent = op.title || op.id;
   const outputLabel={sheet:'Google Sheet',excel:'Excel',internal:'In-app result',none:'No published output'}[String(op?.output?.type||'')]||''; $('operationDescription').textContent = `${op.description || op.subtitle || ''}${outputLabel?` • Output: ${outputLabel}`:''}`;

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Capacity Report</title>
-  <link rel="stylesheet" href="capacity-report.css?v=407">
-  <link rel="stylesheet" href="../ui/design-system.css?v=407">
+  <link rel="stylesheet" href="capacity-report.css?v=408">
+  <link rel="stylesheet" href="../ui/design-system.css?v=408">
 
 <style id="dx-remote-global-font-v367">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
@@ -49,7 +49,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
             <div class="jalali-picker-wrap">
               <input id="fromDate" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="14050520" aria-label="From date">
               <button type="button" class="jalali-picker-toggle" data-picker-for="fromDate" aria-label="Open Persian date picker">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 8h3v3H7v-3Zm7 0h3v3h-3v-3Zm-7 5h3v2H7v-2Z"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9ZM6 6a1 1 0 0 0-1 1v1h14V7a1 1 0 0 0-1-1H6Zm1 7h3v3H7v-3Z"/></svg>
               </button>
               <div class="jalali-picker hidden" data-picker="fromDate"></div>
             </div>
@@ -59,7 +59,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
             <div class="jalali-picker-wrap">
               <input id="toDate" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="14050520" aria-label="To date">
               <button type="button" class="jalali-picker-toggle" data-picker-for="toDate" aria-label="Open Persian date picker">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 8h3v3H7v-3Zm7 0h3v3h-3v-3Zm-7 5h3v2H7v-2Z"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9ZM6 6a1 1 0 0 0-1 1v1h14V7a1 1 0 0 0-1-1H6Zm1 7h3v3H7v-3Z"/></svg>
               </button>
               <div class="jalali-picker hidden" data-picker="toDate"></div>
             </div>
@@ -67,7 +67,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         </div>
 
         <label class="aggregate-option source-option" id="dkGSheetWrap">
-          <input id="useDkGSheet" type="checkbox">
+          <input id="useDkGSheet" type="checkbox" checked>
           <span>
             <strong>Use G-Sheet</strong>
             <small>Load DK capacity data from DataSets → DC Capacity (LG) instead of the LG Capacity page.</small>
@@ -75,7 +75,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         </label>
 
         <label class="aggregate-option source-option hidden" id="flexGSheetWrap">
-          <input id="useFlexGSheet" type="checkbox">
+          <input id="useFlexGSheet" type="checkbox" checked>
           <span>
             <strong>Use G-Sheet</strong>
             <small>Load Flex capacity data from DataSets → DC Capacity (Flex) instead of the Flex Capacity page.</small>
@@ -108,6 +108,6 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
 
     <section id="result" class="result hidden" aria-live="polite"></section>
   </main>
-  <script src="capacity-report.js?v=407"></script>
-<script src="../ui/theme-bridge.js?v=407"></script></body>
+  <script src="capacity-report.js?v=408"></script>
+<script src="../ui/theme-bridge.js?v=408"></script></body>
 </html>

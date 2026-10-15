@@ -1,0 +1,11 @@
+Removed in v408 (delete these from the Remote repository if deploying Changed Files only):
+
+icons/apps/pudo-auto-config.webp
+icons/apps/voice-typing.webp
+operations/pudo-auto-config.json
+operations/voice-typing.json
+templates/PUDO_Auto_Config_Template.xlsx
+ui/voice-typing.html
+voice-typing/index.html
+voice-typing/voice.css
+voice-typing/voice.js

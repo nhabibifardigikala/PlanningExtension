@@ -1,11 +1,11 @@
 (() => {
-  const VERSION = 333;
+  const VERSION = 334;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
   const FLEX_CAPACITY_SHEET_NAME = 'DC Capacity (Flex)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
-  const state = { centers: [], flexCenters: [], allCenters: [], flexLookups: {hub:[], polygon:[]}, source: 'dk', busy: false };
+  const state = { centers: [], flexCenters: [], allCenters: [], flexLookups: {hub:[], polygon:[]}, dateBounds: {dk:null, flex:null}, dateAuto: true, settingDates: false, dateBoundsToken: 0, source: 'dk', busy: false };
   const $ = id => document.getElementById(id);
   const qs = (s, root=document) => root.querySelector(s);
   const qsa = (s, root=document) => [...root.querySelectorAll(s)];
@@ -126,6 +126,46 @@
       script.onerror = () => cleanup(new Error('Could not load Distribution Centers from Google Sheets.'));
       document.head.appendChild(script);
     });
+  }
+
+  function loadSheetDateBounds(source='dk') {
+    source = source === 'flex' ? 'flex' : 'dk';
+    if (state.dateBounds[source]) return Promise.resolve(state.dateBounds[source]);
+    const sheetName = source === 'flex' ? FLEX_CAPACITY_SHEET_NAME : CAPACITY_SHEET_NAME;
+    const dateColumn = source === 'flex' ? 'H' : 'C';
+    return new Promise((resolve,reject)=>{
+      const cb=`__dxCapBounds_${source}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+      const script=document.createElement('script');
+      const timer=setTimeout(()=>cleanup(new Error('Default date range request timed out.')),30000);
+      const cleanup=err=>{clearTimeout(timer);try{delete window[cb]}catch(_){window[cb]=undefined}script.remove();if(err)reject(err)};
+      window[cb]=data=>{
+        try{
+          if(data?.status==='error')throw new Error(data?.errors?.[0]?.detailed_message||data?.errors?.[0]?.message||'Google Sheet returned an error.');
+          const keys=(data?.table?.rows||[]).map(r=>normalizeJalaliDateKey(r.c?.[0]?.f??r.c?.[0]?.v??'')).filter(Boolean).sort((a,b)=>Number(a)-Number(b));
+          if(!keys.length)throw new Error(`No valid Jalali dates were found in ${sheetName}.`);
+          const bounds={from:keys[0],to:keys[keys.length-1]};
+          state.dateBounds[source]=bounds;cleanup();resolve(bounds);
+        }catch(e){cleanup(e)}
+      };
+      const tq=encodeURIComponent(`select ${dateColumn} where ${dateColumn} is not null`);
+      const tqx=encodeURIComponent(`out:json;responseHandler:${cb}`);
+      script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&headers=1&tq=${tq}&tqx=${tqx}`;
+      script.onerror=()=>cleanup(new Error(`Could not read the default date range from ${sheetName}.`));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function applySheetDateDefaults(source=state.source) {
+    if(!state.dateAuto)return;
+    const token=++state.dateBoundsToken;
+    try{
+      const bounds=await loadSheetDateBounds(source);
+      if(token!==state.dateBoundsToken||state.source!==source||!state.dateAuto)return;
+      state.settingDates=true;
+      $('fromDate').value=bounds.from;
+      $('toDate').value=bounds.to;
+      state.settingDates=false;
+    }catch(_){state.settingDates=false;}
   }
 
   function loadDkCapacityFromGoogleSheet(input) {
@@ -351,7 +391,7 @@
     if(label)label.textContent=mode==='hub'?'Hubs':(mode==='polygon'?'Coverage Polygons':'Distribution Centers');
     if(input)input.placeholder=mode==='hub'?'Search Hub name or enter Hub IDs separated by spaces':(mode==='polygon'?'Search Coverage Polygon or enter Polygon IDs separated by spaces':'Search by name or enter Flex IDs separated by spaces');
     if(help)help.textContent=mode==='hub'?'Report by Hub sums all rows under each selected Hub across coverage polygons and time slots.':(mode==='polygon'?'Google Sheet mode reads Flex data by Coverage Polygon from DataSets → DC Capacity (Flex).':'System mode queries the Flex Capacity page for each selected item.');
-    if(resetSelections){state.flexCenters=[];renderFlexChips();$('flexCenterInput').value='';$('flexMenu').classList.add('hidden');}
+    if(resetSelections){renderFlexChips();$('flexMenu').classList.add('hidden');}
   }
 
   function setSource(source) {
@@ -363,6 +403,7 @@
     $('flexGSheetWrap')?.classList.toggle('hidden', state.source !== 'flex');
     $('reportByHubWrap')?.classList.toggle('hidden', state.source !== 'flex');
     updateFlexControls(false);
+    if(state.dateAuto)applySheetDateDefaults(state.source);
   }
 
   function headerIndex(headers, aliases) {
@@ -548,89 +589,66 @@
   function chartExportMeta(button){
     const group=button.closest('.group-card');
     const card=button.closest('.report-card');
-    const result=$('result');
-    const topStrong=result?.querySelector('.result-toolbar strong')?.textContent?.trim()||'Capacity Report';
-    const topSmall=result?.querySelector('.result-toolbar small')?.textContent?.trim()||'';
-    const cardStrong=card?.querySelector('.report-title strong')?.textContent?.trim()||'';
-    const cardSmall=card?.querySelector('.report-title small')?.textContent?.trim()||'';
-    const groupTitle=group?.querySelector('.group-title')?.textContent?.trim()||'';
-    const metrics=[...(group?.querySelectorAll('.metrics .metric')||[])].map(metric=>({
-      label:metric.querySelector('span')?.textContent?.trim()||'',
-      values:[...metric.querySelectorAll('.metric-values > div')].map(box=>({
-        key:box.querySelector('small')?.textContent?.trim()||'',
-        value:box.querySelector('strong')?.textContent?.trim()||''
-      })).filter(v=>v.value)
-    })).filter(m=>m.label&&m.values.length);
-    return {group,topStrong,topSmall,cardStrong,cardSmall,groupTitle,metrics};
+    return {
+      group,
+      card,
+      panelName:group?.dataset.panelName||'Capacity Report',
+      centerName:group?.dataset.centerName||card?.querySelector('.report-title strong')?.textContent?.trim()||'',
+      centerId:group?.dataset.centerId||'',
+      reportRange:group?.dataset.reportRange||'',
+      groupTitle:group?.querySelector('.group-title')?.textContent?.trim()||''
+    };
   }
 
   function safeFileName(value){
-    return String(value||'capacity_chart').replace(/[\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim().slice(0,120)||'capacity_chart';
+    return String(value||'capacity_chart').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim().slice(0,120)||'capacity_chart';
+  }
+
+  function inlineComputedStyles(root){
+    const nodes=[root,...root.querySelectorAll('*')];
+    for(const el of nodes){
+      const cs=getComputedStyle(el);
+      for(let i=0;i<cs.length;i++){
+        const prop=cs[i],val=cs.getPropertyValue(prop);
+        if(val)el.style.setProperty(prop,val,cs.getPropertyPriority(prop));
+      }
+    }
+  }
+
+  async function makeDashboardCapture(button){
+    const meta=chartExportMeta(button);
+    if(!meta.group)throw new Error('Dashboard chart card was not found.');
+    const stage=document.createElement('div');
+    stage.className='dashboard-capture-stage';
+    const shot=document.createElement('section');
+    shot.className='report-card dashboard-export-card';
+    const head=document.createElement('div');
+    head.className='dashboard-export-head';
+    head.innerHTML=`<div class="dashboard-export-panel"><strong>${esc(meta.panelName)}</strong>${meta.reportRange?`<small>${esc(meta.reportRange)}</small>`:''}</div><div class="dashboard-export-center"><strong>${esc(meta.centerName)}</strong>${meta.centerId?`<small>ID ${esc(meta.centerId)}</small>`:''}</div>`;
+    const group=meta.group.cloneNode(true);
+    group.querySelectorAll('.copy-chart-jpg').forEach(x=>x.remove());
+    group.querySelectorAll('.chart-toolbar').forEach(x=>x.classList.add('export-chart-toolbar'));
+    shot.append(head,group);stage.appendChild(shot);document.body.appendChild(stage);
+    try{
+      if(document.fonts?.ready)await document.fonts.ready.catch(()=>{});
+      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      const rect=shot.getBoundingClientRect();
+      inlineComputedStyles(shot);
+      shot.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+      const html=new XMLSerializer().serializeToString(shot);
+      return {html,width:Math.ceil(rect.width),height:Math.ceil(rect.height),meta};
+    }finally{stage.remove()}
   }
 
   async function chartImageBlob(button,type='image/jpeg') {
-    const meta=chartExportMeta(button);
-    const group=meta.group;
-    const svg=group?.querySelector('.chart svg');
-    if(!svg)throw new Error('Chart SVG was not found.');
-    const clone=svgCloneWithInlineStyles(svg);
-    const vb=(svg.getAttribute('viewBox')||'0 0 1000 330').trim().split(/\s+/).map(Number);
-    const W=Number.isFinite(vb[2])&&vb[2]>0?vb[2]:1000, H=Number.isFinite(vb[3])&&vb[3]>0?vb[3]:330;
-    clone.setAttribute('width',String(W));clone.setAttribute('height',String(H));
-    const xml=new XMLSerializer().serializeToString(clone);
-    const url=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));
+    const capture=await makeDashboardCapture(button);
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${capture.width}" height="${capture.height}" viewBox="0 0 ${capture.width} ${capture.height}"><foreignObject width="100%" height="100%">${capture.html}</foreignObject></svg>`;
+    const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
     try{
-      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error('Could not render the chart image.'));x.src=url;});
-      const legendSpans=[...(group?.querySelectorAll('.chart-toolbar .legend span')||[])];
-      const fontFamily=getComputedStyle(group).fontFamily||'Arial';
-      const css=getComputedStyle(group);
-      const bg=css.backgroundColor||'#ffffff';
-      const text=css.color||'#101828';
-      const border=getComputedStyle(document.documentElement).getPropertyValue('--border').trim()||'rgba(15,23,42,.12)';
-      const card2=getComputedStyle(document.documentElement).getPropertyValue('--card2').trim()||'#f4f6f8';
-      const muted=getComputedStyle(group.querySelector('.legend')||group).color||text;
-      const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2563eb';
-      const scale=2,pad=24,headerH=86,legendH=28,footerH=26;
-      const metricRows=Math.max(1,Math.ceil(meta.metrics.length/3));
-      const metricsH=metricRows*54 + (metricRows-1)*10 + 16;
-      const totalW=W+pad*2,totalH=pad*2+headerH+legendH+metricsH+H+footerH;
-      const canvas=document.createElement('canvas');canvas.width=Math.round(totalW*scale);canvas.height=Math.round(totalH*scale);
-      const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas is not available.');ctx.scale(scale,scale);
-      ctx.fillStyle=bg;ctx.fillRect(0,0,totalW,totalH);
-      ctx.textBaseline='alphabetic';
-
-      const reportTitle=meta.cardStrong||meta.topStrong||'Capacity Report';
-      const reportSub=[meta.cardSmall,meta.groupTitle].filter(Boolean).join(' • ');
-      const rangeLine=meta.topSmall||'';
-      ctx.fillStyle=text;ctx.font=`700 20px ${fontFamily}`;ctx.fillText(reportTitle,pad,pad+22);
-      if(reportSub){ctx.fillStyle=muted;ctx.font=`600 12px ${fontFamily}`;ctx.fillText(reportSub,pad,pad+44);}
-      if(rangeLine){ctx.fillStyle=muted;ctx.font=`600 12px ${fontFamily}`;ctx.fillText(`Range: ${rangeLine}`,pad,pad+64);}
-      const brand=meta.topStrong && meta.topStrong!==reportTitle ? meta.topStrong : '';
-      if(brand){ctx.textAlign='right';ctx.fillStyle=accent;ctx.font=`700 12px ${fontFamily}`;ctx.fillText(brand,totalW-pad,pad+20);ctx.textAlign='left';}
-
-      let lx=pad,ly=pad+headerH-10;ctx.font=`600 11px ${fontFamily}`;
-      for(const span of legendSpans){const dot=span.querySelector('i'),label=span.textContent.trim(),color=dot?getComputedStyle(dot).backgroundColor:text;ctx.fillStyle=color;ctx.beginPath();ctx.arc(lx+4,ly,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=muted;ctx.fillText(label,lx+13,ly+4);lx+=13+ctx.measureText(label).width+18;}
-
-      const boxGap=12, cols=Math.min(3, Math.max(1, meta.metrics.length));
-      const boxW=(totalW-pad*2 - boxGap*(cols-1))/cols;
-      let startY=pad+headerH+legendH;
-      meta.metrics.forEach((metric,idx)=>{
-        const col=idx%cols,row=Math.floor(idx/cols),x=pad+col*(boxW+boxGap),y=startY+row*64;
-        ctx.save();
-        ctx.fillStyle=card2; roundedRect(ctx,x,y,boxW,54,12); ctx.fill();
-        ctx.strokeStyle=border; ctx.lineWidth=1; roundedRect(ctx,x,y,boxW,54,12); ctx.stroke();
-        ctx.fillStyle=muted; ctx.font=`700 11px ${fontFamily}`; ctx.fillText(metric.label,x+12,y+17);
-        const chunks=metric.values.slice(0,3); const innerW=(boxW-24)/Math.max(1,chunks.length);
-        chunks.forEach((v,i)=>{
-          const tx=x+12+i*innerW;ctx.fillStyle=muted;ctx.font=`600 10px ${fontFamily}`;ctx.fillText(v.key||'',tx,y+34);
-          ctx.fillStyle=text;ctx.font=`700 12px ${fontFamily}`;ctx.fillText(v.value||'',tx,y+48);
-        });
-        ctx.restore();
-      });
-
-      const chartY=pad+headerH+legendH+metricsH;
-      ctx.drawImage(img,pad,chartY,W,H);
-      ctx.fillStyle=muted;ctx.font=`600 10px ${fontFamily}`;ctx.fillText('Generated by DigiExpress Capacity Report',pad,totalH-pad+4);
+      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error('Could not render the dashboard screenshot.'));x.src=url;});
+      const scale=2,canvas=document.createElement('canvas');canvas.width=capture.width*scale;canvas.height=capture.height*scale;
+      const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas is not available.');
+      ctx.scale(scale,scale);ctx.drawImage(img,0,0,capture.width,capture.height);
       return await canvasToBlob(canvas,type,type==='image/jpeg' ? .95 : undefined);
     }finally{URL.revokeObjectURL(url)}
   }
@@ -646,21 +664,20 @@
       const jpgBlob=await chartImageBlob(button,'image/jpeg');
       try{
         await writeImageToClipboard(jpgBlob,'image/jpeg');
-        button.textContent='Copied ✓';setStatus('Chart image copied to clipboard as JPG.','ok');
+        button.textContent='Copied ✓';setStatus('Dashboard image copied to clipboard as JPG.','ok');
       }catch(jpgErr){
         const pngBlob=await chartImageBlob(button,'image/png');
         await writeImageToClipboard(pngBlob,'image/png');
-        button.textContent='Copied PNG ✓';setStatus(`Clipboard does not support JPG, so the chart was copied as PNG instead. ${jpgErr?.message||''}`,'ok');
+        button.textContent='Copied ✓';setStatus('Dashboard image copied to clipboard. JPG is not supported by this browser, so PNG was used.','ok');
       }
       setTimeout(()=>{button.textContent=original;button.disabled=false},1600);
     }catch(err){
       try{
         const blob=await chartImageBlob(button,'image/jpeg');
-        const meta=chartExportMeta(button);
-        const fileBase=safeFileName([meta.cardStrong,meta.groupTitle||'chart'].filter(Boolean).join(' - '));
+        const meta=chartExportMeta(button),fileBase=safeFileName([meta.panelName,meta.centerName,meta.groupTitle].filter(Boolean).join(' - '));
         const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${fileBase}.jpg`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
-        setStatus(`Clipboard copy was blocked, so the chart JPG was downloaded instead. ${err?.message||''}`,'error');
-      }catch(e){setStatus(e?.message||err?.message||'Could not create the chart image.','error')}
+        setStatus(`Clipboard copy was blocked, so the dashboard JPG was downloaded instead. ${err?.message||''}`,'error');
+      }catch(e){setStatus(e?.message||err?.message||'Could not create the dashboard image.','error')}
       button.textContent=original;button.disabled=false;
     }
   }
@@ -676,7 +693,7 @@
       const idText=model.source==='flex'?'':(part.id&&part.id!=='aggregate'?`ID ${esc(part.id)}`:'');
       sec.innerHTML=`<div class="report-title"><div><strong>${esc(part.label)}</strong>${idText?`<small>${idText}</small>`:''}</div><small>${part.rows.length} rows</small></div><div class="group-list"></div>`;cards.appendChild(sec);
       const gl=qs('.group-list',sec);
-      for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';const metrics=`<div class="metrics${model.source==='flex'?' flex-metrics':''}"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Reserved',m.reserved)}</div>`;const groupTitle=(model.aggregate||model.reportByHub)?'':(model.source==='flex'?`Time Slot: ${group.label}`:group.label);g.innerHTML=`${groupTitle?`<div class="group-title">${esc(groupTitle)}</div>`:''}${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
+      for(const group of part.groups){const m=metricData(model,group),series=seriesData(model,group);const g=document.createElement('section');g.className='group-card';g.dataset.panelName=`${model.source==='flex'?'Flex':'DK'} Capacity Report${model.aggregate?' • Aggregated':''}`;g.dataset.centerName=part.label||'';g.dataset.centerId=(part.id&&part.id!=='aggregate')?part.id:'';g.dataset.reportRange=`${model.fromDate} → ${model.toDate}`;const metrics=`<div class="metrics${model.source==='flex'?' flex-metrics':''}"><div class="metric days"><span>Report days</span><div class="metric-values"><div><strong>${m.days}</strong></div></div></div>${metricCard('Capacity',m.capacity)}${metricCard('Reserved',m.reserved)}</div>`;const groupTitle=(model.aggregate||model.reportByHub)?'':(model.source==='flex'?`Time Slot: ${group.label}`:group.label);g.innerHTML=`${groupTitle?`<div class="group-title">${esc(groupTitle)}</div>`:''}${metrics}${renderChart(series,model.source)}`;gl.appendChild(g);}
     }
     qsa('.copy-chart-jpg',host).forEach(btn=>btn.onclick=()=>copyChartJpg(btn));
     $('downloadExcel').onclick=()=>downloadModelXlsx(model);
@@ -784,18 +801,24 @@
     if(initDashboard())return;
     bindAutocomplete();
     qsa('input[name="source"]').forEach(r=>r.addEventListener('change',()=>setSource(r.value)));
-    $('useFlexGSheet')?.addEventListener('change',()=>{if(!$('useFlexGSheet').checked&&$('reportByHub')?.checked)$('reportByHub').checked=false;updateFlexControls(true)});
-    $('reportByHub')?.addEventListener('change',()=>{if($('reportByHub').checked)$('useFlexGSheet').checked=true;updateFlexControls(true)});
-    setSource('dk');
+    $('useDkGSheet').checked=true;
+    $('useFlexGSheet').checked=true;
+    $('useDkGSheet')?.addEventListener('change',()=>{});
+    $('useFlexGSheet')?.addEventListener('change',()=>{if(!$('useFlexGSheet').checked&&$('reportByHub')?.checked)$('reportByHub').checked=false;updateFlexControls(false)});
+    $('reportByHub')?.addEventListener('change',()=>{if($('reportByHub').checked)$('useFlexGSheet').checked=true;updateFlexControls(false)});
     const today=currentJalaliParts();
+    state.settingDates=true;
     $('fromDate').value=`${today.y}${String(today.m).padStart(2,'0')}01`;
     $('toDate').value=`${today.y}${String(today.m).padStart(2,'0')}${String(today.d).padStart(2,'0')}`;
+    state.settingDates=false;
+    setSource('dk');
     $('runReport').onclick=run;
     for(const id of['fromDate','toDate']){
-      $(id).addEventListener('input',e=>{e.target.value=latinDigits(e.target.value).replace(/\D/g,'').slice(0,8)});
+      $(id).addEventListener('input',e=>{e.target.value=latinDigits(e.target.value).replace(/\D/g,'').slice(0,8);if(!state.settingDates)state.dateAuto=false});
       setupJalaliPicker(id);
     }
     loadCenters().catch(()=>{});
+    applySheetDateDefaults('dk');
   }
   init();
 })();

@@ -490,45 +490,6 @@ body:has(#operationView.active #operationInputs [data-field-wrap="__workHealthyE
 html:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__authenticatorEmbedded"]),#operationView.active:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]){height:100%;min-height:0;overflow:hidden}
 #operationView.active:has(#operationInputs [data-field-wrap="__authenticatorEmbedded"]){display:flex;flex-direction:column}
 
-/* Voice Typing remote feature */
-#voiceTypingEmbedded.voice-typing-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
-#voiceTypingEmbedded.voice-typing-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light dark}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) .settings-heading,#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #capacityStats{display:none!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{display:block!important}
-html:has(#operationView.active #operationInputs [data-field-wrap="__voiceTypingEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__voiceTypingEmbedded"]),.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__voiceTypingEmbedded"]){height:100%;min-height:0;overflow:hidden}
-#operationView.active:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #operationBackBtn{flex:0 0 auto}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;margin-top:8px}
-/* v227 Voice Typing: consume all available operation viewport and inherit extension color scheme. */
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{border:0!important;border-radius:0!important;margin-top:6px!important;overflow:hidden!important;min-height:0!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded iframe{height:100%!important;min-height:0!important;border-radius:12px}
-html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark}html[data-theme="light"] #voiceTypingFrame{color-scheme:light}
-/* v227 Voice Typing viewport and theme bridge */
-html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark!important}
-html[data-theme="light"] #voiceTypingFrame{color-scheme:light!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{height:calc(100vh - 145px)!important;min-height:560px!important;flex:1 1 auto!important;overflow:hidden!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded iframe{height:100%!important;min-height:560px!important}
-/* v227 Voice Typing viewport and theme bridge */
-html[data-theme="dark"] #voiceTypingFrame{color-scheme:dark!important}
-html[data-theme="light"] #voiceTypingFrame{color-scheme:light!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{height:calc(100vh - 145px)!important;min-height:560px!important;flex:1 1 auto!important;overflow:hidden!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded iframe{height:100%!important;min-height:560px!important}
-
-/* Voice Typing top-level capability broker: browser permission controls must not be clipped. */
-.voice-permission-broker{position:fixed;z-index:2147483000;left:16px;right:16px;top:138px;display:none;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--panel);box-shadow:0 14px 38px rgba(16,24,40,.18);overflow:visible!important;clip:auto!important;transform:none!important;opacity:1!important}
-.voice-permission-broker.active{display:flex}
-.voice-permission-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}.voice-permission-copy strong{font-size:13px}.voice-permission-copy small{font-size:11px;color:var(--muted)}
-/* Chrome capability elements intentionally keep their native/browser-controlled styling.
-   Do not style <usermedia> or its child button: Chrome 151+ validates capability-element
-   appearance and disables controls whose computed style is considered unsafe/invalid. */
-.voice-permission-fallback{min-width:150px;min-height:40px;border:1px solid var(--accent);border-radius:10px;background:var(--accent);color:#fff;font-weight:700;padding:9px 14px}
-.voice-permission-fallback.hidden{display:none!important}
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #voiceTypingEmbedded.voice-typing-embedded{padding-top:72px}
-
-/* v239 Voice navigation: keep the Operations Back button clear of the microphone broker. */
-#operationView:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]) #operationBackBtn{position:relative!important;z-index:2147483600!important;visibility:visible!important}
-
-
 /* v243 — Follow-up remote embedded feature */
 .follow-up-embedded{display:none;width:100%;min-height:0}
 .follow-up-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent}
@@ -643,7 +604,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 /* Operation + Settings views */
 #operationView,#settingsView{padding-top:10px}.view-nav{display:flex;gap:8px;margin-bottom:10px}.nav-icon-button{background:#fff!important;border-color:#e2e8f0!important;border-radius:11px!important;width:40px!important;height:40px!important}.settings-heading{padding:18px 0 0}.section-heading h1{font-size:28px!important;letter-spacing:-.6px}.section-heading p{font-size:12px!important;line-height:1.6}.settings-card,.stats-card{border:1px solid #e3e8f0!important;border-radius:18px!important;background:rgba(255,255,255,.95)!important;box-shadow:0 8px 26px rgba(15,23,42,.05)!important;padding:20px!important}.settings-card input,.settings-card select{height:44px!important;border-color:#dde3ec!important;border-radius:11px!important;background:#fbfcfe!important}.save-button{min-height:44px!important;border-radius:11px!important;background:linear-gradient(90deg,#2563eb,#3b82f6)!important;color:#fff!important;box-shadow:0 7px 18px rgba(37,99,235,.18)!important}.secondary-button{min-height:42px!important;border-radius:11px!important}.operation-control-row{display:flex;gap:10px}.operation-control-row .secondary-button{flex:1}
-.daily-planner-embedded,.follow-up-embedded,.authenticator-embedded,.wellness-embedded,.note-embedded,.voice-typing-embedded,.paste-assistant-embedded,.data-set-update-embedded,.capacity-report-embedded,.process-learning-embedded,.time-study-embedded,.map-operation-embedded{border-radius:20px!important;overflow:hidden!important;border:1px solid #e1e7ef!important;box-shadow:0 12px 32px rgba(15,23,42,.06)!important;background:#fff!important}
+.daily-planner-embedded,.follow-up-embedded,.authenticator-embedded,.wellness-embedded,.note-embedded,.paste-assistant-embedded,.data-set-update-embedded,.capacity-report-embedded,.process-learning-embedded,.time-study-embedded,.map-operation-embedded{border-radius:20px!important;overflow:hidden!important;border:1px solid #e1e7ef!important;box-shadow:0 12px 32px rgba(15,23,42,.06)!important;background:#fff!important}
 
 /* Dark theme */
 html[data-theme="dark"] body{background:linear-gradient(180deg,#0a1020,#0b1224);color:#eef3ff}.dark .x{display:none}html[data-theme="dark"] .main-sidebar{background:linear-gradient(180deg,#090f24,#101a3b 60%,#132450)}html[data-theme="dark"] .topbar{border-color:#1f2a44}html[data-theme="dark"] .topbar-status,html[data-theme="dark"] .icon-button,html[data-theme="dark"] .tool-toolbar,html[data-theme="dark"] .tool-search,html[data-theme="dark"] .category-chip,html[data-theme="dark"] .op-card,html[data-theme="dark"] .settings-card,html[data-theme="dark"] .stats-card,html[data-theme="dark"] .compact-status{background:#121a2e!important;border-color:#26324b!important;color:#e9eef9!important}html[data-theme="dark"] .hero-shell{background:linear-gradient(118deg,#111b38,#17213f 45%,#1b173a 75%,#102b32);border-color:#253353}html[data-theme="dark"] .hero-copy h1,html[data-theme="dark"] .tools-heading h2,html[data-theme="dark"] .op-title{color:#f5f7ff!important}html[data-theme="dark"] .hero-copy p,html[data-theme="dark"] .tools-heading p,html[data-theme="dark"] .op-meta{color:#9dacC7!important}html[data-theme="dark"] .hero-metric{background:rgba(14,24,48,.78);border-color:#2c3b5c}html[data-theme="dark"] .hero-metric span{color:#9aabc9}html[data-theme="dark"] .tool-search input{color:#e7edf8}html[data-theme="dark"] .tool-search kbd{background:#0e1628;border-color:#2a3650;color:#8fa0bc}html[data-theme="dark"] .category-chip.active{background:#3b82f6!important;border-color:#3b82f6!important;color:#fff!important}
@@ -662,13 +623,12 @@ html[data-theme="dark"] body{background:linear-gradient(180deg,#0a1020,#0b1224);
 #operationView.active:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__followUpEmbedded"]),
-#operationView.active:has(#operationInputs [data-field-wrap="__voiceTypingEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__noteEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]){width:100%!important;max-width:none!important;margin:0!important}
 #dataSetUpdateEmbedded.data-set-update-embedded,#capacityReportEmbedded.capacity-report-embedded,#processLearningEmbedded.process-learning-embedded,
-.daily-planner-embedded,.follow-up-embedded,.voice-typing-embedded,.note-embedded,.time-study-embedded,.wellness-embedded,.map-operation-embedded{width:100%!important;max-width:none!important}
+.daily-planner-embedded,.follow-up-embedded,.note-embedded,.time-study-embedded,.wellness-embedded,.map-operation-embedded{width:100%!important;max-width:none!important}
 .operation-grid{grid-template-columns:repeat(auto-fit,minmax(245px,1fr))!important;gap:16px!important}
 .op-card{min-height:188px!important;padding:18px!important;grid-template-columns:64px 1fr!important;column-gap:15px!important}
 .op-icon{width:64px!important;height:64px!important;border-radius:17px!important}
@@ -889,14 +849,6 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       </div>
     </header>
 
-    <aside id="voicePermissionBroker" class="voice-permission-broker" aria-label="Microphone access" aria-live="polite">
-      <div class="voice-permission-copy">
-        <strong>Microphone access</strong>
-        <small>Enable microphone once, then press Start below.</small>
-      </div>
-<button id="voicePermissionFallback" class="voice-permission-fallback" type="button">Enable microphone</button>
-    </aside>
-
     <section id="homeView" class="view active">
       <section class="hero-shell">
         <div class="hero-copy">
@@ -948,12 +900,11 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
       <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="voiceTypingEmbedded" class="voice-typing-embedded" aria-label="Voice Typing"><iframe id="voiceTypingFrame" title="Voice Typing" src="voice-typing.html?v=348" allow="microphone"></iframe></section>
       <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=348" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
 
       <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=dark" loading="lazy"></iframe></section>
       <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=405&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=405&theme=dark" loading="lazy"></iframe></section>
-      <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=407&theme=light" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=407&theme=dark" loading="lazy"></iframe></section>
+      <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=408&theme=light" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=408&theme=dark" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
       <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=348" loading="lazy"></iframe></section>
@@ -1091,7 +1042,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 407;
+const EXPECTED_REMOTE_CONFIG_VERSION = 408;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1268,27 +1219,13 @@ function showView(view, options={}) {
   operationView.classList.toggle('active', view === 'operation');
   currentViewName = view;
   if(options.syncHash!==false)updateUrlState(view);
-  if (view !== 'operation') { setOperationStatus(''); setVoicePermissionBrokerVisible(false); }
+  if (view !== 'operation') { setOperationStatus(''); }
 }
 function goBackView(){
   const target = viewHistory.pop() || 'home';
   showView(target,{record:false});
 }
 function goHomeView(){ viewHistory.length=0; showView('home',{record:false}); }
-
-let voicePermissionBrokerInitialized=false;
-function setVoicePermissionBrokerVisible(visible){ const b=$('voicePermissionBroker'); if(b)b.classList.toggle('active',!!visible); }
-function initVoicePermissionBroker(){
-  if(voicePermissionBrokerInitialized)return; voicePermissionBrokerInitialized=true;
-  const broker=$('voicePermissionBroker'), fallback=$('voicePermissionFallback');
-  if(!broker)return;
-  const frame=()=>document.getElementById('voiceTypingFrame');
-  const tell=(type,message='')=>{try{frame()?.contentWindow?.postMessage({type,message},'*')}catch(_){}};
-  const refresh=async()=>{try{const q=await navigator.permissions?.query?.({name:'microphone'});if(q?.state==='granted')tell('DIGIEXPRESS_VOICE_PERMISSION_GRANTED');else tell('DIGIEXPRESS_VOICE_PERMISSION_DENIED','Microphone permission is not granted yet. Click Enable microphone.');}catch(_){}};
-  if(fallback){fallback.classList.remove('hidden');fallback.onclick=async()=>{try{await chrome.tabs.create({url:chrome.runtime.getURL('voice-permission.html'),active:true});}catch(e){tell('DIGIEXPRESS_VOICE_PERMISSION_DENIED',String(e?.message||e));}};}
-  chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&changes.dxVoiceMicGrantedAt?.newValue){tell('DIGIEXPRESS_VOICE_PERMISSION_GRANTED');}});
-  refresh();
-}
 
 function setValidationBusy(busy) {
   validationInProgress = !!busy;
@@ -1671,7 +1608,7 @@ function renderOperationForm(op, subId='') {
   op = effectiveSubOperation(op,subId);
   currentSubOperationId = op.subOperationId||'';
   currentOperation = op;
-  initVoicePermissionBroker(); setVoicePermissionBrokerVisible(op.id==='voice-typing');
+
   operationRunning=runningOps.has(op.id); syncFlexControls(); if($('runOperation'))$('runOperation').disabled=operationRunning;
   $('operationTitle').textContent = op.title || op.id;
   const outputLabel={sheet:'Google Sheet',excel:'Excel',internal:'In-app result',none:'No published output'}[String(op?.output?.type||'')]||''; $('operationDescription').textContent = `${op.description || op.subtitle || ''}${outputLabel?` • Output: ${outputLabel}`:''}`;
