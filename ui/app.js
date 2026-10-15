@@ -27,7 +27,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 409;
+const EXPECTED_REMOTE_CONFIG_VERSION = 410;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -822,6 +822,7 @@ async function openOperationById(opId,subId=''){
     renderOperationForm(op,subId);
     const frame=document.getElementById('authenticatorFrame');
     if(!frame)throw new Error('Authenticator frame is unavailable.');
+    frame.setAttribute('allow','clipboard-write');
     if(frame.dataset.hostAuthenticatorLoaded!=='1'){
       const local=await globalThis.DigiExpressPlatform.call('localPage.getUrl',{path:'authenticator.html'});
       const localUrl=String(local?.url||'');

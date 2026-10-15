@@ -896,7 +896,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
       <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=386" loading="lazy"></iframe></section>
       <section id="chargingItemsEmbedded" class="charging-items-embedded" aria-label="Charging Items"><iframe id="chargingItemsFrame" title="Charging Items" src="https://nhabibifardigikala.github.io/PlanningExtension/charging-items/index.html?v=396" loading="lazy"></iframe></section>
-      <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy"></iframe></section>
+      <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy" allow="clipboard-write"></iframe></section>
       <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
       <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
       <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
@@ -1042,7 +1042,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 409;
+const EXPECTED_REMOTE_CONFIG_VERSION = 410;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1873,6 +1873,7 @@ async function openOperationById(opId,subId=''){
     renderOperationForm(op,subId);
     const frame=document.getElementById('authenticatorFrame');
     if(!frame)throw new Error('Authenticator frame is unavailable.');
+    frame.setAttribute('allow','clipboard-write');
     if(frame.dataset.hostAuthenticatorLoaded!=='1'){
       const local=await globalThis.DigiExpressPlatform.call('localPage.getUrl',{path:'authenticator.html'});
       const localUrl=String(local?.url||'');
