@@ -1,0 +1,7 @@
+voice-typing/
+ui/voice-typing.html
+templates/PUDO_Auto_Config_Template.xlsx
+icons/apps/voice-typing.webp
+icons/apps/pudo-auto-config.webp
+operations/voice-typing.json
+operations/pudo-auto-config.json

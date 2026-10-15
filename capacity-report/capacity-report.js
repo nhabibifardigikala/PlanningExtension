@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 334;
+  const VERSION = 335;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
@@ -589,6 +589,13 @@
   function chartExportMeta(button){
     const group=button.closest('.group-card');
     const card=button.closest('.report-card');
+    const metrics=[...(group?.querySelectorAll('.metrics .metric')||[])].map(metric=>({
+      label:metric.querySelector(':scope > span')?.textContent?.trim()||'',
+      values:[...metric.querySelectorAll('.metric-values > div')].map(box=>({
+        key:box.querySelector('small')?.textContent?.trim()||'',
+        value:box.querySelector('strong')?.textContent?.trim()||''
+      })).filter(x=>x.value)
+    })).filter(x=>x.label&&x.values.length);
     return {
       group,
       card,
@@ -596,7 +603,8 @@
       centerName:group?.dataset.centerName||card?.querySelector('.report-title strong')?.textContent?.trim()||'',
       centerId:group?.dataset.centerId||'',
       reportRange:group?.dataset.reportRange||'',
-      groupTitle:group?.querySelector('.group-title')?.textContent?.trim()||''
+      groupTitle:group?.querySelector('.group-title')?.textContent?.trim()||'',
+      metrics
     };
   }
 
@@ -604,80 +612,148 @@
     return String(value||'capacity_chart').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim().slice(0,120)||'capacity_chart';
   }
 
-  function inlineComputedStyles(root){
-    const nodes=[root,...root.querySelectorAll('*')];
-    for(const el of nodes){
-      const cs=getComputedStyle(el);
-      for(let i=0;i<cs.length;i++){
-        const prop=cs[i],val=cs.getPropertyValue(prop);
-        if(val)el.style.setProperty(prop,val,cs.getPropertyPriority(prop));
-      }
-    }
+  function roundedRect(ctx,x,y,w,h,r){
+    const rr=Math.min(r,w/2,h/2);
+    ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();
   }
 
-  async function makeDashboardCapture(button){
+  async function svgElementToImage(svg){
+    const clone=svgCloneWithInlineStyles(svg);
+    const vb=(svg.getAttribute('viewBox')||'0 0 1000 330').trim().split(/\s+/).map(Number);
+    const W=Number.isFinite(vb[2])&&vb[2]>0?vb[2]:1000;
+    const H=Number.isFinite(vb[3])&&vb[3]>0?vb[3]:330;
+    clone.setAttribute('width',String(W));clone.setAttribute('height',String(H));
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    const xml=new XMLSerializer().serializeToString(clone);
+    const url=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));
+    try{
+      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error('Could not render the chart SVG.'));x.src=url;});
+      return {img,W,H};
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  async function chartImageBlob(button,type='image/png'){
     const meta=chartExportMeta(button);
-    if(!meta.group)throw new Error('Dashboard chart card was not found.');
-    const stage=document.createElement('div');
-    stage.className='dashboard-capture-stage';
-    const shot=document.createElement('section');
-    shot.className='report-card dashboard-export-card';
-    const head=document.createElement('div');
-    head.className='dashboard-export-head';
-    head.innerHTML=`<div class="dashboard-export-panel"><strong>${esc(meta.panelName)}</strong>${meta.reportRange?`<small>${esc(meta.reportRange)}</small>`:''}</div><div class="dashboard-export-center"><strong>${esc(meta.centerName)}</strong>${meta.centerId?`<small>ID ${esc(meta.centerId)}</small>`:''}</div>`;
-    const group=meta.group.cloneNode(true);
-    group.querySelectorAll('.copy-chart-jpg').forEach(x=>x.remove());
-    group.querySelectorAll('.chart-toolbar').forEach(x=>x.classList.add('export-chart-toolbar'));
-    shot.append(head,group);stage.appendChild(shot);document.body.appendChild(stage);
-    try{
-      if(document.fonts?.ready)await document.fonts.ready.catch(()=>{});
-      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-      const rect=shot.getBoundingClientRect();
-      inlineComputedStyles(shot);
-      shot.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
-      const html=new XMLSerializer().serializeToString(shot);
-      return {html,width:Math.ceil(rect.width),height:Math.ceil(rect.height),meta};
-    }finally{stage.remove()}
-  }
+    const group=meta.group;
+    const svg=group?.querySelector('.chart svg');
+    if(!group||!svg)throw new Error('Chart was not found.');
 
-  async function chartImageBlob(button,type='image/jpeg') {
-    const capture=await makeDashboardCapture(button);
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${capture.width}" height="${capture.height}" viewBox="0 0 ${capture.width} ${capture.height}"><foreignObject width="100%" height="100%">${capture.html}</foreignObject></svg>`;
-    const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}));
-    try{
-      const img=await new Promise((resolve,reject)=>{const x=new Image();x.onload=()=>resolve(x);x.onerror=()=>reject(new Error('Could not render the dashboard screenshot.'));x.src=url;});
-      const scale=2,canvas=document.createElement('canvas');canvas.width=capture.width*scale;canvas.height=capture.height*scale;
-      const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas is not available.');
-      ctx.scale(scale,scale);ctx.drawImage(img,0,0,capture.width,capture.height);
-      return await canvasToBlob(canvas,type,type==='image/jpeg' ? .95 : undefined);
-    }finally{URL.revokeObjectURL(url)}
+    const {img,W,H}=await svgElementToImage(svg);
+    const rootStyle=getComputedStyle(document.documentElement);
+    const groupStyle=getComputedStyle(group);
+    const fontFamily=groupStyle.fontFamily||'Arial';
+    const bg=groupStyle.backgroundColor&&groupStyle.backgroundColor!=='rgba(0, 0, 0, 0)'?groupStyle.backgroundColor:(rootStyle.getPropertyValue('--card').trim()||'#ffffff');
+    const card2=rootStyle.getPropertyValue('--card2').trim()||'#f7f9fc';
+    const border=rootStyle.getPropertyValue('--border').trim()||'#dce3ec';
+    const text=groupStyle.color||'#101828';
+    const muted=rootStyle.getPropertyValue('--muted').trim()||'#667085';
+    const accent=rootStyle.getPropertyValue('--accent').trim()||'#2563eb';
+
+    const scale=2;
+    const outer=26;
+    const width=Math.max(1120,W+outer*2);
+    const headerH=92;
+    const titleGap=meta.groupTitle?36:0;
+    const metricGap=12;
+    const metricCols=Math.max(1,Math.min(3,meta.metrics.length));
+    const metricRows=Math.max(1,Math.ceil(meta.metrics.length/metricCols));
+    const metricH=70;
+    const metricsBlockH=meta.metrics.length ? metricRows*metricH+(metricRows-1)*metricGap+18 : 0;
+    const legendH=38;
+    const chartH=H;
+    const footerH=24;
+    const height=outer+headerH+titleGap+metricsBlockH+legendH+chartH+footerH+outer;
+
+    const canvas=document.createElement('canvas');
+    canvas.width=Math.round(width*scale);canvas.height=Math.round(height*scale);
+    const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas is not available.');
+    ctx.scale(scale,scale);
+    ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
+
+    // Header: panel on the left, center name fixed to the right.
+    ctx.textBaseline='alphabetic';
+    ctx.textAlign='left';ctx.fillStyle=text;ctx.font=`900 21px ${fontFamily}`;ctx.fillText(meta.panelName,outer,outer+25);
+    ctx.fillStyle=muted;ctx.font=`700 12px ${fontFamily}`;
+    if(meta.reportRange)ctx.fillText(meta.reportRange,outer,outer+50);
+
+    ctx.textAlign='right';ctx.fillStyle=text;ctx.font=`900 22px ${fontFamily}`;
+    ctx.fillText(meta.centerName||'—',width-outer,outer+25);
+    if(meta.centerId){ctx.fillStyle=muted;ctx.font=`700 12px ${fontFamily}`;ctx.fillText(`ID ${meta.centerId}`,width-outer,outer+50);}
+    ctx.textAlign='left';
+
+    ctx.strokeStyle=border;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(outer,outer+headerH-14);ctx.lineTo(width-outer,outer+headerH-14);ctx.stroke();
+
+    let y=outer+headerH;
+    if(meta.groupTitle){
+      ctx.fillStyle=text;ctx.font=`900 15px ${fontFamily}`;ctx.fillText(meta.groupTitle,outer,y+20);y+=titleGap;
+    }
+
+    if(meta.metrics.length){
+      const innerW=width-outer*2;
+      const boxW=(innerW-(metricCols-1)*metricGap)/metricCols;
+      meta.metrics.forEach((metric,index)=>{
+        const col=index%metricCols,row=Math.floor(index/metricCols);
+        const x=outer+col*(boxW+metricGap),my=y+row*(metricH+metricGap);
+        ctx.fillStyle=card2;roundedRect(ctx,x,my,boxW,metricH,12);ctx.fill();
+        ctx.strokeStyle=border;ctx.lineWidth=1;roundedRect(ctx,x,my,boxW,metricH,12);ctx.stroke();
+        ctx.fillStyle=muted;ctx.font=`800 11px ${fontFamily}`;ctx.fillText(metric.label,x+13,my+19);
+        const vals=metric.values.slice(0,3);
+        const segment=(boxW-26)/Math.max(1,vals.length);
+        vals.forEach((v,i)=>{
+          const tx=x+13+i*segment;
+          ctx.fillStyle=muted;ctx.font=`700 10px ${fontFamily}`;if(v.key)ctx.fillText(v.key,tx,my+42);
+          ctx.fillStyle=text;ctx.font=`900 14px ${fontFamily}`;ctx.fillText(v.value,tx,my+61);
+        });
+      });
+      y+=metricsBlockH;
+    }
+
+    // Legend matching the dashboard.
+    const legendSpans=[...(group.querySelectorAll('.legend span')||[])];
+    let lx=outer,ly=y+18;
+    ctx.font=`800 11px ${fontFamily}`;
+    for(const span of legendSpans){
+      const dot=span.querySelector('i');
+      const label=span.textContent.trim();
+      const color=dot?getComputedStyle(dot).backgroundColor:accent;
+      ctx.fillStyle=color;ctx.fillRect(lx,ly-8,18,3);
+      ctx.fillStyle=muted;ctx.fillText(label,lx+25,ly-3);
+      lx+=25+ctx.measureText(label).width+24;
+    }
+    y+=legendH;
+
+    const chartX=(width-W)/2;
+    ctx.drawImage(img,chartX,y,W,H);
+    y+=H;
+    ctx.fillStyle=muted;ctx.font=`700 10px ${fontFamily}`;ctx.textAlign='left';ctx.fillText('DigiExpress • Capacity Report',outer,y+18);
+
+    return await canvasToBlob(canvas,type,type==='image/jpeg'?.95:undefined);
   }
 
   async function writeImageToClipboard(blob,type){
     if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')throw new Error('Image clipboard is not available in this browser.');
+    try{window.focus();}catch(_){ }
     await navigator.clipboard.write([new ClipboardItem({[type]:blob})]);
   }
 
-  async function copyChartJpg(button) {
+  async function copyChartJpg(button){
     const original=button.textContent;button.disabled=true;button.textContent='Copying…';
     try{
-      const jpgBlob=await chartImageBlob(button,'image/jpeg');
-      try{
-        await writeImageToClipboard(jpgBlob,'image/jpeg');
-        button.textContent='Copied ✓';setStatus('Dashboard image copied to clipboard as JPG.','ok');
-      }catch(jpgErr){
-        const pngBlob=await chartImageBlob(button,'image/png');
-        await writeImageToClipboard(pngBlob,'image/png');
-        button.textContent='Copied ✓';setStatus('Dashboard image copied to clipboard. JPG is not supported by this browser, so PNG was used.','ok');
-      }
+      // Chromium reliably supports image/png in ClipboardItem. Use PNG first so the button actually copies.
+      const pngBlob=await chartImageBlob(button,'image/png');
+      await writeImageToClipboard(pngBlob,'image/png');
+      button.textContent='Copied ✓';
+      setStatus('Chart image copied to clipboard.','ok');
       setTimeout(()=>{button.textContent=original;button.disabled=false},1600);
     }catch(err){
       try{
-        const blob=await chartImageBlob(button,'image/jpeg');
-        const meta=chartExportMeta(button),fileBase=safeFileName([meta.panelName,meta.centerName,meta.groupTitle].filter(Boolean).join(' - '));
-        const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${fileBase}.jpg`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
-        setStatus(`Clipboard copy was blocked, so the dashboard JPG was downloaded instead. ${err?.message||''}`,'error');
-      }catch(e){setStatus(e?.message||err?.message||'Could not create the dashboard image.','error')}
+        const jpgBlob=await chartImageBlob(button,'image/jpeg');
+        const meta=chartExportMeta(button);
+        const fileBase=safeFileName([meta.panelName,meta.centerName,meta.groupTitle].filter(Boolean).join(' - '));
+        const url=URL.createObjectURL(jpgBlob),a=document.createElement('a');
+        a.href=url;a.download=`${fileBase}.jpg`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+        setStatus(`Clipboard is not available in this frame, so the chart JPG was downloaded instead. ${err?.message||''}`,'error');
+      }catch(e){setStatus(e?.message||err?.message||'Could not create the chart image.','error')}
       button.textContent=original;button.disabled=false;
     }
   }
