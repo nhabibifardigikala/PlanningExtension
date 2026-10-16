@@ -14,7 +14,7 @@
       "id": "assign-revoke",
       "tabLabel": "Assign",
       "title": "Assign / Revoke",
-      "description": "Find a user by email or personnel code and assign or revoke one or more role IDs. Role selection is first-row safe: the chooser filter checkbox is isolated from row checkboxes, and role checkbox state is applied without toggle-style double clicks.",
+      "description": "Assign adds requested roles to the user without removing any existing roles. Revoke removes only the requested roles.",
       "uiMode": "form",
       "runLabel": "Assign Roles",
       "inputs": [
@@ -694,6 +694,35 @@
           "progress": "Opening and stabilizing role chooser…"
         },
         {
+          "action": "collectFrameCheckboxValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "storeAs": "currentRoleIds",
+          "separator": " ",
+          "frameTimeoutMs": 120000,
+          "progress": "Reading existing roles so they are preserved…",
+          "options": {
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 1800,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "checkedOnly": true,
+            "resultFrameSelector": "input.uk-checkbox[data-target], input[name=\"id\"][placeholder=\"ID\"]",
+            "nextSelector": "a[aria-label=\"Next page\"], a[rel=\"next\"], .uk-pagination-next a",
+            "maxPages": 100,
+            "afterPageMs": 800,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 700
+          },
+          "error": "Could not read the user's existing roles. Reason: {{reason}}",
+          "when": {
+            "left": "{{accessAction}}",
+            "operator": "equals",
+            "right": "assign"
+          }
+        },
+        {
           "action": "selectItemsBySearchValues",
           "when": {
             "left": "{{accessAction}}",
@@ -701,9 +730,9 @@
             "right": "assign"
           },
           "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-          "values": "{{roleIds}}",
+          "values": "{{currentRoleIds}} {{roleIds}}",
           "frameTimeoutMs": 120000,
-          "progress": "Selecting role IDs (first-row safe)…",
+          "progress": "Merging existing roles with requested role IDs…",
           "options": {
             "selectionMode": "assign",
             "chosenFilterChecked": false,
@@ -758,7 +787,7 @@
           "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
           "values": "{{roleIds}}",
           "frameTimeoutMs": 120000,
-          "progress": "Verifying selected role IDs without toggling checked roles…",
+          "progress": "Verifying requested role IDs while preserving existing roles…",
           "options": {
             "selectionMode": "assign",
             "chosenFilterChecked": false,
@@ -938,7 +967,7 @@
       "id": "copy-roles",
       "tabLabel": "Copy",
       "title": "Copy Roles",
-      "description": "Copy all roles from a source user to a target user. If the source user is not found in User Management, the operation stops before the target user is opened or changed.",
+      "description": "Copy roles from User A into User B by merging them with User B existing roles. Existing User B roles are never removed. If User A is not found, the operation stops before User B is opened or changed.",
       "uiMode": "form",
       "runLabel": "Copy Roles",
       "inputs": [
@@ -1043,7 +1072,7 @@
         "backgroundPersistent": true,
         "description": "Remote-only Excel batch reuse of the stable background processor. User B is a personnel code in batch mode."
       },
-      "successMessage": "Roles copied from User A to User B.",
+      "successMessage": "Roles from User A were added to User B without removing existing User B roles.",
       "workflow": [
         {
           "action": "setContext",
@@ -2199,6 +2228,30 @@
           "progress": "Opening and stabilizing role chooser…"
         },
         {
+          "action": "collectFrameCheckboxValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "storeAs": "targetExistingRoleIds",
+          "separator": " ",
+          "frameTimeoutMs": 120000,
+          "progress": "Reading User B existing roles so they are preserved…",
+          "options": {
+            "chosenFilterChecked": true,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 1800,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "checkedOnly": true,
+            "resultFrameSelector": "input.uk-checkbox[data-target], input[name=\"id\"][placeholder=\"ID\"]",
+            "nextSelector": "a[aria-label=\"Next page\"], a[rel=\"next\"], .uk-pagination-next a",
+            "maxPages": 100,
+            "afterPageMs": 800,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 700
+          },
+          "error": "Could not read User B existing roles. Reason: {{reason}}"
+        },
+        {
           "action": "assert",
           "condition": {
             "left": "{{sourceRoleIdsCount}}",
@@ -2210,9 +2263,9 @@
         {
           "action": "selectItemsBySearchValues",
           "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
-          "values": "{{sourceRoleIds}}",
+          "values": "{{targetExistingRoleIds}} {{sourceRoleIds}}",
           "frameTimeoutMs": 120000,
-          "progress": "Copying User A roles to User B…",
+          "progress": "Merging User A roles into User B existing roles…",
           "options": {
             "selectionMode": "assign",
             "chosenFilterChecked": false,
@@ -2243,6 +2296,46 @@
           "error": "Role ID {{value}} could not be copied. Reason: {{reason}}",
           "intervalMs": 500,
           "stepAttempts": 3,
+          "stepRetryDelayMs": 1500,
+          "retryProgress": "Retrying copied role selection ({{attempt}}/{{attempts}})…",
+          "makeCurrent": false
+        },
+        {
+          "action": "selectItemsBySearchValues",
+          "searchSelector": "input[name=\"id\"][placeholder=\"ID\"]",
+          "values": "{{sourceRoleIds}}",
+          "frameTimeoutMs": 120000,
+          "progress": "Verifying copied roles while preserving User B existing roles…",
+          "options": {
+            "selectionMode": "assign",
+            "chosenFilterChecked": false,
+            "chosenFilterSelector": "input.uk-checkbox[name=\"chosen\"]:not([data-target])",
+            "afterChosenFilterMs": 3000,
+            "checkboxSelector": "input.uk-checkbox[data-target]",
+            "idAttribute": "data-target",
+            "resultTimeoutMs": 120000,
+            "pollMs": 750,
+            "afterEachMs": 1100,
+            "clickChoose": false,
+            "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+            "backgroundSafe": true,
+            "submitMode": "native-form",
+            "submitSelector": "button[type=\"submit\"], input[type=\"submit\"]",
+            "resultFrameSelector": "input[name=\"id\"][placeholder=\"ID\"], input.uk-checkbox[data-target]",
+            "requireSearchInputForResult": false,
+            "directCheckboxState": true,
+            "wakeFrames": true,
+            "frameElementSelector": "iframe",
+            "afterWakeFramesMs": 1200
+          },
+          "resultHeaders": [
+            "Role ID",
+            "Status",
+            "Message"
+          ],
+          "error": "Role ID {{value}} could not be verified after merge. Reason: {{reason}}",
+          "intervalMs": 500,
+          "stepAttempts": 2,
           "stepRetryDelayMs": 1500,
           "retryProgress": "Retrying copied role selection ({{attempt}}/{{attempts}})…",
           "makeCurrent": true
