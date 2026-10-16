@@ -608,13 +608,53 @@ function renderReport(){
   renderTrendChart();
   renderTrendTable();
 }
+function loadTrendDirectFromGoogle(){
+  return new Promise((resolve,reject)=>{
+    const cb=`__dxWeeklyTrend_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+    const script=document.createElement('script');
+    const timer=setTimeout(()=>cleanup(new Error('Trend request timed out.')),30000);
+    const cleanup=err=>{
+      clearTimeout(timer);
+      try{delete window[cb]}catch(_){window[cb]=undefined}
+      script.remove();
+      if(err)reject(err);
+    };
+    window[cb]=payload=>{
+      try{
+        if(payload?.status==='error')throw new Error(payload?.errors?.[0]?.detailed_message||payload?.errors?.[0]?.message||'Google Sheets returned an error.');
+        const cols=payload?.table?.cols||[];
+        const rows=payload?.table?.rows||[];
+        const headers=cols.map(c=>norm(c?.label||c?.id||''));
+        const values=rows.map(r=>(r?.c||[]).map(c=>c?.f??c?.v??''));
+        cleanup();
+        resolve({headers,rows:values});
+      }catch(e){cleanup(e)}
+    };
+    const tq=encodeURIComponent("select A,B where A is not null label A 'Date', B 'Rate'");
+    const tqx=encodeURIComponent(`out:json;responseHandler:${cb}`);
+    script.src=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${encodeURIComponent(TREND_SHEET_NAME)}&headers=1&tq=${tq}&tqx=${tqx}&_=${Date.now()}`;
+    script.onerror=()=>cleanup(new Error('Could not load Trend directly from Google Sheets.'));
+    document.head.appendChild(script);
+  });
+}
 async function loadTrend(){
   trendError='';
   try{
-    if(!globalThis.DigiExpressPlatform)throw new Error('Stable Host bridge is unavailable.');
-    const data=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:SPREADSHEET_ID,sheetName:TREND_SHEET_NAME,limit:10000});
+    // Read Trend directly from Google Sheets with a cache-busting URL. The Stable Host
+    // sheets.readRows path can serve an older cached snapshot, so Report must not depend on it.
+    const data=await loadTrendDirectFromGoogle();
     trendRows=parseTrendRows(data);
-  }catch(e){ trendRows=[]; trendError=String(e?.message||e); }
+  }catch(primaryError){
+    try{
+      if(!globalThis.DigiExpressPlatform)throw primaryError;
+      const fallback=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:SPREADSHEET_ID,sheetName:TREND_SHEET_NAME,limit:10000});
+      trendRows=parseTrendRows(fallback);
+      trendError='';
+    }catch(fallbackError){
+      trendRows=[];
+      trendError=String(primaryError?.message||fallbackError?.message||fallbackError||primaryError);
+    }
+  }
   renderReport();
 }
 function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const master=ctx.createGain(); master.gain.setValueAtTime(0.0001,now); master.gain.exponentialRampToValueAtTime(0.055,now+0.025); master.gain.exponentialRampToValueAtTime(0.0001,now+0.75); master.connect(ctx.destination); [[659.25,0],[783.99,0.09],[987.77,0.18]].forEach(([freq,delay],i)=>{ const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type=i===0?'sine':'triangle'; osc.frequency.setValueAtTime(freq,now+delay); gain.gain.setValueAtTime(0.0001,now+delay); gain.gain.exponentialRampToValueAtTime(i===0?0.8:0.45,now+delay+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.42); osc.connect(gain); gain.connect(master); osc.start(now+delay); osc.stop(now+delay+0.45); }); } catch(_){} }
