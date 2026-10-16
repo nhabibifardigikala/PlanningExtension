@@ -608,52 +608,38 @@ function renderReport(){
   renderTrendChart();
   renderTrendTable();
 }
-function loadTrendDirectFromGoogle(){
-  return new Promise((resolve,reject)=>{
-    const cb=`__dxWeeklyTrend_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-    const script=document.createElement('script');
-    const timer=setTimeout(()=>cleanup(new Error('Trend request timed out.')),30000);
-    const cleanup=err=>{
-      clearTimeout(timer);
-      try{delete window[cb]}catch(_){window[cb]=undefined}
-      script.remove();
-      if(err)reject(err);
-    };
-    window[cb]=payload=>{
-      try{
-        if(payload?.status==='error')throw new Error(payload?.errors?.[0]?.detailed_message||payload?.errors?.[0]?.message||'Google Sheets returned an error.');
-        const cols=payload?.table?.cols||[];
-        const rows=payload?.table?.rows||[];
-        const headers=cols.map(c=>norm(c?.label||c?.id||''));
-        const values=rows.map(r=>(r?.c||[]).map(c=>c?.f??c?.v??''));
-        cleanup();
-        resolve({headers,rows:values});
-      }catch(e){cleanup(e)}
-    };
-    const tq=encodeURIComponent("select A,B where A is not null label A 'Date', B 'Rate'");
-    const tqx=encodeURIComponent(`out:json;responseHandler:${cb}`);
-    script.src=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${encodeURIComponent(TREND_SHEET_NAME)}&headers=1&tq=${tq}&tqx=${tqx}&_=${Date.now()}`;
-    script.onerror=()=>cleanup(new Error('Could not load Trend directly from Google Sheets.'));
-    document.head.appendChild(script);
+async function loadTrendFromWebApp(){
+  const url=norm(settings.webAppUrl);
+  if(!/^https:\/\/script\.google\.com\/(?:macros\/s\/[^/]+\/exec|a\/[^/]+\/macros\/s\/[^/]+\/exec)(?:[?#].*)?$/i.test(url)){
+    throw new Error('Configure the Weekly Planning Apps Script Web App URL in Settings first.');
+  }
+  const body=JSON.stringify({action:'getTrend'});
+  const r=await chrome.runtime.sendMessage({
+    type:'REMOTE_HTTP_REQUEST',
+    request:{
+      url,
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8','Accept':'application/json'},
+      body,
+      responseType:'json',
+      credentials:'include',
+      timeoutMs:30000
+    }
   });
+  if(!r?.ok)throw new Error(r?.error||'Trend request failed.');
+  const data=r.data||{};
+  if(data.ok===false)throw new Error(data.error||'Trend request failed.');
+  if(!Array.isArray(data.rows))throw new Error('Trend response does not contain rows.');
+  return data;
 }
 async function loadTrend(){
   trendError='';
   try{
-    // Read Trend directly from Google Sheets with a cache-busting URL. The Stable Host
-    // sheets.readRows path can serve an older cached snapshot, so Report must not depend on it.
-    const data=await loadTrendDirectFromGoogle();
+    const data=await loadTrendFromWebApp();
     trendRows=parseTrendRows(data);
-  }catch(primaryError){
-    try{
-      if(!globalThis.DigiExpressPlatform)throw primaryError;
-      const fallback=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:SPREADSHEET_ID,sheetName:TREND_SHEET_NAME,limit:10000});
-      trendRows=parseTrendRows(fallback);
-      trendError='';
-    }catch(fallbackError){
-      trendRows=[];
-      trendError=String(primaryError?.message||fallbackError?.message||fallbackError||primaryError);
-    }
+  }catch(error){
+    trendRows=[];
+    trendError=String(error?.message||error);
   }
   renderReport();
 }
