@@ -23,7 +23,7 @@
   "workflow": [
     {
       "action": "open",
-      "url": "https://lg.digikala.com/distribution-center/?per_page=100",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Opening Distribution Centers…",
       "active": true
     },
@@ -34,7 +34,7 @@
     },
     {
       "action": "navigate",
-      "url": "https://lg.digikala.com/distribution-center/?per_page=100",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Opening Distribution Center list…",
       "completeTimeoutMs": 60000,
       "active": true
@@ -150,7 +150,7 @@
     },
     {
       "action": "navigate",
-      "url": "https://lg.digikala.com/distribution-center/?per_page=100",
+      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
       "progress": "Refreshing Distribution Center data…",
       "completeTimeoutMs": 60000,
       "active": true
@@ -194,10 +194,10 @@
       "action": "extractPaginatedTable",
       "nextSelector": "a[aria-label=\"Next page\"]",
       "timeoutMs": 90000,
-      "expectedRowsPerPage": 100,
+      "expectedRowsPerPage": 1000,
       "allowLastPagePartial": true,
-      "pollMs": 750,
-      "afterPageMs": 900,
+      "pollMs": 2000,
+      "afterPageMs": 500,
       "dedupe": false,
       "maxPages": 1000,
       "ignoreLastActionColumn": true,

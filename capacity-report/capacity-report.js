@@ -47,7 +47,7 @@
     const key=normalizeJalaliDateKey(value); if(!key)return '';
     try{
       const g=j2g(Number(key.slice(0,4)),Number(key.slice(4,6)),Number(key.slice(6,8)));
-      return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(Date.UTC(g.gy,g.gm-1,g.gd)).getUTCDay()]||'';
+      return ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'][new Date(Date.UTC(g.gy,g.gm-1,g.gd)).getUTCDay()]||'';
     }catch(_){return '';}
   }
   function setupJalaliPicker(inputId){
@@ -624,6 +624,7 @@
     const H=Number.isFinite(vb[3])&&vb[3]>0?vb[3]:330;
     clone.setAttribute('width',String(W));clone.setAttribute('height',String(H));
     clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.querySelectorAll('.axis-date,.axis-weekday').forEach(el=>{el.style.setProperty('fill','#000000');el.setAttribute('fill','#000000');});
     const xml=new XMLSerializer().serializeToString(clone);
     const url=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));
     try{
@@ -696,14 +697,16 @@
         const x=outer+col*(boxW+metricGap),my=y+row*(metricH+metricGap);
         ctx.fillStyle=card2;roundedRect(ctx,x,my,boxW,metricH,12);ctx.fill();
         ctx.strokeStyle=border;ctx.lineWidth=1;roundedRect(ctx,x,my,boxW,metricH,12);ctx.stroke();
-        ctx.fillStyle=muted;ctx.font=`800 11px ${fontFamily}`;ctx.fillText(metric.label,x+13,my+19);
+        ctx.textAlign='center';
+        ctx.fillStyle=muted;ctx.font=`800 11px ${fontFamily}`;ctx.fillText(metric.label,x+boxW/2,my+19);
         const vals=metric.values.slice(0,3);
         const segment=(boxW-26)/Math.max(1,vals.length);
         vals.forEach((v,i)=>{
-          const tx=x+13+i*segment;
+          const tx=x+13+(i+.5)*segment;
           ctx.fillStyle=muted;ctx.font=`700 10px ${fontFamily}`;if(v.key)ctx.fillText(v.key,tx,my+42);
           ctx.fillStyle=text;ctx.font=`900 14px ${fontFamily}`;ctx.fillText(v.value,tx,my+61);
         });
+        ctx.textAlign='left';
       });
       y+=metricsBlockH;
     }
