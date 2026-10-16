@@ -368,7 +368,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
 
         <section class="trend-card report-task-card">
           <div class="report-card-head">
-            <div><h3>Task Details</h3><p>All reportable task rows from the Tasks sheet, including newly added items.</p></div>
+            <div><h3>Google Sheet Details</h3><p>Complete Tasks sheet rows and columns, including newly added columns.</p></div>
             <span class="trend-badge" id="reportTaskDetailCount">0 tasks</span>
           </div>
           <div class="report-task-details" id="reportTaskDetails"></div>
@@ -419,7 +419,7 @@ const TREND_SHEET_NAME = 'Trend';
 const EXPECTED = ['L1','L2','L3','Task Name','Group','Priority','Time','Status','Responsible','Add Date','Due Date','Planned Date','Completion Date'];
 const STORE_KEY = 'weeklyPlanningSettingsV1';
 const DEFAULT_SETTINGS = { webAppUrl:'', responsibles:[], priorities:['High','Medium','Low'], planResponsible:'', planDate:'' };
-let tasks = [], trendRows = [], trendError = '', settings = { ...DEFAULT_SETTINGS }, dirtyRows = new Set(), currentView = 'tasks';
+let tasks = [], taskSheetHeaders = [], trendRows = [], trendError = '', settings = { ...DEFAULT_SETTINGS }, dirtyRows = new Set(), currentView = 'tasks';
 const collapseState = { tasks: { l1:new Set(), l2:new Set() }, plan: { l1:new Set(), l2:new Set() } };
 const $ = id => document.getElementById(id);
 const collator = new Intl.Collator('en', { numeric:true, sensitivity:'base' });
@@ -441,7 +441,7 @@ function setStatus(msg,state=''){ $('statusText').textContent=msg; $('statusbar'
 function setLoading(on){ document.body.classList.toggle('loading', !!on); }
 async function storageGet(){ const r=await chrome.storage.local.get([STORE_KEY]); const x=r?.[STORE_KEY]||{}; return {...DEFAULT_SETTINGS, ...x, responsibles:Array.isArray(x.responsibles)?x.responsibles:[], priorities:Array.isArray(x.priorities)&&x.priorities.length?x.priorities:DEFAULT_SETTINGS.priorities}; }
 async function storageSave(){ await chrome.storage.local.set({ [STORE_KEY]: settings }); }
-function parseRows(data){ const headers=(data.headers||[]).map(norm); const idx={}; headers.forEach((h,i)=>idx[normKey(h)] = i); const missing=EXPECTED.filter(h=>idx[normKey(h)] == null); if(missing.length) throw new Error('Missing Tasks columns: ' + missing.join(', ')); return (data.rows||[]).map((r,i)=>({ rowNumber:i+2, l1:norm(r[idx.l1]), l2:norm(r[idx.l2]), l3:norm(r[idx.l3]), name:norm(r[idx.taskname]), group:norm(r[idx.group]), priority:norm(r[idx.priority]), time:norm(r[idx.time]), status:norm(r[idx.status]), responsible:norm(r[idx.responsible]), addDate:norm(r[idx.adddate]), dueDate:norm(r[idx.duedate]), plannedDate:digits(r[idx.planneddate]), completionDate:digits(r[idx.completiondate]) })).filter(t=>[t.l1,t.l2,t.l3,t.name,t.group,t.priority,t.time,t.status,t.responsible,t.addDate,t.dueDate,t.plannedDate,t.completionDate].some(v=>norm(v))); }
+function parseRows(data){ const headers=(data.headers||[]).map(norm); taskSheetHeaders=[...headers]; const idx={}; headers.forEach((h,i)=>idx[normKey(h)] = i); const missing=EXPECTED.filter(h=>idx[normKey(h)] == null); if(missing.length) throw new Error('Missing Tasks columns: ' + missing.join(', ')); return (data.rows||[]).map((r,i)=>({ rowNumber:i+2, rawRow:Array.isArray(r)?[...r]:[], l1:norm(r[idx.l1]), l2:norm(r[idx.l2]), l3:norm(r[idx.l3]), name:norm(r[idx.taskname]), group:norm(r[idx.group]), priority:norm(r[idx.priority]), time:norm(r[idx.time]), status:norm(r[idx.status]), responsible:norm(r[idx.responsible]), addDate:norm(r[idx.adddate]), dueDate:norm(r[idx.duedate]), plannedDate:digits(r[idx.planneddate]), completionDate:digits(r[idx.completiondate]) })).filter(t=>t.rawRow.some(v=>norm(v))); }
 function optionHtml(values,current,blank='—'){ const all=uniq([...values,current]); return `<option value="">${blank}</option>` + all.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join(''); }
 function configuredResponsibles(){ return uniq([...(settings.responsibles||[]), ...tasks.map(t=>t.responsible)]); }
 function allPriorities(){ return uniq([...settings.priorities, ...tasks.map(t=>t.priority)]); }
@@ -631,12 +631,14 @@ function renderTrendChart(){
   const points=trendRows.map((d,i)=>`<circle class="trend-point ${i===n-1?'latest':''}" cx="${x(i)}" cy="${y(d.progress)}" r="${i===n-1?6:4}"><title>${esc(d.date)} · ${fmtPlanHours(d.progress)}%</title></circle>`).join('');
   holder.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly progress trend"><defs><linearGradient id="trendArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity=".24"></stop><stop offset="100%" stop-color="var(--primary)" stop-opacity=".02"></stop></linearGradient></defs>${grid}<polygon class="trend-area" points="${area}"></polygon><polyline class="trend-line" points="${pts}"></polyline>${points}${labels}</svg>`;
 }
+function reportSheetRows(){ const responsible=$('reportResponsible')?.value||''; return responsible?tasks.filter(t=>t.responsible===responsible):[...tasks]; }
+function reportCellValue(t,header,index){ const key=normKey(header); const known={l1:t.l1,l2:t.l2,l3:t.l3,taskname:t.name,group:t.group,priority:t.priority,time:t.time,status:t.status,responsible:t.responsible,adddate:t.addDate,duedate:t.dueDate,planneddate:t.plannedDate,completiondate:t.completionDate}; return Object.prototype.hasOwnProperty.call(known,key)?known[key]:norm(t.rawRow?.[index]); }
 function renderReportTaskDetails(rows){
   const holder=$('reportTaskDetails'), badge=$('reportTaskDetailCount'); if(!holder)return;
-  if(badge)badge.textContent=`${rows.length} task${rows.length===1?'':'s'}`;
-  const sorted=[...rows].sort((a,b)=>{ const ap=digits(a.plannedDate)||'99999999', bp=digits(b.plannedDate)||'99999999'; return ap.localeCompare(bp)||numericSort(a.l1,b.l1)||numericSort(a.l2,b.l2)||numericSort(a.l3,b.l3); });
-  if(!sorted.length){ holder.innerHTML='<div class="report-task-empty">No task rows match the current report filter.</div>'; return; }
-  holder.innerHTML=`<table class="report-task-table"><thead><tr><th>Task</th><th>Group</th><th>Responsible</th><th>Status</th><th>Due Date</th><th>Planned Date</th><th>Completion Date</th><th>Time</th></tr></thead><tbody>${sorted.map(t=>`<tr><td class="task-cell">${esc(t.name||'Untitled')}</td><td>${esc(t.group||'—')}</td><td>${esc(t.responsible||'—')}</td><td>${esc(t.status||'—')}</td><td>${esc(t.dueDate||'—')}</td><td>${esc(t.plannedDate||'—')}</td><td>${esc(t.completionDate||'—')}</td><td>${esc(t.time||'—')}</td></tr>`).join('')}</tbody></table>`;
+  if(badge)badge.textContent=`${rows.length} row${rows.length===1?'':'s'}`;
+  if(!rows.length){ holder.innerHTML='<div class="report-task-empty">No Google Sheet rows match the current report filter.</div>'; return; }
+  const headers=taskSheetHeaders.length?taskSheetHeaders:EXPECTED;
+  holder.innerHTML=`<table class="report-task-table"><thead><tr>${headers.map((h,i)=>`<th>${esc(h||('Column '+(i+1)))}</th>`).join('')}</tr></thead><tbody>${rows.map(t=>`<tr>${headers.map((h,i)=>`<td class="${normKey(h)==='taskname'?'task-cell':''}">${esc(reportCellValue(t,h,i)||'—')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 }
 function renderReport(){
   if(!$('reportView'))return;
@@ -660,7 +662,7 @@ function renderReport(){
   const planning=setReportPct('planningCoverageText',planningPct); $('planningCoverageBar').style.width=planning+'%';
   const tasksPct=setReportPct('taskCompletionText',completionPct); $('taskCompletionBar').style.width=tasksPct+'%';
   const hours=setReportPct('hourCompletionText',hourPct); $('hourCompletionBar').style.width=hours+'%';
-  renderReportTaskDetails(rows);
+  renderReportTaskDetails(reportSheetRows());
   renderTrendChart();
 }
 async function loadTrend(){
