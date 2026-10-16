@@ -48,6 +48,38 @@
       "progress": "Keeping DC User Assignment active while the page settles…"
     },
     {
+      "action": "waitFor",
+      "selector": "input.uk-select.es-input[autocomplete=\"off\"][placeholder=\"\"]",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for DC User email field…",
+      "error": "DC User email field was not found.",
+      "_v415EmailPrefill": true
+    },
+    {
+      "action": "autocomplete",
+      "selector": "input.uk-select.es-input[autocomplete=\"off\"][placeholder=\"\"]",
+      "selectorIndex": 0,
+      "value": "{{email}}",
+      "attempts": 5,
+      "verifyNonEmpty": true,
+      "options": {
+        "selectorIndex": 0,
+        "focusWaitMs": 400,
+        "clearWaitMs": 250,
+        "typingDelayMs": 110,
+        "autocompleteWaitMs": 1800,
+        "pressEnter": true,
+        "keyDelayMs": 80,
+        "commitWaitMs": 1200,
+        "outsideSelector": "button.form-save-button.admin-submit-button",
+        "outsideWaitMs": 500
+      },
+      "progress": "Entering configured user email…",
+      "error": "Could not enter the configured user email in DC User Assignment.",
+      "_v415EmailPrefill": true
+    },
+    {
       "action": "pagedBatchSubmit",
       "count": "100",
       "itemsPerPage": 20,
@@ -69,7 +101,7 @@
       "skipProgress": "Moving to DC page {{page}}…",
       "pageProgress": "Selecting DC page {{page}} of {{pages}}…",
       "autocomplete": {
-        "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
+        "selector": "input.uk-select.es-input[autocomplete=\"off\"][placeholder=\"\"]",
         "value": "{{email}}",
         "attempts": 5,
         "verifyNonEmpty": true,
@@ -82,7 +114,7 @@
           "commitWaitMs": 1200,
           "outsideSelector": "button.form-save-button.admin-submit-button",
           "outsideWaitMs": 700,
-          "selectorIndex": -1
+          "selectorIndex": 0
         }
       },
       "beforeSubmitMs": 700,
