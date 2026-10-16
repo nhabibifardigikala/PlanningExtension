@@ -28,6 +28,10 @@
     walk(node);return rings;
   }
   function sheetFromSource(source){const s=String(source||'');if(/^sheet:/i.test(s))return s.slice(6).trim();if(/pickup/i.test(s))return 'Pick-up Polygons';return 'Delivery Polygons'}
+  function isSuperMarketName(value){
+    const s=clean(value).replace(/ي/g,'ی').replace(/ك/g,'ک');
+    return /^سوپر\s*مارکت(?:ی)?/.test(s);
+  }
   function mapRows(headers,rows,sheetName){
     const nameI=findHeader(headers,['Name','name','title','polygon title','coverage polygon title']);
     const coordI=findHeader(headers,['coordinates','coordinate']);
@@ -39,9 +43,11 @@
     const submitI=findHeader(headers,['submit type','delivery type','type']);
     const activeI=findHeader(headers,['active','is active']);
     if(nameI<0||coordI<0)throw new Error(`${sheetName}: required Name/title or coordinates column was not found. Received headers: ${headers.join(' | ')}`);
-    return rows.map(r=>({
-      name:clean(r[nameI]),coordinates:parseCoordinates(r[coordI]),dcId:dcI>=0?r[dcI]:'',stateId:stateI>=0?r[stateI]:'',iata:iataI>=0?r[iataI]:'',district:districtI>=0?r[districtI]:'',natureId:natureI>=0?r[natureI]:'',submitType:submitI>=0?r[submitI]:'',active:activeI>=0?r[activeI]:1,timeScope:''
-    })).filter(r=>r.name&&r.coordinates.length);
+    return rows.map(r=>{
+      const name=clean(r[nameI]);
+      const natureId=(sheetName==='Delivery Polygons'&&isSuperMarketName(name))?7:(natureI>=0?r[natureI]:'');
+      return {name,coordinates:parseCoordinates(r[coordI]),dcId:dcI>=0?r[dcI]:'',stateId:stateI>=0?r[stateI]:'',iata:iataI>=0?r[iataI]:'',district:districtI>=0?r[districtI]:'',natureId,submitType:submitI>=0?r[submitI]:'',active:activeI>=0?r[activeI]:1,timeScope:''};
+    }).filter(r=>r.name&&r.coordinates.length);
   }
   async function load(source){
     const sheetName=sheetFromSource(source);

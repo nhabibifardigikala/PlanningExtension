@@ -64,8 +64,8 @@ function armMapVisibilityRefresh(){
   [0,100,300,700,1400,2500].forEach(ms=>setTimeout(()=>refreshMapSize(ms>=300),ms));
 }
 
-function natureLabel(n){return ({1:'Normal',2:'Medium',3:'Large',4:'Barbari',5:'Business',6:'Fast'})[Number(n)]||String(n??'-')}
-function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#2563eb',5:'#d946ef',6:'#0891b2'})[Number(n)]||'#64748b'}
+function natureLabel(n){return ({1:'Normal',2:'Medium',3:'Large',4:'Barbari',5:'Business',6:'Fast',7:'SuperMarket'})[Number(n)]||String(n??'-')}
+function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#2563eb',5:'#d946ef',6:'#0891b2',7:'#0f766e'})[Number(n)]||'#64748b'}
 function cleanSubmit(v){return String(v||'').replace(/^EXPRESS\s+/i,'').trim()||'-'}
 function makeFilter(host, values, cls){host.innerHTML=values.map(v=>`<label class="filter-chip"><input type="checkbox" class="${cls}" value="${esc(v)}"><span>${esc(v)}</span></label>`).join('');host.querySelectorAll('input').forEach(x=>x.addEventListener('change',applyFilters))}
 function selected(cls){return [...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
@@ -88,7 +88,7 @@ async function loadDataset(service,{fit=true}={}){
     rows=normalizePickupIds(dataset.rows||[]);
     shown=[...rows];pointHits=[];searchedPoint=null;points.clearLayers();
     const district=[...new Set(rows.map(r=>String(r.district||'').split('(')[0].trim()).filter(Boolean))].sort();
-    const typeValues=[...new Set(rows.map(r=>natureLabel(r.natureId)).filter(Boolean))].sort((a,b)=>Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6})[a]||99)-Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6})[b]||99));
+    const typeValues=[...new Set(rows.map(r=>natureLabel(r.natureId)).filter(Boolean))].sort((a,b)=>Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6,SuperMarket:7})[a]||99)-Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6,SuperMarket:7})[b]||99));
     makeFilter($('#typeFilters'),typeValues,'f-type');
     makeFilter($('#districtFilters'),district,'f-district');
     $('#search').value='';$('#latlon').value='';$('#pointStatus').textContent='';

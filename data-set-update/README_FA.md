@@ -24,6 +24,8 @@ Update the existing Data Set Update Apps Script deployment with the included `ap
 
 
 ## Delivery Polygons
+
+- مراکزی که نام آن‌ها با «سوپرمارکت»، «سوپر مارکت»، «سوپرمارکتی» یا «سوپر مارکتی» شروع شود با `shipping nature id = 7` و Type `SuperMarket` ذخیره می‌شوند.
 - منبع پایه: تب `Distribution Centers (LG)` در DataSets.
 - ردیف‌های گنجه/گنجدار و DCهای غیرفعال حذف می‌شوند.
 - جدول `admin.digikala.com/shipping/dc-polygons/` با ستون `coordinates` و `per_page=1000` استخراج می‌شود.

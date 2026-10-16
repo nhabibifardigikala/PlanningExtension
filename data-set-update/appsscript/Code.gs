@@ -453,6 +453,8 @@ function prepareDeliveryPolygons_(polygonHeaders,polygonRows){
 
 function deliveryNatureNumber_(name,value){
   const n=normalizeText_(name);
+  // SuperMarket centers: سوپرمارکت / سوپر مارکت / سوپرمارکتی / سوپر مارکتی
+  if(/^سوپر\s*مارکت(?:ی)?/.test(n))return 7;
   if(n.includes('باربری'))return 4;
   if(n.includes('بیزنس')||n.includes('بيزنس'))return 5;
   if(n.includes('تحویل فوری')||n.includes('تحويل فوري'))return 6;
