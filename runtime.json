@@ -16,17 +16,17 @@
   "ui": {
     "renderFromRemote": true
   },
-  "notes": "Config 348. The workspace opens on Stable Host 13.0.0+; newer Host versions are required only by operations that declare minHostVersion.",
-  "configVersion": 353,
+  "notes": "Config 354. Public Remote workspaces can be visible without an Access-sheet column; privileged operations still use Host access control.",
+  "configVersion": 354,
   "minimumRuntimeVersion": "13.0.0",
   "minimumRuntime": "13.0.0",
   "workflowLanguageVersion": 3,
   "dataPipelineVersion": 2,
   "recommendedRuntime": "13.0.2",
   "runtimeUpdatePolicy": "security-platform-only",
-  "version": "353",
+  "version": "354",
   "platformContract": 13,
-  "remoteVersion": 353,
+  "remoteVersion": 354,
   "executionModel": "remote-shell-stable-host",
   "runtimeVersion": "13.0.0"
 }

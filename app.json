@@ -1,5 +1,5 @@
 {
-  "configVersion": 410,
+  "configVersion": 411,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
@@ -272,7 +272,7 @@
       "accessHeaders": [
         "Capacity Report"
       ],
-      "config": "operations/capacity-report.json?v=378",
+      "config": "operations/capacity-report.json?v=411",
       "description": "Choose DK or Flex. DK can read capacity either from the LG system or directly from DataSets → DC Capacity (LG) with Use G-Sheet. Charts include only dates that actually exist in the returned dataset.",
       "runLabel": "Open Capacity Report",
       "iconImage": "icons/apps/capacity-report.webp?v=378",
@@ -366,7 +366,7 @@
       "accessHeaders": [
         "Weekly Planning"
       ],
-      "config": "operations/weekly-planning.json?v=383",
+      "config": "operations/weekly-planning.json?v=411",
       "description": "Plan and manage hierarchical Tasks from Google Sheets with inline editing, employee plans, completion tracking, new-task creation, and a performance Report with weekly progress Trend.",
       "runLabel": "Open Weekly Planning",
       "uiMode": "form",
@@ -675,7 +675,7 @@
       "accessHeaders": [
         "Flex Capacity Definition"
       ],
-      "config": "operations/flex-capacity-definition.json?v=378",
+      "config": "operations/flex-capacity-definition.json?v=411",
       "iconSvgPath": "M6 36h5V22H6v14Zm10 0h5V14h-5v22Zm10 0h5V18h-5v18Zm10 0h5V9h-5v27ZM8 8h19l-5-5 3-3 10 10-10 10-3-3 5-5H8V8Z",
       "description": "Upload a completed capacity template and run the batch operation.",
       "runLabel": "Run",

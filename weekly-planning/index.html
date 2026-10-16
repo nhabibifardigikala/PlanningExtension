@@ -199,6 +199,15 @@ html[data-theme="dark"] .performance-ring strong{color:#c6dcf1}
 .perf-fill{height:100%;border-radius:inherit;background:var(--primary)}
 .perf-fill.done{background:var(--green)}
 .report-footnote{padding:0 16px 15px;color:var(--muted);font-size:10px;line-height:1.55}
+.report-task-details{overflow:auto;max-height:420px}
+.report-task-table{width:100%;border-collapse:separate;border-spacing:0;min-width:920px}
+.report-task-table th,.report-task-table td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:11px;vertical-align:middle}
+.report-task-table th{position:sticky;top:0;z-index:2;background:var(--card);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.03em}
+.report-task-table tbody tr:hover{background:var(--soft)}
+.report-task-table .task-cell{font-weight:800;color:var(--navy)}
+html[data-theme="dark"] .report-task-table .task-cell{color:#d7e8f8}
+.report-task-empty{padding:24px;text-align:center;color:var(--muted)}
+
 @media(max-width:1180px){.report-grid{grid-template-columns:repeat(3,1fr)}.report-layout{grid-template-columns:1fr}}
 @media(max-width:760px){.report-hero{align-items:stretch;flex-direction:column}.report-user-field{width:100%}.report-grid{grid-template-columns:repeat(2,1fr)}.report-kpi strong{font-size:25px}}
 
@@ -280,7 +289,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         <div class="table-head"><b>Tasks</b><div class="table-head-actions"><button class="collapse-all-btn" id="collapseAllTasksBtn" type="button" aria-label="Collapse all task groups"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"></path></svg><span id="collapseAllTasksLabel">Collapse all</span></button><span id="taskCount">0 tasks</span></div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Task</th><th>Group</th><th>Priority</th><th>Time</th><th>Responsible</th><th>Save</th><th>Plan</th></tr></thead>
+            <thead><tr><th>Task</th><th>Group</th><th>Priority</th><th>Time</th><th>Responsible</th><th>Planned Date</th><th>Completion Date</th><th>Save</th><th>Plan</th></tr></thead>
             <tbody id="tasksBody"></tbody>
           </table>
         </div>
@@ -326,7 +335,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         </div>
 
         <div class="report-grid">
-          <div class="report-kpi"><small>Assigned Tasks</small><strong id="reportAssigned">0</strong><div class="kpi-note">Leaf tasks</div></div>
+          <div class="report-kpi"><small>Assigned Tasks</small><strong id="reportAssigned">0</strong><div class="kpi-note">Task rows</div></div>
           <div class="report-kpi"><small>Planned Tasks</small><strong id="reportPlanned">0</strong><div class="kpi-note">Have a Planned Date</div></div>
           <div class="report-kpi"><small>Completed Tasks</small><strong id="reportCompleted">0</strong><div class="kpi-note">Have a Completion Date</div></div>
           <div class="report-kpi"><small>Completion Rate</small><strong id="reportCompletionRate">0%</strong><div class="kpi-note">Completed / assigned</div></div>
@@ -356,6 +365,14 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
             <div class="report-footnote">The performance snapshot is calculated from the Tasks sheet. The trend chart is read independently from the Trend sheet and follows its row order.</div>
           </aside>
         </div>
+
+        <section class="trend-card report-task-card">
+          <div class="report-card-head">
+            <div><h3>Task Details</h3><p>All reportable task rows from the Tasks sheet, including newly added items.</p></div>
+            <span class="trend-badge" id="reportTaskDetailCount">0 tasks</span>
+          </div>
+          <div class="report-task-details" id="reportTaskDetails"></div>
+        </section>
       </div>
     </section>
   </main>
@@ -426,7 +443,7 @@ async function storageGet(){ const r=await chrome.storage.local.get([STORE_KEY])
 async function storageSave(){ await chrome.storage.local.set({ [STORE_KEY]: settings }); }
 function parseRows(data){ const headers=(data.headers||[]).map(norm); const idx={}; headers.forEach((h,i)=>idx[normKey(h)] = i); const missing=EXPECTED.filter(h=>idx[normKey(h)] == null); if(missing.length) throw new Error('Missing Tasks columns: ' + missing.join(', ')); return (data.rows||[]).map((r,i)=>({ rowNumber:i+2, l1:norm(r[idx.l1]), l2:norm(r[idx.l2]), l3:norm(r[idx.l3]), name:norm(r[idx.taskname]), group:norm(r[idx.group]), priority:norm(r[idx.priority]), time:norm(r[idx.time]), status:norm(r[idx.status]), responsible:norm(r[idx.responsible]), addDate:norm(r[idx.adddate]), dueDate:norm(r[idx.duedate]), plannedDate:digits(r[idx.planneddate]), completionDate:digits(r[idx.completiondate]) })).filter(t=>[t.l1,t.l2,t.l3,t.name,t.group,t.priority,t.time,t.status,t.responsible,t.addDate,t.dueDate,t.plannedDate,t.completionDate].some(v=>norm(v))); }
 function optionHtml(values,current,blank='—'){ const all=uniq([...values,current]); return `<option value="">${blank}</option>` + all.map(v=>`<option value="${esc(v)}" ${v===current?'selected':''}>${esc(v)}</option>`).join(''); }
-function configuredResponsibles(){ return settings.responsibles.length ? uniq(settings.responsibles) : uniq(tasks.map(t=>t.responsible)); }
+function configuredResponsibles(){ return uniq([...(settings.responsibles||[]), ...tasks.map(t=>t.responsible)]); }
 function allPriorities(){ return uniq([...settings.priorities, ...tasks.map(t=>t.priority)]); }
 function fillFilter(id,values,label){ const el=$(id), cur=el.value; el.innerHTML=`<option value="">${label}</option>` + uniq(values).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join(''); el.value=cur; }
 function renderTaskFilters(){ fillFilter('groupFilter', tasks.map(t=>t.group), 'All groups'); fillFilter('priorityFilter', allPriorities(), 'All priorities'); fillFilter('respFilter', configuredResponsibles(), 'All responsible'); fillFilter('statusFilter', tasks.map(t=>t.status), 'All statuses'); }
@@ -441,8 +458,8 @@ function syntheticTask(level,l1,l2,name){ return { rowNumber:`synthetic-${level}
 function hierarchySummary(rows){ const count=rows.length; const hours=rows.reduce((a,t)=>a+timeNumber(t.time),0); return `${count} task${count===1?'':'s'} • ${fmtHours(hours)}`; }
 function taskMatchesFilters(t){ const q=norm($('search').value).toLowerCase(); const g=$('groupFilter').value; const p=$('priorityFilter').value; const r=$('respFilter').value; const s=$('statusFilter').value; const pl=$('planningFilter').value; const blob=[t.name,t.group,t.status,t.responsible,codeOf(t)].join(' ').toLowerCase(); return (!q||blob.includes(q)) && (!g||t.group===g) && (!p||t.priority===p) && (!r||t.responsible===r) && (!s||t.status===s) && (!pl || (pl==='planned'&&!!t.plannedDate) || (pl==='unplanned'&&!t.plannedDate) || (pl==='done'&&isDone(t))); }
 function arrowSvg(){ return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>`; }
-function renderHierarchyHeader(kind, level, key, title, summary){ const collapsed = collapseState[kind][level===1?'l1':'l2'].has(key); return `<tr class="hierarchy-row level-${level}"><td class="hierarchy-cell" colspan="${kind==='tasks'?7:5}"><div class="hierarchy-bar"><button class="toggle-btn ${collapsed?'collapsed':''}" type="button" data-tree="${kind}" data-level="${level}" data-key="${esc(key)}" aria-label="${collapsed?'Expand':'Collapse'}">${arrowSvg()}</button><div><div class="task-title">${esc(title || 'Untitled')}</div></div><span class="summary-pill">${esc(summary)}</span></div></td></tr>`; }
-function renderTaskLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''}" data-row="${t.rowNumber}"><td class="task-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.group)}</td><td><select class="inline-select edit-priority">${optionHtml(allPriorities(),t.priority)}</select></td><td><input class="inline-input edit-time" value="${esc(t.time)}" placeholder="Time"></td><td><select class="inline-select edit-responsible">${optionHtml(configuredResponsibles(),t.responsible,'Unassigned')}</select></td><td><button class="save-mini" data-action="save">Save</button></td><td><button class="plan-btn" data-action="plan" title="Set Planned Date to today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg></button></td></tr>`; }
+function renderHierarchyHeader(kind, level, key, title, summary){ const collapsed = collapseState[kind][level===1?'l1':'l2'].has(key); return `<tr class="hierarchy-row level-${level}"><td class="hierarchy-cell" colspan="${kind==='tasks'?9:5}"><div class="hierarchy-bar"><button class="toggle-btn ${collapsed?'collapsed':''}" type="button" data-tree="${kind}" data-level="${level}" data-key="${esc(key)}" aria-label="${collapsed?'Expand':'Collapse'}">${arrowSvg()}</button><div><div class="task-title">${esc(title || 'Untitled')}</div></div><span class="summary-pill">${esc(summary)}</span></div></td></tr>`; }
+function renderTaskLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''}" data-row="${t.rowNumber}"><td class="task-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.group)}</td><td><select class="inline-select edit-priority">${optionHtml(allPriorities(),t.priority)}</select></td><td><input class="inline-input edit-time" value="${esc(t.time)}" placeholder="Time"></td><td><select class="inline-select edit-responsible">${optionHtml(configuredResponsibles(),t.responsible,'Unassigned')}</select></td><td><input class="inline-input edit-planned-date" inputmode="numeric" maxlength="8" value="${esc(t.plannedDate)}" placeholder="YYYYMMDD" title="Planned Date"></td><td><input class="inline-input edit-completion-date" inputmode="numeric" maxlength="8" value="${esc(t.completionDate)}" placeholder="YYYYMMDD" title="Completion Date"></td><td><button class="save-mini" data-action="save">Save</button></td><td><button class="plan-btn" data-action="plan" title="Set Planned Date to today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg></button></td></tr>`; }
 function renderPlanLeafRow(t, zebra=false){ return `<tr class="child-row ${zebra?'zebra':''} ${isDone(t)?'done-row':''} plan-row" data-row="${t.rowNumber}"><td><input class="done-box" type="checkbox" ${isDone(t)?'checked':''} title="Toggle done"></td><td class="plan-name"><div class="task-title">${esc(t.name||'Untitled')}</div></td><td>${esc(t.priority)}</td><td>${esc(t.time)}</td><td class="done-date">${isDone(t)?esc(t.completionDate):'—'}</td></tr>`; }
 function taskFiltersActive(){ return !!(norm($('search').value) || $('groupFilter').value || $('priorityFilter').value || $('respFilter').value || $('statusFilter').value || $('planningFilter').value); }
 function resetTaskFilters(){ $('search').value=''; $('groupFilter').value=''; $('priorityFilter').value=''; $('respFilter').value=''; $('statusFilter').value=''; $('planningFilter').value=''; }
@@ -528,20 +545,20 @@ function renderTasks(){
   // Only genuinely non-hierarchical records belong here. Collapsed children are already accounted for above.
   const remaining=filtered.filter(t=>!accounted.has(t.rowNumber)).sort((a,b)=>a.rowNumber-b.rowNumber);
   if(remaining.length){
-    html+=`<tr class="hierarchy-row level-2"><td class="hierarchy-cell" colspan="7"><div class="hierarchy-bar"><div class="task-title">Other Tasks</div><span class="summary-pill">${remaining.length} row${remaining.length===1?'':'s'}</span></div></td></tr>`;
+    html+=`<tr class="hierarchy-row level-2"><td class="hierarchy-cell" colspan="9"><div class="hierarchy-bar"><div class="task-title">Other Tasks</div><span class="summary-pill">${remaining.length} row${remaining.length===1?'':'s'}</span></div></td></tr>`;
     for(const t of remaining){ html+=renderTaskLeafRow(t,zebraIndex%2===1); zebraIndex++; }
   }
 
   $('taskCount').textContent=`${filtered.length} of ${tasks.length} rows`;
-  body.innerHTML=html||`<tr><td colspan="7" class="empty">No rows match the current filters.</td></tr>`;
+  body.innerHTML=html||`<tr><td colspan="9" class="empty">No rows match the current filters.</td></tr>`;
   bindHierarchyToggles();
   bindTaskRows();
   updateCollapseAllTasksButton();
 }
 function bindHierarchyToggles(){ document.querySelectorAll('.toggle-btn[data-tree]').forEach(btn=>{ btn.onclick = ()=>{ const tree=btn.dataset.tree, level=Number(btn.dataset.level), key=btn.dataset.key; const bucket=collapseState[tree][level===1?'l1':'l2']; if(bucket.has(key)) bucket.delete(key); else bucket.add(key); if(tree==='tasks') renderTasks(); else renderPlan(); }; }); }
-function bindTaskRows(){ document.querySelectorAll('#tasksBody tr[data-row]').forEach(tr=>{ const row=+tr.dataset.row; const mark=()=>{ dirtyRows.add(row); tr.querySelector('[data-action="save"]')?.classList.add('dirty'); }; tr.querySelectorAll('.edit-priority,.edit-time,.edit-responsible').forEach(el=>el.addEventListener('change',mark)); tr.querySelector('.edit-time')?.addEventListener('input',mark); tr.querySelector('[data-action="save"]')?.addEventListener('click',()=>saveInlineRow(tr).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); tr.querySelector('[data-action="plan"]')?.addEventListener('click',()=>planToday(row).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); }); }
-async function saveInlineRow(tr){ const row=+tr.dataset.row, t=taskByRow(row); if(!t) return; const values={ Priority:tr.querySelector('.edit-priority').value, Time:norm(tr.querySelector('.edit-time').value), Responsible:tr.querySelector('.edit-responsible').value }; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values }); Object.assign(t,{ priority:values.Priority, time:values.Time, responsible:values.Responsible }); dirtyRows.delete(row); tr.querySelector('[data-action="save"]')?.classList.remove('dirty'); renderTaskFilters(); showToast('Task updated.','ok'); if(currentView==='plan') renderPlan(); }
-async function planToday(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Planned Date':d } }); t.plannedDate=d; showToast('Planned Date set to '+d+'.','ok'); renderTasks(); if(currentView==='plan') renderPlan(); }
+function bindTaskRows(){ document.querySelectorAll('#tasksBody tr[data-row]').forEach(tr=>{ const row=+tr.dataset.row; const mark=()=>{ dirtyRows.add(row); tr.querySelector('[data-action="save"]')?.classList.add('dirty'); }; tr.querySelectorAll('.edit-priority,.edit-time,.edit-responsible,.edit-planned-date,.edit-completion-date').forEach(el=>el.addEventListener('change',mark)); tr.querySelectorAll('.edit-time,.edit-planned-date,.edit-completion-date').forEach(el=>el.addEventListener('input',e=>{ if(e.target.classList.contains('edit-planned-date')||e.target.classList.contains('edit-completion-date'))e.target.value=digits(e.target.value).slice(0,8); mark(); })); tr.querySelector('[data-action="save"]')?.addEventListener('click',()=>saveInlineRow(tr).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); tr.querySelector('[data-action="plan"]')?.addEventListener('click',()=>planToday(row).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); }); }
+async function saveInlineRow(tr){ const row=+tr.dataset.row, t=taskByRow(row); if(!t) return; const plannedDate=validJalali8(tr.querySelector('.edit-planned-date')?.value||'',true), completionDate=validJalali8(tr.querySelector('.edit-completion-date')?.value||'',true); const values={ Priority:tr.querySelector('.edit-priority').value, Time:norm(tr.querySelector('.edit-time').value), Responsible:tr.querySelector('.edit-responsible').value, 'Planned Date':plannedDate, 'Completion Date':completionDate }; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values }); Object.assign(t,{ priority:values.Priority, time:values.Time, responsible:values.Responsible, plannedDate, completionDate }); dirtyRows.delete(row); renderTaskFilters(); renderReportSelectors(); showToast('Task updated.','ok'); renderTasks(); if(currentView==='plan') renderPlan(); renderReport(); }
+async function planToday(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Planned Date':d } }); t.plannedDate=d; showToast('Planned Date set to '+d+'.','ok'); renderTasks(); if(currentView==='plan') renderPlan(); renderReport(); }
 function nextNumber(values){ const nums=values.map(v=>Number(v)).filter(Number.isFinite); return String((nums.length?Math.max(...nums):0)+1); }
 function nextL1(){ return nextNumber(tasks.map(t=>t.l1)); }
 function nextL2(l1){ return nextNumber(tasks.filter(t=>t.l1===String(l1)).map(t=>t.l2).filter(v=>Number(v)>0)); }
@@ -581,9 +598,10 @@ function parseTrendRows(data){
   return (data?.rows||[]).map((r,i)=>({rowNumber:i+2,date:norm(r?.[0]),progress:progressPercent(r?.[1])}))
     .filter(x=>x.date && x.progress!==null);
 }
+function reportableTasks(){ return tasks.filter(t=>{ const leaf=Number(t.l3||0)>0; const hasTaskData=!!(t.responsible||t.priority||t.time||t.dueDate||t.plannedDate||t.completionDate); return leaf || (!!t.name && hasTaskData); }); }
 function reportTaskRows(){
   const responsible=$('reportResponsible')?.value||'';
-  const rows=leafTasks();
+  const rows=reportableTasks();
   return responsible?rows.filter(t=>t.responsible===responsible):rows;
 }
 function setReportPct(id,value){ const pct=Math.max(0,Math.min(100,Math.round(Number(value)||0))); $(id).textContent=pct+'%'; return pct; }
@@ -613,6 +631,13 @@ function renderTrendChart(){
   const points=trendRows.map((d,i)=>`<circle class="trend-point ${i===n-1?'latest':''}" cx="${x(i)}" cy="${y(d.progress)}" r="${i===n-1?6:4}"><title>${esc(d.date)} · ${fmtPlanHours(d.progress)}%</title></circle>`).join('');
   holder.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly progress trend"><defs><linearGradient id="trendArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity=".24"></stop><stop offset="100%" stop-color="var(--primary)" stop-opacity=".02"></stop></linearGradient></defs>${grid}<polygon class="trend-area" points="${area}"></polygon><polyline class="trend-line" points="${pts}"></polyline>${points}${labels}</svg>`;
 }
+function renderReportTaskDetails(rows){
+  const holder=$('reportTaskDetails'), badge=$('reportTaskDetailCount'); if(!holder)return;
+  if(badge)badge.textContent=`${rows.length} task${rows.length===1?'':'s'}`;
+  const sorted=[...rows].sort((a,b)=>{ const ap=digits(a.plannedDate)||'99999999', bp=digits(b.plannedDate)||'99999999'; return ap.localeCompare(bp)||numericSort(a.l1,b.l1)||numericSort(a.l2,b.l2)||numericSort(a.l3,b.l3); });
+  if(!sorted.length){ holder.innerHTML='<div class="report-task-empty">No task rows match the current report filter.</div>'; return; }
+  holder.innerHTML=`<table class="report-task-table"><thead><tr><th>Task</th><th>Group</th><th>Responsible</th><th>Status</th><th>Due Date</th><th>Planned Date</th><th>Completion Date</th><th>Time</th></tr></thead><tbody>${sorted.map(t=>`<tr><td class="task-cell">${esc(t.name||'Untitled')}</td><td>${esc(t.group||'—')}</td><td>${esc(t.responsible||'—')}</td><td>${esc(t.status||'—')}</td><td>${esc(t.dueDate||'—')}</td><td>${esc(t.plannedDate||'—')}</td><td>${esc(t.completionDate||'—')}</td><td>${esc(t.time||'—')}</td></tr>`).join('')}</tbody></table>`;
+}
 function renderReport(){
   if(!$('reportView'))return;
   const rows=reportTaskRows();
@@ -635,6 +660,7 @@ function renderReport(){
   const planning=setReportPct('planningCoverageText',planningPct); $('planningCoverageBar').style.width=planning+'%';
   const tasksPct=setReportPct('taskCompletionText',completionPct); $('taskCompletionBar').style.width=tasksPct+'%';
   const hours=setReportPct('hourCompletionText',hourPct); $('hourCompletionBar').style.width=hours+'%';
+  renderReportTaskDetails(rows);
   renderTrendChart();
 }
 async function loadTrend(){
@@ -647,8 +673,8 @@ async function loadTrend(){
   renderReport();
 }
 function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const master=ctx.createGain(); master.gain.setValueAtTime(0.0001,now); master.gain.exponentialRampToValueAtTime(0.055,now+0.025); master.gain.exponentialRampToValueAtTime(0.0001,now+0.75); master.connect(ctx.destination); [[659.25,0],[783.99,0.09],[987.77,0.18]].forEach(([freq,delay],i)=>{ const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type=i===0?'sine':'triangle'; osc.frequency.setValueAtTime(freq,now+delay); gain.gain.setValueAtTime(0.0001,now+delay); gain.gain.exponentialRampToValueAtTime(i===0?0.8:0.45,now+delay+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.42); osc.connect(gain); gain.connect(master); osc.start(now+delay); osc.stop(now+delay+0.45); }); } catch(_){} }
-async function markDone(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':d } }); t.completionDate=d; playDing(); showToast('Completion Date set to ' + d + '.', 'ok'); renderPlan(); renderTasks(); }
-async function unmarkDone(row){ const t=taskByRow(row); if(!t) return; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':'' } }); t.completionDate=''; showToast('Completion Date cleared.','ok'); renderPlan(); renderTasks(); }
+async function markDone(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':d } }); t.completionDate=d; playDing(); showToast('Completion Date set to ' + d + '.', 'ok'); renderPlan(); renderTasks(); renderReport(); }
+async function unmarkDone(row){ const t=taskByRow(row); if(!t) return; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':'' } }); t.completionDate=''; showToast('Completion Date cleared.','ok'); renderPlan(); renderTasks(); renderReport(); }
 async function loadTasks(){ setLoading(true); setStatus('Reading Tasks from Google Sheets…'); try{ if(!globalThis.DigiExpressPlatform) throw new Error('Stable Host bridge is unavailable. Reload the extension.'); const data=await DigiExpressPlatform.call('sheets.readRows',{ spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, limit:100000 }); tasks=parseRows(data); renderTaskFilters(); resetTaskFilters(); renderPlanSelectors(); renderReportSelectors(); renderHierarchySelectors(); renderTasks(); renderPlan(); renderReport(); await loadTrend(); $('updatedAt').textContent='Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); setStatus(tasks.length + ' rows loaded · ' + trendRows.length + ' trend points', 'ok'); } catch(e){ tasks=[]; trendRows=[]; renderTasks(); renderPlan(); renderReportSelectors(); renderReport(); setStatus(String(e?.message||e),'err'); showToast(String(e?.message||e),'error'); } finally { setLoading(false); } }
 async function writeAction(action,payload={}){ const url=norm(settings.webAppUrl); if(!/^https:\/\/script\.google\.com\/(?:macros\/s\/[^/]+\/exec|a\/[^/]+\/macros\/s\/[^/]+\/exec)(?:[?#].*)?$/i.test(url)){ openSettings(); throw new Error('Configure the Weekly Planning Apps Script Web App URL first.'); } setStatus('Saving to Google Sheets…'); const body=JSON.stringify({ action, spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, ...payload }); const r=await chrome.runtime.sendMessage({ type:'REMOTE_HTTP_REQUEST', request:{ url, method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8', 'Accept':'application/json' }, body, responseType:'json', credentials:'include', timeoutMs:30000 } }); if(!r?.ok) throw new Error(r?.error || 'Google Sheets write failed.'); const data=r.data || {}; if(data.ok===false) throw new Error(data.error || 'Google Sheets write failed.'); setStatus('Saved · ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 'ok'); return data; }
 function blankHierarchyRow(l1,l2,l3,name,group=''){ return { L1:String(l1), L2:String(l2), L3:String(l3), 'Task Name':name, Group:group, Priority:'', Time:'', Status:'Active', Responsible:'', 'Add Date':todayJalali8(), 'Due Date':'', 'Planned Date':'', 'Completion Date':'' }; }
@@ -657,7 +683,7 @@ function clearNewTask(){ ['newProjectName','newGroupName','newName','newTime','n
 function openModal(id){ $(id).classList.add('open'); }
 function closeModal(id){ $(id).classList.remove('open'); }
 function openSettings(){ $('webAppUrl').value=settings.webAppUrl||''; $('responsibleSettings').value=(settings.responsibles||[]).join('\n'); $('prioritySettings').value=(settings.priorities||[]).join('\n'); openModal('settingsModal'); }
-async function saveSettings(){ settings.webAppUrl=norm($('webAppUrl').value); settings.responsibles=uniq($('responsibleSettings').value.split(/\r?\n|,/)); settings.priorities=uniq($('prioritySettings').value.split(/\r?\n|,/)); if(!settings.priorities.length) settings.priorities=[...DEFAULT_SETTINGS.priorities]; await storageSave(); closeModal('settingsModal'); renderTaskFilters(); renderPlanSelectors(); renderTasks(); renderPlan(); showToast('Settings saved.','ok'); }
+async function saveSettings(){ settings.webAppUrl=norm($('webAppUrl').value); settings.responsibles=uniq($('responsibleSettings').value.split(/\r?\n|,/)); settings.priorities=uniq($('prioritySettings').value.split(/\r?\n|,/)); if(!settings.priorities.length) settings.priorities=[...DEFAULT_SETTINGS.priorities]; await storageSave(); closeModal('settingsModal'); renderTaskFilters(); renderPlanSelectors(); renderReportSelectors(); renderTasks(); renderPlan(); renderReport(); showToast('Settings saved.','ok'); }
 async function testWriteEndpoint(){ const old=settings.webAppUrl; settings.webAppUrl=norm($('webAppUrl').value); try{ const r=await writeAction('ping',{}); showToast(r.message||'Web App connected.','ok'); } finally { settings.webAppUrl=old; } }
 async function savePlanSelection(){ settings.planResponsible=$('planResponsible').value||''; const d=digits($('planDate').value); settings.planDate=d.length===8?d:$('planDate').value||''; await storageSave(); }
 function setView(name){ currentView=name; document.querySelectorAll('.rail-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name)); $('tasksView').classList.toggle('active', name==='tasks'); $('planView').classList.toggle('active', name==='plan'); $('reportView').classList.toggle('active', name==='report'); if(name==='plan') renderPlan(); if(name==='report') renderReport(); }
