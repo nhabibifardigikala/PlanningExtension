@@ -325,53 +325,25 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
       <div class="report-shell">
         <div class="report-hero">
           <div class="report-hero-copy">
-            <h2>Performance Report</h2>
-            <p>Current task performance by Responsible, plus the weekly progress trend from the <b>Trend</b> sheet.</p>
+            <h2>Weekly Report</h2>
+            <p>Report data is read directly from the <b>Trend</b> tab in Google Sheets.</p>
           </div>
-          <div class="field report-user-field">
-            <label>Responsible</label>
-            <select id="reportResponsible"><option value="">All responsible</option></select>
+          <span class="trend-badge" id="trendLatestBadge">No data</span>
+        </div>
+
+        <section class="trend-card">
+          <div class="report-card-head">
+            <div><h3>Weekly Progress Trend</h3><p>Trend sheet · Date + Rate</p></div>
           </div>
-        </div>
-
-        <div class="report-grid">
-          <div class="report-kpi"><small>Assigned Tasks</small><strong id="reportAssigned">0</strong><div class="kpi-note">Task rows</div></div>
-          <div class="report-kpi"><small>Planned Tasks</small><strong id="reportPlanned">0</strong><div class="kpi-note">Have a Planned Date</div></div>
-          <div class="report-kpi"><small>Completed Tasks</small><strong id="reportCompleted">0</strong><div class="kpi-note">Have a Completion Date</div></div>
-          <div class="report-kpi"><small>Completion Rate</small><strong id="reportCompletionRate">0%</strong><div class="kpi-note">Completed / assigned</div></div>
-          <div class="report-kpi"><small>Planned Hours</small><strong id="reportPlannedHours">0</strong><div class="kpi-note">Hours on planned tasks</div></div>
-          <div class="report-kpi"><small>Completed Hours</small><strong id="reportCompletedHours">0</strong><div class="kpi-note">Hours on completed tasks</div></div>
-        </div>
-
-        <div class="report-layout">
-          <section class="trend-card">
-            <div class="report-card-head">
-              <div><h3>Weekly Progress Trend</h3><p>Trend sheet · column A = date · column B = progress percentage</p></div>
-              <span class="trend-badge" id="trendLatestBadge">No data</span>
-            </div>
-            <div class="trend-chart-wrap" id="trendChart"></div>
-          </section>
-
-          <aside class="performance-card">
-            <div class="report-card-head"><div><h3>Performance Snapshot</h3><p id="reportScopeText">All responsible</p></div></div>
-            <div class="performance-body">
-              <div class="performance-ring" id="performanceRing"><strong id="performanceRingValue">0%</strong></div>
-              <div class="performance-bars">
-                <div class="perf-row"><div class="perf-row-top"><span>Planning coverage</span><span id="planningCoverageText">0%</span></div><div class="perf-track"><div class="perf-fill" id="planningCoverageBar" style="width:0%"></div></div></div>
-                <div class="perf-row"><div class="perf-row-top"><span>Task completion</span><span id="taskCompletionText">0%</span></div><div class="perf-track"><div class="perf-fill done" id="taskCompletionBar" style="width:0%"></div></div></div>
-                <div class="perf-row"><div class="perf-row-top"><span>Hour completion</span><span id="hourCompletionText">0%</span></div><div class="perf-track"><div class="perf-fill done" id="hourCompletionBar" style="width:0%"></div></div></div>
-              </div>
-            </div>
-            <div class="report-footnote">The performance snapshot is calculated from the Tasks sheet. The trend chart is read independently from the Trend sheet and follows its row order.</div>
-          </aside>
-        </div>
+          <div class="trend-chart-wrap" id="trendChart"></div>
+        </section>
 
         <section class="trend-card report-task-card">
           <div class="report-card-head">
-            <div><h3>Google Sheet Details</h3><p>Complete Tasks sheet rows and columns, including newly added columns.</p></div>
-            <span class="trend-badge" id="reportTaskDetailCount">0 tasks</span>
+            <div><h3>Trend Data</h3><p>Live rows from Google Sheets → Trend</p></div>
+            <span class="trend-badge" id="trendRowCount">0 rows</span>
           </div>
-          <div class="report-task-details" id="reportTaskDetails"></div>
+          <div class="report-task-details" id="trendTable"></div>
         </section>
       </div>
     </section>
@@ -557,7 +529,7 @@ function renderTasks(){
 }
 function bindHierarchyToggles(){ document.querySelectorAll('.toggle-btn[data-tree]').forEach(btn=>{ btn.onclick = ()=>{ const tree=btn.dataset.tree, level=Number(btn.dataset.level), key=btn.dataset.key; const bucket=collapseState[tree][level===1?'l1':'l2']; if(bucket.has(key)) bucket.delete(key); else bucket.add(key); if(tree==='tasks') renderTasks(); else renderPlan(); }; }); }
 function bindTaskRows(){ document.querySelectorAll('#tasksBody tr[data-row]').forEach(tr=>{ const row=+tr.dataset.row; const mark=()=>{ dirtyRows.add(row); tr.querySelector('[data-action="save"]')?.classList.add('dirty'); }; tr.querySelectorAll('.edit-priority,.edit-time,.edit-responsible,.edit-planned-date,.edit-completion-date').forEach(el=>el.addEventListener('change',mark)); tr.querySelectorAll('.edit-time,.edit-planned-date,.edit-completion-date').forEach(el=>el.addEventListener('input',e=>{ if(e.target.classList.contains('edit-planned-date')||e.target.classList.contains('edit-completion-date'))e.target.value=digits(e.target.value).slice(0,8); mark(); })); tr.querySelector('[data-action="save"]')?.addEventListener('click',()=>saveInlineRow(tr).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); tr.querySelector('[data-action="plan"]')?.addEventListener('click',()=>planToday(row).catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); })); }); }
-async function saveInlineRow(tr){ const row=+tr.dataset.row, t=taskByRow(row); if(!t) return; const plannedDate=validJalali8(tr.querySelector('.edit-planned-date')?.value||'',true), completionDate=validJalali8(tr.querySelector('.edit-completion-date')?.value||'',true); const values={ Priority:tr.querySelector('.edit-priority').value, Time:norm(tr.querySelector('.edit-time').value), Responsible:tr.querySelector('.edit-responsible').value, 'Planned Date':plannedDate, 'Completion Date':completionDate }; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values }); Object.assign(t,{ priority:values.Priority, time:values.Time, responsible:values.Responsible, plannedDate, completionDate }); dirtyRows.delete(row); renderTaskFilters(); renderReportSelectors(); showToast('Task updated.','ok'); renderTasks(); if(currentView==='plan') renderPlan(); renderReport(); }
+async function saveInlineRow(tr){ const row=+tr.dataset.row, t=taskByRow(row); if(!t) return; const plannedDate=validJalali8(tr.querySelector('.edit-planned-date')?.value||'',true), completionDate=validJalali8(tr.querySelector('.edit-completion-date')?.value||'',true); const values={ Priority:tr.querySelector('.edit-priority').value, Time:norm(tr.querySelector('.edit-time').value), Responsible:tr.querySelector('.edit-responsible').value, 'Planned Date':plannedDate, 'Completion Date':completionDate }; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values }); Object.assign(t,{ priority:values.Priority, time:values.Time, responsible:values.Responsible, plannedDate, completionDate }); dirtyRows.delete(row); renderTaskFilters(); showToast('Task updated.','ok'); renderTasks(); if(currentView==='plan') renderPlan(); renderReport(); }
 async function planToday(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Planned Date':d } }); t.plannedDate=d; showToast('Planned Date set to '+d+'.','ok'); renderTasks(); if(currentView==='plan') renderPlan(); renderReport(); }
 function nextNumber(values){ const nums=values.map(v=>Number(v)).filter(Number.isFinite); return String((nums.length?Math.max(...nums):0)+1); }
 function nextL1(){ return nextNumber(tasks.map(t=>t.l1)); }
@@ -595,30 +567,30 @@ function progressPercent(v){
   return Math.max(0,Math.min(100,n));
 }
 function parseTrendRows(data){
-  return (data?.rows||[]).map((r,i)=>({rowNumber:i+2,date:norm(r?.[0]),progress:progressPercent(r?.[1])}))
+  const headers=(data?.headers||[]).map(normKey);
+  const dateIndex=headers.indexOf('date');
+  const rateIndex=headers.indexOf('rate');
+  const di=dateIndex>=0?dateIndex:0;
+  const ri=rateIndex>=0?rateIndex:1;
+  return (data?.rows||[]).map((r,i)=>({rowNumber:i+2,date:norm(r?.[di]),progress:progressPercent(r?.[ri])}))
     .filter(x=>x.date && x.progress!==null);
 }
-function reportableTasks(){ return tasks.filter(t=>{ const leaf=Number(t.l3||0)>0; const hasTaskData=!!(t.responsible||t.priority||t.time||t.dueDate||t.plannedDate||t.completionDate); return leaf || (!!t.name && hasTaskData); }); }
-function reportTaskRows(){
-  const responsible=$('reportResponsible')?.value||'';
-  const rows=reportableTasks();
-  return responsible?rows.filter(t=>t.responsible===responsible):rows;
-}
-function setReportPct(id,value){ const pct=Math.max(0,Math.min(100,Math.round(Number(value)||0))); $(id).textContent=pct+'%'; return pct; }
-function renderReportSelectors(){
-  const el=$('reportResponsible'); if(!el)return;
-  const previous=el.value||settings.planResponsible||'';
-  const values=configuredResponsibles();
-  el.innerHTML='<option value="">All responsible</option>'+values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  if(previous && values.includes(previous))el.value=previous;
+function renderTrendTable(){
+  const holder=$('trendTable'), badge=$('trendRowCount');
+  if(!holder)return;
+  if(badge)badge.textContent=`${trendRows.length} row${trendRows.length===1?'':'s'}`;
+  if(trendError){ holder.innerHTML=`<div class="report-task-empty">Trend data could not be loaded.<br>${esc(trendError)}</div>`; return; }
+  if(!trendRows.length){ holder.innerHTML='<div class="report-task-empty">No valid rows were found in the Trend sheet.</div>'; return; }
+  holder.innerHTML=`<table class="report-task-table" style="min-width:420px"><thead><tr><th>Date</th><th>Rate</th></tr></thead><tbody>${trendRows.map(r=>`<tr><td class="task-cell">${esc(r.date)}</td><td>${esc(fmtPlanHours(r.progress))}%</td></tr>`).join('')}</tbody></table>`;
 }
 function renderTrendChart(){
   const holder=$('trendChart'); if(!holder)return;
-  if(trendError){ holder.innerHTML=`<div class="trend-empty">Trend data could not be loaded.<br>${esc(trendError)}</div>`; $('trendLatestBadge').textContent='Unavailable'; return; }
-  if(!trendRows.length){ holder.innerHTML='<div class="trend-empty">No valid rows were found in the Trend sheet.<br>Add date in column A and progress percentage in column B.</div>'; $('trendLatestBadge').textContent='No data'; return; }
+  const latestBadge=$('trendLatestBadge');
+  if(trendError){ holder.innerHTML=`<div class="trend-empty">Trend data could not be loaded.<br>${esc(trendError)}</div>`; if(latestBadge)latestBadge.textContent='Unavailable'; return; }
+  if(!trendRows.length){ holder.innerHTML='<div class="trend-empty">No valid rows were found in the Trend sheet.<br>Add Date in column A and Rate in column B.</div>'; if(latestBadge)latestBadge.textContent='No data'; return; }
   const latest=trendRows[trendRows.length-1], previous=trendRows.length>1?trendRows[trendRows.length-2]:null;
   const delta=previous?latest.progress-previous.progress:null;
-  $('trendLatestBadge').textContent=`${fmtPlanHours(latest.progress)}%${delta===null?'':` · ${delta>=0?'+':''}${fmtPlanHours(delta)} pp`}`;
+  if(latestBadge)latestBadge.textContent=`${esc(latest.date)} · ${fmtPlanHours(latest.progress)}%${delta===null?'':` · ${delta>=0?'+':''}${fmtPlanHours(delta)} pp`}`;
   const W=920,H=300,L=48,R=18,T=20,B=46,plotW=W-L-R,plotH=H-T-B;
   const n=trendRows.length;
   const x=i=>L+(n===1?plotW/2:(i/(n-1))*plotW);
@@ -631,39 +603,10 @@ function renderTrendChart(){
   const points=trendRows.map((d,i)=>`<circle class="trend-point ${i===n-1?'latest':''}" cx="${x(i)}" cy="${y(d.progress)}" r="${i===n-1?6:4}"><title>${esc(d.date)} · ${fmtPlanHours(d.progress)}%</title></circle>`).join('');
   holder.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly progress trend"><defs><linearGradient id="trendArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity=".24"></stop><stop offset="100%" stop-color="var(--primary)" stop-opacity=".02"></stop></linearGradient></defs>${grid}<polygon class="trend-area" points="${area}"></polygon><polyline class="trend-line" points="${pts}"></polyline>${points}${labels}</svg>`;
 }
-function reportSheetRows(){ const responsible=$('reportResponsible')?.value||''; return responsible?tasks.filter(t=>t.responsible===responsible):[...tasks]; }
-function reportCellValue(t,header,index){ const key=normKey(header); const known={l1:t.l1,l2:t.l2,l3:t.l3,taskname:t.name,group:t.group,priority:t.priority,time:t.time,status:t.status,responsible:t.responsible,adddate:t.addDate,duedate:t.dueDate,planneddate:t.plannedDate,completiondate:t.completionDate}; return Object.prototype.hasOwnProperty.call(known,key)?known[key]:norm(t.rawRow?.[index]); }
-function renderReportTaskDetails(rows){
-  const holder=$('reportTaskDetails'), badge=$('reportTaskDetailCount'); if(!holder)return;
-  if(badge)badge.textContent=`${rows.length} row${rows.length===1?'':'s'}`;
-  if(!rows.length){ holder.innerHTML='<div class="report-task-empty">No Google Sheet rows match the current report filter.</div>'; return; }
-  const headers=taskSheetHeaders.length?taskSheetHeaders:EXPECTED;
-  holder.innerHTML=`<table class="report-task-table"><thead><tr>${headers.map((h,i)=>`<th>${esc(h||('Column '+(i+1)))}</th>`).join('')}</tr></thead><tbody>${rows.map(t=>`<tr>${headers.map((h,i)=>`<td class="${normKey(h)==='taskname'?'task-cell':''}">${esc(reportCellValue(t,h,i)||'—')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-}
 function renderReport(){
   if(!$('reportView'))return;
-  const rows=reportTaskRows();
-  const plannedRows=rows.filter(t=>!!t.plannedDate);
-  const completedRows=rows.filter(isDone);
-  const plannedHours=plannedRows.reduce((a,t)=>a+timeNumber(t.time),0);
-  const completedHours=completedRows.reduce((a,t)=>a+timeNumber(t.time),0);
-  const completionPct=rows.length?completedRows.length/rows.length*100:0;
-  const planningPct=rows.length?plannedRows.length/rows.length*100:0;
-  const hourPct=plannedHours>0?completedHours/plannedHours*100:0;
-  $('reportAssigned').textContent=String(rows.length);
-  $('reportPlanned').textContent=String(plannedRows.length);
-  $('reportCompleted').textContent=String(completedRows.length);
-  $('reportCompletionRate').textContent=Math.round(completionPct)+'%';
-  $('reportPlannedHours').textContent=fmtPlanHours(plannedHours);
-  $('reportCompletedHours').textContent=fmtPlanHours(completedHours);
-  $('reportScopeText').textContent=$('reportResponsible').value||'All responsible';
-  const completion=setReportPct('performanceRingValue',completionPct);
-  $('performanceRing').style.setProperty('--pct',completion+'%');
-  const planning=setReportPct('planningCoverageText',planningPct); $('planningCoverageBar').style.width=planning+'%';
-  const tasksPct=setReportPct('taskCompletionText',completionPct); $('taskCompletionBar').style.width=tasksPct+'%';
-  const hours=setReportPct('hourCompletionText',hourPct); $('hourCompletionBar').style.width=hours+'%';
-  renderReportTaskDetails(reportSheetRows());
   renderTrendChart();
+  renderTrendTable();
 }
 async function loadTrend(){
   trendError='';
@@ -677,7 +620,7 @@ async function loadTrend(){
 function playDing(){ try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx) return; playDing.ctx = playDing.ctx || new Ctx(); const ctx=playDing.ctx; const now=ctx.currentTime; const master=ctx.createGain(); master.gain.setValueAtTime(0.0001,now); master.gain.exponentialRampToValueAtTime(0.055,now+0.025); master.gain.exponentialRampToValueAtTime(0.0001,now+0.75); master.connect(ctx.destination); [[659.25,0],[783.99,0.09],[987.77,0.18]].forEach(([freq,delay],i)=>{ const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type=i===0?'sine':'triangle'; osc.frequency.setValueAtTime(freq,now+delay); gain.gain.setValueAtTime(0.0001,now+delay); gain.gain.exponentialRampToValueAtTime(i===0?0.8:0.45,now+delay+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.42); osc.connect(gain); gain.connect(master); osc.start(now+delay); osc.stop(now+delay+0.45); }); } catch(_){} }
 async function markDone(row){ const t=taskByRow(row); if(!t) return; const d=todayJalali8(); await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':d } }); t.completionDate=d; playDing(); showToast('Completion Date set to ' + d + '.', 'ok'); renderPlan(); renderTasks(); renderReport(); }
 async function unmarkDone(row){ const t=taskByRow(row); if(!t) return; await writeAction('updateTask',{ rowNumber:row, identity:identityOf(t), values:{ 'Completion Date':'' } }); t.completionDate=''; showToast('Completion Date cleared.','ok'); renderPlan(); renderTasks(); renderReport(); }
-async function loadTasks(){ setLoading(true); setStatus('Reading Tasks from Google Sheets…'); try{ if(!globalThis.DigiExpressPlatform) throw new Error('Stable Host bridge is unavailable. Reload the extension.'); const data=await DigiExpressPlatform.call('sheets.readRows',{ spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, limit:100000 }); tasks=parseRows(data); renderTaskFilters(); resetTaskFilters(); renderPlanSelectors(); renderReportSelectors(); renderHierarchySelectors(); renderTasks(); renderPlan(); renderReport(); await loadTrend(); $('updatedAt').textContent='Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); setStatus(tasks.length + ' rows loaded · ' + trendRows.length + ' trend points', 'ok'); } catch(e){ tasks=[]; trendRows=[]; renderTasks(); renderPlan(); renderReportSelectors(); renderReport(); setStatus(String(e?.message||e),'err'); showToast(String(e?.message||e),'error'); } finally { setLoading(false); } }
+async function loadTasks(){ setLoading(true); setStatus('Reading Tasks from Google Sheets…'); try{ if(!globalThis.DigiExpressPlatform) throw new Error('Stable Host bridge is unavailable. Reload the extension.'); const data=await DigiExpressPlatform.call('sheets.readRows',{ spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, limit:100000 }); tasks=parseRows(data); renderTaskFilters(); resetTaskFilters(); renderPlanSelectors(); renderHierarchySelectors(); renderTasks(); renderPlan(); renderReport(); await loadTrend(); $('updatedAt').textContent='Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); setStatus(tasks.length + ' rows loaded · ' + trendRows.length + ' trend points', 'ok'); } catch(e){ tasks=[]; trendRows=[]; renderTasks(); renderPlan(); renderReport(); setStatus(String(e?.message||e),'err'); showToast(String(e?.message||e),'error'); } finally { setLoading(false); } }
 async function writeAction(action,payload={}){ const url=norm(settings.webAppUrl); if(!/^https:\/\/script\.google\.com\/(?:macros\/s\/[^/]+\/exec|a\/[^/]+\/macros\/s\/[^/]+\/exec)(?:[?#].*)?$/i.test(url)){ openSettings(); throw new Error('Configure the Weekly Planning Apps Script Web App URL first.'); } setStatus('Saving to Google Sheets…'); const body=JSON.stringify({ action, spreadsheetId:SPREADSHEET_ID, sheetName:SHEET_NAME, ...payload }); const r=await chrome.runtime.sendMessage({ type:'REMOTE_HTTP_REQUEST', request:{ url, method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8', 'Accept':'application/json' }, body, responseType:'json', credentials:'include', timeoutMs:30000 } }); if(!r?.ok) throw new Error(r?.error || 'Google Sheets write failed.'); const data=r.data || {}; if(data.ok===false) throw new Error(data.error || 'Google Sheets write failed.'); setStatus('Saved · ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 'ok'); return data; }
 function blankHierarchyRow(l1,l2,l3,name,group=''){ return { L1:String(l1), L2:String(l2), L3:String(l3), 'Task Name':name, Group:group, Priority:'', Time:'', Status:'Active', Responsible:'', 'Add Date':todayJalali8(), 'Due Date':'', 'Planned Date':'', 'Completion Date':'' }; }
 async function createTask(){ const h=hierarchySelection(); if(h.pNew&&!h.pName) throw new Error('New Project Name is required.'); if(h.gNew&&!h.gName) throw new Error('New Group Name is required.'); const name=norm($('newName').value); if(!name) throw new Error('Task Name is required.'); const due=validJalali8($('newDueDate').value,true), planned=validJalali8($('newPlannedDate').value,true); if(h.pNew) await writeAction('appendTask',{ task:blankHierarchyRow(h.l1,'0','0',h.pName,'') }); if(h.gNew) await writeAction('appendTask',{ task:blankHierarchyRow(h.l1,h.l2,'0',h.gName,h.gName) }); const task={ L1:h.l1, L2:h.l2, L3:h.l3, 'Task Name':name, Group:h.gName, Priority:$('newPriority').value, Time:norm($('newTime').value), Status:norm($('newStatus').value)||'Open', Responsible:$('newResponsible').value, 'Add Date':todayJalali8(), 'Due Date':due, 'Planned Date':planned, 'Completion Date':'' }; await writeAction('appendTask',{ task }); closeModal('taskModal'); showToast('Task created as ' + h.l1 + '.' + h.l2 + '.' + h.l3 + '.', 'ok'); clearNewTask(); await loadTasks(); }
@@ -685,7 +628,7 @@ function clearNewTask(){ ['newProjectName','newGroupName','newName','newTime','n
 function openModal(id){ $(id).classList.add('open'); }
 function closeModal(id){ $(id).classList.remove('open'); }
 function openSettings(){ $('webAppUrl').value=settings.webAppUrl||''; $('responsibleSettings').value=(settings.responsibles||[]).join('\n'); $('prioritySettings').value=(settings.priorities||[]).join('\n'); openModal('settingsModal'); }
-async function saveSettings(){ settings.webAppUrl=norm($('webAppUrl').value); settings.responsibles=uniq($('responsibleSettings').value.split(/\r?\n|,/)); settings.priorities=uniq($('prioritySettings').value.split(/\r?\n|,/)); if(!settings.priorities.length) settings.priorities=[...DEFAULT_SETTINGS.priorities]; await storageSave(); closeModal('settingsModal'); renderTaskFilters(); renderPlanSelectors(); renderReportSelectors(); renderTasks(); renderPlan(); renderReport(); showToast('Settings saved.','ok'); }
+async function saveSettings(){ settings.webAppUrl=norm($('webAppUrl').value); settings.responsibles=uniq($('responsibleSettings').value.split(/\r?\n|,/)); settings.priorities=uniq($('prioritySettings').value.split(/\r?\n|,/)); if(!settings.priorities.length) settings.priorities=[...DEFAULT_SETTINGS.priorities]; await storageSave(); closeModal('settingsModal'); renderTaskFilters(); renderPlanSelectors(); renderTasks(); renderPlan(); renderReport(); showToast('Settings saved.','ok'); }
 async function testWriteEndpoint(){ const old=settings.webAppUrl; settings.webAppUrl=norm($('webAppUrl').value); try{ const r=await writeAction('ping',{}); showToast(r.message||'Web App connected.','ok'); } finally { settings.webAppUrl=old; } }
 async function savePlanSelection(){ settings.planResponsible=$('planResponsible').value||''; const d=digits($('planDate').value); settings.planDate=d.length===8?d:$('planDate').value||''; await storageSave(); }
 function setView(name){ currentView=name; document.querySelectorAll('.rail-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===name)); $('tasksView').classList.toggle('active', name==='tasks'); $('planView').classList.toggle('active', name==='plan'); $('reportView').classList.toggle('active', name==='report'); if(name==='plan') renderPlan(); if(name==='report') renderReport(); }
@@ -707,11 +650,10 @@ $('createTaskBtn').onclick=()=>createTask().catch(e=>showToast(e.message||String
 $('saveSettingsBtn').onclick=()=>saveSettings().catch(e=>showToast(e.message||String(e),'error'));
 $('testWriteBtn').onclick=()=>testWriteEndpoint().catch(e=>showToast(e.message||String(e),'error'));
 $('planResponsible').onchange=()=>{ savePlanSelection(); renderPlan(); };
-$('reportResponsible').onchange=renderReport;
 $('planDate').oninput=()=>{ savePlanSelection(); if(digits($('planDate').value).length===8) renderPlan(); else renderPlan(); };
 window.addEventListener('message',e=>{ if(e.data?.type==='DIGIEXPRESS_THEME'){ const t=String(e.data.theme||'').toLowerCase(); if(t==='light'||t==='dark') document.documentElement.dataset.theme=t; } });
 try{ parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*'); } catch(_){}
-(async()=>{ settings=await storageGet(); $('planDate').value=settings.planDate||todayJalali8(); renderPlanSelectors(); renderReportSelectors(); if(settings.planResponsible&&configuredResponsibles().includes(settings.planResponsible)) $('planResponsible').value=settings.planResponsible; renderHierarchySelectors(); await loadTasks(); })().catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); });
+(async()=>{ settings=await storageGet(); $('planDate').value=settings.planDate||todayJalali8(); renderPlanSelectors(); if(settings.planResponsible&&configuredResponsibles().includes(settings.planResponsible)) $('planResponsible').value=settings.planResponsible; renderHierarchySelectors(); await loadTasks(); })().catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); });
 </script>
 </body>
 </html>
