@@ -2,10 +2,20 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract Distribution Center data and prepare an Excel file for download.",
+  "description": "Assign 100 Distribution Centers to the configured user, extract the required Distribution Center columns with 1000 rows per page, and replace DataSets → Distribution Centers (LG).",
   "inputs": [
     {
-      "name": "_openPage",
+      "name": "useConfiguredEmail",
+      "label": "",
+      "type": "checkbox",
+      "defaultChecked": true,
+      "showWhen": {
+        "field": "__never__",
+        "equals": "true"
+      }
+    },
+    {
+      "name": "email",
       "label": "",
       "type": "text",
       "showWhen": {
@@ -19,18 +29,81 @@
     "retryDelayMs": 500,
     "completeTimeoutMs": 60000
   },
-  "successMessage": "Extraction completed. {{rowCount}} rows are ready.",
+  "successMessage": "Distribution Centers extraction completed and Google Sheet updated successfully.",
   "workflow": [
     {
       "action": "open",
-      "url": "https://lg.digikala.com/distribution-center/?per_page=1000",
-      "progress": "Opening Distribution Centers…",
+      "url": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
+      "progress": "Opening DC User Assignment…",
       "active": true
     },
     {
       "action": "ensureLogin",
-      "detectTimeoutMs": 15000,
+      "detectTimeoutMs": 5000,
       "progress": "Checking authentication…"
+    },
+    {
+      "action": "wait",
+      "ms": 2500,
+      "progress": "Keeping DC User Assignment active while the page settles…"
+    },
+    {
+      "action": "pagedBatchSubmit",
+      "count": "100",
+      "itemsPerPage": 20,
+      "pagesPerBatch": 15,
+      "resetUrl": "https://lg.digikala.com/dc-user/item/0/?_back=https://lg.digikala.com/dc-user/",
+      "openerSelector": "a.chooseItemLink[title=\"click to choose\"], a.chooseItemLink",
+      "openerTimeoutMs": 20000,
+      "afterOpenMs": 1000,
+      "selectAllSelector": "#admin-dynamic-clear-all",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "chooseSelector": "button.admin-dynamic-choose[data-action-type=\"choose\"]",
+      "frameTimeoutMs": 20000,
+      "nextTimeoutMs": 7000,
+      "chooseTimeoutMs": 15000,
+      "afterSelectMs": 700,
+      "afterNextMs": 1400,
+      "afterChooseMs": 1000,
+      "batchProgress": "Assigning 100 DCs — batch {{batch}} of {{batches}}…",
+      "skipProgress": "Moving to DC page {{page}}…",
+      "pageProgress": "Selecting DC page {{page}} of {{pages}}…",
+      "autocomplete": {
+        "selector": "input[type=\"text\"].uk-select.es-input[placeholder=\"\"]",
+        "value": "{{email}}",
+        "attempts": 5,
+        "verifyNonEmpty": true,
+        "retryDelayMs": 600,
+        "error": "Could not set the user email.",
+        "options": {
+          "typingDelayMs": 110,
+          "autocompleteWaitMs": 1800,
+          "pressEnter": true,
+          "commitWaitMs": 1200,
+          "outsideSelector": "button.form-save-button.admin-submit-button",
+          "outsideWaitMs": 700,
+          "selectorIndex": -1
+        }
+      },
+      "beforeSubmitMs": 700,
+      "submit": {
+        "selector": "button.form-save-button.admin-submit-button",
+        "textContains": "save",
+        "error": "Save button was not found.",
+        "acceptNavigation": true,
+        "navigationGraceMs": 10000,
+        "navigationCheckIntervalMs": 250
+      },
+      "outcomeTimeoutMs": 30000,
+      "outcomeIntervalMs": 250,
+      "afterSubmitMs": 1500,
+      "progress": "Assigning the first 100 Distribution Centers…",
+      "terminalMatchBehavior": "continue",
+      "terminalSuccessMessage": "DC assignment is already present; continuing with extraction.",
+      "terminalSuccessTexts": [
+        "0 - User and DC relation already exists",
+        "User and DC relation already exists"
+      ]
     },
     {
       "action": "navigate",
@@ -226,7 +299,7 @@
       "type": "remote-operation",
       "operationId": "extract-dc",
       "inputs": {},
-      "status": "Extracting Distribution Centers…"
+      "status": "Assigning DCs and extracting Distribution Centers…"
     },
     "groups": [],
     "metrics": [],
@@ -235,17 +308,18 @@
       "partitionTitle": "Distribution Centers",
       "partitionSubtitle": "",
       "dashboardButtonLabel": "Open dashboard",
-      "downloadButtonLabel": "Download Excel",
+      "downloadButtonLabel": "",
       "hideDashboardButton": true
     },
     "export": {
+      "enabled": false
+    },
+    "publish": {
       "enabled": true,
-      "type": "xlsx",
-      "buttonLabel": "Download Excel",
-      "filename": "distribution_centers_{{today}}.xlsx",
-      "sheetName": "Distribution Centers",
-      "saveAs": false,
-      "prependColumns": []
+      "webAppUrl": "https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec",
+      "action": "replaceDataset",
+      "sheetName": "Distribution Centers (LG)",
+      "status": "Publishing Distribution Centers to Google Sheet…"
     }
   },
   "remoteBehaviorVersion": 12,
@@ -254,7 +328,17 @@
   "keepTabActive": true,
   "foregroundReason": "LG defers table rendering in background tabs. DC User Assignment and Distribution Centers are both kept in the foreground during critical loading and selection windows through remote configuration.",
   "output": {
-    "type": "excel"
+    "type": "sheet"
   },
-  "closeTabOnError": true
+  "closeTabOnError": true,
+  "inputRules": [
+    {
+      "when": {
+        "field": "useConfiguredEmail",
+        "equals": true
+      },
+      "target": "email",
+      "source": "credentialUsername"
+    }
+  ]
 }

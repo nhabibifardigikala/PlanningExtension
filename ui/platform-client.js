@@ -11,7 +11,7 @@
   function callBridge(method,args={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dxp-${Date.now()}-${++seq}-${Math.random().toString(36).slice(2,7)}`;
-      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('DigiExpress Host did not respond. Install or reload Stable Host 13.0.0.'));},30000);
+      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('DigiExpress Host bridge did not respond. Reload the installed Stable Host extension and reopen DigiExpress.'));},30000);
       pending.set(requestId,{resolve,reject,timer});
       window.postMessage({type:'DIGIEXPRESS_PLATFORM_CALL',requestId,method,args},ORIGIN);
     });

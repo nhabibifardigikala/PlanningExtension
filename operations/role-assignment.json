@@ -938,7 +938,7 @@
       "id": "copy-roles",
       "tabLabel": "Copy",
       "title": "Copy Roles",
-      "description": "Copy all roles from a source user to a target user. Supports single copy or an Excel batch. In Excel mode use column A for source user and column B for target personnel code.",
+      "description": "Copy all roles from a source user to a target user. If the source user is not found in User Management, the operation stops before the target user is opened or changed.",
       "uiMode": "form",
       "runLabel": "Copy Roles",
       "inputs": [
@@ -1334,6 +1334,15 @@
             "actionSelector": "a,button",
             "actionText": "details"
           }
+        },
+        {
+          "action": "assert",
+          "condition": {
+            "left": "{{userLookup.ok}}",
+            "operator": "equals",
+            "right": "true"
+          },
+          "error": "Source user {{userIdentifier}} was not found in User Management. Copy stopped before any change to the target user."
         },
         {
           "action": "navigate",
@@ -3513,5 +3522,6 @@
   "minimumRuntimeVersion": "12.0.6",
   "output": {
     "type": "excel"
-  }
+  },
+  "permissionPreflight": false
 }

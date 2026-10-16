@@ -1,0 +1,13 @@
+Remote v412
+
+Distribution Centers Extractor
+- Before extraction, assigns exactly 100 DCs to the configured user.
+- "0 - User and DC relation already exists" is treated as a successful assignment outcome and extraction continues.
+- Opens Distribution Centers with per_page=1000, configures the existing required columns, extracts all pages, and replaces DataSets -> Distribution Centers (LG) via the existing Apps Script endpoint.
+- Direct Excel export is disabled for this operation because Google Sheet is now the primary output.
+- Agents no longer runs DC User Assignment as a separate pre-operation, avoiding a duplicate 100-DC assignment.
+
+Role Assignment
+- Role Assignment skips Remote permission preflight and lets Stable Host handle required SSO permission during execution; this avoids the misleading platform-bridge timeout before the operation starts.
+- Host bridge timeout wording no longer incorrectly asks for Host 13.0.0.
+- Copy Roles stops immediately if the source user is not found in User Management, before the target user is opened or modified.

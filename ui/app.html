@@ -903,7 +903,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=348" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
 
       <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=dark" loading="lazy"></iframe></section>
-      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=405&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=405&theme=dark" loading="lazy"></iframe></section>
+      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=412&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=412&theme=dark" loading="lazy"></iframe></section>
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=411&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=411&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
@@ -957,7 +957,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
   function callBridge(method,args={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dxp-${Date.now()}-${++seq}-${Math.random().toString(36).slice(2,7)}`;
-      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('DigiExpress Host did not respond. Install or reload Stable Host 13.0.0.'));},30000);
+      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('DigiExpress Host bridge did not respond. Reload the installed Stable Host extension and reopen DigiExpress.'));},30000);
       pending.set(requestId,{resolve,reject,timer});
       window.postMessage({type:'DIGIEXPRESS_PLATFORM_CALL',requestId,method,args},ORIGIN);
     });
@@ -1042,7 +1042,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 411;
+const EXPECTED_REMOTE_CONFIG_VERSION = 412;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -2200,6 +2200,7 @@ function operationRequiredOrigins(op){
   return [...new Set(origins.filter(x=>/^https:\/\//i.test(x)))];
 }
 async function ensureOperationHostPermissions(op){
+  if(op?.permissionPreflight===false)return true;
   const origins=operationRequiredOrigins(op); if(!origins.length)return true;
   const missing=[];
   for(const origin of origins){ try{ if(!(await chrome.permissions.contains({origins:[origin]})))missing.push(origin); }catch(_){} }
@@ -2302,16 +2303,29 @@ function gpRenderModel(op,model,inputs){
   const dl=host.querySelector('#gpDownload');if(dl)dl.onclick=async()=>{try{dl.disabled=true;await gpDownloadExport(op,model,inputs);setOperationStatus('Excel downloaded.','ok');}catch(e){setOperationStatus(e.message||String(e),'error');}finally{dl.disabled=false;}};
   const dashBtn=host.querySelector('#gpDashboard');if(dashBtn)dashBtn.onclick=async()=>{const b=dashBtn;try{b.disabled=true;await chrome.storage.local.set({genericDashboardData:{savedAt:Date.now(),model,processor:cp,inputs,accent:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()}});const r=await chrome.runtime.sendMessage({type:'OPEN_GENERIC_DASHBOARD'});if(!r?.ok)throw new Error(r?.error||'Could not open dashboard.');}catch(e){setOperationStatus(e.message||String(e),'error');}finally{b.disabled=false;}};
 }
+async function gpPublishDataset(cp,headers,rows){
+  const cfg=cp?.publish||{};if(cfg.enabled!==true)return null;
+  const url=String(cfg.webAppUrl||'').trim();if(!url)throw new Error('Google Sheets publishing URL is not configured.');
+  const sheetName=String(cfg.sheetName||'').trim();if(!sheetName)throw new Error('Google Sheets target sheet is not configured.');
+  setOperationStatus(String(cfg.status||`Publishing ${rows.length} rows to Google Sheet…`));
+  const payload={action:String(cfg.action||'replaceDataset'),sheetName,headers:headers||[],rows:rows||[]};
+  const r=await chrome.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),responseType:'json',timeoutMs:Number(cfg.timeoutMs||120000),credentials:'include'}});
+  if(!r?.ok)throw new Error(r?.error||'Google Sheets publishing request failed.');
+  const d=r?.data||{};if(d?.ok===false)throw new Error(d.error||'Google Sheet rejected the extracted data.');
+  return d;
+}
 async function runDataPipelineProcessor(op,inputs){
   const cp=op.clientProcessor||{},src=cp.source||{};if(src.type!=='remote-operation')throw new Error('Unsupported data source.');
   const srcInputs={...inputs};for(const [k,v] of Object.entries(src.inputs||{}))srcInputs[k]=gpTransformInput(v,inputs);
   setOperationStatus(gpTpl(src.status||'Running report…',{inputs,input:inputs}));
   const resp=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:src.operationId||op.id,inputs:srcInputs,awaitCompletion:true,silentDone:true});if(!resp?.ok)throw new Error(resp?.error||'Remote operation failed.');
-  const result=resp.result||{},headers=result.headers||[],rows=result.rows||[],partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
+  const result=resp.result||{},headers=result.headers||[],rows=result.rows||[];
+  const published=await gpPublishDataset(cp,headers,rows);
+  const partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
   const partition=items.length?gpPartitionRows(headers,rows,items,partCfg):{buckets:[rows],unmatched:[]};
   const parts=[];for(let i=0;i<(items.length?items.length:1);i++){const item=items[i]||{id:'all',name:'All'},rr=partition.buckets[i]||[];const groups=gpGroupRows(headers,rr,cp.groups||[]).map(g=>({...g,metrics:gpBuildMetrics(cp.metrics||[],headers,g.rows)}));parts.push({id:String(item?.[partCfg.itemId||'id']??'all'),label:String(item?.[partCfg.itemLabel||'name']??'All'),rows:rr,groups});}
   const matched=parts.reduce((n,x)=>n+x.rows.length,0);if(items.length>1&&!matched)throw new Error('Results were returned, but could not be partitioned reliably. Check remote partition aliases.');
-  const model={headers,partitions:parts,unmatchedCount:partition.unmatched?.length||0,totalRows:rows.length};gpRenderModel(op,model,inputs);await chrome.storage.local.set({genericDashboardData:{savedAt:Date.now(),model,processor:cp,inputs}});setOperationStatus(`Completed. ${matched||rows.length} rows processed.`,'ok');setProgress('Done',true);return{records:matched||rows.length};
+  const model={headers,partitions:parts,unmatchedCount:partition.unmatched?.length||0,totalRows:rows.length};gpRenderModel(op,model,inputs);await chrome.storage.local.set({genericDashboardData:{savedAt:Date.now(),model,processor:cp,inputs}});const publishText=published?` Google Sheet updated: ${published.rows??rows.length} rows.`:'';setOperationStatus(`Completed. ${matched||rows.length} rows processed.${publishText}`,'ok');setProgress('Done',true);return{records:matched||rows.length,publishedRows:published?.rows??null};
 }
 
 
