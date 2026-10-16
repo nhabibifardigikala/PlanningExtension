@@ -65,7 +65,7 @@ function armMapVisibilityRefresh(){
 }
 
 function natureLabel(n){return ({1:'Normal',2:'Medium',3:'Large',4:'Barbari',5:'Business',6:'Fast'})[Number(n)]||String(n??'-')}
-function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#F79009',5:'#d946ef',6:'#0891b2'})[Number(n)]||'#64748b'}
+function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#2563eb',5:'#d946ef',6:'#0891b2'})[Number(n)]||'#64748b'}
 function cleanSubmit(v){return String(v||'').replace(/^EXPRESS\s+/i,'').trim()||'-'}
 function makeFilter(host, values, cls){host.innerHTML=values.map(v=>`<label class="filter-chip"><input type="checkbox" class="${cls}" value="${esc(v)}"><span>${esc(v)}</span></label>`).join('');host.querySelectorAll('input').forEach(x=>x.addEventListener('change',applyFilters))}
 function selected(cls){return [...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}

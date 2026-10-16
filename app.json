@@ -1,11 +1,11 @@
 {
-  "configVersion": 415,
+  "configVersion": 416,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 408",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 408
+    "configVersion": 416
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -135,7 +135,7 @@
         "Extract Distribution Centers",
         "Extract DC Data"
       ],
-      "config": "operations/extract-distribution-centers.json?v=415",
+      "config": "operations/extract-distribution-centers.json?v=416",
       "description": "Assign 100 DCs, extract Distribution Centers with 1000 rows per page, and update DataSets → Distribution Centers (LG).",
       "runLabel": "Run Extraction",
       "uiMode": "form",

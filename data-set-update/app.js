@@ -12,7 +12,7 @@
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
-      preOperations:[AGENTS_ACCESS_GATE]
+      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:100}}]
     },
     'pickup-polygons':{
       id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'sheet'},enabled:false,
