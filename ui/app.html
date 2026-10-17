@@ -1042,7 +1042,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 425;
+const EXPECTED_REMOTE_CONFIG_VERSION = 427;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1404,7 +1404,7 @@ async function refreshOperationVisibility(emailOverride = null) {
     const response = await chrome.runtime.sendMessage({ type:'GET_VISIBLE_OPERATIONS', email: hasValidEmail ? email : '' });
     if (!response?.ok) throw new Error(response?.error || 'Could not load operation access.');
     const allowed = new Set((response.allowedOps || []).map(String));
-    const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && op.internalOnly !== true && (op.accessControl === 'public' || allowed.has(String(op.id))));
+    const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && op.internalOnly !== true && (String(op.accessControl||'').toLowerCase()==='public' || allowed.has(String(op.id))));
     visibleOperationsCache=operations.slice();
     favoriteOperationIds=await getFavorites();
     renderOperationCards();
@@ -1866,11 +1866,11 @@ $('clearCredentials').addEventListener('click', async () => {
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   if(catalogOp.externalUrl){
-    await checkOperationAccess(catalogOp);
+    if(String(catalogOp.accessControl||'').toLowerCase()!=='public') await checkOperationAccess(catalogOp);
     const target=String(catalogOp.externalUrl||'').trim();
     if(!/^https:\/\//i.test(target))throw new Error('External operation URL is invalid.');
-    const opened=window.open(target,'_blank','noopener,noreferrer');
-    if(!opened)throw new Error('The browser blocked the FBM Request tab. Allow pop-ups for DigiExpress and try again.');
+    const opened=await chrome.runtime.sendMessage({type:'OPEN_URL',url:target});
+    if(opened && opened.ok===false)throw new Error(opened.error||'Could not open the FBM Request page.');
     setStatus(`${catalogOp.title||catalogOp.id} opened.`,'ok');
     return true;
   }
