@@ -27,7 +27,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 424;
+const EXPECTED_REMOTE_CONFIG_VERSION = 425;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -815,6 +815,15 @@ $('clearCredentials').addEventListener('click', async () => {
 
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
+  if(catalogOp.externalUrl){
+    await checkOperationAccess(catalogOp);
+    const target=String(catalogOp.externalUrl||'').trim();
+    if(!/^https:\/\//i.test(target))throw new Error('External operation URL is invalid.');
+    const opened=window.open(target,'_blank','noopener,noreferrer');
+    if(!opened)throw new Error('The browser blocked the FBM Request tab. Allow pop-ups for DigiExpress and try again.');
+    setStatus(`${catalogOp.title||catalogOp.id} opened.`,'ok');
+    return true;
+  }
   if(String(catalogOp.id)==='authenticator'){
     setStatus('Loading secure Authenticator…');
     const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id});
