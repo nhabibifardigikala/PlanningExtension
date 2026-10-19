@@ -6,3 +6,5 @@
 @media(max-width:700px){.app{grid-template-columns:1fr;grid-template-rows:minmax(210px,42vh) minmax(0,1fr)}.side{border-left:0;border-top:1px solid var(--accent);min-height:0}}
 
 .template-download{width:100%;margin-top:7px;text-decoration:none}
+
+.point-size-title{margin-top:0}.point-size-control{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:9px;align-items:center}.point-size-control input[type=range]{padding:0;border:0;box-shadow:none;background:transparent;accent-color:var(--accent);cursor:pointer}.point-size-number{text-align:center;font-weight:800}.point-size-panel .status{margin-top:6px}
