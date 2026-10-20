@@ -11,8 +11,8 @@
   function callBridge(method,args={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dxp-${Date.now()}-${++seq}-${Math.random().toString(36).slice(2,7)}`;
-      const requestedTimeout=Number(args?.message?.request?.timeoutMs||args?.request?.timeoutMs||0);
-      const bridgeTimeout=Math.max(30000,Math.min(180000,(requestedTimeout>0?requestedTimeout+15000:30000)));
+      const requestedTimeout=Number(args?.message?.timeoutMs||args?.message?.request?.timeoutMs||args?.timeoutMs||args?.request?.timeoutMs||0);
+      const bridgeTimeout=Math.max(30000,Math.min(900000,(requestedTimeout>0?requestedTimeout+30000:30000)));
       const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error(`DigiExpress Host bridge did not respond within ${Math.round(bridgeTimeout/1000)} seconds. Reload the installed Stable Host extension and reopen DigiExpress.`));},bridgeTimeout);
       pending.set(requestId,{resolve,reject,timer});
       window.postMessage({type:'DIGIEXPRESS_PLATFORM_CALL',requestId,method,args},ORIGIN);

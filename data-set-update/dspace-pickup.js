@@ -4,7 +4,7 @@
   const AGENT_ID='pickup-polygons-dspace';
   const SOURCE_OPERATION='extract-pickup-polygons';
   const TARGET_SHEET='Pick-up Polygons';
-  const STORAGE_KEY='digiexpress.dspace.pickup.shareUrl';
+  const SHARE_URL='https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
   const STATE_KEY='digiexpress.dspace.pickup.state';
   const REQUIRED_ORIGIN='https://dspace.dkservices.ir/*';
 
@@ -62,16 +62,8 @@
   }
   function davRootFromShareUrl(input){const token=tokenFromShareUrl(input);return `https://dspace.dkservices.ir/public.php/dav/files/${encodeURIComponent(token)}/`;}
 
-  async function configure(){
-    const current=String((await storageGet(STORAGE_KEY))||'');
-    const value=prompt('Paste the DSpace Public Share link for Pickup Polygons:',current);
-    if(value===null)return;
-    const cleaned=String(value).trim();
-    if(!cleaned){await storageSet(STORAGE_KEY,'');setProgress('DSpace Share URL cleared.','');return;}
-    davRootFromShareUrl(cleaned);
-    await storageSet(STORAGE_KEY,cleaned);
-    setProgress('DSpace Share URL saved locally.','success');
-  }
+  async function configure(){setProgress('DSpace destination is configured in the program.','success');}
+
 
   async function ensureHostPermission(){
     try{
@@ -217,12 +209,10 @@
       await saveState({running:true,lastMessage:'Starting DSpace update…'});setProgress('Checking Agents access…');
       const access=await window.DigiExpressPlatform.runtime.sendMessage({type:'CHECK_OPERATION_ACCESS',op:'agents-access-gate'});
       if(!access?.ok||!access?.allowed)throw new Error(access?.error||'Access denied for Agents.');
-      let shareUrl=String((await storageGet(STORAGE_KEY))||'').trim();
-      if(!shareUrl){await configure();shareUrl=String((await storageGet(STORAGE_KEY))||'').trim();if(!shareUrl)throw new Error('DSpace Share URL is not configured.');}
-      const davRoot=davRootFromShareUrl(shareUrl);
+      const davRoot=davRootFromShareUrl(SHARE_URL);
 
       setProgress('Extracting Pickup Polygons from Flex…');
-      const extracted=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:SOURCE_OPERATION,inputs:{},awaitCompletion:true,silentDone:true});
+      const extracted=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:SOURCE_OPERATION,inputs:{},awaitCompletion:true,silentDone:true,timeoutMs:600000});
       if(!extracted?.ok)throw new Error(extracted?.error||'Pickup Polygon extraction failed.');
       const result=extracted.result||{},prepared=preparePickup(Array.isArray(result.headers)?result.headers:[],Array.isArray(result.rows)?result.rows:[]);
       if(!prepared.rows.length)throw new Error('No FBM/SBS Pickup Polygon rows were found after extraction.');

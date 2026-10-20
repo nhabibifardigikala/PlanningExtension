@@ -903,7 +903,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=348" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
 
       <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=dark" loading="lazy"></iframe></section>
-      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=433&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=433&theme=dark" loading="lazy"></iframe></section>
+      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=434&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=434&theme=dark" loading="lazy"></iframe></section>
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=411&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=411&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
@@ -957,7 +957,9 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
   function callBridge(method,args={}){
     return new Promise((resolve,reject)=>{
       const requestId=`dxp-${Date.now()}-${++seq}-${Math.random().toString(36).slice(2,7)}`;
-      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error('DigiExpress Host bridge did not respond. Reload the installed Stable Host extension and reopen DigiExpress.'));},30000);
+      const requestedTimeout=Number(args?.message?.timeoutMs||args?.message?.request?.timeoutMs||args?.timeoutMs||args?.request?.timeoutMs||0);
+      const bridgeTimeout=Math.max(30000,Math.min(900000,(requestedTimeout>0?requestedTimeout+30000:30000)));
+      const timer=setTimeout(()=>{pending.delete(requestId);reject(new Error(`DigiExpress Host bridge did not respond within ${Math.round(bridgeTimeout/1000)} seconds. Reload the installed Stable Host extension and reopen DigiExpress.`));},bridgeTimeout);
       pending.set(requestId,{resolve,reject,timer});
       window.postMessage({type:'DIGIEXPRESS_PLATFORM_CALL',requestId,method,args},ORIGIN);
     });
@@ -1042,7 +1044,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 433;
+const EXPECTED_REMOTE_CONFIG_VERSION = 434;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
