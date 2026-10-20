@@ -87,7 +87,12 @@
   }
 
   async function remoteHttp(request){
-    const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request});
+    let r;
+    try{
+      r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request});
+    }catch(e){
+      throw new Error(`DSpace ${request.method||'GET'} failed: ${e?.message||e}`);
+    }
     if(!r?.ok)throw new Error(r?.error||`HTTP request failed: ${request.method||'GET'} ${request.url}`);
     const status=Number(r.status||r.statusCode||r?.response?.status||200);
     if(status>=400){const err=new Error(`DSpace returned HTTP ${status}.`);err.status=status;throw err;}
@@ -117,7 +122,7 @@
 
   async function davPropfind(root){
     const body='<?xml version="1.0"?><d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns"><d:prop><d:resourcetype/><d:getetag/><d:getcontenttype/><oc:permissions/></d:prop></d:propfind>';
-    return remoteHttp({url:root,method:'PROPFIND',headers:{Depth:'1','Content-Type':'application/xml; charset=utf-8'},body,responseType:'text',timeoutMs:30000,credentials:'omit'});
+    return remoteHttp({url:root,method:'PROPFIND',headers:{Depth:'1','Content-Type':'application/xml; charset=utf-8'},body,responseType:'text',timeoutMs:90000,credentials:'omit'});
   }
   function parsePropfind(xmlText,root){
     const doc=new DOMParser().parseFromString(String(xmlText||''),'application/xml');
@@ -142,9 +147,9 @@
 
   async function davGet(fileUrl){
     let r;
-    try{r=await remoteHttp({url:fileUrl,method:'GET',headers:{'Cache-Control':'no-cache'},responseType:'arrayBuffer',timeoutMs:60000,credentials:'omit'});return{bytes:responseBytes(r.data),etag:r.headers?.etag||''};}
+    try{r=await remoteHttp({url:fileUrl,method:'GET',headers:{'Cache-Control':'no-cache'},responseType:'arrayBuffer',timeoutMs:120000,credentials:'omit'});return{bytes:responseBytes(r.data),etag:r.headers?.etag||''};}
     catch(first){
-      r=await remoteHttp({url:fileUrl,method:'GET',headers:{'Cache-Control':'no-cache'},responseType:'base64',timeoutMs:60000,credentials:'omit'});
+      r=await remoteHttp({url:fileUrl,method:'GET',headers:{'Cache-Control':'no-cache'},responseType:'base64',timeoutMs:120000,credentials:'omit'});
       return{bytes:responseBytes(r.data),etag:r.headers?.etag||''};
     }
   }
@@ -154,7 +159,7 @@
     if(etag)headers['If-Match']=etag;
     // Stable Host 13 generic HTTP bridge accepts binary ArrayBuffer request bodies.
     const body=(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes)).buffer;
-    return remoteHttp({url:fileUrl,method:'PUT',headers,body,responseType:'text',timeoutMs:90000,credentials:'omit'});
+    return remoteHttp({url:fileUrl,method:'PUT',headers,body,responseType:'text',timeoutMs:150000,credentials:'omit'});
   }
 
   function normHeader(v){return String(v??'').trim().toLowerCase().replace(/[\s_-]+/g,' ');}
