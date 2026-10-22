@@ -112,7 +112,7 @@
   }
   function davCandidates(){
     const token=tokenFromShareUrl(SHARE_URL);
-    const modern=`${DSPACE_ORIGIN}/public.php/dav/files/${encodeURIComponent(token)}`;
+    const modern=`${DSPACE_ORIGIN}/public.php/dav/files/${encodeURIComponent(token)}/`;
     const legacy=`${DSPACE_ORIGIN}/public.php/webdav/`;
     return[
       {name:'Public DAV (modern)',base:modern,headers:{}},
@@ -168,82 +168,37 @@
     const errors=[];
     for(const cand of davCandidates()){
       try{
-        // Follow the working reference extension: inspect the single-file root first.
-        // The important difference is that metadata alone is never trusted: every
-        // candidate must pass a real GET and XLSX signature check before selection.
-        try{
-          const rootResp=await davPropfind(cand,0),rootItems=parseDavResponses(rootResp.data,cand.base);
-          const root=rootItems[0];
-          if(root&&root.resourceType==='file'&&(isExcel(root)||!root.type||root.url===cand.base)){
-            const rootConn=candidateFile(cand,root,'Depth:0 / single-file root',root.url||cand.base);
-            const rootProbe=await probeWorkbook(rootConn);
-            if(rootProbe.ok)return{...rootProbe.conn,downloaded:rootProbe.got};
-            errors.push(`${cand.name} root GET: ${rootProbe.error?.message||rootProbe.error}`);
-
-            // DSpace/Nextcloud may expose a single-file share at the DAV root while
-            // returning the actual filename only in GET response headers. Prefer
-            // Content-Disposition / Content-Location over guessed PROPFIND names.
-            const hintedNames=[];
-            const fromDisposition=headerFilename(rootProbe.error?.headers||{});
-            if(fromDisposition)hintedNames.push(fromDisposition);
-            if(root.display&&/\.xlsx$/i.test(root.display))hintedNames.push(root.display);
-            const seenNames=new Set();
-            for(const hintedName of hintedNames){
-              const key=String(hintedName).toLowerCase();if(seenNames.has(key))continue;seenNames.add(key);
-              const namedUrl=joinDavFile(cand.base,hintedName);
-              if(namedUrl&&namedUrl!==rootConn.fileUrl){
-                const namedConn=candidateFile(cand,{...root,display:hintedName},fromDisposition===hintedName?'GET Content-Disposition filename':'Depth:0 / display-name URL',namedUrl);
-                const namedProbe=await probeWorkbook(namedConn);
-                if(namedProbe.ok)return{...namedProbe.conn,downloaded:namedProbe.got};
-                errors.push(`${cand.name} named GET (${hintedName}): ${namedProbe.error?.message||namedProbe.error}`);
-              }
-
-              // Standard Nextcloud public-share WebDAV uses /public.php/webdav/
-              // with Basic auth username=<share token>. A filename learned from the
-              // modern root GET is therefore also tested on the legacy DAV endpoint.
-              const token=tokenFromShareUrl(SHARE_URL);
-              const legacyBase=`${DSPACE_ORIGIN}/public.php/webdav/`;
-              const legacyUrl=joinDavFile(legacyBase,hintedName);
-              const legacyConn={name:'Legacy public WebDAV (resolved filename)',base:legacyBase,headers:{Authorization:basicAuth(token,'')},fileUrl:legacyUrl,etag:root.etag||'',displayName:hintedName,permissions:root.permissions||'',discovery:'Resolved filename → legacy WebDAV'};
-              const legacyProbe=await probeWorkbook(legacyConn);
-              if(legacyProbe.ok)return{...legacyProbe.conn,downloaded:legacyProbe.got};
-              errors.push(`Legacy resolved GET (${hintedName}): ${legacyProbe.error?.message||legacyProbe.error}`);
-            }
-
-            const contentLocation=headerLocation(rootProbe.error?.headers||{});
-            if(contentLocation){
-              try{
-                const resolvedLocation=new URL(contentLocation,cand.base).href;
-                if(resolvedLocation!==rootConn.fileUrl){
-                  const locConn=candidateFile(cand,root,'GET Content-Location',resolvedLocation);
-                  const locProbe=await probeWorkbook(locConn);
-                  if(locProbe.ok)return{...locProbe.conn,downloaded:locProbe.got};
-                  errors.push(`${cand.name} Content-Location GET: ${locProbe.error?.message||locProbe.error}`);
-                }
-              }catch(_){errors.push(`${cand.name}: invalid Content-Location header`);}
-            }
-          }
-        }catch(e){errors.push(`${cand.name} Depth:0: ${e?.message||e}`);}
-
-        // Folder-style shares: enumerate direct children and test the XLSX child.
-        try{
-          const listResp=await davPropfind(cand,1),items=parseDavResponses(listResp.data,cand.base);
-          const baseUrl=new URL(cand.base).href;
-          const children=items.filter(x=>x.resourceType==='file'&&isExcel(x)&&x.url&&new URL(x.url,cand.base).href!==baseUrl);
-          if(children.length>1)throw new Error(`More than one XLSX file was found in the DSpace share (${children.map(x=>x.display||x.href).join(', ')}).`);
-          if(children.length===1){
-            const excel=children[0],childConn=candidateFile(cand,excel,'Depth:1 / child file',excel.url);
-            const childProbe=await probeWorkbook(childConn);
-            if(childProbe.ok)return{...childProbe.conn,downloaded:childProbe.got};
-            errors.push(`${cand.name} child GET: ${childProbe.error?.message||childProbe.error}`);
-          }else errors.push(`${cand.name}: XLSX child not found`);
-        }catch(e){
-          if(/More than one XLSX/.test(String(e?.message||e)))throw e;
-          errors.push(`${cand.name} Depth:1: ${e?.message||e}`);
+        const rootResp=await davPropfind(cand,0);
+        const rootItems=parseDavResponses(rootResp.data,cand.base);
+        const root=rootItems[0];
+        if(root&&root.resourceType==='file'&&(isExcel(root)||!root.type||root.url===cand.base)){
+          return{
+            ...cand,
+            fileUrl:root.url||cand.base,
+            etag:root.etag||'',
+            displayName:root.display||'Shared XLSX',
+            permissions:root.permissions||'',
+            discovery:'Depth:0 / single-file root'
+          };
         }
-      }catch(e){errors.push(`${cand.name}: ${e?.message||e}`);}
+
+        const listResp=await davPropfind(cand,1);
+        const items=parseDavResponses(listResp.data,cand.base);
+        const excel=items.find(x=>x.resourceType==='file'&&isExcel(x));
+        if(!excel){errors.push(`${cand.name}: XLSX not found`);continue;}
+        return{
+          ...cand,
+          fileUrl:excel.url,
+          etag:excel.etag||'',
+          displayName:excel.display||'XLSX',
+          permissions:excel.permissions||'',
+          discovery:'Depth:1 / child file'
+        };
+      }catch(e){
+        errors.push(`${cand.name}: ${e?.message||e}`);
+      }
     }
-    throw new Error(`DSpace XLSX file could not be downloaded from any supported WebDAV route. ${errors.join(' | ')}`);
+    throw new Error(`DSpace XLSX file could not be discovered. ${errors.join(' | ')}`);
   }
   function requireWritable(conn){
     if(!conn.permissions)return;
@@ -308,14 +263,19 @@
     const out=[];for(const row of rows){const name=String(row?.[nameIdx]||'');if(!/(FBM|SBS)/i.test(name))continue;const copy=[...row];copy[sizeIdx]=shippingSizeNumber(copy[sizeIdx]);out.push(copy);}return{headers:[...headers],rows:out};
   }
 
-  function workbookWithDataset(bytes,headers,rows){
+  function workbookFromDataset(headers,rows){
     if(!globalThis.XLSX)throw new Error('XLSX library is not available. Reload DigiExpress and try again.');
-    const wb=XLSX.read(bytes,{type:'array',cellDates:false});
+    const wb=XLSX.utils.book_new();
     const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
-    if(!wb.SheetNames.includes(TARGET_SHEET))wb.SheetNames.push(TARGET_SHEET);
-    wb.Sheets[TARGET_SHEET]=ws;
+    XLSX.utils.book_append_sheet(wb,ws,TARGET_SHEET);
     const out=XLSX.write(wb,{bookType:'xlsx',type:'array',compression:true});
     return new Uint8Array(out);
+  }
+  async function sha256Hex(bytes){
+    const view=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes);
+    const copy=view.byteOffset===0&&view.byteLength===view.buffer.byteLength?view.buffer:view.slice().buffer;
+    const digest=await crypto.subtle.digest('SHA-256',copy);
+    return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
   }
   function verifyDataset(bytes,headers,rows){
     const wb=XLSX.read(bytes,{type:'array',cellDates:false});const ws=wb.Sheets[TARGET_SHEET];if(!ws)throw new Error(`Verify failed: worksheet "${TARGET_SHEET}" was not found after upload.`);
@@ -339,22 +299,27 @@
       const result=extracted.result||{},prepared=preparePickup(Array.isArray(result.headers)?result.headers:[],Array.isArray(result.rows)?result.rows:[]);
       if(!prepared.rows.length)throw new Error('No FBM/SBS Pickup Polygon rows were found after extraction.');
 
-      let uploaded=false,lastConflict=false;
-      for(let attempt=1;attempt<=2&&!uploaded;attempt++){
-        setProgress('Checking DSpace workbook and WebDAV permission…');
-        const file=await discoverFile();requireWritable(file);
-        setProgress(`Downloading ${file.displayName}…`);
-        const got=file.downloaded||await davGet(file);const etag=got.etag||file.etag;
-        if(!etag)throw new Error('DSpace did not return an ETag. Upload was stopped to prevent unsafe overwrite.');
-        setProgress(`Updating ${TARGET_SHEET} in memory…`);
-        const updated=workbookWithDataset(got.bytes,prepared.headers,prepared.rows);
-        setProgress(`Uploading ${prepared.rows.length.toLocaleString()} rows to DSpace…`);
-        try{await davPut(file,updated,etag);}catch(e){if(e?.status===412&&attempt<2){lastConflict=true;continue;}throw e;}
-        setProgress('Verifying uploaded workbook…');
-        const verify=await davGet(file);verifyDataset(verify.bytes,prepared.headers,prepared.rows);uploaded=true;lastConflict=false;
+      setProgress('Building complete Pickup Polygons XLSX…');
+      const workbookBytes=workbookFromDataset(prepared.headers,prepared.rows);
+      if(!workbookBytes.byteLength)throw new Error('Generated Pickup Polygons XLSX is empty.');
+      const localHash=await sha256Hex(workbookBytes);
+
+      setProgress('Finding DSpace workbook and checking write permission…');
+      const file=await discoverFile();
+      requireWritable(file);
+
+      setProgress(`Uploading complete XLSX (${prepared.rows.length.toLocaleString()} rows)…`);
+      const put=await davPut(file,workbookBytes,file.etag||'');
+
+      setProgress('Downloading uploaded XLSX for SHA-256 Verify…');
+      const remote=await davGet(file);
+      const remoteHash=await sha256Hex(remote.bytes);
+      if(remoteHash!==localHash){
+        throw new Error(`DSpace Verify failed: uploaded workbook differs from generated XLSX (local bytes=${workbookBytes.byteLength}, remote bytes=${remote.bytes.byteLength}).`);
       }
-      if(!uploaded&&lastConflict)throw new Error('DSpace file changed during the update. Nothing was overwritten. Retry the Agent.');
-      const durationMs=Date.now()-started;const msg=`${prepared.rows.length.toLocaleString()} rows saved to DSpace and verified.`;
+      verifyDataset(remote.bytes,prepared.headers,prepared.rows);
+
+      const durationMs=Date.now()-started;const msg=`${prepared.rows.length.toLocaleString()} rows uploaded to DSpace and SHA-256 verified.`;
       await saveState({running:false,lastStatus:'Success',lastRunAt:nowIso(),durationMs,lastMessage:msg,rowCount:prepared.rows.length});setProgress(msg,'success');
     }catch(e){
       const durationMs=Date.now()-started,msg=e?.message||String(e);await saveState({running:false,lastStatus:'Failed',lastRunAt:nowIso(),durationMs,lastMessage:msg});setProgress(msg,'error');
