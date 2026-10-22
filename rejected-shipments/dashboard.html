@@ -103,7 +103,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
 
       <section id="section-data" class="section">
         <article class="card">
-          <div class="card-head"><div><h3>Data Explorer</h3><p>Raw data stored in Google Sheet</p></div><div class="inline"><input id="dataSearch" class="search" placeholder="Search…"><select id="pageSize"><option>25</option><option selected>50</option><option>100</option></select></div></div>
+          <div class="card-head"><div><h3>Data Explorer</h3><p>Raw data stored in DSpace</p></div><div class="inline"><input id="dataSearch" class="search" placeholder="Search…"><select id="pageSize"><option>25</option><option selected>50</option><option>100</option></select></div></div>
           <div class="table-wrap tall"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
           <div class="pager"><button id="prevPage" class="btn ghost compact">Previous</button><span id="pageInfo">1 / 1</span><button id="nextPage" class="btn ghost compact">Next</button></div>
         </article>
@@ -137,8 +137,8 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         <div class="two-col">
           <article class="card form-card">
             <h3>Dashboard Data</h3>
-            <div class="callout"><strong>Source:</strong> DataSets → Rejected Shipments</div>
-            <p class="hint">The dashboard refreshes Rejected Shipments every 5 minutes using a lightweight incremental read and merges new rows into its local cache. Each refresh reads only a very small recent window; quota failures keep cached data visible and wait for the next normal 5-minute cycle.</p>
+            <div class="callout"><strong>Source:</strong> DSpace → Rejected Shipments</div>
+            <p class="hint">The dashboard refreshes Rejected Shipments from DSpace every 5 minutes and keeps a local cache for resilience. If DSpace is temporarily unavailable, cached data stays visible until the next normal refresh.</p>
           </article>
           <article class="card form-card">
             <h3>User Labels</h3>
@@ -158,7 +158,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         </div>
         <article class="card error-card"><h3>Last Error</h3><pre id="statusError">No errors</pre></article>
         <article class="card"><h3>Latest Extraction Diagnostics</h3><pre id="statusDiagnostics">No diagnostics recorded yet.</pre></article>
-        <article class="card"><h3>Data Flow</h3><ol><li>The Rejected Shipments Synchronizer runs from Agents and appends only new IDs to DataSets → Rejected Shipments.</li><li>This dashboard checks a recent Sheet window every 5 minutes and merges newly received rows into the cached dataset.</li><li>Quota-related failures do not start extra retry loops; the next attempt happens on the normal 5-minute refresh cycle.</li><li>Charts and KPIs update immediately after fresh rows are received.</li></ol></article>
+        <article class="card"><h3>Data Flow</h3><ol><li>The Rejected Shipments Synchronizer DSPACE runs from Agents and appends only new IDs to DSpace → Rejected Shipments.</li><li>This dashboard reads DSpace → Rejected Shipments every 5 minutes and refreshes its cached dataset.</li><li>DSpace read failures do not start extra retry loops; the next attempt happens on the normal 5-minute refresh cycle.</li><li>Charts and KPIs update immediately after fresh rows are received.</li></ol></article>
       </section>
     </main>
   </div>

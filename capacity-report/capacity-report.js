@@ -2,6 +2,7 @@
   const VERSION = 335;
   const SHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
+  const DSPACE_SHARE_URL = 'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
   const FLEX_CAPACITY_SHEET_NAME = 'DC Capacity (Flex)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -96,36 +97,16 @@
     });
   }
 
-  function loadCenters() {
-    if (state.allCenters.length) return Promise.resolve(state.allCenters);
-    return new Promise((resolve, reject) => {
-      const cb = `__dxCapCenters_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
-      const script = document.createElement('script');
-      const timer = setTimeout(() => cleanup(new Error('Distribution Center list timed out.')), 15000);
-      const cleanup = err => {
-        clearTimeout(timer);
-        try { delete window[cb]; } catch (_) { window[cb] = undefined; }
-        script.remove();
-        if (err) reject(err);
-      };
-      window[cb] = data => {
-        try {
-          const rows = data?.table?.rows || [];
-          const list = rows.map(r => {
-            const cells = r.c || [];
-            return { id: String(cells[0]?.v ?? '').replace(/\.0$/,''), name: String(cells[1]?.v ?? '').trim() };
-          }).filter(x => x.id && x.name);
-          if (!list.length) throw new Error('Distribution Center list is empty.');
-          state.allCenters = list;
-          cleanup(); resolve(list);
-        } catch (e) { cleanup(e); }
-      };
-      const tq = encodeURIComponent("select A,B label A 'id', B 'name'");
-      const tqx = encodeURIComponent(`out:json;responseHandler:${cb}`);
-      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&tq=${tq}&tqx=${tqx}`;
-      script.onerror = () => cleanup(new Error('Could not load Distribution Centers from Google Sheets.'));
-      document.head.appendChild(script);
-    });
+  async function loadCenters() {
+    if (state.allCenters.length) return state.allCenters;
+    const r=await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName:SHEET_NAME,limit:100000});
+    if(r?.ok===false)throw new Error(r.error||'Could not read Distribution Centers from DSpace.');
+    const d=r?.result??r??{},headers=Array.isArray(d.headers)?d.headers:[],rows=Array.isArray(d.rows)?d.rows:[];
+    const ii=headers.findIndex(h=>norm(h)==='id'),ni=headers.findIndex(h=>norm(h)==='name');
+    if(ii<0||ni<0)throw new Error('Distribution Centers (LG) in DSpace is missing id/name columns.');
+    const list=rows.map(row=>({id:String(row?.[ii]??'').replace(/\.0$/,''),name:String(row?.[ni]??'').trim()})).filter(x=>x.id&&x.name);
+    if(!list.length)throw new Error('Distribution Centers (LG) in DSpace is empty.');
+    state.allCenters=list;return list;
   }
 
   function loadSheetDateBounds(source='dk') {

@@ -14,6 +14,12 @@
       schedule:{type:'daily',time:'12:00',intervalHours:1},
       preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:100}}]
     },
+    'distribution-centers-dspace':{
+      id:'distribution-centers-dspace',label:'Distribution Centers Extractor DSPACE',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.10',
+      schedule:{type:'daily',time:'12:00',intervalHours:1},
+      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:100}}],
+      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheets:[{sheetName:'Distribution Centers (LG)',operationId:'extract-dc'}]}
+    },
     'pickup-polygons':{
       id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
@@ -30,7 +36,7 @@
     'delivery-polygons-dspace':{
       id:'delivery-polygons-dspace',label:'Delivery Polygons Extractor DSPACE',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.9',
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
-      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',lookupPlatformRequest:{method:'sheets.readRows',args:{spreadsheetId:'1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k',sheetName:'Distribution Centers (LG)',limit:100000}},sheets:[{sheetName:'Delivery Polygons',operationId:'extract-delivery-polygons',transform:'delivery-polygons'}]}
+      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',lookupPlatformRequest:{method:'dspace.readSheet',args:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheetName:'Distribution Centers (LG)',limit:100000}},sheets:[{sheetName:'Delivery Polygons',operationId:'extract-delivery-polygons',transform:'delivery-polygons'}]}
     }
 ,
     'iata-code-synchronizer':{
@@ -50,6 +56,13 @@
         recordDefaults:{extracted_at:'{{now}}'},
         afterRequest:{action:'appendRejected',sheetName:'{{job.sheetName}}',rows:'{{records}}'}
       }
+    },
+    'rejected-shipments-dspace':{
+      id:'rejected-shipments-dspace',label:'Rejected Shipments Synchronizer DSPACE',operationId:'rejected-shipments-sync',sheetName:'Rejected Shipments',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.10',
+      schedule:{type:'interval',time:'12:00',intervalHours:1,intervalMinutes:15},preOperations:[AGENTS_ACCESS_GATE],
+      retry:{attempts:3,delayMs:60000,backoff:1},inputs:{keepScrapeTabOpen:false},
+      pipeline:{beforePlatformRequest:{method:'dspace.maxNumericColumn',args:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheetName:'Rejected Shipments',column:'id'}},cursorResponsePath:'maxId',cursorInput:'previousMaxId',recordDefaults:{extracted_at:'{{now}}'}},
+      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',mode:'append',sheets:[{sheetName:'Rejected Shipments',operationId:'rejected-shipments-sync',transform:'rejected-shipments'}]}
     },
   };
   const $=id=>document.getElementById(id);
@@ -157,7 +170,7 @@
       pointExceptions:$('pointExceptions').value.trim(),
       polygonExceptions:$('polygonExceptions').value.trim()
     };
-    if(id==='rejected-shipments-sync')inputs={keepScrapeTabOpen:false};
+    if(id==='rejected-shipments-sync'||id==='rejected-shipments-dspace')inputs={keepScrapeTabOpen:false};
     return {...defs,...base,webAppUrl:$('webAppUrl').value.trim()||sharedWebAppUrl(),enabled:$('enabled').checked,schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1),intervalMinutes:Number($('intervalMinutes').value||15)},preOperations:defs.preOperations,inputs};
   }
 
@@ -185,8 +198,8 @@
   function populateSettings(id){
     activeJobId=id;const job=getJob(id),st=getState(id);
     $('datasetSettingsTitle').textContent=JOBS[id].label;
-    $('preUpdateNote').hidden=id!=='distribution-centers';
-    const isIata=id==='iata-code-synchronizer',isRejected=id==='rejected-shipments-sync';$('iataOptions').hidden=!isIata;if($('rejectedOptions'))$('rejectedOptions').hidden=true;$('rowCountLabel').textContent=isIata?'Processed records':(isRejected?'Rows appended':'Rows written');
+    $('preUpdateNote').hidden=!(id==='distribution-centers'||id==='distribution-centers-dspace');
+    const isIata=id==='iata-code-synchronizer',isRejected=id==='rejected-shipments-sync'||id==='rejected-shipments-dspace';$('iataOptions').hidden=!isIata;if($('rejectedOptions'))$('rejectedOptions').hidden=true;$('rowCountLabel').textContent=isIata?'Processed records':(isRejected?'Rows appended':'Rows written');
     if(isIata){const inputs=job.inputs||JOBS[id].inputs||{};const targets=Array.isArray(inputs.syncTargets)?inputs.syncTargets:[];$('syncShippingPoints').checked=targets.includes('shipping-points');$('syncShippingPolygons').checked=targets.includes('shipping-polygons');$('pointExceptions').value=inputs.pointExceptions||'';$('polygonExceptions').value=inputs.polygonExceptions||'';}
     $('enabled').checked=job.enabled===true;const stype=job.schedule?.type;$('scheduleType').value=stype==='hourly'?'hourly':(stype==='interval'?'interval':'daily');
     $('dailyTime').value=job.schedule?.time||'12:00';$('intervalHours').value=String(job.schedule?.intervalHours||1);$('intervalMinutes').value=String(job.schedule?.intervalMinutes||15);updateScheduleControls();
@@ -246,11 +259,11 @@
     try{
       await assertAgentsAccess();
       await assertJobHostCompatibility(JOBS[id]);
-      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 100 DCs…':(id==='pickup-polygons'||id==='pickup-polygons-dspace'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'||id==='delivery-polygons-dspace'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
+      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=(id==='distribution-centers'||id==='distribution-centers-dspace')?'Assigning 100 DCs…':(id==='pickup-polygons'||id==='pickup-polygons-dspace'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'||id==='delivery-polygons-dspace'?'Opening Admin DC Polygons…':((id==='rejected-shipments-sync'||id==='rejected-shipments-dspace')?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl();
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,dspace:JOBS[id].dspace||getJob(id).dspace||null,retry:JOBS[id].retry||getJob(id).retry};
-      if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
+      if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'||id==='rejected-shipments-dspace'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
       if(id==='rejected-shipments-sync'){
         mini.textContent='Reading latest Rejected Shipments watermark…';
         const cursor=await readRejectedStateFromEndpoint(url);

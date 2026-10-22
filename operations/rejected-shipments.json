@@ -18,5 +18,5 @@
   "output": {
     "type": "internal"
   },
-  "minHostVersion": "13.0.5"
+  "minHostVersion": "13.0.10"
 }

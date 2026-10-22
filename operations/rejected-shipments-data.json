@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Rejected Shipments incremental synchronizer. Reads the current max value of the exact Google Sheet id column, applies the rejected filter, verifies all 12 required source columns, sets 1000 rows per page, and extracts only IDs newer than the Sheet watermark.",
+  "description": "Rejected Shipments incremental synchronizer. Reads the current max ID supplied by the selected Agent data destination, applies the rejected filter, verifies all 12 required source columns, sets 1000 rows per page, and extracts only IDs newer than the Sheet watermark.",
   "runLabel": "Sync Now",
   "navigation": {
     "retryCount": 5,
