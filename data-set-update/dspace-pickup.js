@@ -60,7 +60,7 @@
     }catch(e){if(e instanceof TypeError)throw new Error('Invalid DSpace Share URL.');throw e;}
     throw new Error('Could not read the DSpace public share token from this URL.');
   }
-  function davRootFromShareUrl(input){const token=tokenFromShareUrl(input);return `https://dspace.dkservices.ir/public.php/dav/files/${encodeURIComponent(token)}/`;}
+  function davRootFromShareUrl(input){const token=tokenFromShareUrl(input);return `https://dspace.dkservices.ir/public.php/dav/files/${encodeURIComponent(token)}`;}
 
   async function configure(){setProgress('DSpace destination is configured in the program.','success');}
 
@@ -112,7 +112,7 @@
   }
   function davCandidates(){
     const token=tokenFromShareUrl(SHARE_URL);
-    const modern=`${DSPACE_ORIGIN}/public.php/dav/files/${encodeURIComponent(token)}/`;
+    const modern=`${DSPACE_ORIGIN}/public.php/dav/files/${encodeURIComponent(token)}`;
     const legacy=`${DSPACE_ORIGIN}/public.php/webdav/`;
     return[
       {name:'Public DAV (modern)',base:modern,headers:{}},
@@ -161,7 +161,8 @@
   function joinDavFile(base,name){
     const clean=String(name||'').trim().replace(/^\/+/, '');
     if(!clean)return'';
-    return new URL(clean.split('/').map(x=>encodeURIComponent(decodeURIComponent(x))).join('/'),base).href;
+    const folderBase=String(base||'').endsWith('/')?String(base):String(base)+'/';
+    return new URL(clean.split('/').map(x=>encodeURIComponent(decodeURIComponent(x))).join('/'),folderBase).href;
   }
   async function discoverFile(){
     const errors=[];
