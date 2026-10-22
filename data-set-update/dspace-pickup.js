@@ -6,7 +6,7 @@
   const TARGET_SHEET='Pick-up Polygons';
   const SHARE_URL='https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
   const STATE_KEY='digiexpress.dspace.pickup.state';
-  const REQUIRED_ORIGIN='https://dspace.dkservices.ir/*';
+  const DSPACE_ORIGIN='https://dspace.dkservices.ir';
 
   const q=s=>document.querySelector(s);
   const nowIso=()=>new Date().toISOString();
@@ -65,14 +65,6 @@
   async function configure(){setProgress('DSpace destination is configured in the program.','success');}
 
 
-  async function ensureHostPermission(){
-    try{
-      const ok=await chrome.permissions.request({origins:[REQUIRED_ORIGIN]});
-      if(!ok)throw new Error('Permission for dspace.dkservices.ir was not granted.');
-      return true;
-    }catch(e){throw new Error(e?.message||'Could not request DSpace host permission.');}
-  }
-
   function headersObject(h){
     if(!h)return{};if(Array.isArray(h)){const o={};for(const pair of h)if(Array.isArray(pair)&&pair.length>=2)o[String(pair[0]).toLowerCase()]=String(pair[1]);return o;}
     const o={};for(const [k,v] of Object.entries(h))o[String(k).toLowerCase()]=Array.isArray(v)?v.join(', '):String(v);return o;
@@ -81,14 +73,17 @@
   async function remoteHttp(request){
     let r;
     try{
-      r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',op:'data-set-update',operationId:'data-set-update',requiredHosts:[REQUIRED_ORIGIN],request});
+      r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request});
     }catch(e){
       throw new Error(`DSpace ${request.method||'GET'} failed: ${e?.message||e}`);
     }
-    if(!r?.ok)throw new Error(r?.error||`HTTP request failed: ${request.method||'GET'} ${request.url}`);
-    const status=Number(r.status||r.statusCode||r?.response?.status||200);
-    if(status>=400){const err=new Error(`DSpace returned HTTP ${status}.`);err.status=status;throw err;}
-    return {...r,status,headers:headersObject(r.headers||r.responseHeaders||r?.response?.headers)};
+    if(!r) throw new Error(`DSpace ${request.method||'GET'} failed: empty Host response.`);
+    const status=Number(r.status||0);
+    if(!r.ok || status>=400){
+      const err=new Error(r.error||`DSpace returned HTTP ${status||'unknown'}.`);
+      err.status=status; err.responseText=String(r.data||r.text||''); throw err;
+    }
+    return {...r,status,headers:headersObject(r.headers)};
   }
 
   function bytesToBase64(bytes){
@@ -112,46 +107,64 @@
     throw new Error('Stable Host did not return the XLSX file as binary data.');
   }
 
-  async function davPropfind(root){
-    const body='<?xml version="1.0"?><d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns"><d:prop><d:resourcetype/><d:getetag/><d:getcontenttype/><oc:permissions/></d:prop></d:propfind>';
-    return remoteHttp({url:root,method:'PROPFIND',headers:{Depth:'1','Content-Type':'application/xml; charset=utf-8'},body,responseType:'text',timeoutMs:90000,credentials:'omit'});
+  function basicAuth(user,pass=''){
+    return 'Basic '+btoa(unescape(encodeURIComponent(`${user}:${pass}`)));
   }
-  function parsePropfind(xmlText,root){
+  function davCandidates(){
+    const token=tokenFromShareUrl(SHARE_URL);
+    const modern=`${DSPACE_ORIGIN}/public.php/dav/files/${encodeURIComponent(token)}/`;
+    const legacy=`${DSPACE_ORIGIN}/public.php/webdav/`;
+    return[
+      {name:'Public DAV (modern)',base:modern,headers:{}},
+      {name:'Public DAV (modern + token auth)',base:modern,headers:{Authorization:basicAuth(token,'')}},
+      {name:'Legacy public WebDAV',base:legacy,headers:{Authorization:basicAuth(token,'')}}
+    ];
+  }
+  const propfindBody='<?xml version="1.0" encoding="UTF-8"?><d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns"><d:prop><d:displayname/><d:getcontenttype/><d:getcontentlength/><d:getetag/><d:resourcetype/><oc:permissions/></d:prop></d:propfind>';
+  async function davPropfind(cand,depth){
+    return remoteHttp({url:cand.base,method:'PROPFIND',headers:{...cand.headers,Depth:String(depth),'Content-Type':'application/xml; charset=utf-8','X-Requested-With':'XMLHttpRequest'},bodyText:propfindBody,responseType:'text',timeoutMs:30000});
+  }
+  function firstNs(parent,ns,local){const n=parent.getElementsByTagNameNS(ns,local)[0];return n?n.textContent.trim():'';}
+  function parseDavResponses(xmlText,base){
     const doc=new DOMParser().parseFromString(String(xmlText||''),'application/xml');
-    if(doc.querySelector('parsererror'))throw new Error('DSpace returned an invalid WebDAV PROPFIND response.');
-    const responses=[...doc.getElementsByTagNameNS('DAV:','response')];
-    const items=responses.map(node=>{
-      const href=node.getElementsByTagNameNS('DAV:','href')[0]?.textContent||'';
-      const etag=node.getElementsByTagNameNS('DAV:','getetag')[0]?.textContent||'';
-      const perms=[...node.getElementsByTagNameNS('http://owncloud.org/ns','permissions')].map(x=>x.textContent||'').join('');
-      const isCollection=!!node.getElementsByTagNameNS('DAV:','collection').length;
-      let url;try{url=new URL(href,root).href;}catch(_){url='';}
-      let name='';try{name=decodeURIComponent(new URL(url).pathname.split('/').filter(Boolean).pop()||'');}catch(_){name='';}
-      return{href,url,name,etag,permissions:perms,isCollection};
-    }).filter(x=>x.url);
-    const permissionText=items.map(x=>x.permissions).join('');
-    if(!/W/i.test(permissionText))throw new Error('This DSpace Public Share does not report WebDAV write permission (W).');
-    const files=items.filter(x=>!x.isCollection&&/\.xlsx$/i.test(x.name));
-    if(!files.length)throw new Error('No XLSX file was found in this DSpace Public Share.');
-    if(files.length>1)throw new Error(`More than one XLSX file was found (${files.map(x=>x.name).join(', ')}). Use a Public Share containing only the target workbook.`);
-    return files[0];
+    if(doc.querySelector('parsererror'))throw new Error('DSpace returned invalid WebDAV XML.');
+    return [...doc.getElementsByTagNameNS('DAV:','response')].map(r=>{
+      const href=firstNs(r,'DAV:','href'),type=firstNs(r,'DAV:','getcontenttype'),etag=firstNs(r,'DAV:','getetag'),display=firstNs(r,'DAV:','displayname'),permissions=firstNs(r,'http://owncloud.org/ns','permissions');
+      const resourceType=r.getElementsByTagNameNS('DAV:','collection').length?'collection':'file';
+      let url;try{url=new URL(href,base).href;}catch(_){url=href||base;}
+      return{href,url,type,etag,display,permissions,resourceType};
+    });
   }
-
-  async function davGet(fileUrl){
-    let r;
-    try{r=await remoteHttp({url:fileUrl,method:'GET',headers:{'Cache-Control':'no-cache'},responseType:'arrayBuffer',timeoutMs:120000,credentials:'omit'});return{bytes:responseBytes(r.data),etag:r.headers?.etag||''};}
-    catch(first){
-      r=await remoteHttp({url:fileUrl,method:'GET',headers:{'Cache-Control':'no-cache'},responseType:'base64',timeoutMs:120000,credentials:'omit'});
-      return{bytes:responseBytes(r.data),etag:r.headers?.etag||''};
+  function isExcel(item){const x=`${item.display} ${item.href} ${item.type}`.toLowerCase();return /\.xlsx(?:$|[?#/])/.test(x)||/spreadsheetml\.sheet/.test(x);}
+  async function discoverFile(){
+    const errors=[];
+    for(const cand of davCandidates()){
+      try{
+        const rootResp=await davPropfind(cand,0),rootItems=parseDavResponses(rootResp.data,cand.base),root=rootItems[0];
+        if(root&&root.resourceType==='file'&&(isExcel(root)||!root.type||root.url===cand.base)){
+          return{...cand,fileUrl:root.url||cand.base,etag:root.etag,displayName:root.display||'Shared XLSX',permissions:root.permissions||'',discovery:'Depth:0 / single-file root'};
+        }
+        const listResp=await davPropfind(cand,1),items=parseDavResponses(listResp.data,cand.base),excel=items.find(x=>x.resourceType==='file'&&isExcel(x));
+        if(!excel){errors.push(`${cand.name}: XLSX not found`);continue;}
+        return{...cand,fileUrl:excel.url,etag:excel.etag,displayName:excel.display||'XLSX',permissions:excel.permissions||'',discovery:'Depth:1 / child file'};
+      }catch(e){errors.push(`${cand.name}: ${e?.message||e}`);}
     }
+    throw new Error(`DSpace XLSX file was not found. ${errors.join(' | ')}`);
   }
-
-  async function davPut(fileUrl,bytes,etag){
-    const headers={'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','X-Requested-With':'XMLHttpRequest'};
+  function requireWritable(conn){
+    if(!conn.permissions)return;
+    if(!conn.permissions.includes('W'))throw new Error(`DSpace Public Share is not writable. oc:permissions = ${conn.permissions}`);
+  }
+  async function davGet(conn){
+    const r=await remoteHttp({url:conn.fileUrl,method:'GET',headers:{...conn.headers,'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'},responseType:'base64',timeoutMs:60000});
+    const bytes=base64ToBytes(r.data);if(!bytes.byteLength)throw new Error('Downloaded DSpace XLSX is empty.');
+    return{bytes,etag:r.headers?.etag||conn.etag||''};
+  }
+  async function davPut(conn,bytes,etag){
+    const headers={...conn.headers,'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','X-Requested-With':'XMLHttpRequest'};
     if(etag)headers['If-Match']=etag;
-    // Stable Host 13 generic HTTP bridge accepts binary ArrayBuffer request bodies.
-    const body=(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes)).buffer;
-    return remoteHttp({url:fileUrl,method:'PUT',headers,body,responseType:'text',timeoutMs:150000,credentials:'omit'});
+    try{return await remoteHttp({url:conn.fileUrl,method:'PUT',headers,bodyBase64:bytesToBase64(bytes),responseType:'text',timeoutMs:90000});}
+    catch(e){if(e?.status===412)throw e;throw e;}
   }
 
   function normHeader(v){return String(v??'').trim().toLowerCase().replace(/[\s_-]+/g,' ');}
@@ -205,12 +218,9 @@
     const x=ui();if(x.run.disabled)return;
     const started=Date.now();x.run.disabled=true;
     try{
-      await ensureHostPermission();
       await saveState({running:true,lastMessage:'Starting DSpace update…'});setProgress('Checking Agents access…');
       const access=await window.DigiExpressPlatform.runtime.sendMessage({type:'CHECK_OPERATION_ACCESS',op:'agents-access-gate'});
       if(!access?.ok||!access?.allowed)throw new Error(access?.error||'Access denied for Agents.');
-      const davRoot=davRootFromShareUrl(SHARE_URL);
-
       setProgress('Extracting Pickup Polygons from Flex…');
       const extracted=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:SOURCE_OPERATION,inputs:{},awaitCompletion:true,silentDone:true,timeoutMs:600000});
       if(!extracted?.ok)throw new Error(extracted?.error||'Pickup Polygon extraction failed.');
@@ -220,16 +230,16 @@
       let uploaded=false,lastConflict=false;
       for(let attempt=1;attempt<=2&&!uploaded;attempt++){
         setProgress('Checking DSpace workbook and WebDAV permission…');
-        const prop=await davPropfind(davRoot);const file=parsePropfind(prop.data,davRoot);
-        setProgress(`Downloading ${file.name}…`);
-        const got=await davGet(file.url);const etag=got.etag||file.etag;
+        const file=await discoverFile();requireWritable(file);
+        setProgress(`Downloading ${file.displayName}…`);
+        const got=await davGet(file);const etag=got.etag||file.etag;
         if(!etag)throw new Error('DSpace did not return an ETag. Upload was stopped to prevent unsafe overwrite.');
         setProgress(`Updating ${TARGET_SHEET} in memory…`);
         const updated=workbookWithDataset(got.bytes,prepared.headers,prepared.rows);
         setProgress(`Uploading ${prepared.rows.length.toLocaleString()} rows to DSpace…`);
-        try{await davPut(file.url,updated,etag);}catch(e){if(e?.status===412&&attempt<2){lastConflict=true;continue;}throw e;}
+        try{await davPut(file,updated,etag);}catch(e){if(e?.status===412&&attempt<2){lastConflict=true;continue;}throw e;}
         setProgress('Verifying uploaded workbook…');
-        const verify=await davGet(file.url);verifyDataset(verify.bytes,prepared.headers,prepared.rows);uploaded=true;lastConflict=false;
+        const verify=await davGet(file);verifyDataset(verify.bytes,prepared.headers,prepared.rows);uploaded=true;lastConflict=false;
       }
       if(!uploaded&&lastConflict)throw new Error('DSpace file changed during the update. Nothing was overwritten. Retry the Agent.');
       const durationMs=Date.now()-started;const msg=`${prepared.rows.length.toLocaleString()} rows saved to DSpace and verified.`;
