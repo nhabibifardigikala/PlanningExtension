@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Upload point locations and visualize their distribution beside built-in coverage polygons.",
+  "description": "Upload point locations and visualize their distribution beside Delivery polygons loaded directly from the DSpace polygon workbook.",
   "workflow": [],
   "successMessage": "Ready.",
   "runtimeContract": "stable-host-12",

@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "View and filter built-in coverage polygons and check a location against them.",
+  "description": "View and filter Delivery and Pick-up polygons loaded directly from the DSpace polygon workbook and check a location against them.",
   "workflow": [],
   "successMessage": "Ready.",
   "runtimeContract": "stable-host-12",

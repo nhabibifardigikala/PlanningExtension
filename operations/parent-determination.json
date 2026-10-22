@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Determine parent Distribution Centers directly from the remote DX_Polygons.xlsx workbook. The workbook is the single source of truth for polygon updates.",
+  "description": "Determine parent Distribution Centers using Delivery and Pick-up polygons loaded directly from the DSpace polygon workbook.",
   "workflow": [],
   "successMessage": "Ready.",
   "runtimeContract": "stable-host-12",

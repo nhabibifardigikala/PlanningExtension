@@ -21,6 +21,16 @@
     'delivery-polygons':{
       id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
+    },
+    'pickup-polygons-dspace':{
+      id:'pickup-polygons-dspace',label:'Pickup Polygons Extractor DSPACE',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.8',
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
+      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',lookupPlatformRequest:{method:'sheets.readRows',args:{spreadsheetId:'1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k',sheetName:'Distribution Centers (LG)',limit:100000}},sheets:[{sheetName:'Pick-up Polygons',operationId:'extract-pickup-polygons',transform:'pickup-polygons'},{sheetName:'Delivery Polygons',operationId:'extract-delivery-polygons',transform:'delivery-polygons'}]}
+    },
+    'delivery-polygons-dspace':{
+      id:'delivery-polygons-dspace',label:'Delivery Polygons Extractor DSPACE',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.8',
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
+      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',lookupPlatformRequest:{method:'sheets.readRows',args:{spreadsheetId:'1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k',sheetName:'Distribution Centers (LG)',limit:100000}},sheets:[{sheetName:'Pick-up Polygons',operationId:'extract-pickup-polygons',transform:'pickup-polygons'},{sheetName:'Delivery Polygons',operationId:'extract-delivery-polygons',transform:'delivery-polygons'}]}
     }
 ,
     'iata-code-synchronizer':{
@@ -203,7 +213,8 @@
       const opOk=cur?.operationId===defs.operationId&&String(cur?.sheetName||'')===String(defs.sheetName||'');
       const pipelineOk=JSON.stringify(cur?.pipeline||null)===JSON.stringify(defs.pipeline||null);
       const retryOk=JSON.stringify(cur?.retry||null)===JSON.stringify(defs.retry||null);
-      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:id.startsWith('rejected-')?REJECTED_DATASETS_WEB_APP_URL:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
+      const dspaceOk=JSON.stringify(cur?.dspace||null)===JSON.stringify(defs.dspace||null);
+      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk||!dspaceOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:id.startsWith('rejected-')?REJECTED_DATASETS_WEB_APP_URL:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,dspace:defs.dspace||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
     }
     migrationDone=true;return changed?request('getState'):state;
   }
@@ -219,7 +230,7 @@
   $('scheduleType').addEventListener('change',updateScheduleControls);$('enabled').addEventListener('change',updateScheduleControls);
 
   $('saveConnection').addEventListener('click',async()=>{
-    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||base.pipeline||null,retry:JOBS[id].retry||base.retry,inputs:{...(JOBS[id].inputs||{}),...(base.inputs||{})}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
+    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||base.pipeline||null,dspace:JOBS[id].dspace||base.dspace||null,retry:JOBS[id].retry||base.retry,inputs:{...(JOBS[id].inputs||{}),...(base.inputs||{})}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
     catch(e){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}
     finally{btn.disabled=false}
   });
@@ -235,10 +246,10 @@
     try{
       await assertAgentsAccess();
       await assertJobHostCompatibility(JOBS[id]);
-      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 100 DCs…':(id==='pickup-polygons'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
+      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=id==='distribution-centers'?'Assigning 100 DCs…':(id==='pickup-polygons'||id==='pickup-polygons-dspace'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'||id==='delivery-polygons-dspace'?'Opening Admin DC Polygons…':(id==='rejected-shipments-sync'?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl();
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
-      let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,retry:JOBS[id].retry||getJob(id).retry};
+      let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,dspace:JOBS[id].dspace||getJob(id).dspace||null,retry:JOBS[id].retry||getJob(id).retry};
       if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
       if(id==='rejected-shipments-sync'){
         mini.textContent='Reading latest Rejected Shipments watermark…';

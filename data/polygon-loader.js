@@ -1,5 +1,7 @@
 (()=>{
-  const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
+  const DSPACE_SHARE_TOKEN='PjQJZLpewe6yWLf';
+  const DSPACE_FILE_URL=`https://dspace.dkservices.ir/public.php/dav/files/${DSPACE_SHARE_TOKEN}/`;
+  const DSPACE_AUTH='Basic '+btoa(`${DSPACE_SHARE_TOKEN}:`);
   function clean(v){return String(v??'').replace(/\u200c|\u200d|\u200e|\u200f/g,' ').replace(/\s+/g,' ').trim()}
   function norm(v){return clean(v).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()}
   function findHeader(headers,aliases){const hs=headers.map(norm),as=aliases.map(norm);for(let i=0;i<hs.length;i++)if(as.includes(hs[i]))return i;for(let i=0;i<hs.length;i++)if(as.some(a=>hs[i].includes(a)))return i;return -1}
@@ -49,13 +51,28 @@
       return {name,coordinates:parseCoordinates(r[coordI]),dcId:dcI>=0?r[dcI]:'',stateId:stateI>=0?r[stateI]:'',iata:iataI>=0?r[iataI]:'',district:districtI>=0?r[districtI]:'',natureId,submitType:submitI>=0?r[submitI]:'',active:activeI>=0?r[activeI]:1,timeScope:''};
     }).filter(r=>r.name&&r.coordinates.length);
   }
+  function base64ToBytes(s){const raw=atob(String(s||'').replace(/^data:[^,]+,/,''));const out=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out;}
+  function responseBytes(r){const payload=r?.bodyBase64??r?.data;if(payload instanceof ArrayBuffer)return new Uint8Array(payload);if(ArrayBuffer.isView(payload))return new Uint8Array(payload.buffer,payload.byteOffset,payload.byteLength);if(Array.isArray(payload))return new Uint8Array(payload);if(typeof payload==='string'&&payload.length)return base64ToBytes(payload);if(payload&&typeof payload.base64==='string')return base64ToBytes(payload.base64);return new Uint8Array(0);}
+  async function downloadWorkbook(){
+    if(!globalThis.DigiExpressPlatform?.runtime?.sendMessage)throw new Error('DigiExpress Host bridge is unavailable. Reload the extension page and try again.');
+    const request=async headers=>DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url:DSPACE_FILE_URL,method:'GET',headers:{...headers,'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'},responseType:'base64',timeoutMs:90000}});
+    let r=await request({});let bytes=responseBytes(r);
+    if(!r?.ok||!bytes.byteLength){r=await request({Authorization:DSPACE_AUTH});bytes=responseBytes(r);}
+    if(!r?.ok)throw new Error(r?.error||`DSpace workbook download failed (HTTP ${r?.status||'unknown'}).`);
+    if(!bytes.byteLength)throw new Error('DSpace polygon workbook is empty. Run a DSPACE Polygon Agent first.');
+    if(bytes[0]!==0x50||bytes[1]!==0x4b)throw new Error('DSpace polygon source is not a valid XLSX workbook.');
+    return bytes;
+  }
   async function load(source){
     const sheetName=sheetFromSource(source);
-    if(!globalThis.DigiExpressPlatform?.call)throw new Error('DigiExpress Host bridge is unavailable. Reload the extension page and try again.');
-    const response=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName,limit:100000});
-    const data=response?.result||response;
-    if(!data||!Array.isArray(data.headers)||!Array.isArray(data.rows))throw new Error(`${sheetName}: Google Sheets dataset could not be loaded.`);
-    return {headers:data.headers,rows:mapRows(data.headers,data.rows,sheetName),sheetName,updatedAt:data.updatedAt||''};
+    if(!globalThis.XLSX)throw new Error('XLSX library is not available. Reload DigiExpress and try again.');
+    const bytes=await downloadWorkbook();
+    const wb=XLSX.read(bytes,{type:'array',cellDates:false});const ws=wb.Sheets[sheetName];
+    if(!ws)throw new Error(`DSpace workbook does not contain worksheet "${sheetName}".`);
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+    if(!aoa.length)throw new Error(`${sheetName}: DSpace worksheet is empty.`);
+    const headers=aoa[0].map(v=>String(v??'')),rows=aoa.slice(1);
+    return {headers,rows:mapRows(headers,rows,sheetName),sheetName,updatedAt:''};
   }
   window.DXPolygonLoader={load};
 })();
