@@ -140,13 +140,30 @@
     const errors=[];
     for(const cand of davCandidates()){
       try{
-        const rootResp=await davPropfind(cand,0),rootItems=parseDavResponses(rootResp.data,cand.base),root=rootItems[0];
-        if(root&&root.resourceType==='file'&&(isExcel(root)||!root.type||root.url===cand.base)){
+        // Prefer a real child XLSX. Some DSpace public shares report the DAV root
+        // itself as an XLSX resource even though GET on that root returns an empty body.
+        try{
+          const listResp=await davPropfind(cand,1),items=parseDavResponses(listResp.data,cand.base);
+          const baseUrl=new URL(cand.base).href;
+          const children=items.filter(x=>x.resourceType==='file'&&isExcel(x)&&x.url&&new URL(x.url,cand.base).href!==baseUrl);
+          if(children.length===1){
+            const excel=children[0];
+            return{...cand,fileUrl:excel.url,etag:excel.etag,displayName:excel.display||'XLSX',permissions:excel.permissions||'',discovery:'Depth:1 / child file'};
+          }
+          if(children.length>1)throw new Error(`More than one XLSX file was found in the DSpace share (${children.map(x=>x.display||x.href).join(', ')}).`);
+        }catch(e){
+          if(/More than one XLSX/.test(String(e?.message||e)))throw e;
+          errors.push(`${cand.name} Depth:1: ${e?.message||e}`);
+        }
+
+        // Fallback for true single-file public shares. Do not accept a root only
+        // because its URL equals the DAV base; it must actually identify as XLSX.
+        const rootResp=await davPropfind(cand,0),rootItems=parseDavResponses(rootResp.data,cand.base);
+        const root=rootItems.find(x=>x.resourceType==='file'&&isExcel(x));
+        if(root){
           return{...cand,fileUrl:root.url||cand.base,etag:root.etag,displayName:root.display||'Shared XLSX',permissions:root.permissions||'',discovery:'Depth:0 / single-file root'};
         }
-        const listResp=await davPropfind(cand,1),items=parseDavResponses(listResp.data,cand.base),excel=items.find(x=>x.resourceType==='file'&&isExcel(x));
-        if(!excel){errors.push(`${cand.name}: XLSX not found`);continue;}
-        return{...cand,fileUrl:excel.url,etag:excel.etag,displayName:excel.display||'XLSX',permissions:excel.permissions||'',discovery:'Depth:1 / child file'};
+        errors.push(`${cand.name}: XLSX not found`);
       }catch(e){errors.push(`${cand.name}: ${e?.message||e}`);}
     }
     throw new Error(`DSpace XLSX file was not found. ${errors.join(' | ')}`);
