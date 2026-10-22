@@ -81,7 +81,7 @@
   async function remoteHttp(request){
     let r;
     try{
-      r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request});
+      r=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',op:'data-set-update',operationId:'data-set-update',requiredHosts:[REQUIRED_ORIGIN],request});
     }catch(e){
       throw new Error(`DSpace ${request.method||'GET'} failed: ${e?.message||e}`);
     }

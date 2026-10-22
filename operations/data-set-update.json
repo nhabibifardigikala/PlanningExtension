@@ -9,5 +9,8 @@
   "businessLogicOwner": "remote",
   "output": {
     "type": "internal"
-  }
+  },
+  "requiredHosts": [
+    "https://dspace.dkservices.ir/*"
+  ]
 }
