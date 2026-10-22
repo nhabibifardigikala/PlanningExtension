@@ -367,7 +367,7 @@ body:has(#operationView.active #operationInputs [data-field-wrap="__dailyPlanner
 #operationView:has(#operationInputs [data-field-wrap="__dailyPlannerEmbedded"]) .daily-planner-embedded iframe{height:100%!important;min-height:0!important}
 
 /* v72 — Note isolation and embedded layout. Hidden for every non-Note operation. */
-#noteEmbedded.note-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
+#noteEmbedded.note-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:441px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
 #noteEmbedded.note-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
 html[data-theme="dark"] #noteFrame{color-scheme:dark}
 html[data-theme="light"] #noteFrame{color-scheme:light}
@@ -391,7 +391,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__noteEmbedded
 #operationView:has(#operationInputs [data-field-wrap="__noteEmbedded"]) .settings-heading,
 #operationView:has(#operationInputs [data-field-wrap="__pasteAssistantEmbedded"]) .settings-heading{display:none!important}
 /* Paste Assistant embedded view */
-#pasteAssistantEmbedded.paste-assistant-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
+#pasteAssistantEmbedded.paste-assistant-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:441px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
 #pasteAssistantEmbedded.paste-assistant-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
 html[data-theme="dark"] #pasteAssistantFrame{color-scheme:dark}
 html[data-theme="light"] #pasteAssistantFrame{color-scheme:light}
@@ -406,7 +406,7 @@ body:has(#operationView.active #operationInputs [data-field-wrap="__pasteAssista
 #operationView:has(#operationInputs [data-field-wrap="__pasteAssistantEmbedded"]) #pasteAssistantEmbedded.paste-assistant-embedded{flex:1 1 auto;height:auto!important;min-height:0!important;margin-top:8px}
 
 /* v80 — embedded Time Study. Fully remote, no Host logic. */
-#timeStudyEmbedded.time-study-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
+#timeStudyEmbedded.time-study-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:441px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
 #timeStudyEmbedded.time-study-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light}
 html[data-theme="dark"] #timeStudyFrame{color-scheme:dark}
 html[data-theme="light"] #timeStudyFrame{color-scheme:light}
@@ -422,7 +422,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__timeStudyEmb
 #operationView:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]) #timeStudyEmbedded.time-study-embedded iframe{height:100%!important;min-height:0!important}
 
 /* v88 - embedded map operations */
-.map-operation-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
+.map-operation-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:441px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card)}
 .map-operation-embedded iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:light dark}
 #operationView:has(#operationInputs [data-field-wrap="__coveragePolygonsEmbedded"]) #coveragePolygonsEmbedded,
 #operationView:has(#operationInputs [data-field-wrap="__pointDistributionEmbedded"]) #pointDistributionEmbedded,
@@ -511,7 +511,7 @@ html[data-theme="dark"] #followUpFrame{color-scheme:dark!important}
 html[data-theme="light"] #followUpFrame{color-scheme:light!important}
 
 /* Process Learning embedded operation */
-.process-learning-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:440px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
+.process-learning-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:441px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
 .process-learning-embedded iframe{width:100%;height:100%;min-height:0;border:0;background:transparent}.process-learning-theme-frame{display:none!important}html[data-theme="light"] #processLearningFrameLight{display:block!important;color-scheme:light!important}html[data-theme="dark"] #processLearningFrameDark{display:block!important;color-scheme:dark!important}
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) > .settings-card{display:none!important}
 #operationView:has(#operationInputs [data-field-wrap="__processLearningEmbedded"]) #capacityStats{display:none!important}
@@ -1044,7 +1044,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 440;
+const EXPECTED_REMOTE_CONFIG_VERSION = 441;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 

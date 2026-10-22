@@ -147,6 +147,22 @@
       return{ok:false,error:e};
     }
   }
+  function headerFilename(headers={}){
+    const cd=String(headers['content-disposition']||headers['Content-Disposition']||'');
+    let m=cd.match(/filename\*=UTF-8''([^;]+)/i);
+    if(m){try{return decodeURIComponent(m[1].trim().replace(/^"|"$/g,''));}catch(_){return m[1].trim().replace(/^"|"$/g,'');}}
+    m=cd.match(/filename\s*=\s*"([^"]+)"/i)||cd.match(/filename\s*=\s*([^;]+)/i);
+    if(m)return String(m[1]||'').trim().replace(/^"|"$/g,'');
+    return'';
+  }
+  function headerLocation(headers={}){
+    return String(headers['content-location']||headers['Content-Location']||'').trim();
+  }
+  function joinDavFile(base,name){
+    const clean=String(name||'').trim().replace(/^\/+/, '');
+    if(!clean)return'';
+    return new URL(clean.split('/').map(x=>encodeURIComponent(decodeURIComponent(x))).join('/'),base).href;
+  }
   async function discoverFile(){
     const errors=[];
     for(const cand of davCandidates()){
@@ -163,16 +179,47 @@
             if(rootProbe.ok)return{...rootProbe.conn,downloaded:rootProbe.got};
             errors.push(`${cand.name} root GET: ${rootProbe.error?.message||rootProbe.error}`);
 
-            // Some public shares describe the file at the DAV root but require the
-            // display name to be appended for the actual download URL. Try that too.
-            if(root.display&&/\.xlsx$/i.test(root.display)){
-              const namedUrl=new URL(encodeURIComponent(root.display),cand.base).href;
-              if(namedUrl!==rootConn.fileUrl){
-                const namedConn=candidateFile(cand,root,'Depth:0 / display-name URL',namedUrl);
+            // DSpace/Nextcloud may expose a single-file share at the DAV root while
+            // returning the actual filename only in GET response headers. Prefer
+            // Content-Disposition / Content-Location over guessed PROPFIND names.
+            const hintedNames=[];
+            const fromDisposition=headerFilename(rootProbe.error?.headers||{});
+            if(fromDisposition)hintedNames.push(fromDisposition);
+            if(root.display&&/\.xlsx$/i.test(root.display))hintedNames.push(root.display);
+            const seenNames=new Set();
+            for(const hintedName of hintedNames){
+              const key=String(hintedName).toLowerCase();if(seenNames.has(key))continue;seenNames.add(key);
+              const namedUrl=joinDavFile(cand.base,hintedName);
+              if(namedUrl&&namedUrl!==rootConn.fileUrl){
+                const namedConn=candidateFile(cand,{...root,display:hintedName},fromDisposition===hintedName?'GET Content-Disposition filename':'Depth:0 / display-name URL',namedUrl);
                 const namedProbe=await probeWorkbook(namedConn);
                 if(namedProbe.ok)return{...namedProbe.conn,downloaded:namedProbe.got};
-                errors.push(`${cand.name} named GET: ${namedProbe.error?.message||namedProbe.error}`);
+                errors.push(`${cand.name} named GET (${hintedName}): ${namedProbe.error?.message||namedProbe.error}`);
               }
+
+              // Standard Nextcloud public-share WebDAV uses /public.php/webdav/
+              // with Basic auth username=<share token>. A filename learned from the
+              // modern root GET is therefore also tested on the legacy DAV endpoint.
+              const token=tokenFromShareUrl(SHARE_URL);
+              const legacyBase=`${DSPACE_ORIGIN}/public.php/webdav/`;
+              const legacyUrl=joinDavFile(legacyBase,hintedName);
+              const legacyConn={name:'Legacy public WebDAV (resolved filename)',base:legacyBase,headers:{Authorization:basicAuth(token,'')},fileUrl:legacyUrl,etag:root.etag||'',displayName:hintedName,permissions:root.permissions||'',discovery:'Resolved filename → legacy WebDAV'};
+              const legacyProbe=await probeWorkbook(legacyConn);
+              if(legacyProbe.ok)return{...legacyProbe.conn,downloaded:legacyProbe.got};
+              errors.push(`Legacy resolved GET (${hintedName}): ${legacyProbe.error?.message||legacyProbe.error}`);
+            }
+
+            const contentLocation=headerLocation(rootProbe.error?.headers||{});
+            if(contentLocation){
+              try{
+                const resolvedLocation=new URL(contentLocation,cand.base).href;
+                if(resolvedLocation!==rootConn.fileUrl){
+                  const locConn=candidateFile(cand,root,'GET Content-Location',resolvedLocation);
+                  const locProbe=await probeWorkbook(locConn);
+                  if(locProbe.ok)return{...locProbe.conn,downloaded:locProbe.got};
+                  errors.push(`${cand.name} Content-Location GET: ${locProbe.error?.message||locProbe.error}`);
+                }
+              }catch(_){errors.push(`${cand.name}: invalid Content-Location header`);}
             }
           }
         }catch(e){errors.push(`${cand.name} Depth:0: ${e?.message||e}`);}
@@ -217,7 +264,9 @@
     if(!bytes.byteLength){
       const len=r.byteLength??r.headers?.['content-length']??'unknown';
       const ct=r.contentType||r.headers?.['content-type']||'unknown';
-      throw new Error(`Downloaded DSpace XLSX is empty (HTTP ${r.status||'unknown'}, bytes=${len}, content-type=${ct}, URL=${r.url||conn.fileUrl}).`);
+      const err=new Error(`Downloaded DSpace XLSX is empty (HTTP ${r.status||'unknown'}, bytes=${len}, content-type=${ct}, URL=${r.url||conn.fileUrl}).`);
+      err.headers=r.headers||{};err.url=r.url||conn.fileUrl;err.status=r.status||0;err.contentType=ct;err.byteLength=len;
+      throw err;
     }
     if(bytes.length<4||bytes[0]!==0x50||bytes[1]!==0x4b)throw new Error(`DSpace GET did not return an XLSX/ZIP file (HTTP ${r.status||'unknown'}, content-type=${r.contentType||r.headers?.['content-type']||'unknown'}).`);
     return{bytes,etag:r.headers?.etag||conn.etag||''};
