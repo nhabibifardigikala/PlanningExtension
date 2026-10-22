@@ -136,37 +136,66 @@
     });
   }
   function isExcel(item){const x=`${item.display} ${item.href} ${item.type}`.toLowerCase();return /\.xlsx(?:$|[?#/])/.test(x)||/spreadsheetml\.sheet/.test(x);}
+  function candidateFile(cand,item,discovery,fileUrl){
+    return{...cand,fileUrl:fileUrl||item?.url||cand.base,etag:item?.etag||'',displayName:item?.display||'Shared XLSX',permissions:item?.permissions||'',discovery};
+  }
+  async function probeWorkbook(conn){
+    try{
+      const got=await davGet(conn);
+      return{ok:true,conn,got};
+    }catch(e){
+      return{ok:false,error:e};
+    }
+  }
   async function discoverFile(){
     const errors=[];
     for(const cand of davCandidates()){
       try{
-        // Prefer a real child XLSX. Some DSpace public shares report the DAV root
-        // itself as an XLSX resource even though GET on that root returns an empty body.
+        // Follow the working reference extension: inspect the single-file root first.
+        // The important difference is that metadata alone is never trusted: every
+        // candidate must pass a real GET and XLSX signature check before selection.
+        try{
+          const rootResp=await davPropfind(cand,0),rootItems=parseDavResponses(rootResp.data,cand.base);
+          const root=rootItems[0];
+          if(root&&root.resourceType==='file'&&(isExcel(root)||!root.type||root.url===cand.base)){
+            const rootConn=candidateFile(cand,root,'Depth:0 / single-file root',root.url||cand.base);
+            const rootProbe=await probeWorkbook(rootConn);
+            if(rootProbe.ok)return{...rootProbe.conn,downloaded:rootProbe.got};
+            errors.push(`${cand.name} root GET: ${rootProbe.error?.message||rootProbe.error}`);
+
+            // Some public shares describe the file at the DAV root but require the
+            // display name to be appended for the actual download URL. Try that too.
+            if(root.display&&/\.xlsx$/i.test(root.display)){
+              const namedUrl=new URL(encodeURIComponent(root.display),cand.base).href;
+              if(namedUrl!==rootConn.fileUrl){
+                const namedConn=candidateFile(cand,root,'Depth:0 / display-name URL',namedUrl);
+                const namedProbe=await probeWorkbook(namedConn);
+                if(namedProbe.ok)return{...namedProbe.conn,downloaded:namedProbe.got};
+                errors.push(`${cand.name} named GET: ${namedProbe.error?.message||namedProbe.error}`);
+              }
+            }
+          }
+        }catch(e){errors.push(`${cand.name} Depth:0: ${e?.message||e}`);}
+
+        // Folder-style shares: enumerate direct children and test the XLSX child.
         try{
           const listResp=await davPropfind(cand,1),items=parseDavResponses(listResp.data,cand.base);
           const baseUrl=new URL(cand.base).href;
           const children=items.filter(x=>x.resourceType==='file'&&isExcel(x)&&x.url&&new URL(x.url,cand.base).href!==baseUrl);
-          if(children.length===1){
-            const excel=children[0];
-            return{...cand,fileUrl:excel.url,etag:excel.etag,displayName:excel.display||'XLSX',permissions:excel.permissions||'',discovery:'Depth:1 / child file'};
-          }
           if(children.length>1)throw new Error(`More than one XLSX file was found in the DSpace share (${children.map(x=>x.display||x.href).join(', ')}).`);
+          if(children.length===1){
+            const excel=children[0],childConn=candidateFile(cand,excel,'Depth:1 / child file',excel.url);
+            const childProbe=await probeWorkbook(childConn);
+            if(childProbe.ok)return{...childProbe.conn,downloaded:childProbe.got};
+            errors.push(`${cand.name} child GET: ${childProbe.error?.message||childProbe.error}`);
+          }else errors.push(`${cand.name}: XLSX child not found`);
         }catch(e){
           if(/More than one XLSX/.test(String(e?.message||e)))throw e;
           errors.push(`${cand.name} Depth:1: ${e?.message||e}`);
         }
-
-        // Fallback for true single-file public shares. Do not accept a root only
-        // because its URL equals the DAV base; it must actually identify as XLSX.
-        const rootResp=await davPropfind(cand,0),rootItems=parseDavResponses(rootResp.data,cand.base);
-        const root=rootItems.find(x=>x.resourceType==='file'&&isExcel(x));
-        if(root){
-          return{...cand,fileUrl:root.url||cand.base,etag:root.etag,displayName:root.display||'Shared XLSX',permissions:root.permissions||'',discovery:'Depth:0 / single-file root'};
-        }
-        errors.push(`${cand.name}: XLSX not found`);
       }catch(e){errors.push(`${cand.name}: ${e?.message||e}`);}
     }
-    throw new Error(`DSpace XLSX file was not found. ${errors.join(' | ')}`);
+    throw new Error(`DSpace XLSX file could not be downloaded from any supported WebDAV route. ${errors.join(' | ')}`);
   }
   function requireWritable(conn){
     if(!conn.permissions)return;
@@ -265,7 +294,7 @@
         setProgress('Checking DSpace workbook and WebDAV permission…');
         const file=await discoverFile();requireWritable(file);
         setProgress(`Downloading ${file.displayName}…`);
-        const got=await davGet(file);const etag=got.etag||file.etag;
+        const got=file.downloaded||await davGet(file);const etag=got.etag||file.etag;
         if(!etag)throw new Error('DSpace did not return an ETag. Upload was stopped to prevent unsafe overwrite.');
         setProgress(`Updating ${TARGET_SHEET} in memory…`);
         const updated=workbookWithDataset(got.bytes,prepared.headers,prepared.rows);
