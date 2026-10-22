@@ -156,8 +156,24 @@
     if(!conn.permissions.includes('W'))throw new Error(`DSpace Public Share is not writable. oc:permissions = ${conn.permissions}`);
   }
   async function davGet(conn){
-    const r=await remoteHttp({url:conn.fileUrl,method:'GET',headers:{...conn.headers,'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'},responseType:'base64',timeoutMs:60000});
-    const bytes=base64ToBytes(r.data);if(!bytes.byteLength)throw new Error('Downloaded DSpace XLSX is empty.');
+    const requestGet=async extraHeaders=>remoteHttp({url:conn.fileUrl,method:'GET',headers:{...conn.headers,...extraHeaders,'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'},responseType:'base64',timeoutMs:90000});
+    let r=await requestGet({});
+    let payload=r.bodyBase64??r.data;
+    let bytes;
+    try{bytes=responseBytes(payload);}catch(_){bytes=new Uint8Array(0);}
+    if(!bytes.byteLength && !conn.headers?.Authorization){
+      const token=tokenFromShareUrl(SHARE_URL),auth=basicAuth(token,'');
+      r=await requestGet({Authorization:auth});
+      payload=r.bodyBase64??r.data;
+      try{bytes=responseBytes(payload);}catch(_){bytes=new Uint8Array(0);}
+      if(bytes.byteLength)conn.headers={...conn.headers,Authorization:auth};
+    }
+    if(!bytes.byteLength){
+      const len=r.byteLength??r.headers?.['content-length']??'unknown';
+      const ct=r.contentType||r.headers?.['content-type']||'unknown';
+      throw new Error(`Downloaded DSpace XLSX is empty (HTTP ${r.status||'unknown'}, bytes=${len}, content-type=${ct}, URL=${r.url||conn.fileUrl}).`);
+    }
+    if(bytes.length<4||bytes[0]!==0x50||bytes[1]!==0x4b)throw new Error(`DSpace GET did not return an XLSX/ZIP file (HTTP ${r.status||'unknown'}, content-type=${r.contentType||r.headers?.['content-type']||'unknown'}).`);
     return{bytes,etag:r.headers?.etag||conn.etag||''};
   }
   async function davPut(conn,bytes,etag){
