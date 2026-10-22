@@ -1,7 +1,8 @@
 (()=>{
   const DSPACE_SHARE_TOKEN='PjQJZLpewe6yWLf';
-  const DSPACE_FILE_URL=`https://dspace.dkservices.ir/public.php/dav/files/${DSPACE_SHARE_TOKEN}/`;
+  const DSPACE_ORIGIN='https://dspace.dkservices.ir';
   const DSPACE_AUTH='Basic '+btoa(`${DSPACE_SHARE_TOKEN}:`);
+  const PROPFIND_BODY='<?xml version="1.0" encoding="UTF-8"?><d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns"><d:prop><d:displayname/><d:getcontenttype/><d:getcontentlength/><d:getetag/><d:resourcetype/><oc:permissions/></d:prop></d:propfind>';
   function clean(v){return String(v??'').replace(/\u200c|\u200d|\u200e|\u200f/g,' ').replace(/\s+/g,' ').trim()}
   function norm(v){return clean(v).toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()}
   function findHeader(headers,aliases){const hs=headers.map(norm),as=aliases.map(norm);for(let i=0;i<hs.length;i++)if(as.includes(hs[i]))return i;for(let i=0;i<hs.length;i++)if(as.some(a=>hs[i].includes(a)))return i;return -1}
@@ -53,13 +54,61 @@
   }
   function base64ToBytes(s){const raw=atob(String(s||'').replace(/^data:[^,]+,/,''));const out=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out;}
   function responseBytes(r){const payload=r?.bodyBase64??r?.data;if(payload instanceof ArrayBuffer)return new Uint8Array(payload);if(ArrayBuffer.isView(payload))return new Uint8Array(payload.buffer,payload.byteOffset,payload.byteLength);if(Array.isArray(payload))return new Uint8Array(payload);if(typeof payload==='string'&&payload.length)return base64ToBytes(payload);if(payload&&typeof payload.base64==='string')return base64ToBytes(payload.base64);return new Uint8Array(0);}
+  function headersObject(h){
+    if(!h)return{};
+    if(Array.isArray(h)){const o={};for(const pair of h)if(Array.isArray(pair)&&pair.length>=2)o[String(pair[0]).toLowerCase()]=String(pair[1]);return o;}
+    const o={};for(const [k,v] of Object.entries(h))o[String(k).toLowerCase()]=Array.isArray(v)?v.join(', '):String(v);return o;
+  }
+  async function remoteHttp(request){
+    const r=await DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request});
+    if(!r)throw new Error('DSpace Host response is empty.');
+    if(!r.ok||Number(r.status||0)>=400)throw new Error(r.error||`DSpace returned HTTP ${r.status||'unknown'}.`);
+    return {...r,headers:headersObject(r.headers)};
+  }
+  function candidates(){
+    const modern=`${DSPACE_ORIGIN}/public.php/dav/files/${encodeURIComponent(DSPACE_SHARE_TOKEN)}/`;
+    const legacy=`${DSPACE_ORIGIN}/public.php/webdav/`;
+    return [
+      {name:'Public DAV (modern)',base:modern,headers:{}},
+      {name:'Public DAV (modern + token auth)',base:modern,headers:{Authorization:DSPACE_AUTH}},
+      {name:'Legacy public WebDAV',base:legacy,headers:{Authorization:DSPACE_AUTH}}
+    ];
+  }
+  function firstNs(parent,ns,local){const n=parent.getElementsByTagNameNS(ns,local)[0];return n?n.textContent.trim():''}
+  function parseDavResponses(xmlText,base){
+    const doc=new DOMParser().parseFromString(String(xmlText||''),'application/xml');
+    if(doc.querySelector('parsererror'))throw new Error('DSpace returned invalid WebDAV XML.');
+    return [...doc.getElementsByTagNameNS('DAV:','response')].map(r=>{
+      const href=firstNs(r,'DAV:','href'),type=firstNs(r,'DAV:','getcontenttype'),display=firstNs(r,'DAV:','displayname');
+      const resourceType=r.getElementsByTagNameNS('DAV:','collection').length?'collection':'file';
+      let url;try{url=new URL(href,base).href}catch(_){url=href||base}
+      return{href,url,type,display,resourceType};
+    });
+  }
+  function isExcel(item){const x=`${item?.display||''} ${item?.href||''} ${item?.type||''}`.toLowerCase();return /\.xlsx(?:$|[?#/])/.test(x)||/spreadsheetml\.sheet/.test(x)}
+  async function discoverWorkbook(){
+    const errors=[];
+    for(const cand of candidates()){
+      try{
+        const common={...cand.headers,'Content-Type':'application/xml; charset=utf-8','X-Requested-With':'XMLHttpRequest'};
+        const r0=await remoteHttp({url:cand.base,method:'PROPFIND',headers:{...common,Depth:'0'},bodyText:PROPFIND_BODY,responseType:'text',timeoutMs:30000});
+        const root=parseDavResponses(r0.data??r0.text,cand.base)[0];
+        if(root&&root.resourceType==='file'&&(isExcel(root)||!root.type||root.url===cand.base))return{...cand,fileUrl:root.url||cand.base,displayName:root.display||'Shared XLSX'};
+        const r1=await remoteHttp({url:cand.base,method:'PROPFIND',headers:{...common,Depth:'1'},bodyText:PROPFIND_BODY,responseType:'text',timeoutMs:30000});
+        const excel=parseDavResponses(r1.data??r1.text,cand.base).find(x=>x.resourceType==='file'&&isExcel(x));
+        if(excel)return{...cand,fileUrl:excel.url,displayName:excel.display||'XLSX'};
+        errors.push(`${cand.name}: XLSX not found`);
+      }catch(e){errors.push(`${cand.name}: ${e?.message||e}`)}
+    }
+    throw new Error(`DSpace XLSX file could not be discovered. ${errors.join(' | ')}`);
+  }
   async function downloadWorkbook(){
     if(!globalThis.DigiExpressPlatform?.runtime?.sendMessage)throw new Error('DigiExpress Host bridge is unavailable. Reload the extension page and try again.');
-    const request=async headers=>DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url:DSPACE_FILE_URL,method:'GET',headers:{...headers,'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'},responseType:'base64',timeoutMs:90000}});
+    const conn=await discoverWorkbook();
+    const request=async headers=>remoteHttp({url:conn.fileUrl,method:'GET',headers:{...conn.headers,...headers,'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'},responseType:'base64',timeoutMs:90000});
     let r=await request({});let bytes=responseBytes(r);
-    if(!r?.ok||!bytes.byteLength){r=await request({Authorization:DSPACE_AUTH});bytes=responseBytes(r);}
-    if(!r?.ok)throw new Error(r?.error||`DSpace workbook download failed (HTTP ${r?.status||'unknown'}).`);
-    if(!bytes.byteLength)throw new Error('DSpace polygon workbook is empty. Run a DSPACE Polygon Agent first.');
+    if(!bytes.byteLength&&!conn.headers?.Authorization){r=await request({Authorization:DSPACE_AUTH});bytes=responseBytes(r);}
+    if(!bytes.byteLength)throw new Error(`DSpace polygon workbook is empty (${conn.displayName}). Run a DSPACE Polygon Agent first.`);
     if(bytes[0]!==0x50||bytes[1]!==0x4b)throw new Error('DSpace polygon source is not a valid XLSX workbook.');
     return bytes;
   }
