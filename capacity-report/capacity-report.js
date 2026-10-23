@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = 449;
+  const VERSION = 451;
     const SHEET_NAME = 'Distribution Centers (LG)';
   const DSPACE_SHARE_URL = 'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
@@ -96,16 +96,52 @@
     });
   }
 
+  function centerHeaderIndex(headers, candidates) {
+    const normalized=(headers||[]).map(h=>norm(h));
+    const wanted=(candidates||[]).map(x=>norm(x));
+    for(const w of wanted){const i=normalized.indexOf(w);if(i>=0)return i;}
+    for(const w of wanted){const i=normalized.findIndex(h=>h && w && (h.includes(w)||w.includes(h)));if(i>=0)return i;}
+    return -1;
+  }
+
+  function centersFromSheetData(data, sourceLabel) {
+    const headers=Array.isArray(data?.headers)?data.headers:[],rows=Array.isArray(data?.rows)?data.rows:[];
+    const ii=centerHeaderIndex(headers,['id','distribution center id','distribution_center_id','dc id','dc_id']);
+    const ni=centerHeaderIndex(headers,['name','distribution center name','distribution center','dc name','dc_name']);
+    if(ii<0||ni<0)throw new Error(`${sourceLabel} is missing Distribution Center ID/Name columns. Headers: ${headers.join(', ')}`);
+    const byId=new Map();
+    for(const row of rows){
+      const id=String(row?.[ii]??'').replace(/\.0$/,'').trim();
+      const name=String(row?.[ni]??'').trim();
+      if(id&&name&&!byId.has(id))byId.set(id,{id,name});
+    }
+    return [...byId.values()];
+  }
+
+  async function readDspaceSheet(sheetName, limit=100000) {
+    if(!window.DigiExpressPlatform?.call)throw new Error('Stable Host bridge is unavailable. Reload the extension.');
+    const r=await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName,limit});
+    const d=r?.result??r??{};
+    return {headers:Array.isArray(d.headers)?d.headers:[],rows:Array.isArray(d.rows)?d.rows:[]};
+  }
+
   async function loadCenters() {
     if (state.allCenters.length) return state.allCenters;
-    const r=await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName:SHEET_NAME,limit:100000});
-    if(r?.ok===false)throw new Error(r.error||'Could not read Distribution Centers from DSpace.');
-    const d=r?.result??r??{},headers=Array.isArray(d.headers)?d.headers:[],rows=Array.isArray(d.rows)?d.rows:[];
-    const ii=headers.findIndex(h=>norm(h)==='id'),ni=headers.findIndex(h=>norm(h)==='name');
-    if(ii<0||ni<0)throw new Error('Distribution Centers (LG) in DSpace is missing id/name columns.');
-    const list=rows.map(row=>({id:String(row?.[ii]??'').replace(/\.0$/,''),name:String(row?.[ni]??'').trim()})).filter(x=>x.id&&x.name);
-    if(!list.length)throw new Error('Distribution Centers (LG) in DSpace is empty.');
-    state.allCenters=list;return list;
+    let primaryError='';
+    try{
+      const data=await readDspaceSheet(SHEET_NAME,100000);
+      const list=centersFromSheetData(data,`DSpace → ${SHEET_NAME}`);
+      if(list.length){state.allCenters=list;return list;}
+      primaryError=`DSpace → ${SHEET_NAME} is empty.`;
+    }catch(e){primaryError=String(e?.message||e);}
+    try{
+      const data=await readDspaceSheet(CAPACITY_SHEET_NAME,250000);
+      const list=centersFromSheetData(data,`DSpace → ${CAPACITY_SHEET_NAME}`);
+      if(list.length){state.allCenters=list;return list;}
+      throw new Error(`DSpace → ${CAPACITY_SHEET_NAME} is empty.`);
+    }catch(e){
+      throw new Error(`Could not load Distribution Centers from DSpace. ${primaryError} | Fallback: ${String(e?.message||e)}`);
+    }
   }
 
   async function loadCapacitySheet(source='dk') {
