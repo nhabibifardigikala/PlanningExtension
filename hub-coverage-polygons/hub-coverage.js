@@ -90,13 +90,67 @@ function tooltipHtml(r){
   const field=(label,value,fa=false)=>`<div class="hub-popup-row"><span class="hub-popup-key">${label}</span><span class="hub-popup-value${fa?' hub-popup-fa':''}">${value}</span></div>`;
   return `<div class="hub-popup" dir="rtl">${field('Name',esc(r.name))}${field('DC ID',esc(id))}${field('Workdays',esc(days),true)}${field('Total Reserve',fmtCap(total))}${field('DK Reserve',fmtCap(dk))}${field('NonDK Reserve',fmtCap(non))}</div>`;
 }
-map.on('click',()=>{lockedHub=null;hoverHub=null;restyle()});
-function draw(list,fit=false){polygons.clearLayers();polyLayers=new Map();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!Array.isArray(part)||part.length<3)return;const id=getId(r);const poly=L.polygon(part,{color:isHub(r)?'#dc2626':polyColor(r.natureId),weight:2,fillOpacity:.22}).addTo(polygons);poly._dxrow=r;if(!polyLayers.has(id))polyLayers.set(id,[]);polyLayers.get(id).push(poly);poly.bindTooltip(()=>tooltipHtml(r),{sticky:true,direction:'top',offset:[0,-12],opacity:1,className:'hub-hover-tooltip'});poly.on('mouseover',()=>{hoverHub=hubFor(r);restyle()});poly.on('mouseout',()=>{hoverHub=null;restyle()});poly.on('click',e=>{L.DomEvent.stopPropagation(e);if(isHub(r)){lockedHub=lockedHub===id?null:id;restyle()}else{lockedHub=null;restyle()}})}));restyle();if(searchedPoint)L.marker(searchedPoint).addTo(points);if(fit){const b=polygons.getBounds();if(b.isValid()){lastFitBounds=b;map.invalidateSize({pan:false,animate:false});map.fitBounds(b,{padding:[12,12],animate:false});setTimeout(()=>refreshMapSize(true),120)}}}
+map.on('click',()=>{lockedHub=null;hoverHub=null;polygons.eachLayer(p=>p.closeTooltip&&p.closeTooltip());restyle()});
+map.on('mouseout',()=>{hoverHub=null;polygons.eachLayer(p=>p.closeTooltip&&p.closeTooltip());restyle()});
+function draw(list,fit=false){polygons.clearLayers();polyLayers=new Map();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!Array.isArray(part)||part.length<3)return;const id=getId(r);const poly=L.polygon(part,{color:isHub(r)?'#dc2626':polyColor(r.natureId),weight:2,fillOpacity:.22}).addTo(polygons);poly._dxrow=r;if(!polyLayers.has(id))polyLayers.set(id,[]);polyLayers.get(id).push(poly);poly.bindTooltip(()=>tooltipHtml(r),{sticky:true,direction:'top',offset:[0,-12],opacity:1,className:'hub-hover-tooltip',permanent:false,interactive:false});poly.on('mouseover',()=>{hoverHub=hubFor(r);restyle()});poly.on('mouseout',()=>{poly.closeTooltip();hoverHub=null;restyle()});poly.on('click',e=>{L.DomEvent.stopPropagation(e);if(isHub(r)){lockedHub=lockedHub===id?null:id;restyle()}else{lockedHub=null;restyle()}})}));restyle();if(searchedPoint)L.marker(searchedPoint).addTo(points);if(fit){const b=polygons.getBounds();if(b.isValid()){lastFitBounds=b;map.invalidateSize({pan:false,animate:false});map.fitBounds(b,{padding:[12,12],animate:false});setTimeout(()=>refreshMapSize(true),120)}}}
 async function readSheet(sheetName,source='google'){const args=source==='google'?{spreadsheetId:SHEET_ID,sheetName,limit:100000}:{shareUrl:DSPACE_URL,sheetName,limit:250000};const raw=await DigiExpressPlatform.call(source==='google'?'sheets.readRows':'dspace.readSheet',args);if(raw?.ok===false)throw Error(raw.error||sheetName);const data=raw?.result||raw;if(!Array.isArray(data?.headers)||!Array.isArray(data?.rows))throw Error(`Invalid ${sheetName} response`);return data}
 async function loadMapper(){const d=await readSheet('FlexHubMapper');const hi=hindex(d.headers,['Hub ID']),di=hindex(d.headers,['DC ID']),hn=hindex(d.headers,['Flex Hub']);if(hi<0||di<0)throw Error('FlexHubMapper must include Hub ID and DC ID');const m=new Map(),names=new Map();for(const row of d.rows){const h=cleanId(row[hi]),id=cleanId(row[di]);if(!h||!id)continue;if(!m.has(h))m.set(h,new Set());m.get(h).add(id);if(hn>=0&&row[hn])names.set(h,String(row[hn]))}hubMap=m;hubIds=new Set(m.keys());hubNames=names}
 const persianDays=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
 function dayName(value){const raw=String(value??'').replace(/[^0-9۰-۹]/g,'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));if(raw.length!==8)return null;try{const y=+raw.slice(0,4),m=+raw.slice(4,6),day=+raw.slice(6,8);if(y>1900){return persianDays[new Date(Date.UTC(y,m-1,day)).getUTCDay()]||null}const f=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric',timeZone:'UTC'});let d=new Date(Date.UTC(y+621,m-1,day));for(let i=0;i<370;i++,d.setUTCDate(d.getUTCDate()+1)){const p=Object.fromEntries(f.formatToParts(d).map(x=>[x.type,+x.value]));if(p.year===y&&p.month===m&&p.day===day)return persianDays[d.getUTCDay()]||null}}catch(e){}return null}
-function collectCapacity(d,kind,store){const idIdx=hindex(d.headers,kind==='flex'?['Coverage Polygon ID','coverage_polygon_id','Polygon ID','DC ID']:['Distribution Center ID','DC ID']);const dateIdx=hindex(d.headers,['Date','Capacity Date']);const rIdx=hindex(d.headers,['Reserved','Capacity Reserved','Reserved Capacity','capacity_reserved','Shipping Reserved Capacity']);if(idIdx<0||rIdx<0)throw Error(`Missing ID/Reserved columns for ${kind} capacity`);const grouped=new Map(),daysById=new Map();for(const row of d.rows){const id=cleanId(row[idIdx]);if(!id)continue;const date=dateIdx>=0?String(row[dateIdx]??'').replace(/\D/g,''):'';if(date){const day=dayName(date);if(day){if(!daysById.has(id))daysById.set(id,new Set());daysById.get(id).add(day)}}const reservedRaw=rIdx>=0?row[rIdx]:null;const numeric=Number(String(reservedRaw??'').replace(/,/g,''));if(!Number.isFinite(numeric)||!String(reservedRaw??'').trim())continue;const slot=hnorm(row[hindex(d.headers,['Time Slot','Time Scope'])]||'');const key=`${date}|${slot}`;if(!grouped.has(id))grouped.set(id,new Map());const agg=grouped.get(id);agg.set(key,(agg.get(key)||0)+numeric)}for(const [id,series] of grouped){const values=[...series.values()];if(!values.length)continue;const v=store.get(id)||{};v[kind]=values.reduce((a,b)=>a+b,0)/values.length;const days=daysById.get(id)||new Set();if(days.size)v.days=[...days].sort((a,b)=>['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'].indexOf(a)-['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'].indexOf(b));store.set(id,v)}}
+// Match the same source aliases used in Capacity Report. Prefer IDs; use unique
+// center names only when the source does not provide a usable ID column.
+function sourceColumn(headers,aliases){
+  const exact=hindex(headers,aliases);if(exact>=0)return exact;
+  const hs=headers.map(hnorm),as=aliases.map(hnorm);
+  for(const a of as){const ix=hs.findIndex(h=>h&&a&&(h.includes(a)||a.includes(h)));if(ix>=0)return ix}
+  return -1;
+}
+const capacityAliases={
+  dkId:['Distribution Center ID','DC ID','distribution_center_id'],
+  dkName:['Distribution Center','Distribution Center Name','DC Name','DC'],
+  flexId:['Coverage Polygon ID','coverage_polygon_id','Polygon ID'],
+  flexName:['Coverage Polygon','coverage_polygon','Hub Coverage Polygon','Polygon Name','Polygon'],
+  date:['Date','Day','Capacity Date','تاریخ'],
+  reserved:['Reserved','Capacity Reserved','Reserved Capacity','capacity_reserved','Shipping Reserved Capacity','shipping_reserved_capacity'],
+  slot:['Time Slot','Time Scope','time_slot','time_scope']
+};
+function collectCapacity(d,kind,store){
+  const headers=d.headers||[];
+  const idIdx=sourceColumn(headers,capacityAliases[kind+'Id']);
+  const nameIdx=sourceColumn(headers,capacityAliases[kind+'Name']);
+  const dateIdx=sourceColumn(headers,capacityAliases.date);
+  const rIdx=sourceColumn(headers,capacityAliases.reserved);
+  const slotIdx=sourceColumn(headers,capacityAliases.slot);
+  if(idIdx<0&&nameIdx<0)throw Error(`No usable center ID or name in ${kind} headers: ${headers.join(', ').slice(0,320)}`);
+  if(rIdx<0)throw Error(`Reserved column missing in ${kind} headers: ${headers.join(', ').slice(0,320)}`);
+  // Name fallback must be unique within the loaded polygons; never guess IDs.
+  const byName=new Map();
+  for(const poly of rows){const name=hnorm(poly.name),id=getId(poly);if(!name||!id)continue;
+    if(!byName.has(name))byName.set(name,new Set());byName.get(name).add(id)}
+  const grouped=new Map(),daysById=new Map();
+  for(const row of d.rows){
+    let id=idIdx>=0?cleanId(row[idIdx]):'';
+    if(!id&&nameIdx>=0){const candidates=byName.get(hnorm(row[nameIdx]));if(candidates?.size===1)id=[...candidates][0]}
+    if(!id)continue;
+    const date=dateIdx>=0?String(row[dateIdx]??'').replace(/\D/g,''):'';
+    const raw=row[rIdx];const numeric=Number(String(raw??'').replace(/[,٬\s]/g,''));
+    if(!String(raw??'').trim()||!Number.isFinite(numeric))continue;
+    const day=date?dayName(date):null;
+    if(day){if(!daysById.has(id))daysById.set(id,new Set());daysById.get(id).add(day)}
+    const slot=slotIdx>=0?hnorm(row[slotIdx]):'';
+    const key=date+'|'+slot;
+    if(!grouped.has(id))grouped.set(id,new Map());const slots=grouped.get(id);
+    slots.set(key,(slots.get(key)||0)+numeric);
+  }
+  for(const [id,series] of grouped){
+    const values=[...series.values()];if(!values.length)continue;
+    const v=store.get(id)||{};
+    v[kind]=values.reduce((x,y)=>x+y,0)/values.length;
+    const days=daysById.get(id);
+    if(days?.size)v.days=[...new Set([...(v.days||[]),...days])].sort((a,b)=>['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'].indexOf(a)-['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'].indexOf(b));
+    store.set(id,v);
+  }
+}
 async function loadExtras(){const results=await Promise.allSettled([loadMapper(),readSheet('DC Capacity (LG)','dspace'),readSheet('DC Capacity (Flex)','dspace')]);capacityById=new Map();if(results[1].status==='fulfilled'){try{collectCapacity(results[1].value,'dk',capacityById)}catch(e){results[1]={status:'rejected',reason:e}}}if(results[2].status==='fulfilled'){try{collectCapacity(results[2].value,'flex',capacityById)}catch(e){results[2]={status:'rejected',reason:e}}}const failed=results.map((x,i)=>x.status==='rejected'?['FlexHubMapper','DK Capacity','Flex Capacity'][i]+': '+x.reason.message:null).filter(Boolean);capacityLoadError=failed.join(' / ');return failed}
 function csvEscape(v){const s=String(v??'');return /[",\r\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
 function fmtCoord(n){const x=Number(n);if(!Number.isFinite(x))return'';return String(Number(x.toFixed(10)))}
@@ -135,8 +189,11 @@ async function loadDataset(service,{fit=true}={}){
   }
 }
 async function init(){
-  await loadExtras();
   document.querySelectorAll('input[name=polygonService]').forEach(r=>r.addEventListener('change',()=>{if(r.checked)loadDataset(r.value,{fit:true})}));
   await loadDataset(currentService,{fit:true});
+  const failures=await loadExtras();
+  restyle();
+  $('#datasetStatus').textContent=failures.length?'Partial data: '+failures.join(' / '):`${rows.length} polygons loaded; ${hubIds.size} Hubs mapped; ${capacityById.size} capacity records ready.`;
+  $('#datasetStatus').className=failures.length?'status error':'status ok';
 }
 $('#check').onclick=checkPoint;$('#latlon').addEventListener('keydown',e=>{if(e.key==='Enter')checkPoint()});$('#search').addEventListener('input',render);$('#reset').onclick=reset;armMapVisibilityRefresh();init();
