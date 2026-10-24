@@ -27,7 +27,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 453;
+const EXPECTED_REMOTE_CONFIG_VERSION = 454;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -44,12 +44,12 @@ function setOperationRunning(running,opId=currentOperation?.id){if(!opId)return;
 async function waitForFlexResume(){if(!flexPaused&&!flexPauseRequested)return;if(flexCancelRequested)return;setOperationStatus('Paused. Press Resume to repeat the current row and continue.');setProgress('Paused');await new Promise(resolve=>{flexResumeResolver=resolve;});flexResumeResolver=null;}
 async function refreshSystemStatus(){ try{await chrome.runtime.sendMessage({type:'GET_SYSTEM_STATUS'});}catch(_){ } }
 
-function showToast(message, kind = 'error') {
+function showToast(message, kind = 'error', durationMs = 3200) {
   const toast = $('accessToast');
   clearTimeout(toastTimer);
   toast.textContent = message || '';
   toast.className = `toast ${kind === 'success' ? 'success' : 'error'} show`;
-  toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3200);
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); }, Math.max(1200, Number(durationMs)||3200));
 }
 function setStatus(text, kind='') { statusEl.textContent = text || 'Ready'; statusEl.className = `status ${kind}`.trim(); }
 
@@ -59,24 +59,31 @@ const DSPACE_CACHE_REFRESH_MS=6*60*60*1000;
 const DSPACE_CACHE_ADMIN='n.habibifar@digikala.com';
 const dspaceSessionCache={sheets:new Map(),loadedAt:0,refreshPromise:null,timer:null,email:''};
 function dspaceCacheAdmin(){return String(dspaceSessionCache.email||usernameEl?.value||'').trim().toLowerCase()===DSPACE_CACHE_ADMIN;}
-function dspaceCacheNotifyFailure(error){if(!dspaceCacheAdmin())return;showToast(`DSpace data could not be loaded after 3 attempts: ${String(error?.message||error||'Unknown error')}`,'error');}
+function dspaceCacheNotifyFailure(error){if(!dspaceCacheAdmin())return;showToast(`DSpace data could not be loaded after 3 attempts: ${String(error?.message||error||'Unknown error')}`,'error',9000);}
+async function readDspaceSheetWithRetry(sheetName){
+  let lastError=null;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      const item=await DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_CACHE_SHARE_URL,sheetName,limit:100000});
+      if(!Array.isArray(item?.headers)||!Array.isArray(item?.rows))throw new Error(`Invalid DSpace worksheet response: ${sheetName}`);
+      return {...item,sheetName};
+    }catch(error){
+      lastError=error;
+      if(attempt<3)await new Promise(r=>setTimeout(r,attempt===1?900:2200));
+    }
+  }
+  const e=new Error(`${sheetName}: ${String(lastError?.message||lastError||'Unknown error')}`);e.cause=lastError;throw e;
+}
 async function loadDspaceSessionCache(force=false){
   if(!force&&dspaceSessionCache.loadedAt&&Date.now()-dspaceSessionCache.loadedAt<DSPACE_CACHE_REFRESH_MS&&dspaceSessionCache.sheets.size)return true;
   if(dspaceSessionCache.refreshPromise)return dspaceSessionCache.refreshPromise;
   dspaceSessionCache.refreshPromise=(async()=>{
-    let lastError=null;
-    for(let attempt=1;attempt<=3;attempt++){
-      try{
-        const result=await DigiExpressPlatform.call('dspace.readSheets',{shareUrl:DSPACE_CACHE_SHARE_URL,sheetNames:DSPACE_CACHE_SHEETS,limit:100000});
-        const incoming=result?.sheets||{};const next=new Map();
-        for(const name of DSPACE_CACHE_SHEETS){const item=incoming?.[name];if(item?.ok!==false&&Array.isArray(item?.headers)&&Array.isArray(item?.rows))next.set(name,{...item,sheetName:name});}
-        if(!next.size)throw new Error('No DSpace worksheets were returned.');
-        dspaceSessionCache.sheets=next;dspaceSessionCache.loadedAt=Date.now();return true;
-      }catch(error){lastError=error;if(attempt<3)await new Promise(r=>setTimeout(r,attempt===1?900:2200));}
-    }
-    dspaceCacheNotifyFailure(lastError);
-    if(!dspaceSessionCache.sheets.size)throw lastError||new Error('DSpace data could not be loaded.');
-    return false;
+    const results=await Promise.allSettled(DSPACE_CACHE_SHEETS.map(name=>readDspaceSheetWithRetry(name)));
+    const next=new Map(dspaceSessionCache.sheets);const failures=[];let successCount=0;
+    results.forEach((result,index)=>{const name=DSPACE_CACHE_SHEETS[index];if(result.status==='fulfilled'){next.set(name,result.value);successCount++;}else failures.push(result.reason);});
+    if(successCount){dspaceSessionCache.sheets=next;dspaceSessionCache.loadedAt=Date.now();}
+    if(failures.length){const summary=new Error(failures.map(x=>String(x?.message||x)).join(' | '));dspaceCacheNotifyFailure(summary);if(!dspaceSessionCache.sheets.size)throw summary;return false;}
+    return true;
   })().finally(()=>{dspaceSessionCache.refreshPromise=null;});
   return dspaceSessionCache.refreshPromise;
 }
