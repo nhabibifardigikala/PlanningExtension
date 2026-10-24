@@ -26,8 +26,11 @@
       if(d.event==='storageChanged'){const payload=d.payload||{};for(const fn of [...storageListeners]){try{fn(payload.changes||{},payload.areaName||'local')}catch(_){}}}
     }
   },false);
+  async function platformCall(method,args={}){
+    const r=await callBridge('platform.call',{method,args});if(r?.ok===false)throw new Error(r.error||'Platform request failed.');return r?.result??r;
+  }
   const platform={
-    call:async(method,args={})=>{const r=await callBridge('platform.call',{method,args});if(r?.ok===false)throw new Error(r.error||'Platform request failed.');return r?.result??r;},
+    call:platformCall,
     runtime:{sendMessage:message=>callBridge('runtime.sendMessage',{message})},
     storage:{
       get:keys=>callBridge('storage.local.get',{keys}),

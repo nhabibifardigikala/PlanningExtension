@@ -737,7 +737,6 @@ async function loadRemote(force=false) {
   applyRemoteTheme(stored.opsTheme || remoteBundle?.theme?.default || 'light');
   usernameEl.value = stored.opsUsername || '';
   passwordEl.value = stored.opsPassword || '';
-  startDspaceSessionCache(stored.opsUsername || '');
   const validationResult=await autoValidateCredentialsIfDue(stored);
   if(validationResult?.reason==='invalid'){
     setSettingsStatus('Stored password is no longer valid. Please update it.','error');
@@ -794,13 +793,13 @@ $('saveSettings').addEventListener('click', async () => {
       const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now()};
       if(password) values.opsPassword=password;
       await chrome.storage.local.set(values); if(!password) await chrome.storage.local.remove(['opsPassword']);
-      setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
+      dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
     }
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
     if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
     await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now()});
-    setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
+    dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
     const safe=msg.toLowerCase().includes('database')||msg.toLowerCase().includes('exception')?msg:'Username and password are invalid.';
@@ -811,7 +810,7 @@ $('saveSettings').addEventListener('click', async () => {
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
   await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
-  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML='';
+  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 

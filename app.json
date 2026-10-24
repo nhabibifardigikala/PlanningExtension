@@ -5,7 +5,7 @@
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 408",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 454
+    "configVersion": 455
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -1045,8 +1045,5 @@
     "advancedSettings": true,
     "outputContracts": true
   },
-  "recommendedHostVersion": "13.0.2",
-  "remote": {
-    "configVersion": 455
-  }
+  "recommendedHostVersion": "13.0.2"
 }

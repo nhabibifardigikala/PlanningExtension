@@ -1,6 +1,7 @@
 (() => {
   const VERSION = 451;
-    const SHEET_NAME = 'Distribution Centers (LG)';
+    const DATASETS_SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
+  const SHEET_NAME = 'Distribution Centers (LG)';
   const DSPACE_SHARE_URL = 'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
   const FLEX_CAPACITY_SHEET_NAME = 'DC Capacity (Flex)';
@@ -96,36 +97,37 @@
     });
   }
 
-  function loadCenters() {
-    if (state.allCenters.length) return Promise.resolve(state.allCenters);
-    return new Promise((resolve, reject) => {
-      const cb = `__dxCapCenters_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
-      const script = document.createElement('script');
-      const timer = setTimeout(() => cleanup(new Error('Distribution Center list timed out.')), 15000);
-      const cleanup = err => {
-        clearTimeout(timer);
-        try { delete window[cb]; } catch (_) { window[cb] = undefined; }
-        script.remove();
-        if (err) reject(err);
-      };
-      window[cb] = data => {
-        try {
-          const rows = data?.table?.rows || [];
-          const list = rows.map(r => {
-            const cells = r.c || [];
-            return { id: String(cells[0]?.v ?? '').replace(/\.0$/,''), name: String(cells[1]?.v ?? '').trim() };
-          }).filter(x => x.id && x.name);
-          if (!list.length) throw new Error('Distribution Center list is empty.');
-          state.allCenters = list;
-          cleanup(); resolve(list);
-        } catch (e) { cleanup(e); }
-      };
-      const tq = encodeURIComponent("select A,B label A 'id', B 'name'");
-      const tqx = encodeURIComponent(`out:json;responseHandler:${cb}`);
-      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&tq=${tq}&tqx=${tqx}`;
-      script.onerror = () => cleanup(new Error('Could not load Distribution Centers from Google Sheets.'));
-      document.head.appendChild(script);
-    });
+  function centerHeaderIndex(headers, candidates) {
+    const normalized=(headers||[]).map(h=>norm(h));
+    const wanted=(candidates||[]).map(x=>norm(x));
+    for(const w of wanted){const i=normalized.indexOf(w);if(i>=0)return i;}
+    for(const w of wanted){const i=normalized.findIndex(h=>h && w && (h.includes(w)||w.includes(h)));if(i>=0)return i;}
+    return -1;
+  }
+
+  function centersFromSheetData(data, sourceLabel) {
+    const headers=Array.isArray(data?.headers)?data.headers:[],rows=Array.isArray(data?.rows)?data.rows:[];
+    const ii=centerHeaderIndex(headers,['id','distribution center id','distribution_center_id','dc id','dc_id']);
+    const ni=centerHeaderIndex(headers,['name','distribution center name','distribution center','dc name','dc_name']);
+    if(ii<0||ni<0)throw new Error(`${sourceLabel} is missing Distribution Center ID/Name columns. Headers: ${headers.join(', ')}`);
+    const byId=new Map();
+    for(const row of rows){
+      const id=String(row?.[ii]??'').replace(/\.0$/,'').trim();
+      const name=String(row?.[ni]??'').trim();
+      if(id&&name&&!byId.has(id))byId.set(id,{id,name});
+    }
+    return [...byId.values()];
+  }
+
+  async function loadCenters() {
+    if (state.allCenters.length) return state.allCenters;
+    if(!window.DigiExpressPlatform?.call) throw new Error('Stable Host bridge is unavailable. Reload the extension.');
+    const raw=await window.DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:SHEET_NAME,limit:100000});
+    const data={headers:Array.isArray(raw?.headers)?raw.headers:[],rows:Array.isArray(raw?.rows)?raw.rows:[]};
+    const list=centersFromSheetData(data,`Google Sheet → ${SHEET_NAME}`);
+    if(!list.length) throw new Error(`Google Sheet → ${SHEET_NAME} is empty.`);
+    state.allCenters=list;
+    return list;
   }
 
   async function loadCapacitySheet(source='dk') {
