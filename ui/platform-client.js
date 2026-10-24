@@ -26,14 +26,8 @@
       if(d.event==='storageChanged'){const payload=d.payload||{};for(const fn of [...storageListeners]){try{fn(payload.changes||{},payload.areaName||'local')}catch(_){}}}
     }
   },false);
-  async function platformCall(method,args={}){
-    if(method==='dspace.readSheet'&&window.parent!==window){
-      try{const cache=window.parent?.DigiExpressDSpaceCache;if(cache?.readSheet)return await cache.readSheet(args||{});}catch(error){if(error?.code!=='DX-DSPACE-CACHE-UNAVAILABLE')throw error;}
-    }
-    const r=await callBridge('platform.call',{method,args});if(r?.ok===false)throw new Error(r.error||'Platform request failed.');return r?.result??r;
-  }
   const platform={
-    call:platformCall,
+    call:async(method,args={})=>{const r=await callBridge('platform.call',{method,args});if(r?.ok===false)throw new Error(r.error||'Platform request failed.');return r?.result??r;},
     runtime:{sendMessage:message=>callBridge('runtime.sendMessage',{message})},
     storage:{
       get:keys=>callBridge('storage.local.get',{keys}),

@@ -27,7 +27,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 454;
+const EXPECTED_REMOTE_CONFIG_VERSION = 455;
 
 
 async function getActivityLogs(){ const x=await chrome.storage.local.get(['opsActivityLog']); return Array.isArray(x.opsActivityLog)?x.opsActivityLog:[]; }
@@ -53,59 +53,6 @@ function showToast(message, kind = 'error', durationMs = 3200) {
 }
 function setStatus(text, kind='') { statusEl.textContent = text || 'Ready'; statusEl.className = `status ${kind}`.trim(); }
 
-const DSPACE_CACHE_SHARE_URL='https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
-const DSPACE_CACHE_SHEETS=['Pick-up Polygons','Delivery Polygons','Distribution Centers (LG)','DC Capacity (LG)','DC Capacity (Flex)','Rejected Shipments'];
-const DSPACE_CACHE_REFRESH_MS=6*60*60*1000;
-const DSPACE_CACHE_ADMIN='n.habibifar@digikala.com';
-const dspaceSessionCache={sheets:new Map(),loadedAt:0,refreshPromise:null,timer:null,email:''};
-function dspaceCacheAdmin(){return String(dspaceSessionCache.email||usernameEl?.value||'').trim().toLowerCase()===DSPACE_CACHE_ADMIN;}
-function dspaceCacheNotifyFailure(error){if(!dspaceCacheAdmin())return;showToast(`DSpace data could not be loaded after 3 attempts: ${String(error?.message||error||'Unknown error')}`,'error',9000);}
-async function readDspaceSheetWithRetry(sheetName){
-  let lastError=null;
-  for(let attempt=1;attempt<=3;attempt++){
-    try{
-      const item=await DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_CACHE_SHARE_URL,sheetName,limit:100000});
-      if(!Array.isArray(item?.headers)||!Array.isArray(item?.rows))throw new Error(`Invalid DSpace worksheet response: ${sheetName}`);
-      return {...item,sheetName};
-    }catch(error){
-      lastError=error;
-      if(attempt<3)await new Promise(r=>setTimeout(r,attempt===1?900:2200));
-    }
-  }
-  const e=new Error(`${sheetName}: ${String(lastError?.message||lastError||'Unknown error')}`);e.cause=lastError;throw e;
-}
-async function loadDspaceSessionCache(force=false){
-  if(!force&&dspaceSessionCache.loadedAt&&Date.now()-dspaceSessionCache.loadedAt<DSPACE_CACHE_REFRESH_MS&&dspaceSessionCache.sheets.size)return true;
-  if(dspaceSessionCache.refreshPromise)return dspaceSessionCache.refreshPromise;
-  dspaceSessionCache.refreshPromise=(async()=>{
-    const results=await Promise.allSettled(DSPACE_CACHE_SHEETS.map(name=>readDspaceSheetWithRetry(name)));
-    const next=new Map(dspaceSessionCache.sheets);const failures=[];let successCount=0;
-    results.forEach((result,index)=>{const name=DSPACE_CACHE_SHEETS[index];if(result.status==='fulfilled'){next.set(name,result.value);successCount++;}else failures.push(result.reason);});
-    if(successCount){dspaceSessionCache.sheets=next;dspaceSessionCache.loadedAt=Date.now();}
-    if(failures.length){const summary=new Error(failures.map(x=>String(x?.message||x)).join(' | '));dspaceCacheNotifyFailure(summary);if(!dspaceSessionCache.sheets.size)throw summary;return false;}
-    return true;
-  })().finally(()=>{dspaceSessionCache.refreshPromise=null;});
-  return dspaceSessionCache.refreshPromise;
-}
-function startDspaceSessionCache(email=''){
-  dspaceSessionCache.email=String(email||'').trim().toLowerCase();
-  loadDspaceSessionCache(false).catch(()=>{});
-  if(!dspaceSessionCache.timer)dspaceSessionCache.timer=setInterval(()=>loadDspaceSessionCache(true).catch(()=>{}),DSPACE_CACHE_REFRESH_MS);
-}
-window.DigiExpressDSpaceCache={
-  async readSheet(args={}){
-    const sheetName=String(args.sheetName||'').trim();if(!sheetName){const e=new Error('DSpace sheet name is required.');e.code='DX-DSPACE-CACHE-UNAVAILABLE';throw e;}
-    await loadDspaceSessionCache(false);
-    let item=dspaceSessionCache.sheets.get(sheetName);
-    if(!item){await loadDspaceSessionCache(true);item=dspaceSessionCache.sheets.get(sheetName);}
-    if(!item)throw new Error(`DSpace worksheet was not loaded: ${sheetName}`);
-    const limit=Math.max(1,Math.min(100000,Number(args.limit||100000)||100000));
-    return{headers:item.headers,rows:item.rows.slice(-limit),totalRows:Number(item.totalRows)||item.rows.length,updatedAt:item.updatedAt||new Date(dspaceSessionCache.loadedAt).toISOString(),etag:item.etag||'',cacheSource:'session-memory',cacheLoadedAt:dspaceSessionCache.loadedAt};
-  },
-  refresh:()=>loadDspaceSessionCache(true),
-  status:()=>({loadedAt:dspaceSessionCache.loadedAt,sheets:[...dspaceSessionCache.sheets.keys()]})
-};
-window.addEventListener('pagehide',()=>{if(dspaceSessionCache.timer)clearInterval(dspaceSessionCache.timer);dspaceSessionCache.timer=null;dspaceSessionCache.sheets.clear();dspaceSessionCache.loadedAt=0;});
 function setSettingsStatus(text, kind='') { settingsStatus.textContent = text || ''; settingsStatus.className = `settings-status ${kind}`.trim(); }
 function classifyOperationError(raw,op=currentOperation){
   const msg=String(raw||'').replace(/^Error:\s*/i,'').trim(); const low=msg.toLowerCase();
@@ -847,13 +794,13 @@ $('saveSettings').addEventListener('click', async () => {
       const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now()};
       if(password) values.opsPassword=password;
       await chrome.storage.local.set(values); if(!password) await chrome.storage.local.remove(['opsPassword']);
-      dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
+      setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
     }
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
     if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
     await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now()});
-    dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
+    setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
     const safe=msg.toLowerCase().includes('database')||msg.toLowerCase().includes('exception')?msg:'Username and password are invalid.';
@@ -864,7 +811,7 @@ $('saveSettings').addEventListener('click', async () => {
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
   await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
-  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
+  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML='';
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 

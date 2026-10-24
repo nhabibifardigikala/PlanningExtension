@@ -187,7 +187,7 @@ async function requestScheduledDashboardRefresh(){
 
 function startDashboardAutoRefresh(){
   if(dashboardAutoRefreshTimer)clearInterval(dashboardAutoRefreshTimer);
-  // Read DSpace → Rejected Shipments every five minutes while the dashboard exists.
+  // Read DataSets → Rejected Shipments every five minutes while the dashboard exists.
   // Browser timer throttling can delay hidden tabs, so visibility/focus catch-up below
   // forces an immediate read when more than five minutes have elapsed.
   dashboardLastRefreshRequestAt=Date.now();

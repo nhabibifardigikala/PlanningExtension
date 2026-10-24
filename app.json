@@ -1,5 +1,5 @@
 {
-  "configVersion": 454,
+  "configVersion": 455,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
@@ -1045,5 +1045,8 @@
     "advancedSettings": true,
     "outputContracts": true
   },
-  "recommendedHostVersion": "13.0.2"
+  "recommendedHostVersion": "13.0.2",
+  "remote": {
+    "configVersion": 455
+  }
 }

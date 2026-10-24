@@ -96,52 +96,36 @@
     });
   }
 
-  function centerHeaderIndex(headers, candidates) {
-    const normalized=(headers||[]).map(h=>norm(h));
-    const wanted=(candidates||[]).map(x=>norm(x));
-    for(const w of wanted){const i=normalized.indexOf(w);if(i>=0)return i;}
-    for(const w of wanted){const i=normalized.findIndex(h=>h && w && (h.includes(w)||w.includes(h)));if(i>=0)return i;}
-    return -1;
-  }
-
-  function centersFromSheetData(data, sourceLabel) {
-    const headers=Array.isArray(data?.headers)?data.headers:[],rows=Array.isArray(data?.rows)?data.rows:[];
-    const ii=centerHeaderIndex(headers,['id','distribution center id','distribution_center_id','dc id','dc_id']);
-    const ni=centerHeaderIndex(headers,['name','distribution center name','distribution center','dc name','dc_name']);
-    if(ii<0||ni<0)throw new Error(`${sourceLabel} is missing Distribution Center ID/Name columns. Headers: ${headers.join(', ')}`);
-    const byId=new Map();
-    for(const row of rows){
-      const id=String(row?.[ii]??'').replace(/\.0$/,'').trim();
-      const name=String(row?.[ni]??'').trim();
-      if(id&&name&&!byId.has(id))byId.set(id,{id,name});
-    }
-    return [...byId.values()];
-  }
-
-  async function readDspaceSheet(sheetName, limit=100000) {
-    if(!window.DigiExpressPlatform?.call)throw new Error('Stable Host bridge is unavailable. Reload the extension.');
-    const r=await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName,limit});
-    const d=r?.result??r??{};
-    return {headers:Array.isArray(d.headers)?d.headers:[],rows:Array.isArray(d.rows)?d.rows:[]};
-  }
-
-  async function loadCenters() {
-    if (state.allCenters.length) return state.allCenters;
-    let primaryError='';
-    try{
-      const data=await readDspaceSheet(SHEET_NAME,100000);
-      const list=centersFromSheetData(data,`DSpace → ${SHEET_NAME}`);
-      if(list.length){state.allCenters=list;return list;}
-      primaryError=`DSpace → ${SHEET_NAME} is empty.`;
-    }catch(e){primaryError=String(e?.message||e);}
-    try{
-      const data=await readDspaceSheet(CAPACITY_SHEET_NAME,250000);
-      const list=centersFromSheetData(data,`DSpace → ${CAPACITY_SHEET_NAME}`);
-      if(list.length){state.allCenters=list;return list;}
-      throw new Error(`DSpace → ${CAPACITY_SHEET_NAME} is empty.`);
-    }catch(e){
-      throw new Error(`Could not load Distribution Centers from DSpace. ${primaryError} | Fallback: ${String(e?.message||e)}`);
-    }
+  function loadCenters() {
+    if (state.allCenters.length) return Promise.resolve(state.allCenters);
+    return new Promise((resolve, reject) => {
+      const cb = `__dxCapCenters_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+      const script = document.createElement('script');
+      const timer = setTimeout(() => cleanup(new Error('Distribution Center list timed out.')), 15000);
+      const cleanup = err => {
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (_) { window[cb] = undefined; }
+        script.remove();
+        if (err) reject(err);
+      };
+      window[cb] = data => {
+        try {
+          const rows = data?.table?.rows || [];
+          const list = rows.map(r => {
+            const cells = r.c || [];
+            return { id: String(cells[0]?.v ?? '').replace(/\.0$/,''), name: String(cells[1]?.v ?? '').trim() };
+          }).filter(x => x.id && x.name);
+          if (!list.length) throw new Error('Distribution Center list is empty.');
+          state.allCenters = list;
+          cleanup(); resolve(list);
+        } catch (e) { cleanup(e); }
+      };
+      const tq = encodeURIComponent("select A,B label A 'id', B 'name'");
+      const tqx = encodeURIComponent(`out:json;responseHandler:${cb}`);
+      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&tq=${tq}&tqx=${tqx}`;
+      script.onerror = () => cleanup(new Error('Could not load Distribution Centers from Google Sheets.'));
+      document.head.appendChild(script);
+    });
   }
 
   async function loadCapacitySheet(source='dk') {

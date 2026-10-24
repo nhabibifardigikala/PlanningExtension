@@ -36,7 +36,7 @@
     'delivery-polygons-dspace':{
       id:'delivery-polygons-dspace',label:'Delivery Polygons Extractor DSPACE',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.9',
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
-      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',lookupPlatformRequest:{method:'dspace.readSheet',args:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheetName:'Distribution Centers (LG)',limit:100000}},sheets:[{sheetName:'Delivery Polygons',operationId:'extract-delivery-polygons',transform:'delivery-polygons'}]}
+      dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',lookupPlatformRequest:{method:'sheets.readRows',args:{spreadsheetId:'1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k',sheetName:'Distribution Centers (LG)',limit:100000}},sheets:[{sheetName:'Delivery Polygons',operationId:'extract-delivery-polygons',transform:'delivery-polygons'}]}
     }
 ,
     'iata-code-synchronizer':{

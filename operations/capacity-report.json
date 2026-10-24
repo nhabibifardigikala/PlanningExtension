@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Capacity Report. DK and Flex can read from their operational systems or directly from DSpace sheets DC Capacity (LG) and DC Capacity (Flex). Distribution Center lookup is sourced from DSpace → Distribution Centers (LG). DSpace Flex source supports Coverage Polygon and Report by Hub modes.",
+  "description": "Capacity Report. DK and Flex can read from their operational systems or directly from DSpace sheets DC Capacity (LG) and DC Capacity (Flex). Distribution Center lookup is sourced from the previous Google Sheet DataSets source. DSpace Flex source supports Coverage Polygon and Report by Hub modes.",
   "runLabel": "Open Capacity Report",
   "inputs": [
     {
