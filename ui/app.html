@@ -907,9 +907,9 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=451&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=451&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=452" loading="lazy"></iframe></section>
-      <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=452" loading="lazy"></iframe></section>
-      <section id="parentDeterminationEmbedded" class="map-operation-embedded" aria-label="Parent Determination"><iframe title="Parent Determination" src="https://nhabibifardigikala.github.io/PlanningExtension/parent-determination/index.html?v=452" loading="lazy"></iframe></section>
+      <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=453" loading="lazy"></iframe></section>
+      <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=453" loading="lazy"></iframe></section>
+      <section id="parentDeterminationEmbedded" class="map-operation-embedded" aria-label="Parent Determination"><iframe title="Parent Determination" src="https://nhabibifardigikala.github.io/PlanningExtension/parent-determination/index.html?v=453" loading="lazy"></iframe></section>
       <nav id="operationSubTabs" class="operation-subtabs hidden" aria-label="Role Assignment tools"></nav>
       <section id="capacityStats" class="stats-card hidden" aria-live="polite">
         <div class="stats-heading">Report summary</div>
@@ -1044,7 +1044,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 448;
+const EXPECTED_REMOTE_CONFIG_VERSION = 453;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1104,6 +1104,53 @@ function showToast(message, kind = 'error') {
   toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3200);
 }
 function setStatus(text, kind='') { statusEl.textContent = text || 'Ready'; statusEl.className = `status ${kind}`.trim(); }
+
+const DSPACE_CACHE_SHARE_URL='https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
+const DSPACE_CACHE_SHEETS=['Pick-up Polygons','Delivery Polygons','Distribution Centers (LG)','DC Capacity (LG)','DC Capacity (Flex)','Rejected Shipments'];
+const DSPACE_CACHE_REFRESH_MS=6*60*60*1000;
+const DSPACE_CACHE_ADMIN='n.habibifar@digikala.com';
+const dspaceSessionCache={sheets:new Map(),loadedAt:0,refreshPromise:null,timer:null,email:''};
+function dspaceCacheAdmin(){return String(dspaceSessionCache.email||usernameEl?.value||'').trim().toLowerCase()===DSPACE_CACHE_ADMIN;}
+function dspaceCacheNotifyFailure(error){if(!dspaceCacheAdmin())return;showToast(`DSpace data could not be loaded after 3 attempts: ${String(error?.message||error||'Unknown error')}`,'error');}
+async function loadDspaceSessionCache(force=false){
+  if(!force&&dspaceSessionCache.loadedAt&&Date.now()-dspaceSessionCache.loadedAt<DSPACE_CACHE_REFRESH_MS&&dspaceSessionCache.sheets.size)return true;
+  if(dspaceSessionCache.refreshPromise)return dspaceSessionCache.refreshPromise;
+  dspaceSessionCache.refreshPromise=(async()=>{
+    let lastError=null;
+    for(let attempt=1;attempt<=3;attempt++){
+      try{
+        const result=await DigiExpressPlatform.call('dspace.readSheets',{shareUrl:DSPACE_CACHE_SHARE_URL,sheetNames:DSPACE_CACHE_SHEETS,limit:100000});
+        const incoming=result?.sheets||{};const next=new Map();
+        for(const name of DSPACE_CACHE_SHEETS){const item=incoming?.[name];if(item?.ok!==false&&Array.isArray(item?.headers)&&Array.isArray(item?.rows))next.set(name,{...item,sheetName:name});}
+        if(!next.size)throw new Error('No DSpace worksheets were returned.');
+        dspaceSessionCache.sheets=next;dspaceSessionCache.loadedAt=Date.now();return true;
+      }catch(error){lastError=error;if(attempt<3)await new Promise(r=>setTimeout(r,attempt===1?900:2200));}
+    }
+    dspaceCacheNotifyFailure(lastError);
+    if(!dspaceSessionCache.sheets.size)throw lastError||new Error('DSpace data could not be loaded.');
+    return false;
+  })().finally(()=>{dspaceSessionCache.refreshPromise=null;});
+  return dspaceSessionCache.refreshPromise;
+}
+function startDspaceSessionCache(email=''){
+  dspaceSessionCache.email=String(email||'').trim().toLowerCase();
+  loadDspaceSessionCache(false).catch(()=>{});
+  if(!dspaceSessionCache.timer)dspaceSessionCache.timer=setInterval(()=>loadDspaceSessionCache(true).catch(()=>{}),DSPACE_CACHE_REFRESH_MS);
+}
+window.DigiExpressDSpaceCache={
+  async readSheet(args={}){
+    const sheetName=String(args.sheetName||'').trim();if(!sheetName){const e=new Error('DSpace sheet name is required.');e.code='DX-DSPACE-CACHE-UNAVAILABLE';throw e;}
+    await loadDspaceSessionCache(false);
+    let item=dspaceSessionCache.sheets.get(sheetName);
+    if(!item){await loadDspaceSessionCache(true);item=dspaceSessionCache.sheets.get(sheetName);}
+    if(!item)throw new Error(`DSpace worksheet was not loaded: ${sheetName}`);
+    const limit=Math.max(1,Math.min(100000,Number(args.limit||100000)||100000));
+    return{headers:item.headers,rows:item.rows.slice(-limit),totalRows:Number(item.totalRows)||item.rows.length,updatedAt:item.updatedAt||new Date(dspaceSessionCache.loadedAt).toISOString(),etag:item.etag||'',cacheSource:'session-memory',cacheLoadedAt:dspaceSessionCache.loadedAt};
+  },
+  refresh:()=>loadDspaceSessionCache(true),
+  status:()=>({loadedAt:dspaceSessionCache.loadedAt,sheets:[...dspaceSessionCache.sheets.keys()]})
+};
+window.addEventListener('pagehide',()=>{if(dspaceSessionCache.timer)clearInterval(dspaceSessionCache.timer);dspaceSessionCache.timer=null;dspaceSessionCache.sheets.clear();dspaceSessionCache.loadedAt=0;});
 function setSettingsStatus(text, kind='') { settingsStatus.textContent = text || ''; settingsStatus.className = `settings-status ${kind}`.trim(); }
 function classifyOperationError(raw,op=currentOperation){
   const msg=String(raw||'').replace(/^Error:\s*/i,'').trim(); const low=msg.toLowerCase();
@@ -1787,6 +1834,7 @@ async function loadRemote(force=false) {
   applyRemoteTheme(stored.opsTheme || remoteBundle?.theme?.default || 'light');
   usernameEl.value = stored.opsUsername || '';
   passwordEl.value = stored.opsPassword || '';
+  startDspaceSessionCache(stored.opsUsername || '');
   const validationResult=await autoValidateCredentialsIfDue(stored);
   if(validationResult?.reason==='invalid'){
     setSettingsStatus('Stored password is no longer valid. Please update it.','error');
@@ -1844,13 +1892,13 @@ $('saveSettings').addEventListener('click', async () => {
       const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now()};
       if(password) values.opsPassword=password;
       await chrome.storage.local.set(values); if(!password) await chrome.storage.local.remove(['opsPassword']);
-      setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
+      dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
     }
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
     if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
     await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now()});
-    setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
+    dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
     const safe=msg.toLowerCase().includes('database')||msg.toLowerCase().includes('exception')?msg:'Username and password are invalid.';
@@ -1861,7 +1909,7 @@ $('saveSettings').addEventListener('click', async () => {
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
   await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
-  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML='';
+  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 
