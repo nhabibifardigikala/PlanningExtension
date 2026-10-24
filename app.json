@@ -786,6 +786,36 @@
       "minHostVersion": "13.0.1"
     },
     {
+      "id": "hub-coverage-polygons",
+      "title": "Hub Coverage Polygons",
+      "subtitle": "Hub / DC coverage map",
+      "accessHeaders": [
+        "Hub Coverage Polygons"
+      ],
+      "config": "operations/hub-coverage-polygons.json?v=456",
+      "iconSvgPath": "M6 10 18 4l12 6 12-6v34l-12 6-12-6-12 6V10Zm14 0v24l8 4V14l-8-4Zm12 4v24l6-3V11l-6 3ZM10 13v24l6-3V10l-6 3Z",
+      "description": "Map Hub/parent polygons, mapped Distribution Centers, and DK/Flex capacities.",
+      "runLabel": "Hub Coverage Polygons",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__hubCoveragePolygonsEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ],
+      "iconImage": "icons/apps/coverage-polygons.webp?v=378",
+      "category": "polygons",
+      "output": {
+        "type": "internal"
+      },
+      "minHostVersion": "13.0.1"
+    },
+    {
       "id": "point-distribution",
       "title": "Point Distribution",
       "subtitle": "Plot locations",
