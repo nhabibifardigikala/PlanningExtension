@@ -1030,6 +1030,16 @@ const statusEl = $('status');
 const usernameEl = $('username');
 const passwordEl = $('password');
 const dssoUrlEl=$('dssoUrl'); const dssoAuthenticatorAccountEl=$('dssoAuthenticatorAccount'); const operationExcelSource=$('operationExcelSource');
+
+// Generic operation pages (Agents, DSSO, etc.) do not use the dataset-input Excel toggle.
+// Remote data-reading apps manage their Excel source through ui/excel-datasets.js.
+async function dxRefreshOperationExcelSource(){
+  if(operationExcelSource){
+    operationExcelSource.classList.add('hidden');
+    operationExcelSource.setAttribute('aria-pressed','false');
+    operationExcelSource.disabled=true;
+  }
+}
 const validationOverlay = $('validationOverlay');
 const settingsStatus = $('settingsStatus');
 const operationStatus = $('operationStatus');
@@ -1623,7 +1633,7 @@ function renderOperationForm(op, subId='') {
 
   operationRunning=runningOps.has(op.id); syncFlexControls(); if($('runOperation'))$('runOperation').disabled=operationRunning;
   $('operationTitle').textContent = op.title || op.id;
-  dxRefreshOperationExcelSource().catch(()=>{}); setTimeout(dxInstallAgentDownloadButton,0);
+  Promise.resolve(dxRefreshOperationExcelSource()).catch(()=>{}); setTimeout(dxInstallAgentDownloadButton,0);
   const outputLabel={sheet:'Google Sheet',excel:'Excel',internal:'In-app result',none:'No published output'}[String(op?.output?.type||'')]||''; $('operationDescription').textContent = `${op.description || op.subtitle || ''}${outputLabel?` • Output: ${outputLabel}`:''}`;
   renderOperationSubTabs(currentBaseOperation||op,currentSubOperationId);
   $('runOperation').textContent = op.runLabel || 'Run';

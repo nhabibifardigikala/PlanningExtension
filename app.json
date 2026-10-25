@@ -1,5 +1,5 @@
 {
-  "configVersion": 470,
+  "configVersion": 471,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
@@ -505,7 +505,7 @@
       "title": "DSSO Login",
       "subtitle": "Sign in with saved credentials + Authenticator",
       "accessControl": "public",
-      "config": "operations/dsso-login.json?v=470",
+      "config": "operations/dsso-login.json?v=471",
       "description": "Open the configured DigiKala DSSO/ADFS URL, fill saved credentials, obtain the matching TOTP code inside the Host Authenticator vault, and complete sign-in.",
       "runLabel": "Login to DSSO",
       "uiMode": "form",
