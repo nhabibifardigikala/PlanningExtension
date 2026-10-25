@@ -890,7 +890,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
     </section>
 
     <section id="operationView" class="view">
-      <div class="section-heading settings-heading"><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div>
+      <div class="section-heading settings-heading operation-heading-row"><div><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div><button id="operationExcelSource" class="operation-excel-source hidden" type="button" title="Excel source" aria-label="Excel source" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h10l6 6v12H4V3Zm10 1.8V10h5.2L14 4.8ZM7 13h2l1.4 2.2L11.8 13h2l-2.4 3.5L14 20h-2l-1.6-2.2L8.8 20h-2l2.6-3.5L7 13Z"/></svg></button></div>
       <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><div class="operation-control-row"><button id="pauseOperation" class="secondary-button hidden" type="button">Pause</button><button id="cancelOperation" class="secondary-button danger hidden" type="button">Cancel operation</button></div><div id="operationStatus" class="settings-status" aria-live="polite"></div><div id="operationResult" class="operation-result hidden" aria-live="polite"></div></section>
       <section id="dailyPlannerEmbedded" class="daily-planner-embedded" aria-label="Daily Planner">
         <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=450" loading="lazy"></iframe>
@@ -926,7 +926,9 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
     <section id="settingsView" class="view">
       <div class="section-heading settings-heading"><h1 id="settingsTitle">Settings</h1><p id="settingsDescription">Account, appearance, remote configuration, diagnostics, and local data controls.</p></div>
 
-      <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
+      <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><label for="dssoUrl">DSSO login URL</label><input id="dssoUrl" type="url" placeholder="https://dsso.digikala.com/adfs/ls/..." />
+<label for="dssoAuthenticatorAccount">DSSO Authenticator account <span class="settings-help">(optional; account/email/issuer match)</span></label><input id="dssoAuthenticatorAccount" type="text" placeholder="Leave blank to match your login email" />
+<button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
 
       <section class="settings-card dx-setting-section" data-settings-section="appearance"><h2 id="appearanceTitle">Appearance</h2><div class="theme-selector" id="themeSelector" role="group" aria-label="Theme"></div></section>
 
@@ -1027,6 +1029,7 @@ const menu = $('menu');
 const statusEl = $('status');
 const usernameEl = $('username');
 const passwordEl = $('password');
+const dssoUrlEl=$('dssoUrl'); const dssoAuthenticatorAccountEl=$('dssoAuthenticatorAccount'); const operationExcelSource=$('operationExcelSource');
 const validationOverlay = $('validationOverlay');
 const settingsStatus = $('settingsStatus');
 const operationStatus = $('operationStatus');
@@ -1620,6 +1623,7 @@ function renderOperationForm(op, subId='') {
 
   operationRunning=runningOps.has(op.id); syncFlexControls(); if($('runOperation'))$('runOperation').disabled=operationRunning;
   $('operationTitle').textContent = op.title || op.id;
+  dxRefreshOperationExcelSource().catch(()=>{}); setTimeout(dxInstallAgentDownloadButton,0);
   const outputLabel={sheet:'Google Sheet',excel:'Excel',internal:'In-app result',none:'No published output'}[String(op?.output?.type||'')]||''; $('operationDescription').textContent = `${op.description || op.subtitle || ''}${outputLabel?` • Output: ${outputLabel}`:''}`;
   renderOperationSubTabs(currentBaseOperation||op,currentSubOperationId);
   $('runOperation').textContent = op.runLabel || 'Run';
@@ -1790,10 +1794,11 @@ async function loadRemote(force=false) {
   renderRemoteBranding();
   renderThemeOptions();
   applyRemoteSettingsLabels();
-  const stored = await chrome.storage.local.get(['opsTheme','opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','dxDiagnosticsEnabled']);
+  const stored = await chrome.storage.local.get(['opsTheme','opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','dxDiagnosticsEnabled','opsDssoUrl','opsDssoAuthenticatorAccount']);
   applyRemoteTheme(stored.opsTheme || remoteBundle?.theme?.default || 'light');
   usernameEl.value = stored.opsUsername || '';
   passwordEl.value = stored.opsPassword || '';
+  if(dssoUrlEl)dssoUrlEl.value=stored.opsDssoUrl||''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=stored.opsDssoAuthenticatorAccount||'';
   const validationResult=await autoValidateCredentialsIfDue(stored);
   if(validationResult?.reason==='invalid'){
     setSettingsStatus('Stored password is no longer valid. Please update it.','error');
@@ -1848,7 +1853,7 @@ $('saveSettings').addEventListener('click', async () => {
     const exception = await chrome.runtime.sendMessage({ type:'CHECK_EXCEPTION_USER', email:username });
     if (!exception?.ok) throw new Error(exception?.error || 'Could not verify exception status.');
     if (exception.exception) {
-      const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now()};
+      const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now(),opsDssoUrl:String(dssoUrlEl?.value||'').trim(),opsDssoAuthenticatorAccount:String(dssoAuthenticatorAccountEl?.value||'').trim()};
       if(password) values.opsPassword=password;
       await chrome.storage.local.set(values); if(!password) await chrome.storage.local.remove(['opsPassword']);
       dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
@@ -1856,7 +1861,7 @@ $('saveSettings').addEventListener('click', async () => {
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
     if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
-    await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now()});
+    await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now(),opsDssoUrl:String(dssoUrlEl?.value||'').trim(),opsDssoAuthenticatorAccount:String(dssoAuthenticatorAccountEl?.value||'').trim()});
     dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
@@ -1867,8 +1872,8 @@ $('saveSettings').addEventListener('click', async () => {
 
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
-  await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
-  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
+  await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','opsDssoUrl','opsDssoAuthenticatorAccount']);
+  usernameEl.value=''; passwordEl.value=''; if(dssoUrlEl)dssoUrlEl.value=''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 
@@ -1906,7 +1911,7 @@ async function openOperationById(opId,subId=''){
   const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id}); if(!loaded?.ok)throw new Error(loaded?.error||'Could not load the remote operation.');
   const op={...catalogOp,...(loaded.operation||{}),id:catalogOp.id};
   await assertOperationHostCompatibility(op);
-  if((Array.isArray(op.inputs)&&op.inputs.length)||(Array.isArray(op.subOperations)&&op.subOperations.length)){renderOperationForm(op,subId);setStatus('Ready');return true;}
+  if((Array.isArray(op.inputs)&&op.inputs.length)||(Array.isArray(op.subOperations)&&op.subOperations.length)||String(op.id)==='dsso-login'){renderOperationForm(op,subId);setStatus('Ready');return true;}
   await checkOperationAccess(op.id); const response=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:op.id,inputs:{}}); if(!response?.ok)throw new Error(response?.error||'Could not start operation.'); setStatus(`${op.title||op.id} started.`,'ok');return true;
 }
 
@@ -2345,25 +2350,26 @@ async function dxRememberAgentOutput(opId,headers,rows){
   dxSyncAgentDownloadButton();
 }
 async function dxDownloadAgentOutput(opId){
+  const host=await chrome.runtime.sendMessage({type:'DOWNLOAD_AGENT_OUTPUT',opId:String(opId||'')});
+  if(host?.ok)return host;
   const saved=(await chrome.storage.local.get(DX_AGENT_OUTPUT_KEY))[DX_AGENT_OUTPUT_KEY]||{};
   const item=saved[String(opId)];
-  if(!item?.rows?.length)throw new Error('No extracted output is available for this operation.');
-  const res=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers:item.headers,rows:item.rows,
-    sheetName:'Agent Output',filename:`${String(opId).replace(/[^a-z0-9_-]/gi,'_')}_latest.xlsx`,saveAs:false});
+  if(!item?.rows?.length)throw new Error(host?.error||'No extracted output is available for this operation.');
+  const res=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers:item.headers,rows:item.rows,sheetName:'Agent Output',filename:`${String(opId).replace(/[^a-z0-9_-]/gi,'_')}_latest.xlsx`,saveAs:false});
   if(!res?.ok)throw new Error(res?.error||'Could not export Excel.');
 }
 async function dxSyncAgentDownloadButton(){
   const button=document.getElementById('dxAgentDownload');if(!button)return;
   const opId=currentOperation?.id;
-  const saved=(await chrome.storage.local.get(DX_AGENT_OUTPUT_KEY))[DX_AGENT_OUTPUT_KEY]||{};
-  button.disabled=!(opId&&saved[opId]?.rows?.length);
+  const saved=(await chrome.storage.local.get(DX_AGENT_OUTPUT_KEY))[DX_AGENT_OUTPUT_KEY]||{}; const meta=opId?await chrome.runtime.sendMessage({type:'GET_AGENT_OUTPUT_META',opId}).catch(()=>null):null;
+  button.disabled=!(opId&&(saved[opId]?.rows?.length||meta?.available));
   button.title=button.disabled?'No output saved for this operation':'Download latest extracted Excel (independent of Sheet write)';
 }
 function dxInstallAgentDownloadButton(){
-  const run=document.getElementById('runOperation');if(!run||document.getElementById('dxAgentDownload'))return;
+  const run=document.getElementById('runOperation');if(!run||document.getElementById('dxAgentDownload')||String(currentOperation?.category||'')!=='agents')return;
   const button=document.createElement('button');button.id='dxAgentDownload';button.type='button';
   button.setAttribute('aria-label','Download last extracted Excel');button.title='Download last extracted Excel';
-  button.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v5h4M8 12l6 6m0-6l-6 6"/></svg>';
+  button.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
   button.style.cssText='margin-inline-start:8px;display:inline-flex;align-items:center;justify-content:center;min-width:35px;min-height:35px;border:1px solid var(--border,#a9b7c3);background:var(--surface,#fff);color:#168453;border-radius:8px;cursor:pointer;vertical-align:middle';
   run.insertAdjacentElement('afterend',button);
   button.onclick=async()=>{button.disabled=true;try{await dxDownloadAgentOutput(currentOperation?.id)}catch(e){setOperationStatus(e.message||String(e),'error')}finally{dxSyncAgentDownloadButton()}};
@@ -2485,6 +2491,7 @@ $('runOperation').addEventListener('click', async () => {
     await startActivity(op); setOperationRunning(true,op.id); setProgress('Preparing…');
     setOperationStatus('Checking access…'); await checkOperationAccess(op.id);
     setOperationStatus('Starting operation…');
+    if(op.id==='dsso-login'){ const r=await chrome.runtime.sendMessage({type:'DSSO_LOGIN'}); if(!r?.ok)throw new Error(r?.error||'DSSO login failed.'); setOperationStatus('DSSO login completed.','ok'); setProgress('Done',true); await finishActivity('success','DSSO login completed',op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
     if(op.clientProcessor?.type==='direct-workflow'){ const result=await runDirectWorkflowProcessor(op,inputs); await finishActivity('success',`${result.records||0} rows done`,op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
     if(op.clientProcessor?.type==='point-in-polygon'){ const result=await runPointInPolygonProcessor(op,inputs); await finishActivity('success',`${result.records||0} rows done`,op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
     if(op.clientProcessor?.type==='data-pipeline'){ const result=await runDataPipelineProcessor(op,inputs); await finishActivity('success',`${result.records||0} rows done`,op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }

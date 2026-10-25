@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "DSSO sign-in is executed locally by Host 13.0.13. Authenticator secrets and generated TOTP codes never leave the Host security boundary.",
+  "workflow": [],
+  "successMessage": "DSSO login completed.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "host",
+  "output": {
+    "type": "none"
+  }
+}

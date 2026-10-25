@@ -67,6 +67,21 @@
   };
   const $=id=>document.getElementById(id);
 
+
+  const DOWNLOAD_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+  async function downloadAgentOutput(jobId){
+    const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'DOWNLOAD_AGENT_OUTPUT',opId:jobId});
+    if(!r?.ok)throw new Error(r?.error||'No Excel output is available yet.');
+  }
+  async function syncAgentDownloadButtons(){
+    for(const card of document.querySelectorAll('.agent-card[data-job]')){
+      const id=card.dataset.job,actions=card.querySelector('.agent-actions'); if(!actions)continue;
+      let b=actions.querySelector('[data-download-job]');
+      if(!b){b=document.createElement('button');b.className='agent-download icon-btn';b.type='button';b.dataset.downloadJob=id;b.innerHTML=DOWNLOAD_ICON;b.title='Download last extracted output';b.setAttribute('aria-label',`Download ${JOBS[id]?.label||id} last output`);actions.insertBefore(b,actions.querySelector('.agent-history'));b.addEventListener('click',async()=>{try{b.disabled=true;await downloadAgentOutput(id);toast('Excel downloaded')}catch(e){toast(e.message)}finally{await syncAgentDownloadButtons()}})}
+      const m=await window.DigiExpressPlatform.runtime.sendMessage({type:'GET_AGENT_OUTPUT_META',opId:id}).catch(()=>null); b.disabled=!m?.available; b.classList.toggle('available',!!m?.available);
+    }
+  }
+
   const RUN_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.6 6.4A8.95 8.95 0 0 0 12 3a9 9 0 0 0-8.5 6H1l4 4 4-4H6.6A6 6 0 0 1 17 7.2L14.2 10H21V3.2l-2.4 2.4v.8ZM5.4 17.6A8.95 8.95 0 0 0 12 21a9 9 0 0 0 8.5-6H23l-4-4-4 4h2.4A6 6 0 0 1 7 16.8L9.8 14H3v6.8l2.4-2.4v-.8Z"/></svg>';
   const STOP_ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z"/></svg>';
   function setRunButtonVisual(run,isRunning,label){
@@ -275,5 +290,5 @@
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
   }));
 
-  refresh().catch(()=>{});setInterval(()=>{if(document.visibilityState==='visible'&&!pollTimer)refresh({quiet:true}).catch(()=>{})},30000);
+  refresh().then(()=>syncAgentDownloadButtons()).catch(()=>{}); chrome.storage?.onChanged?.addListener?.(()=>syncAgentDownloadButtons().catch(()=>{})); setInterval(()=>syncAgentDownloadButtons().catch(()=>{}),5000);setInterval(()=>{if(document.visibilityState==='visible'&&!pollTimer)refresh({quiet:true}).catch(()=>{})},30000);
 })();

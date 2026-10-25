@@ -363,6 +363,22 @@ function fetchSheetViaJsonp() {
 }
 
 async function fetchRows() {
+  // Match the shared Settings data source. This tab is not a live Agent output.
+  const excel=globalThis.DXExcelDatasets;
+  if(excel){
+    await excel.whenReady;
+    if(excel.enabled){
+      const data=excel.sheetData('Process');
+      const headers=(data.headers||[]).map(normalize);
+      const aliases={category:['کتگوری','دسته بندی','دسته‌بندی'],process:['نام فرآیند','نام فرایند'],stepNumber:['شماره مرحله'],stepTitle:['عنوان مرحله'],source:['لینک / منبع','لینک/منبع','لینک','منبع'],description:['توضیحات','توضیح']};
+      const findIndex=keys=>headers.findIndex(h=>keys.some(k=>normalize(k)===h));
+      const ix=Object.fromEntries(Object.entries(aliases).map(([k,v])=>[k,findIndex(v)]));
+      if(ix.category<0||ix.process<0||ix.stepTitle<0)throw new Error('ساختار تب Process در Excel معتبر نیست.');
+      const rows=(data.rows||[]).map(r=>[r[ix.category]??'',r[ix.process]??'',ix.stepNumber>=0?r[ix.stepNumber]??'':'',r[ix.stepTitle]??'',ix.source>=0?r[ix.source]??'':'',ix.description>=0?r[ix.description]??'':'']).filter(r=>r.some(v=>String(v).trim()));
+      if(!rows.length)throw new Error('Process worksheet contains no records');
+      return {rows,source:'excel',savedAt:Date.now(),warning:''};
+    }
+  }
   try {
     const rows = await fetchSheetViaJsonp();
     saveCache(rows);
@@ -390,11 +406,13 @@ async function loadData({ force = false } = {}) {
     const result = await fetchRows();
     state.rows = result.rows;
     state.processes = groupProcesses(result.rows);
-    if (result.source === 'cached') {
+    if (result.source === 'excel') {
+      setStatus('live', 'Excel · Process'); const f=document.querySelector('.footer span');if(f)f.textContent='منبع: Excel';
+    } else if (result.source === 'cached') {
       const ageMinutes = Math.max(1, Math.round((Date.now() - result.savedAt) / 60000));
       setStatus('cached', `نسخه ذخیره‌شده · ${ageMinutes} دقیقه قبل`);
     } else {
-      setStatus('live', 'داده زنده');
+      setStatus('live', 'داده زنده'); const f=document.querySelector('.footer span');if(f)f.textContent='منبع: Google Sheets';
     }
     renderAll();
     if (result.warning && force) {
@@ -704,3 +722,8 @@ if (els.openFullBtn) {
 }
 
 loadData();
+
+
+// v470: immediately follow the shared Excel/Online source without reloading the program.
+document.addEventListener('dx-excel-source-changed',()=>loadData({force:true}).catch(()=>{}));
+window.addEventListener('storage',e=>{if(e.key==='dx-excel-source'||e.key==='dx-excel-workbook')loadData({force:true}).catch(()=>{});});
