@@ -75,7 +75,7 @@ const DSPACE_URL='https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
 const cleanId=v=>String(v??'').trim().replace(/\.0$/,'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
 const hnorm=v=>String(v??'').toLowerCase().replace(/[_\s-]+/g,' ').trim();
 const hindex=(headers,names)=>{const hs=headers.map(hnorm);for(const name of names){let i=hs.indexOf(hnorm(name));if(i>=0)return i;}return -1};
-let hubMap=new Map(),hubIds=new Set(),hubNames=new Map(),capacityById=new Map(),hoverHub=null,lockedHub=null,polyLayers=new Map(),capacityLoadError='';
+let hubMap=new Map(),hubIds=new Set(),hubNames=new Map(),mapperDcNames=new Map(),capacityById=new Map(),hoverHub=null,lockedHub=null,polyLayers=new Map(),capacityLoadError='';
 const getId=r=>cleanId(r.dcId||r.stateId);
 const isHub=r=>hubIds.has(getId(r));
 function activeHub(){return lockedHub||hoverHub}
@@ -94,7 +94,7 @@ map.on('click',()=>{lockedHub=null;hoverHub=null;polygons.eachLayer(p=>p.closeTo
 map.on('mouseout',()=>{hoverHub=null;polygons.eachLayer(p=>p.closeTooltip&&p.closeTooltip());restyle()});
 function draw(list,fit=false){polygons.clearLayers();polyLayers=new Map();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!Array.isArray(part)||part.length<3)return;const id=getId(r);const poly=L.polygon(part,{color:isHub(r)?'#dc2626':polyColor(r.natureId),weight:2,fillOpacity:.22}).addTo(polygons);poly._dxrow=r;if(!polyLayers.has(id))polyLayers.set(id,[]);polyLayers.get(id).push(poly);poly.bindTooltip(()=>tooltipHtml(r),{sticky:true,direction:'top',offset:[0,-12],opacity:1,className:'hub-hover-tooltip',permanent:false,interactive:false});poly.on('mouseover',()=>{hoverHub=hubFor(r);restyle()});poly.on('mouseout',()=>{poly.closeTooltip();hoverHub=null;restyle()});poly.on('click',e=>{L.DomEvent.stopPropagation(e);if(isHub(r)){lockedHub=lockedHub===id?null:id;restyle()}else{lockedHub=null;restyle()}})}));restyle();if(searchedPoint)L.marker(searchedPoint).addTo(points);if(fit){const b=polygons.getBounds();if(b.isValid()){lastFitBounds=b;map.invalidateSize({pan:false,animate:false});map.fitBounds(b,{padding:[12,12],animate:false});setTimeout(()=>refreshMapSize(true),120)}}}
 async function readSheet(sheetName,source='google'){const args=source==='google'?{spreadsheetId:SHEET_ID,sheetName,limit:100000}:{shareUrl:DSPACE_URL,sheetName,limit:250000};const raw=await DigiExpressPlatform.call(source==='google'?'sheets.readRows':'dspace.readSheet',args);if(raw?.ok===false)throw Error(raw.error||sheetName);const data=raw?.result||raw;if(!Array.isArray(data?.headers)||!Array.isArray(data?.rows))throw Error(`Invalid ${sheetName} response`);return data}
-async function loadMapper(){const d=await readSheet('FlexHubMapper');const hi=hindex(d.headers,['Hub ID']),di=hindex(d.headers,['DC ID']),hn=hindex(d.headers,['Flex Hub']);if(hi<0||di<0)throw Error('FlexHubMapper must include Hub ID and DC ID');const m=new Map(),names=new Map();for(const row of d.rows){const h=cleanId(row[hi]),id=cleanId(row[di]);if(!h||!id)continue;if(!m.has(h))m.set(h,new Set());m.get(h).add(id);if(hn>=0&&row[hn])names.set(h,String(row[hn]))}hubMap=m;hubIds=new Set(m.keys());hubNames=names}
+async function loadMapper(){const d=await readSheet('FlexHubMapper');const hi=hindex(d.headers,['Hub ID']),di=hindex(d.headers,['DC ID']),hn=hindex(d.headers,['Flex Hub']),dn=hindex(d.headers,['Distribution Center']);if(hi<0||di<0)throw Error('FlexHubMapper must include Hub ID and DC ID');const m=new Map(),names=new Map(),dcNames=new Map();for(const row of d.rows){const h=cleanId(row[hi]),id=cleanId(row[di]);if(!h||!id)continue;if(!m.has(h))m.set(h,new Set());m.get(h).add(id);if(dn>=0&&row[dn])dcNames.set(id,String(row[dn]));if(hn>=0&&row[hn])names.set(h,String(row[hn]))}hubMap=m;hubIds=new Set(m.keys());hubNames=names;mapperDcNames=dcNames}
 const persianDays=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
 function dayName(value){const raw=String(value??'').replace(/[^0-9۰-۹]/g,'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));if(raw.length!==8)return null;try{const y=+raw.slice(0,4),m=+raw.slice(4,6),day=+raw.slice(6,8);if(y>1900){return persianDays[new Date(Date.UTC(y,m-1,day)).getUTCDay()]||null}const f=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric',timeZone:'UTC'});let d=new Date(Date.UTC(y+621,m-1,day));for(let i=0;i<370;i++,d.setUTCDate(d.getUTCDate()+1)){const p=Object.fromEntries(f.formatToParts(d).map(x=>[x.type,+x.value]));if(p.year===y&&p.month===m&&p.day===day)return persianDays[d.getUTCDay()]||null}}catch(e){}return null}
 // Match the same source aliases used in Capacity Report. Prefer IDs; use unique
@@ -123,14 +123,24 @@ function collectCapacity(d,kind,store){
   const slotIdx=sourceColumn(headers,capacityAliases.slot);
   if(idIdx<0&&nameIdx<0)throw Error(`No usable center ID or name in ${kind} headers: ${headers.join(', ').slice(0,320)}`);
   if(rIdx<0)throw Error(`Reserved column missing in ${kind} headers: ${headers.join(', ').slice(0,320)}`);
-  // Name fallback must be unique within the loaded polygons; never guess IDs.
+  // DSpace Flex uses Coverage Polygon IDs, while the map and mapper use DC IDs.
+  // Resolve by a verified direct DC ID first, then by a unique normalized name
+  // (including Distribution Center names from FlexHubMapper). Never inherit
+  // the parent's reserve or distribute it to children without source rows.
+  const polygonIds=new Set(rows.map(getId).filter(Boolean));
   const byName=new Map();
-  for(const poly of rows){const name=hnorm(poly.name),id=getId(poly);if(!name||!id)continue;
-    if(!byName.has(name))byName.set(name,new Set());byName.get(name).add(id)}
+  const addName=(name,id)=>{const key=hnorm(name);if(!key||!id)return;if(!byName.has(key))byName.set(key,new Set());byName.get(key).add(id)};
+  for(const poly of rows)addName(poly.name,getId(poly));
+  for(const [id,name] of mapperDcNames)addName(name,id);
+  for(const [id,name] of hubNames)addName(name,id);
+  const resolveName=name=>{const candidates=byName.get(hnorm(name));return candidates?.size===1?[...candidates][0]:''};
   const grouped=new Map(),daysById=new Map();
   for(const row of d.rows){
-    let id=idIdx>=0?cleanId(row[idIdx]):'';
-    if(!id&&nameIdx>=0){const candidates=byName.get(hnorm(row[nameIdx]));if(candidates?.size===1)id=[...candidates][0]}
+    const sourceId=idIdx>=0?cleanId(row[idIdx]):'';
+    // An ID in the Flex dataset might be a polygon-system ID, not a DC ID.
+    let id=sourceId&&polygonIds.has(sourceId)?sourceId:'';
+    if(!id&&nameIdx>=0)id=resolveName(row[nameIdx]);
+    if(!id&&sourceId&&mapperDcNames.has(sourceId))id=sourceId;
     if(!id)continue;
     const date=dateIdx>=0?String(row[dateIdx]??'').replace(/\D/g,''):'';
     const raw=row[rIdx];const numeric=Number(String(raw??'').replace(/[,٬\s]/g,''));
@@ -142,6 +152,7 @@ function collectCapacity(d,kind,store){
     if(!grouped.has(id))grouped.set(id,new Map());const slots=grouped.get(id);
     slots.set(key,(slots.get(key)||0)+numeric);
   }
+  if(kind==='flex'&&grouped.size===0&&d.rows.length)throw Error('No Flex rows matched DC IDs or unique polygon/DC names; inspect Coverage Polygon names and FlexHubMapper mapping');
   for(const [id,series] of grouped){
     const values=[...series.values()];if(!values.length)continue;
     const v=store.get(id)||{};
