@@ -43,7 +43,26 @@ function filteredPolygons(){const ts=selected('f-type'),ds=selected('f-district'
 function drawPolygons(list){polyLayer.clearLayers();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!part?.length)return;const p=L.polygon(part,{color:polyColor(r.natureId),weight:2,fillOpacity:.22}).addTo(polyLayer);p.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId)}<br>Type: ${esc(natureLabel(r.natureId))}<br>IATA: ${esc(r.iata||'-')}`)}))}
 function keyObj(obj,names){const keys=Object.keys(obj||{});for(const n of names){const k=keys.find(k=>k.trim().toLowerCase()===n.toLowerCase());if(k)return obj[k]}return undefined}
 function normalizePoint(p,i){const lat=Number(keyObj(p,['Lat','Latitude','lat','latitude'])),lon=Number(keyObj(p,['Long','Longitude','Lon','Lng','long','longitude','lon','lng']));return{_idx:i+1,lat,lon,parcel:keyObj(p,['ParcelCode','Parcel Code','Barcode','parcel_code'])||'',city:keyObj(p,['CityName','City Name','City'])||'',address:keyObj(p,['address','Address'])||'',raw:p}}
-function matches(pt,polys){if(!Number.isFinite(pt.lat)||!Number.isFinite(pt.lon))return[];const t=turf.point([pt.lon,pt.lat]);return polys.filter(r=>(r.coordinates||[]).some(part=>{try{return turf.booleanPointInPolygon(t,turf.polygon([[...part.map(c=>[c[1],c[0]])]]))}catch{return false}}))}
+// Self-contained point-in-polygon check: avoid a runtime dependency on Turf/CDNs.
+// DXPolygonLoader coordinates and Leaflet polygons use [latitude, longitude].
+function pointInRing(lat,lon,ring){
+  if(!Array.isArray(ring)||ring.length<3)return false;
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const a=ring[i],b=ring[j];
+    if(!Array.isArray(a)||!Array.isArray(b))continue;
+    const ay=Number(a[0]),ax=Number(a[1]),by=Number(b[0]),bx=Number(b[1]);
+    if(![ay,ax,by,bx].every(Number.isFinite))continue;
+    const cross=(lon-ax)*(by-ay)-(lat-ay)*(bx-ax);
+    if(Math.abs(cross)<1e-10 && lon>=Math.min(ax,bx)-1e-10 && lon<=Math.max(ax,bx)+1e-10 && lat>=Math.min(ay,by)-1e-10 && lat<=Math.max(ay,by)+1e-10)return true;
+    if((ay>lat)!==(by>lat) && lon<(bx-ax)*(lat-ay)/(by-ay)+ax)inside=!inside;
+  }
+  return inside;
+}
+function matches(pt,polys){
+  if(!Number.isFinite(pt.lat)||!Number.isFinite(pt.lon))return[];
+  return polys.filter(r=>(r.coordinates||[]).some(part=>pointInRing(pt.lat,pt.lon,part)));
+}
 function pointStrokeWeight(size){return size===0?0:Math.max(.75,size/3)}
 function combinedMapBounds(){const b=L.latLngBounds();const pb=polyLayer.getBounds();if(pb.isValid())b.extend(pb);pointLayer.eachLayer(layer=>{if(typeof layer.getLatLng==='function')b.extend(layer.getLatLng());else if(typeof layer.getBounds==='function'){const lb=layer.getBounds();if(lb?.isValid?.())b.extend(lb)}});return b}
 function drawPoints(polys){pointLayer.clearLayers();displayRows=[];pointsData.forEach(pt=>{if(!Number.isFinite(pt.lat)||!Number.isFinite(pt.lon))return;const ms=matches(pt,polys);displayRows.push({pt,matches:ms});const marker=L.circleMarker([pt.lat,pt.lon],{radius:pointSize,color:'#fff',weight:pointStrokeWeight(pointSize),opacity:pointSize===0?0:1,fillColor:'#e11d48',fillOpacity:pointSize===0?0:1}).addTo(pointLayer);marker.bindTooltip(`<b>${esc(pt.parcel||'Point '+pt._idx)}</b><br>${esc(pt.city||'-')}<br>${esc(pt.address||'-')}<br>Matched: ${esc(ms.map(x=>x.name).join(', ')||'None')}`,{direction:'top'})});const b=combinedMapBounds();if(b.isValid())map.fitBounds(b,{padding:[18,18]})}
