@@ -1,11 +1,11 @@
 {
-  "configVersion": 471,
+  "configVersion": 472,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 408",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 470
+    "configVersion": 472
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -505,7 +505,7 @@
       "title": "DSSO Login",
       "subtitle": "Sign in with saved credentials + Authenticator",
       "accessControl": "public",
-      "config": "operations/dsso-login.json?v=471",
+      "config": "operations/dsso-login.json?v=472",
       "description": "Open the configured DigiKala DSSO/ADFS URL, fill saved credentials, obtain the matching TOTP code inside the Host Authenticator vault, and complete sign-in.",
       "runLabel": "Login to DSSO",
       "uiMode": "form",
@@ -1071,10 +1071,10 @@
   "runtime": "runtime.json?v=378",
   "runtimeVersion": "13.0.0",
   "remoteUI": {
-    "html": "ui/app.html?v=408",
+    "html": "ui/app.html?v=472",
     "css": "ui/app.css?v=408"
   },
-  "version": "468",
+  "version": "472",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",

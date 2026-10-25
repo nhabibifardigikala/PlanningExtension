@@ -927,7 +927,9 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <div class="section-heading settings-heading"><h1 id="settingsTitle">Settings</h1><p id="settingsDescription">Account, appearance, remote configuration, diagnostics, and local data controls.</p></div>
 
       <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><label for="dssoUrl">DSSO login URL</label><input id="dssoUrl" type="url" placeholder="https://dsso.digikala.com/adfs/ls/..." />
-<label for="dssoAuthenticatorAccount">DSSO Authenticator account <span class="settings-help">(optional; account/email/issuer match)</span></label><input id="dssoAuthenticatorAccount" type="text" placeholder="Leave blank to match your login email" />
+<label for="dssoUsername">DSSO username <span class="settings-help">(optional; falls back to Access Email)</span></label><input id="dssoUsername" type="text" autocomplete="username" placeholder="name@digikala.com" />
+<label for="dssoPassword">DSSO password <span class="settings-help">(saved locally; independent from LG validation)</span></label><input id="dssoPassword" type="password" autocomplete="current-password" />
+<label for="dssoAuthenticatorAccount">DSSO Authenticator account <span class="settings-help">(optional; account/email/issuer match)</span></label><input id="dssoAuthenticatorAccount" type="text" placeholder="Leave blank to match DSSO username" />
 <button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
 
       <section class="settings-card dx-setting-section" data-settings-section="appearance"><h2 id="appearanceTitle">Appearance</h2><div class="theme-selector" id="themeSelector" role="group" aria-label="Theme"></div></section>
@@ -1029,7 +1031,7 @@ const menu = $('menu');
 const statusEl = $('status');
 const usernameEl = $('username');
 const passwordEl = $('password');
-const dssoUrlEl=$('dssoUrl'); const dssoAuthenticatorAccountEl=$('dssoAuthenticatorAccount'); const operationExcelSource=$('operationExcelSource');
+const dssoUrlEl=$('dssoUrl'); const dssoUsernameEl=$('dssoUsername'); const dssoPasswordEl=$('dssoPassword'); const dssoAuthenticatorAccountEl=$('dssoAuthenticatorAccount'); const operationExcelSource=$('operationExcelSource');
 
 // Generic operation pages (Agents, DSSO, etc.) do not use the dataset-input Excel toggle.
 // Remote data-reading apps manage their Excel source through ui/excel-datasets.js.
@@ -1130,12 +1132,13 @@ function classifyOperationError(raw,op=currentOperation){
   else if(/table.*not found|element not found|selector|rows were not available|did not appear/.test(low)){title='Required page content did not load';reason='LG did not render the expected table or control before the timeout.';action='Open LG, confirm the page loads normally, then retry. Diagnostics will show the URL and selector that failed.';}
   else if(/access denied|not listed in the access/.test(low)){title='Access is not available';reason='Your account is not currently authorized for this operation.';action='Check the access email in Settings or contact the operation owner.';}
   else if(/google apps script|web app url|sheet.*required|target sheet/.test(low)){title='Publishing destination is not configured';reason='This Agent requires a Google Sheets destination, but its publishing connection is missing or incomplete.';action='Open Agents settings, configure the destination, and run the Agent again.';}
+  else if(op?.id==='dsso-login' && /login|authentication|credential|password|dsso|authenticator|verification|otp|totp/.test(low)){title='DSSO login needs attention';reason='DSSO could not complete sign-in with the saved DSSO credentials or Authenticator account.';action='Check DSSO URL, DSSO username/password and Authenticator account in Settings, then retry.';}
   else if(/login|authentication|credential|password/.test(low)){title='LG authentication needs attention';reason='The saved session or credentials could not be used for this operation.';action='Open LG and sign in, or validate your account again in Settings.';}
   return {title,reason,action,details:msg||'Unknown error',opId:op?.id||''};
 }
 function bindOperationErrorActions(){
   const retry=document.getElementById('dxErrorRetry'); if(retry)retry.onclick=()=>document.getElementById('runOperation')?.click();
-  const lg=document.getElementById('dxErrorOpenLg'); if(lg)lg.onclick=()=>chrome.runtime.sendMessage({type:'OPEN_URL',url:'https://lg.digikala.com/'}).catch(()=>{});
+  const lg=document.getElementById('dxErrorOpenLg'); if(lg){lg.textContent=currentOperation?.id==='dsso-login'?'Open DSSO':'Open LG';lg.onclick=async()=>{let url='https://lg.digikala.com/';if(currentOperation?.id==='dsso-login'){const x=await chrome.storage.local.get(['opsDssoUrl']);url=x.opsDssoUrl||url;}chrome.runtime.sendMessage({type:'OPEN_URL',url}).catch(()=>{});};}
   const diag=document.getElementById('dxErrorDiagnostics'); if(diag)diag.onclick=async()=>{showView('settings');updateUrlState('settings');await refreshDiagnosticsPreview();document.querySelector('[data-settings-section="diagnostics"]')?.scrollIntoView({behavior:'smooth',block:'start'});};
 }
 function setOperationStatus(text, kind='') {
@@ -1804,11 +1807,11 @@ async function loadRemote(force=false) {
   renderRemoteBranding();
   renderThemeOptions();
   applyRemoteSettingsLabels();
-  const stored = await chrome.storage.local.get(['opsTheme','opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','dxDiagnosticsEnabled','opsDssoUrl','opsDssoAuthenticatorAccount']);
+  const stored = await chrome.storage.local.get(['opsTheme','opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','dxDiagnosticsEnabled','opsDssoUrl','opsDssoUsername','opsDssoPassword','opsDssoAuthenticatorAccount']);
   applyRemoteTheme(stored.opsTheme || remoteBundle?.theme?.default || 'light');
   usernameEl.value = stored.opsUsername || '';
   passwordEl.value = stored.opsPassword || '';
-  if(dssoUrlEl)dssoUrlEl.value=stored.opsDssoUrl||''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=stored.opsDssoAuthenticatorAccount||'';
+  if(dssoUrlEl)dssoUrlEl.value=stored.opsDssoUrl||''; if(dssoUsernameEl)dssoUsernameEl.value=stored.opsDssoUsername||''; if(dssoPasswordEl)dssoPasswordEl.value=stored.opsDssoPassword||''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=stored.opsDssoAuthenticatorAccount||'';
   const validationResult=await autoValidateCredentialsIfDue(stored);
   if(validationResult?.reason==='invalid'){
     setSettingsStatus('Stored password is no longer valid. Please update it.','error');
@@ -1856,14 +1859,15 @@ $('saveSettings').addEventListener('click', async () => {
   const username = usernameEl.value.trim();
   const password = passwordEl.value;
   if (!username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) return setSettingsStatus('A valid access email is required.', 'error');
-  await chrome.storage.local.set({ opsTheme:selectedTheme, opsCredentialsValid:false });
+  const dssoSettings={opsDssoUrl:String(dssoUrlEl?.value||'').trim(),opsDssoUsername:String(dssoUsernameEl?.value||'').trim(),opsDssoPassword:String(dssoPasswordEl?.value||''),opsDssoAuthenticatorAccount:String(dssoAuthenticatorAccountEl?.value||'').trim()};
+  await chrome.storage.local.set({ opsTheme:selectedTheme, opsCredentialsValid:false, ...dssoSettings });
   await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
   setValidationBusy(true); setSettingsStatus('');
   try {
     const exception = await chrome.runtime.sendMessage({ type:'CHECK_EXCEPTION_USER', email:username });
     if (!exception?.ok) throw new Error(exception?.error || 'Could not verify exception status.');
     if (exception.exception) {
-      const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now(),opsDssoUrl:String(dssoUrlEl?.value||'').trim(),opsDssoAuthenticatorAccount:String(dssoAuthenticatorAccountEl?.value||'').trim()};
+      const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now(),...dssoSettings};
       if(password) values.opsPassword=password;
       await chrome.storage.local.set(values); if(!password) await chrome.storage.local.remove(['opsPassword']);
       dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
@@ -1871,7 +1875,7 @@ $('saveSettings').addEventListener('click', async () => {
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
     if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
-    await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now(),opsDssoUrl:String(dssoUrlEl?.value||'').trim(),opsDssoAuthenticatorAccount:String(dssoAuthenticatorAccountEl?.value||'').trim()});
+    await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now(),...dssoSettings});
     dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
@@ -1882,8 +1886,8 @@ $('saveSettings').addEventListener('click', async () => {
 
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
-  await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','opsDssoUrl','opsDssoAuthenticatorAccount']);
-  usernameEl.value=''; passwordEl.value=''; if(dssoUrlEl)dssoUrlEl.value=''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
+  await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','opsDssoUrl','opsDssoUsername','opsDssoPassword','opsDssoAuthenticatorAccount']);
+  usernameEl.value=''; passwordEl.value=''; if(dssoUrlEl)dssoUrlEl.value=''; if(dssoUsernameEl)dssoUsernameEl.value=''; if(dssoPasswordEl)dssoPasswordEl.value=''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 
@@ -2609,6 +2613,6 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 
 </script>
 
-<script src="excel-datasets.js?v=467"></script>
+<script src="excel-datasets.js?v=472"></script>
 </body>
 </html>
