@@ -1165,6 +1165,7 @@ function appendRoleLiveResult(message){
   if(!state.headers.length)state.headers=message.reportHeaders.slice();
   const key=JSON.stringify(message.reportRow),exists=state.rows.some(r=>JSON.stringify(r)===key);
   if(!exists)state.rows.push(message.reportRow.slice());
+  dxRememberAgentOutput(opId,state.headers,state.rows).catch(()=>{});
   if(message.reportTitle)state.title=message.reportTitle;
   if(message.reportExport)state.exportCfg={...state.exportCfg,...message.reportExport};
   renderRoleLiveWorkspace('role-assignment');
@@ -1189,6 +1190,7 @@ function renderLiveReport(opId,message){
   if(!report){report={headers:message.reportHeaders.slice(),rows:[],exportCfg:message.reportExport||{},title:message.reportTitle||'Live report'};liveReportsByOp.set(opId,report);}
   if(!report.headers.length)report.headers=message.reportHeaders.slice();
   report.rows.push(message.reportRow.slice());
+  dxRememberAgentOutput(opId,report.headers,report.rows).catch(()=>{});
   if(message.reportExport)report.exportCfg=message.reportExport;
   if(message.reportTitle)report.title=message.reportTitle;
   const host=$('operationResult');if(!host)return;host.classList.remove('hidden');
@@ -2330,12 +2332,56 @@ async function gpPublishDataset(cp,headers,rows){
   const d=r?.data||{};if(d?.ok===false)throw new Error(d.error||'Google Sheet rejected the extracted data.');
   return d;
 }
+
+// v468: extracted output is independent from the success of Google Sheet writes.
+const DX_AGENT_OUTPUT_KEY='dxLastAgentOutputsV468';
+async function dxRememberAgentOutput(opId,headers,rows){
+  if(!Array.isArray(rows)||!rows.length)return;
+  const safeHeaders=Array.isArray(headers)?headers.map(x=>String(x??'')):[];
+  const entry={headers:safeHeaders,rows:rows.map(r=>Array.isArray(r)?r.slice():[r]),savedAt:Date.now()};
+  const existing=(await chrome.storage.local.get(DX_AGENT_OUTPUT_KEY))[DX_AGENT_OUTPUT_KEY]||{};
+  existing[String(opId)]=entry;
+  await chrome.storage.local.set({[DX_AGENT_OUTPUT_KEY]:existing});
+  dxSyncAgentDownloadButton();
+}
+async function dxDownloadAgentOutput(opId){
+  const saved=(await chrome.storage.local.get(DX_AGENT_OUTPUT_KEY))[DX_AGENT_OUTPUT_KEY]||{};
+  const item=saved[String(opId)];
+  if(!item?.rows?.length)throw new Error('No extracted output is available for this operation.');
+  const res=await chrome.runtime.sendMessage({type:'EXPORT_GENERIC_XLSX',headers:item.headers,rows:item.rows,
+    sheetName:'Agent Output',filename:`${String(opId).replace(/[^a-z0-9_-]/gi,'_')}_latest.xlsx`,saveAs:false});
+  if(!res?.ok)throw new Error(res?.error||'Could not export Excel.');
+}
+async function dxSyncAgentDownloadButton(){
+  const button=document.getElementById('dxAgentDownload');if(!button)return;
+  const opId=currentOperation?.id;
+  const saved=(await chrome.storage.local.get(DX_AGENT_OUTPUT_KEY))[DX_AGENT_OUTPUT_KEY]||{};
+  button.disabled=!(opId&&saved[opId]?.rows?.length);
+  button.title=button.disabled?'No output saved for this operation':'Download latest extracted Excel (independent of Sheet write)';
+}
+function dxInstallAgentDownloadButton(){
+  const run=document.getElementById('runOperation');if(!run||document.getElementById('dxAgentDownload'))return;
+  const button=document.createElement('button');button.id='dxAgentDownload';button.type='button';
+  button.setAttribute('aria-label','Download last extracted Excel');button.title='Download last extracted Excel';
+  button.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v5h4M8 12l6 6m0-6l-6 6"/></svg>';
+  button.style.cssText='margin-inline-start:8px;display:inline-flex;align-items:center;justify-content:center;min-width:35px;min-height:35px;border:1px solid var(--border,#a9b7c3);background:var(--surface,#fff);color:#168453;border-radius:8px;cursor:pointer;vertical-align:middle';
+  run.insertAdjacentElement('afterend',button);
+  button.onclick=async()=>{button.disabled=true;try{await dxDownloadAgentOutput(currentOperation?.id)}catch(e){setOperationStatus(e.message||String(e),'error')}finally{dxSyncAgentDownloadButton()}};
+  const observer=new MutationObserver(()=>{dxSyncAgentDownloadButton()});
+  // Refresh on form updates without coupling exports to operation outcome.
+  document.addEventListener('click',e=>{if(e.target.closest?.('[data-op],.op-card-open'))setTimeout(dxSyncAgentDownloadButton,150)});
+  dxSyncAgentDownloadButton();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',dxInstallAgentDownloadButton);
+else dxInstallAgentDownloadButton();
+
 async function runDataPipelineProcessor(op,inputs){
   const cp=op.clientProcessor||{},src=cp.source||{};if(src.type!=='remote-operation')throw new Error('Unsupported data source.');
   const srcInputs={...inputs};for(const [k,v] of Object.entries(src.inputs||{}))srcInputs[k]=gpTransformInput(v,inputs);
   setOperationStatus(gpTpl(src.status||'Running report…',{inputs,input:inputs}));
   const resp=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:src.operationId||op.id,inputs:srcInputs,awaitCompletion:true,silentDone:true});if(!resp?.ok)throw new Error(resp?.error||'Remote operation failed.');
   const result=resp.result||{},headers=result.headers||[],rows=result.rows||[];
+  await dxRememberAgentOutput(op.id,headers,rows);
   const published=await gpPublishDataset(cp,headers,rows);
   const partCfg=cp.partition||{},items=Array.isArray(inputs?.[partCfg.byInput])?inputs[partCfg.byInput]:[];
   const partition=items.length?gpPartitionRows(headers,rows,items,partCfg):{buckets:[rows],unmatched:[]};
@@ -2546,6 +2592,6 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 
 </script>
 
-<script src="excel-datasets.js?v=466"></script>
+<script src="excel-datasets.js?v=467"></script>
 </body>
 </html>

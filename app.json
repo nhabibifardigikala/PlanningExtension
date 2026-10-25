@@ -1056,7 +1056,7 @@
     "html": "ui/app.html?v=408",
     "css": "ui/app.css?v=408"
   },
-  "version": 378,
+  "version": "468",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
