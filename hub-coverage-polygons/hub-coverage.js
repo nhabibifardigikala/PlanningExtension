@@ -83,10 +83,16 @@ function groupSet(hubId){return new Set([hubId,...(hubMap.get(hubId)||[])])}
 function restyle(){const active=activeHub(),members=active?groupSet(active):null;polyLayers.forEach((layers,id)=>layers.forEach(layer=>{const r=layer._dxrow,member=members?.has(id);layer.setStyle({color:isHub(r)?'#dc2626':polyColor(r.natureId),weight:member?6:2,fillOpacity:member?.38:.22,opacity:members&&!member?.48:1});if(member)layer.bringToFront()}))}
 function hubFor(r){const id=getId(r);if(hubIds.has(id))return id;for(const [h,members] of hubMap)if(members.has(id))return h;return null}
 const fmtCap=n=>n==null?'—':Math.round(n).toLocaleString('en-US');
+// Capacity Report defaults to the first day of the current Jalali month through today.
+const jalaliToday=(()=>{const parts=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const x=Object.fromEntries(parts.map(v=>[v.type,v.value]));return `${x.year}${String(x.month).padStart(2,'0')}${String(x.day).padStart(2,'0')}`;})();
+let reserveFrom=jalaliToday.slice(0,6)+'01',reserveTo=jalaliToday;
+function rangedDays(daily){return new Map([...(daily||new Map())].filter(([d])=>d>=reserveFrom&&d<=reserveTo));}
+function updateReserveRange(){const a=$('#reserveFrom').value.replace(/[^0-9۰-۹]/g,c=>c).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/\D/g,'');const b=$('#reserveTo').value.replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/\D/g,'');const el=$('#reserveRangeStatus');if(!/^\d{8}$/.test(a)||!/^\d{8}$/.test(b)||a>b){el.textContent='Use a valid Jalali date range (YYYYMMDD).';el.className='status error';return}reserveFrom=a;reserveTo=b;el.textContent=`Daily average: ${reserveFrom} → ${reserveTo}`;el.className='status ok';closeAllHoverTips();}
+
 function intersectDays(a,b){return [...a.keys()].filter(d=>b.has(d)).sort()}
 function mean(values){return values.length?values.reduce((a,b)=>a+b,0)/values.length:null}
 function computeReserves(v){
-  const flex=v.flexDaily,dk=v.dkDaily;
+  const flex=rangedDays(v.flexDaily),dk=rangedDays(v.dkDaily);
   if(!flex?.size&&!dk?.size)return {total:null,dk:null,non:null};
   // All displayed figures must share the same days. Never subtract averages of different date ranges.
   if(!flex?.size||!dk?.size)return {total:flex?.size?mean([...flex.values()]):null,dk:dk?.size?mean([...dk.values()]):null,non:null};
@@ -183,7 +189,7 @@ function applyFilters(){shown=rows.filter(pass);pointHits=[];draw(shown,false);r
 function focusPolygon(id,name){const r=rows.find(x=>String(x.dcId||x.stateId)===String(id)&&String(x.name)===String(name))||rows.find(x=>String(x.dcId||x.stateId)===String(id));if(!r)return;polygons.clearLayers();(r.coordinates||[]).forEach(part=>L.polygon(part,{color:'#e11d48',weight:4,fillOpacity:.34}).addTo(polygons));const b=polygons.getBounds();if(b.isValid())map.fitBounds(b,{padding:[20,20]})}
 function parseLatLonInput(value){const text=String(value||'').trim();const labeled=text.match(/lat(?:itude)?\s*=\s*([-+]?\d+(?:\.\d+)?)\s*[,;،]?\s*(?:long|lon|lng|longitude)\s*=\s*([-+]?\d+(?:\.\d+)?)/i);const p=labeled?[Number(labeled[1]),Number(labeled[2])]:text.split(/(?:\s*,\s*|\s+)/).filter(Boolean).map(Number);if(p.length!==2||p.some(x=>!Number.isFinite(x))||p[0]<-90||p[0]>90||p[1]<-180||p[1]>180)throw new Error('Use format: latitude, longitude; latitude longitude; or Lat=34.48162, Long=47.65790');return p}
 function checkPoint(){let p;try{p=parseLatLonInput($('#latlon').value)}catch(e){$('#pointStatus').textContent=e.message;$('#pointStatus').className='status error';return}const [lat,lon]=p;searchedPoint=[lat,lon];points.clearLayers();L.marker(searchedPoint).addTo(points);const pt=turf.point([lon,lat]);pointHits=shown.filter(r=>(r.coordinates||[]).some(part=>{try{return turf.booleanPointInPolygon(pt,turf.polygon([[...part.map(c=>[c[1],c[0]])]]))}catch{return false}}));draw(shown,false);L.marker(searchedPoint).addTo(points);pointHits.forEach(r=>(r.coordinates||[]).forEach(part=>L.polygon(part,{color:'#e11d48',weight:4,fillOpacity:.32}).addTo(polygons)));$('#pointStatus').textContent=pointHits.length?`${pointHits.length} matching polygon(s)`:'No polygon contains this point.';$('#pointStatus').className='status '+(pointHits.length?'ok':'error');render();if(pointHits.length){const b=polygons.getBounds();if(b.isValid())map.fitBounds(b,{padding:[20,20]})}else map.setView([lat,lon],14)}
-function reset(){document.querySelectorAll('.f-type').forEach(x=>x.checked=x.value!=='Barbari');document.querySelectorAll('.f-district').forEach(x=>x.checked=false);$('#search').value='';$('#latlon').value='';$('#pointStatus').textContent='';searchedPoint=null;pointHits=[];points.clearLayers();shown=rows.filter(pass);draw(shown,true);render()}
+function reset(){document.querySelectorAll('.f-type').forEach(x=>x.checked=x.value==='Normal');document.querySelectorAll('.f-district').forEach(x=>x.checked=false);$('#search').value='';$('#latlon').value='';$('#pointStatus').textContent='';searchedPoint=null;pointHits=[];points.clearLayers();shown=rows.filter(pass);draw(shown,true);render()}
 function normalizePickupIds(list){if(currentService!=='pickup')return list;return list.map(r=>{if((r.dcId===''||r.dcId==null)&&r.stateId!=='')r.dcId=r.stateId;return r;});}
 async function loadDataset(service,{fit=true}={}){
   currentService=service;
@@ -196,7 +202,7 @@ async function loadDataset(service,{fit=true}={}){
     shown=[...rows];pointHits=[];searchedPoint=null;points.clearLayers();
     const district=[...new Set(rows.map(r=>String(r.district||'').split('(')[0].trim()).filter(Boolean))].sort();
     const typeValues=[...new Set(rows.map(r=>natureLabel(r.natureId)).filter(Boolean))].sort((a,b)=>Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6,SuperMarket:7})[a]||99)-Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6,SuperMarket:7})[b]||99));
-    makeFilter($('#typeFilters'),typeValues,'f-type');document.querySelectorAll('.f-type').forEach(x=>x.checked=x.value!=='Barbari');
+    makeFilter($('#typeFilters'),typeValues,'f-type');document.querySelectorAll('.f-type').forEach(x=>x.checked=x.value==='Normal');
     makeFilter($('#districtFilters'),district,'f-district');
     $('#search').value='';$('#latlon').value='';$('#pointStatus').textContent='';
     shown=rows.filter(pass);draw(shown,fit);render();
@@ -224,6 +230,6 @@ async function init(){
     });
   },250);
 }
-$('#check').onclick=checkPoint;$('#latlon').addEventListener('keydown',e=>{if(e.key==='Enter')checkPoint()});$('#search').addEventListener('input',render);$('#reset').onclick=reset;armMapVisibilityRefresh();init();
+$('#check').onclick=checkPoint;$('#latlon').addEventListener('keydown',e=>{if(e.key==='Enter')checkPoint()});$('#search').addEventListener('input',render);$('#reset').onclick=reset;$('#reserveFrom').value=reserveFrom;$('#reserveTo').value=reserveTo;$('#reserveFrom').addEventListener('change',updateReserveRange);$('#reserveTo').addEventListener('change',updateReserveRange);updateReserveRange();armMapVisibilityRefresh();init();
 
 window.addEventListener('unhandledrejection',event=>{const e=event.reason;console.error('Hub Coverage error:',e);const el=document.getElementById('datasetStatus');if(el&&!rows.length){el.textContent='Map startup error: '+String(e?.message||e);el.className='status error';}});
