@@ -74,3 +74,6 @@ html[data-theme="dark"] .dataset-row,html[data-theme="dark"] .modal-card,html[da
 .rejected-option-row input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0;accent-color:var(--accent)}
 
 .agent-download svg{width:18px;height:18px;display:block;margin:auto}.agent-download.available{color:#16834a}.agent-download:disabled{opacity:.35;cursor:not-allowed}
+
+.agent-actions .agent-download{width:42px!important;height:42px!important;min-width:42px;border-radius:12px;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;border:1px solid var(--line);background:transparent;color:var(--muted)}
+.agent-actions .agent-download svg{width:20px!important;height:20px!important;display:block!important;margin:0!important}.agent-actions .agent-download.available{color:#16834a;border-color:color-mix(in srgb,#16834a 45%,var(--line));background:color-mix(in srgb,#16834a 8%,var(--card))}

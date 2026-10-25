@@ -335,7 +335,7 @@ function applyOperationFilters(){
 function setOperationCategory(category){activeOperationCategory=String(category||'all').toLowerCase();applyOperationFilters();}
 function initOperationDiscoveryUi(){
   const search=document.getElementById('operationSearch');
-  if(search&&!search.dataset.bound){search.dataset.bound='1';search.addEventListener('input',applyOperationFilters);}
+  if(search&&!search.dataset.bound){search.dataset.bound='1';search.value='';const unlock=()=>search.removeAttribute('readonly');search.addEventListener('pointerdown',unlock,{once:true});search.addEventListener('focus',unlock,{once:true});search.addEventListener('input',()=>{search.dataset.userTyped='1';applyOperationFilters();});for(const ms of [100,500,1500])setTimeout(()=>{if(search.dataset.userTyped!=='1'&&document.activeElement!==search){search.value='';applyOperationFilters();}},ms);}
   const chips=document.getElementById('categoryChips');
   if(chips&&!chips.dataset.bound){chips.dataset.bound='1';chips.addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(b)setOperationCategory(b.dataset.category);});}
   const sidebar=document.querySelector('.sidebar-nav');

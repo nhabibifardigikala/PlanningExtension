@@ -71,13 +71,13 @@
   const DOWNLOAD_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
   async function downloadAgentOutput(jobId){
     const r=await window.DigiExpressPlatform.runtime.sendMessage({type:'DOWNLOAD_AGENT_OUTPUT',opId:jobId});
-    if(!r?.ok)throw new Error(r?.error||'No Excel output is available yet.');
+    if(!r?.ok)throw new Error(r?.error||'No Excel output is available yet.');return r;
   }
   async function syncAgentDownloadButtons(){
     for(const card of document.querySelectorAll('.agent-card[data-job]')){
       const id=card.dataset.job,actions=card.querySelector('.agent-actions'); if(!actions)continue;
       let b=actions.querySelector('[data-download-job]');
-      if(!b){b=document.createElement('button');b.className='agent-download icon-btn';b.type='button';b.dataset.downloadJob=id;b.innerHTML=DOWNLOAD_ICON;b.title='Download last extracted output';b.setAttribute('aria-label',`Download ${JOBS[id]?.label||id} last output`);actions.insertBefore(b,actions.querySelector('.agent-history'));b.addEventListener('click',async()=>{try{b.disabled=true;await downloadAgentOutput(id);toast('Excel downloaded')}catch(e){toast(e.message)}finally{await syncAgentDownloadButtons()}})}
+      if(!b){b=document.createElement('button');b.className='agent-download icon-btn';b.type='button';b.dataset.downloadJob=id;b.innerHTML=DOWNLOAD_ICON;b.title='Download last extracted output (saved before publishing)';b.setAttribute('aria-label',`Download ${JOBS[id]?.label||id} last output`);actions.insertBefore(b,actions.querySelector('.agent-history'));b.addEventListener('click',async()=>{try{b.disabled=true;const out=await downloadAgentOutput(id);toast(`Excel downloaded${out?.rowCount?` · ${out.rowCount.toLocaleString('en-US')} rows`:''}`)}catch(e){toast(e.message)}finally{await syncAgentDownloadButtons()}})}
       const m=await window.DigiExpressPlatform.runtime.sendMessage({type:'GET_AGENT_OUTPUT_META',opId:id}).catch(()=>null); b.disabled=!m?.available; b.classList.toggle('available',!!m?.available);
     }
   }

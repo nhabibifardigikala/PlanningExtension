@@ -867,7 +867,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
         </div>
       </section>
       <section class="tool-toolbar" aria-label="Tool filters">
-        <label class="tool-search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.2-4.2M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"/></svg><input id="operationSearch" type="search" placeholder="Search tools, reports or workflows…" autocomplete="off"><kbd>Ctrl K</kbd></label>
+        <label class="tool-search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.2-4.2M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"/></svg><input id="operationSearch" name="dx-operation-search-473" type="search" placeholder="Search tools, reports or workflows…" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly><kbd>Ctrl K</kbd></label>
         <div class="category-chips" id="categoryChips">
           <button type="button" class="category-chip active" data-category="all">All</button>
           <button type="button" class="category-chip" data-category="agents">Agents</button>
@@ -890,7 +890,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
     </section>
 
     <section id="operationView" class="view">
-      <div class="section-heading settings-heading operation-heading-row"><div><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div><button id="operationExcelSource" class="operation-excel-source hidden" type="button" title="Excel source" aria-label="Excel source" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h10l6 6v12H4V3Zm10 1.8V10h5.2L14 4.8ZM7 13h2l1.4 2.2L11.8 13h2l-2.4 3.5L14 20h-2l-1.6-2.2L8.8 20h-2l2.6-3.5L7 13Z"/></svg></button></div>
+      <div class="section-heading settings-heading operation-heading-row"><div><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div></div>
       <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><div class="operation-control-row"><button id="pauseOperation" class="secondary-button hidden" type="button">Pause</button><button id="cancelOperation" class="secondary-button danger hidden" type="button">Cancel operation</button></div><div id="operationStatus" class="settings-status" aria-live="polite"></div><div id="operationResult" class="operation-result hidden" aria-live="polite"></div></section>
       <section id="dailyPlannerEmbedded" class="daily-planner-embedded" aria-label="Daily Planner">
         <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=450" loading="lazy"></iframe>
@@ -926,11 +926,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
     <section id="settingsView" class="view">
       <div class="section-heading settings-heading"><h1 id="settingsTitle">Settings</h1><p id="settingsDescription">Account, appearance, remote configuration, diagnostics, and local data controls.</p></div>
 
-      <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><label for="dssoUrl">DSSO login URL</label><input id="dssoUrl" type="url" placeholder="https://dsso.digikala.com/adfs/ls/..." />
-<label for="dssoUsername">DSSO username <span class="settings-help">(optional; falls back to Access Email)</span></label><input id="dssoUsername" type="text" autocomplete="username" placeholder="name@digikala.com" />
-<label for="dssoPassword">DSSO password <span class="settings-help">(saved locally; independent from LG validation)</span></label><input id="dssoPassword" type="password" autocomplete="current-password" />
-<label for="dssoAuthenticatorAccount">DSSO Authenticator account <span class="settings-help">(optional; account/email/issuer match)</span></label><input id="dssoAuthenticatorAccount" type="text" placeholder="Leave blank to match DSSO username" />
-<button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
+      <section class="settings-card dx-setting-section" data-settings-section="account"><h2>Account</h2><p id="credentialsHelp" class="settings-help"></p><label id="usernameLabel" for="username">Username / Access Email</label><input id="username" type="text" autocomplete="username" placeholder="name@digikala.com" /><label id="passwordLabel" for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" /><button id="togglePassword" class="secondary-button small">Show</button></div><button id="saveSettings" class="save-button">Save & validate</button><button id="clearCredentials" class="secondary-button danger">Clear username & password</button><div id="settingsStatus" class="settings-status" aria-live="polite"></div></section>
 
       <section class="settings-card dx-setting-section" data-settings-section="appearance"><h2 id="appearanceTitle">Appearance</h2><div class="theme-selector" id="themeSelector" role="group" aria-label="Theme"></div></section>
 
@@ -1031,17 +1027,11 @@ const menu = $('menu');
 const statusEl = $('status');
 const usernameEl = $('username');
 const passwordEl = $('password');
-const dssoUrlEl=$('dssoUrl'); const dssoUsernameEl=$('dssoUsername'); const dssoPasswordEl=$('dssoPassword'); const dssoAuthenticatorAccountEl=$('dssoAuthenticatorAccount'); const operationExcelSource=$('operationExcelSource');
+const operationExcelSource=null;
 
 // Generic operation pages (Agents, DSSO, etc.) do not use the dataset-input Excel toggle.
 // Remote data-reading apps manage their Excel source through ui/excel-datasets.js.
-async function dxRefreshOperationExcelSource(){
-  if(operationExcelSource){
-    operationExcelSource.classList.add('hidden');
-    operationExcelSource.setAttribute('aria-pressed','false');
-    operationExcelSource.disabled=true;
-  }
-}
+async function dxRefreshOperationExcelSource(){ /* Excel source UI lives inside data-reading programs only. */ }
 const validationOverlay = $('validationOverlay');
 const settingsStatus = $('settingsStatus');
 const operationStatus = $('operationStatus');
@@ -1132,13 +1122,12 @@ function classifyOperationError(raw,op=currentOperation){
   else if(/table.*not found|element not found|selector|rows were not available|did not appear/.test(low)){title='Required page content did not load';reason='LG did not render the expected table or control before the timeout.';action='Open LG, confirm the page loads normally, then retry. Diagnostics will show the URL and selector that failed.';}
   else if(/access denied|not listed in the access/.test(low)){title='Access is not available';reason='Your account is not currently authorized for this operation.';action='Check the access email in Settings or contact the operation owner.';}
   else if(/google apps script|web app url|sheet.*required|target sheet/.test(low)){title='Publishing destination is not configured';reason='This Agent requires a Google Sheets destination, but its publishing connection is missing or incomplete.';action='Open Agents settings, configure the destination, and run the Agent again.';}
-  else if(op?.id==='dsso-login' && /login|authentication|credential|password|dsso|authenticator|verification|otp|totp/.test(low)){title='DSSO login needs attention';reason='DSSO could not complete sign-in with the saved DSSO credentials or Authenticator account.';action='Check DSSO URL, DSSO username/password and Authenticator account in Settings, then retry.';}
   else if(/login|authentication|credential|password/.test(low)){title='LG authentication needs attention';reason='The saved session or credentials could not be used for this operation.';action='Open LG and sign in, or validate your account again in Settings.';}
   return {title,reason,action,details:msg||'Unknown error',opId:op?.id||''};
 }
 function bindOperationErrorActions(){
   const retry=document.getElementById('dxErrorRetry'); if(retry)retry.onclick=()=>document.getElementById('runOperation')?.click();
-  const lg=document.getElementById('dxErrorOpenLg'); if(lg){lg.textContent=currentOperation?.id==='dsso-login'?'Open DSSO':'Open LG';lg.onclick=async()=>{let url='https://lg.digikala.com/';if(currentOperation?.id==='dsso-login'){const x=await chrome.storage.local.get(['opsDssoUrl']);url=x.opsDssoUrl||url;}chrome.runtime.sendMessage({type:'OPEN_URL',url}).catch(()=>{});};}
+  const lg=document.getElementById('dxErrorOpenLg'); if(lg){lg.textContent='Open LG';lg.onclick=()=>chrome.runtime.sendMessage({type:'OPEN_URL',url:'https://lg.digikala.com/'}).catch(()=>{});}
   const diag=document.getElementById('dxErrorDiagnostics'); if(diag)diag.onclick=async()=>{showView('settings');updateUrlState('settings');await refreshDiagnosticsPreview();document.querySelector('[data-settings-section="diagnostics"]')?.scrollIntoView({behavior:'smooth',block:'start'});};
 }
 function setOperationStatus(text, kind='') {
@@ -1409,7 +1398,7 @@ function applyOperationFilters(){
 function setOperationCategory(category){activeOperationCategory=String(category||'all').toLowerCase();applyOperationFilters();}
 function initOperationDiscoveryUi(){
   const search=document.getElementById('operationSearch');
-  if(search&&!search.dataset.bound){search.dataset.bound='1';search.addEventListener('input',applyOperationFilters);}
+  if(search&&!search.dataset.bound){search.dataset.bound='1';search.value='';const unlock=()=>search.removeAttribute('readonly');search.addEventListener('pointerdown',unlock,{once:true});search.addEventListener('focus',unlock,{once:true});search.addEventListener('input',()=>{search.dataset.userTyped='1';applyOperationFilters();});for(const ms of [100,500,1500])setTimeout(()=>{if(search.dataset.userTyped!=='1'&&document.activeElement!==search){search.value='';applyOperationFilters();}},ms);}
   const chips=document.getElementById('categoryChips');
   if(chips&&!chips.dataset.bound){chips.dataset.bound='1';chips.addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(b)setOperationCategory(b.dataset.category);});}
   const sidebar=document.querySelector('.sidebar-nav');
@@ -1807,11 +1796,10 @@ async function loadRemote(force=false) {
   renderRemoteBranding();
   renderThemeOptions();
   applyRemoteSettingsLabels();
-  const stored = await chrome.storage.local.get(['opsTheme','opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','dxDiagnosticsEnabled','opsDssoUrl','opsDssoUsername','opsDssoPassword','opsDssoAuthenticatorAccount']);
+  const stored = await chrome.storage.local.get(['opsTheme','opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','dxDiagnosticsEnabled']);
   applyRemoteTheme(stored.opsTheme || remoteBundle?.theme?.default || 'light');
   usernameEl.value = stored.opsUsername || '';
   passwordEl.value = stored.opsPassword || '';
-  if(dssoUrlEl)dssoUrlEl.value=stored.opsDssoUrl||''; if(dssoUsernameEl)dssoUsernameEl.value=stored.opsDssoUsername||''; if(dssoPasswordEl)dssoPasswordEl.value=stored.opsDssoPassword||''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=stored.opsDssoAuthenticatorAccount||'';
   const validationResult=await autoValidateCredentialsIfDue(stored);
   if(validationResult?.reason==='invalid'){
     setSettingsStatus('Stored password is no longer valid. Please update it.','error');
@@ -1859,15 +1847,14 @@ $('saveSettings').addEventListener('click', async () => {
   const username = usernameEl.value.trim();
   const password = passwordEl.value;
   if (!username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) return setSettingsStatus('A valid access email is required.', 'error');
-  const dssoSettings={opsDssoUrl:String(dssoUrlEl?.value||'').trim(),opsDssoUsername:String(dssoUsernameEl?.value||'').trim(),opsDssoPassword:String(dssoPasswordEl?.value||''),opsDssoAuthenticatorAccount:String(dssoAuthenticatorAccountEl?.value||'').trim()};
-  await chrome.storage.local.set({ opsTheme:selectedTheme, opsCredentialsValid:false, ...dssoSettings });
+  await chrome.storage.local.set({ opsTheme:selectedTheme, opsCredentialsValid:false });
   await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
   setValidationBusy(true); setSettingsStatus('');
   try {
     const exception = await chrome.runtime.sendMessage({ type:'CHECK_EXCEPTION_USER', email:username });
     if (!exception?.ok) throw new Error(exception?.error || 'Could not verify exception status.');
     if (exception.exception) {
-      const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now(),...dssoSettings};
+      const values={opsTheme:selectedTheme,opsUsername:username,opsCredentialsValid:true,opsValidationMode:'exception',opsValidatedAt:Date.now()};
       if(password) values.opsPassword=password;
       await chrome.storage.local.set(values); if(!password) await chrome.storage.local.remove(['opsPassword']);
       dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Settings saved.','ok'); showToast('Settings saved.','success'); await refreshOperationVisibility(username); return;
@@ -1875,7 +1862,7 @@ $('saveSettings').addEventListener('click', async () => {
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
     if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
-    await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now(),...dssoSettings});
+    await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now()});
     dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
@@ -1886,8 +1873,8 @@ $('saveSettings').addEventListener('click', async () => {
 
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
-  await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt','opsDssoUrl','opsDssoUsername','opsDssoPassword','opsDssoAuthenticatorAccount']);
-  usernameEl.value=''; passwordEl.value=''; if(dssoUrlEl)dssoUrlEl.value=''; if(dssoUsernameEl)dssoUsernameEl.value=''; if(dssoPasswordEl)dssoPasswordEl.value=''; if(dssoAuthenticatorAccountEl)dssoAuthenticatorAccountEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
+  await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
+  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML=''; dspaceSessionCache.email='';
   setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
 });
 
@@ -1925,7 +1912,7 @@ async function openOperationById(opId,subId=''){
   const loaded=await chrome.runtime.sendMessage({type:'GET_REMOTE_OPERATION',op:catalogOp.id}); if(!loaded?.ok)throw new Error(loaded?.error||'Could not load the remote operation.');
   const op={...catalogOp,...(loaded.operation||{}),id:catalogOp.id};
   await assertOperationHostCompatibility(op);
-  if((Array.isArray(op.inputs)&&op.inputs.length)||(Array.isArray(op.subOperations)&&op.subOperations.length)||String(op.id)==='dsso-login'){renderOperationForm(op,subId);setStatus('Ready');return true;}
+  if((Array.isArray(op.inputs)&&op.inputs.length)||(Array.isArray(op.subOperations)&&op.subOperations.length)){renderOperationForm(op,subId);setStatus('Ready');return true;}
   await checkOperationAccess(op.id); const response=await chrome.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:op.id,inputs:{}}); if(!response?.ok)throw new Error(response?.error||'Could not start operation.'); setStatus(`${op.title||op.id} started.`,'ok');return true;
 }
 
@@ -2505,7 +2492,6 @@ $('runOperation').addEventListener('click', async () => {
     await startActivity(op); setOperationRunning(true,op.id); setProgress('Preparing…');
     setOperationStatus('Checking access…'); await checkOperationAccess(op.id);
     setOperationStatus('Starting operation…');
-    if(op.id==='dsso-login'){ const r=await chrome.runtime.sendMessage({type:'DSSO_LOGIN'}); if(!r?.ok)throw new Error(r?.error||'DSSO login failed.'); setOperationStatus('DSSO login completed.','ok'); setProgress('Done',true); await finishActivity('success','DSSO login completed',op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
     if(op.clientProcessor?.type==='direct-workflow'){ const result=await runDirectWorkflowProcessor(op,inputs); await finishActivity('success',`${result.records||0} rows done`,op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
     if(op.clientProcessor?.type==='point-in-polygon'){ const result=await runPointInPolygonProcessor(op,inputs); await finishActivity('success',`${result.records||0} rows done`,op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
     if(op.clientProcessor?.type==='data-pipeline'){ const result=await runDataPipelineProcessor(op,inputs); await finishActivity('success',`${result.records||0} rows done`,op.id); setOperationRunning(false,op.id); btn.disabled=false; return; }
@@ -2613,6 +2599,5 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 
 </script>
 
-<script src="excel-datasets.js?v=472"></script>
 </body>
 </html>
