@@ -184,23 +184,26 @@ async function loadDataset(service,{fit=true}={}){
     $('#datasetStatus').className=capacityLoadError?'status error':'status ok';
   }catch(e){
     rows=[];shown=[];polygons.clearLayers();render();
-    $('#datasetStatus').textContent=e.message||String(e);
+    $('#datasetStatus').textContent='Polygon map load failed: '+(e?.message||String(e));
     $('#datasetStatus').className='status error';
   }
 }
 async function init(){
   document.querySelectorAll('input[name=polygonService]').forEach(r=>r.addEventListener('change',()=>{if(r.checked)loadDataset(r.value,{fit:true})}));
   await loadDataset(currentService,{fit:true});
-  // Keep the map usable even when DSpace or Google Sheets are slow/unavailable.
-  $('#datasetStatus').textContent=`${rows.length} polygons loaded. Loading Hub and capacity data...`;
-  loadExtras().then(failures=>{
-    restyle();
-    $('#datasetStatus').textContent=failures.length?'Partial data: '+failures.join(' / '):`${rows.length} polygons loaded; ${hubIds.size} Hubs mapped; ${capacityById.size} capacity records ready.`;
-    $('#datasetStatus').className=failures.length?'status error':'status ok';
-  }).catch(error=>{
-    capacityLoadError=String(error?.message||error);
-    $('#datasetStatus').textContent='Map available; capacity data unavailable: '+capacityLoadError;
-    $('#datasetStatus').className='status error';
-  });
+  if(!rows.length)return;
+  $('#datasetStatus').textContent=`${rows.length} polygons loaded. Loading capacity data...`;
+  setTimeout(()=>{
+    loadExtras().then(failures=>{
+      restyle();
+      $('#datasetStatus').textContent=failures.length?'Partial data: '+failures.join(' / '):`${rows.length} polygons loaded; ${hubIds.size} Hubs mapped; ${capacityById.size} capacity records ready.`;
+      $('#datasetStatus').className=failures.length?'status error':'status ok';
+    }).catch(e=>{
+      $('#datasetStatus').textContent='Map loaded; capacity unavailable: '+String(e?.message||e);
+      $('#datasetStatus').className='status error';
+    });
+  },250);
 }
 $('#check').onclick=checkPoint;$('#latlon').addEventListener('keydown',e=>{if(e.key==='Enter')checkPoint()});$('#search').addEventListener('input',render);$('#reset').onclick=reset;armMapVisibilityRefresh();init();
+
+window.addEventListener('unhandledrejection',event=>{const e=event.reason;console.error('Hub Coverage error:',e);const el=document.getElementById('datasetStatus');if(el&&!rows.length){el.textContent='Map startup error: '+String(e?.message||e);el.className='status error';}});
