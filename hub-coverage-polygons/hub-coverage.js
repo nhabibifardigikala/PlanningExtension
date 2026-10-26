@@ -177,7 +177,26 @@ function collectCapacity(d,kind,store){
     store.set(id,v);
   }
 }
-async function loadExtras(){const results=await Promise.allSettled([loadMapper(),readSheet('DC Capacity (LG)','dspace'),readSheet('DC Capacity (Flex)','dspace')]);capacityById=new Map();if(results[1].status==='fulfilled'){try{collectCapacity(results[1].value,'dk',capacityById)}catch(e){results[1]={status:'rejected',reason:e}}}if(results[2].status==='fulfilled'){try{collectCapacity(results[2].value,'flex',capacityById)}catch(e){results[2]={status:'rejected',reason:e}}}const failed=results.map((x,i)=>x.status==='rejected'?['FlexHubMapper','DK Capacity','Flex Capacity'][i]+': '+x.reason.message:null).filter(Boolean);capacityLoadError=failed.join(' / ');return failed}
+async function readCapacitySource(sheetName){
+  // Excel mode must bypass the Host bridge completely. This prevents a stale/slow
+  // DSpace session from blocking Hub Coverage when a local workbook is selected.
+  if(window.DXExcelDatasets?.whenReady) await window.DXExcelDatasets.whenReady;
+  if(window.DXExcelDatasets?.enabled) return window.DXExcelDatasets.sheetData(sheetName);
+  return readSheet(sheetName,'dspace');
+}
+async function loadExtras(){
+  if(window.DXExcelDatasets?.whenReady) await window.DXExcelDatasets.whenReady;
+  capacityById=new Map();
+  const results=[];
+  // Do not issue the mapper + two large capacity reads concurrently. The Stable
+  // Host bridge is intentionally serialized for heavy data requests.
+  try{await loadMapper();results[0]={status:'fulfilled'}}catch(e){results[0]={status:'rejected',reason:e}}
+  try{const dk=await readCapacitySource('DC Capacity (LG)');collectCapacity(dk,'dk',capacityById);results[1]={status:'fulfilled',value:dk}}catch(e){results[1]={status:'rejected',reason:e}}
+  try{const flex=await readCapacitySource('DC Capacity (Flex)');collectCapacity(flex,'flex',capacityById);results[2]={status:'fulfilled',value:flex}}catch(e){results[2]={status:'rejected',reason:e}}
+  const failed=results.map((x,i)=>x?.status==='rejected'?['FlexHubMapper','DK Capacity','Flex Capacity'][i]+': '+(x.reason?.message||String(x.reason)):null).filter(Boolean);
+  capacityLoadError=failed.join(' / ');
+  return failed;
+}
 function csvEscape(v){const s=String(v??'');return /[",\r\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
 function fmtCoord(n){const x=Number(n);if(!Number.isFinite(x))return'';return String(Number(x.toFixed(10)))}
 function ringToWkt(ring){const pts=(ring||[]).filter(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(Number(p[0]))&&Number.isFinite(Number(p[1]))).map(p=>[Number(p[0]),Number(p[1])]);if(pts.length<3)return'';const first=pts[0],last=pts[pts.length-1];if(first[0]!==last[0]||first[1]!==last[1])pts.push([...first]);return pts.map(([lat,lon])=>`${fmtCoord(lon)} ${fmtCoord(lat)}`).join(', ')}

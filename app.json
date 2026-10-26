@@ -1,11 +1,11 @@
 {
-  "configVersion": 474,
+  "configVersion": 475,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 474",
+    "subtitle": "Planning Suite · Config 475",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 474
+    "configVersion": 475
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
