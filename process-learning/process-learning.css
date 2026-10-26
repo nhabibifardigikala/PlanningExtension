@@ -467,3 +467,10 @@ html.full-page .nested-timeline .step-card{padding:14px}
 html.full-page .nested-timeline .step-title{font-size:14px}
 @media(max-width:900px){html.full-page .controls-top{grid-template-columns:minmax(0,1fr) 38px}.open-full-btn{min-height:38px}}
 @media(max-width:520px){.controls-top{grid-template-columns:minmax(0,1fr) 38px}.open-full-btn{min-height:38px}}
+
+/* v474: Search + Excel source + full-page button on one fixed row. */
+.controls-top{grid-template-columns:minmax(0,1fr) 38px 38px!important;gap:8px!important;align-items:center!important}
+.controls-top [data-dx-excel-upload]{width:38px!important;height:38px!important;min-width:38px!important;margin:0!important;align-self:center!important;justify-self:center!important}
+html.full-page .controls-top{grid-template-columns:minmax(420px,760px) 38px 38px!important}
+@media(max-width:900px){html.full-page .controls-top{grid-template-columns:minmax(0,1fr) 38px 38px!important}}
+@media(max-width:520px){.controls-top{grid-template-columns:minmax(0,1fr) 38px 38px!important}}

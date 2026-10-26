@@ -68,7 +68,7 @@ function toolbar(){
   if(title&&title.parentElement){
     const row=document.createElement('div'); row.className='dx-excel-title-row'; row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;';
     title.parentElement.insertBefore(row,title); row.appendChild(title); row.appendChild(btn);
-  }else if(processTop){ processTop.appendChild(btn); }
+  }else if(processTop){ const full=processTop.querySelector('#openFullBtn'); if(full)processTop.insertBefore(btn,full); else processTop.appendChild(btn); }
   else if(app){ const row=document.createElement('div');row.style.cssText='display:flex;justify-content:flex-end;align-items:center;margin:0 0 8px 0;';row.appendChild(btn);app.insertBefore(row,app.firstChild); }
   else document.body.appendChild(btn);
   btn.addEventListener('click',async()=>{

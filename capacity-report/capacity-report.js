@@ -120,6 +120,7 @@
   }
 
   async function loadCenters() {
+    if (window.DXExcelDatasets?.whenReady) await window.DXExcelDatasets.whenReady;
     if (state.allCenters.length) return state.allCenters;
     if(!window.DigiExpressPlatform?.call) throw new Error('Stable Host bridge is unavailable. Reload the extension.');
     const raw=await window.DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:SHEET_NAME,limit:100000});
@@ -131,6 +132,7 @@
   }
 
   async function loadCapacitySheet(source='dk') {
+    if (window.DXExcelDatasets?.whenReady) await window.DXExcelDatasets.whenReady;
     source = source === 'flex' ? 'flex' : 'dk';
     if (state.capacitySheets[source]) return state.capacitySheets[source];
     if (!window.DigiExpressPlatform?.call) throw new Error('Stable Host bridge is unavailable. Reload the extension.');
@@ -188,6 +190,7 @@
   }
 
   function flexLookupMode(){
+    if (window.DXExcelDatasets?.enabled) return $('reportByHub')?.checked ? 'hub' : 'polygon';
     if (!$('useFlexGSheet')?.checked) return 'system';
     return $('reportByHub')?.checked ? 'hub' : 'polygon';
   }
@@ -314,7 +317,7 @@
   }
 
   function updateFlexControls(resetSelections=false){
-    const useSheet=!!$('useFlexGSheet')?.checked,byHub=!!$('reportByHub')?.checked;
+    const useSheet=!!window.DXExcelDatasets?.enabled||!!$('useFlexGSheet')?.checked,byHub=!!$('reportByHub')?.checked;
     if(byHub&&!useSheet)$('useFlexGSheet').checked=true;
     const mode=byHub?'hub':(useSheet?'polygon':'system');
     const label=$('flexCenterLabel'),input=$('flexCenterInput'),help=$('flexCenterHelp');
@@ -694,7 +697,7 @@
   function renderModel(model, dashboard=false) {
     const host=$('result'); if(!host)return;
     const rows=model.partitions.reduce((n,p)=>n+p.rows.length,0);
-    const sourceBadge=`<span class="result-source-badge ${model.dataSource==='dspace'?'gsheet':''}">${model.dataSource==='dspace'?'DSpace':(model.source==='flex'?'Flex System':'LG System')}</span>`;
+    const sourceBadge=`<span class="result-source-badge ${(model.dataSource==='dspace'||model.dataSource==='excel')?'gsheet':''}">${model.dataSource==='excel'?'Excel':model.dataSource==='dspace'?'DSpace':(model.source==='flex'?'Flex System':'LG System')}</span>`;
     host.innerHTML=`<div class="result-toolbar"><div><strong>${model.source==='flex'?'Flex':'DK'} Capacity Report${model.aggregate?' • Aggregated':''}${sourceBadge}</strong><small>${esc(model.fromDate)} → ${esc(model.toDate)} • ${rows} row${rows===1?'':'s'}</small></div><div class="actions"><button class="secondary" id="downloadExcel">Download Excel</button>${dashboard?'':`<button class="secondary" id="openDashboard">Open dashboard</button>`}</div></div><div id="reportCards"></div>`;
     host.classList.remove('hidden');const cards=$('reportCards');
     for(const part of model.partitions){
@@ -773,14 +776,17 @@
       try{const mode=flexLookupMode(),list=mode==='hub'?await loadFlexOptions('hub'):(mode==='polygon'?await loadFlexOptions('polygon'):await loadCenters());const byId=new Map(list.map(x=>[String(x.id),x.name]));state.flexCenters=state.flexCenters.map(x=>({...x,name:byId.get(String(x.id))||x.name}));renderFlexChips();}catch(_){}
     }
     const selected=state.source==='dk'?state.centers:state.flexCenters;
-    const useGSheet=state.source==='dk'?!!$('useDkGSheet')?.checked:!!$('useFlexGSheet')?.checked;
+    if(window.DXExcelDatasets?.whenReady) await window.DXExcelDatasets.whenReady;
+    const excelActive = !!window.DXExcelDatasets?.enabled;
+    // Excel has priority over the Use DSpace checkbox, including when unchecked.
+    const useGSheet=excelActive || (state.source==='dk'?!!$('useDkGSheet')?.checked:!!$('useFlexGSheet')?.checked);
     const reportByHub=state.source==='flex'&&!!$('reportByHub')?.checked;
     const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,useGSheet,reportByHub,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};
     const models=[];
     try{
       for(let i=0;i<selected.length;i++){
         const center=selected[i];
-        setStatus(`${useGSheet?'Loading DSpace':'Running '+(state.source==='dk'?'DK':'Flex')+' report'} ${i+1}/${selected.length}: ${center.name}…`);
+        setStatus(`${excelActive?'Loading Excel':useGSheet?'Loading DSpace':'Running '+(state.source==='dk'?'DK':'Flex')+' report'} ${i+1}/${selected.length}: ${center.name}…`);
         const input=state.source==='dk'
           ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:''}
           : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexDcId:center.id,flexDcName:center.name,flexSelectionMode:/^\d+$/.test(String(center.id))?'id':'name'};
@@ -790,11 +796,12 @@
         models.push(buildModel(result,input));
       }
       const model=combineModels(models,baseInput);
+      if(excelActive)model.dataSource='excel';
       if(!model.totalRows){
         const sheetName=state.source==='dk'?CAPACITY_SHEET_NAME:FLEX_CAPACITY_SHEET_NAME;
-        throw new Error(useGSheet?`No matching capacity rows were found in DSpace → ${sheetName} for the selected item/date range.`:'No capacity rows were returned for the selected item/date range.');
+        throw new Error(useGSheet?`No matching capacity rows were found in ${excelActive?'Excel':'DSpace'} → ${sheetName} for the selected item/date range.`:'No capacity rows were returned for the selected item/date range.');
       }
-      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed from ${model.dataSource==='dspace'?'DSpace':'system'}. ${model.totalRows} rows processed across ${selected.length} selection${selected.length===1?'':'s'}.`,'ok');
+      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed from ${model.dataSource==='excel'?'Excel':model.dataSource==='dspace'?'DSpace':'system'}. ${model.totalRows} rows processed across ${selected.length} selection${selected.length===1?'':'s'}.`,'ok');
     } catch(e){setStatus(e.message||String(e),'error')}
     finally{setBusy(false)}
   }
