@@ -137,7 +137,7 @@
     if (state.capacitySheets[source]) return state.capacitySheets[source];
     if (!window.DigiExpressPlatform?.call) throw new Error('Stable Host bridge is unavailable. Reload the extension.');
     const sheetName = source === 'flex' ? FLEX_CAPACITY_SHEET_NAME : CAPACITY_SHEET_NAME;
-    const r = await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName,limit:250000});
+    const r = await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName,limit:250000,timeoutMs:240000});
     if (r?.ok === false) throw new Error(r.error || `Could not read ${sheetName} from DSpace.`);
     const d = r?.result ?? r ?? {};
     const data = {headers:Array.isArray(d.headers)?d.headers:[], rows:Array.isArray(d.rows)?d.rows:[]};

@@ -27,7 +27,10 @@
     }
   },false);
   async function platformCall(method,args={}){
-    const r=await callBridge('platform.call',{method,args});if(r?.ok===false)throw new Error(r.error||'Platform request failed.');return r?.result??r;
+    const requestedTimeout=Number(args?.timeoutMs||0);
+    const bridgeArgs={method,args};
+    if(requestedTimeout>0)bridgeArgs.timeoutMs=requestedTimeout;
+    const r=await callBridge('platform.call',bridgeArgs);if(r?.ok===false)throw new Error(r.error||'Platform request failed.');return r?.result??r;
   }
   const platform={
     call:platformCall,
