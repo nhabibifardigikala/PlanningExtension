@@ -11,6 +11,34 @@ button.primary:hover,.file-btn.primary:hover,#processExcel:hover{filter:brightne
 <style id="dx-remote-global-font-v367">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
 </style>
+
+<style id="pd-layout-v477">
+html,body{height:100%;min-height:100%;overflow:hidden!important}
+body{margin:0!important;background:#f5f7fb!important}
+.app{width:100%!important;height:100vh!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(360px,440px) minmax(0,1fr)!important;grid-template-areas:"side map"!important;gap:16px!important;padding:16px!important;align-items:stretch!important;overflow:hidden!important}
+.side{grid-area:side!important;width:auto!important;min-width:0!important;max-width:none!important;height:100%!important;display:flex!important;flex-direction:column!important;gap:12px!important;overflow:auto!important;padding:0 2px 4px 0!important}
+.map-wrap{grid-area:map!important;position:relative!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important}
+.map,#map{position:relative!important;width:100%!important;height:100%!important;min-height:520px!important;border-radius:18px!important;overflow:hidden!important;background:#e8edf4!important}
+.panel{width:100%!important;max-width:none!important;margin:0!important}
+.row{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:nowrap!important}
+.row .grow{min-width:0!important;flex:1 1 auto!important}
+#determine{flex:0 0 auto!important}
+#datasetStatus,#resultStatus,#results{width:100%!important}
+#dx-excel-tools{display:none!important}
+@media(max-width:960px){
+  html,body{overflow:auto!important}
+  .app{height:auto!important;min-height:100vh!important;grid-template-columns:1fr!important;grid-template-areas:"map" "side"!important;overflow:visible!important}
+  .map-wrap{height:360px!important}
+  .map,#map{height:360px!important;min-height:360px!important}
+  .side{height:auto!important;overflow:visible!important}
+}
+@media(max-width:560px){
+  .app{padding:10px!important;gap:10px!important}
+  .mode-row{grid-template-columns:1fr!important}
+  .row{flex-direction:column!important;align-items:stretch!important}
+  #determine{width:100%!important}
+}
+</style>
 </head><body>
 <div class="app">
   <div class="map-wrap"><div id="map" class="map"></div></div>
