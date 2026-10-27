@@ -1,10 +1,15 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Hub Coverage Polygons</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"><link rel="stylesheet" href="../coverage-polygons/coverage.css?v=456">  <link rel="stylesheet" href="../ui/design-system.css?v=351">
-
-<style id="dx-remote-global-font-v367">
-html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
-</style>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Hub Coverage Polygons</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+<link rel="stylesheet" href="../coverage-polygons/coverage.css?v=456">
+<link rel="stylesheet" href="../ui/design-system.css?v=351">
+<style id="dx-remote-global-font-v367">html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}</style>
 <style>
-/* Keep the entire remote aligned with the authoritative Host theme. */
 :root{--bg:var(--dx-bg);--panel:var(--dx-surface);--card:var(--dx-surface);--text:var(--dx-text);--muted:var(--dx-muted);--line:var(--dx-line);--navy:var(--dx-surface-soft);--accent:var(--dx-primary)}
 .side{background:var(--dx-bg)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
 .side .title{color:var(--dx-text)!important}.side .sub,.side .section-label{color:var(--dx-muted)!important}
@@ -13,9 +18,74 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
 .side .filter-chip input:checked+span{background:var(--dx-primary);color:#fff;border-color:var(--dx-primary)}
 .side button:not(.primary){color:var(--dx-text);background:var(--dx-surface);border-color:var(--dx-line)}
 .legend{background:var(--dx-surface)!important;color:var(--dx-text)!important;border-color:var(--dx-line)!important}
-.hub-hover-tooltip.leaflet-tooltip{padding:0!important;border:1px solid var(--dx-line)!important;border-radius:12px!important;background:var(--dx-surface)!important;color:var(--dx-text)!important;box-shadow:0 8px 30px #0003!important;pointer-events:none!important;max-width:300px;white-space:normal}
-.hub-hover-tooltip.leaflet-tooltip:before{border-top-color:var(--dx-surface)!important}
-.hub-popup{direction:rtl;text-align:right;min-width:218px;padding:7px 11px;font:12px "Gilroy Medium",Tahoma,sans-serif;line-height:1.7}
-.hub-popup-row{display:flex;gap:16px;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--dx-line);padding:5px 0}
-.hub-popup-row:last-child{border-bottom:0}.hub-popup-key{font-weight:700;color:var(--dx-muted);white-space:nowrap;direction:ltr}.hub-popup-value{color:var(--dx-text);font-weight:700;overflow-wrap:anywhere;text-align:right}.hub-popup-fa{font-family:"Yekan Bakh",Tahoma,sans-serif;direction:rtl}
-</style></head><body><div class="app"><div class="map-wrap"><div id="map" class="map"></div><div class="legend"><div><i class="sw" style="background:#dc2626"></i>Hub (parent)</div><div><i class="sw" style="background:#1976d2"></i>Normal</div><div><i class="sw" style="background:#16a34a"></i>Medium</div><div><i class="sw" style="background:#7c3aed"></i>Large</div><div><i class="sw" style="background:#2563eb"></i>Barbari</div><div><i class="sw" style="background:#0f766e"></i>SuperMarket</div></div></div><aside class="side"><h1 class="title">Hub Coverage Polygons</h1><p class="sub">Hub / DC relationships from FlexHubMapper</p><div class="panel"><div class="section-label">Polygon service</div><div class="filters" id="polygonService"><label class="filter-chip"><input type="radio" name="polygonService" value="delivery" checked><span>Delivery</span></label><label class="filter-chip"><input type="radio" name="polygonService" value="pickup"><span>Pickup</span></label></div><div id="datasetStatus" class="status">Loading Delivery polygons…</div></div><div class="panel"><div class="section-label">Capacity report date range (Jalali)</div><div class="row"><input id="reserveFrom" type="text" inputmode="numeric" maxlength="8" aria-label="From date" placeholder="YYYYMMDD" style="min-width:0;width:50%"><input id="reserveTo" type="text" inputmode="numeric" maxlength="8" aria-label="To date" placeholder="YYYYMMDD" style="min-width:0;width:50%"></div><div id="reserveRangeStatus" class="status"></div></div><div class="panel"><div class="row"><input id="latlon" class="grow" type="text" placeholder="Latitude, Longitude or Lat=34.48162, Long=47.65790"><button id="check" class="primary" type="button">Check</button></div><div id="pointStatus" class="status"></div></div><div class="panel"><div class="section-label">Type</div><div id="typeFilters" class="filters"></div><div class="section-label">District</div><div id="districtFilters" class="filters"></div></div><div class="panel"><div class="row"><input id="search" class="grow" type="text" placeholder="Search polygons..."><button id="reset" type="button">Reset</button></div><div class="row" style="justify-content:space-between;margin:9px 0 5px"><span class="count" id="count"></span></div><div id="results" class="result"></div></div></aside></div><script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script><script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="../ui/platform-client.js?v=455"></script><script src="../ui/excel-datasets.js?v=474"></script><script src="../data/polygon-loader.js?v=455"></script><script src="hub-coverage.js?v=475"></script><script src="../ui/theme-bridge.js?v=351"></script></body></html>
+.hub-popup-wrap .leaflet-popup-content-wrapper,.hub-popup-wrap .leaflet-popup-tip{background:var(--dx-surface)!important;color:var(--dx-text)!important}
+.hub-popup-wrap .leaflet-popup-content-wrapper{border:1px solid var(--dx-line);border-radius:12px;box-shadow:0 8px 30px #0003}
+.hub-popup-wrap .leaflet-popup-content{margin:0!important;min-width:230px}
+.hub-popup{direction:rtl;text-align:right;min-width:218px;padding:10px 12px;font:12px "Yekan Bakh","Gilroy Medium",Tahoma,sans-serif;line-height:1.7}
+.hub-popup-row{display:flex;gap:16px;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--dx-line);padding:6px 0}
+.hub-popup-row:last-child{border-bottom:0}.hub-popup-key{font-weight:700;color:var(--dx-muted);white-space:nowrap}.hub-popup-value{color:var(--dx-text);font-weight:700;overflow-wrap:anywhere;text-align:right}
+.file-drop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.file-drop input[type=file]{display:none}.file-name{font-size:12px;color:var(--dx-muted);overflow-wrap:anywhere}.upload-btn{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--dx-line);background:var(--dx-surface);color:var(--dx-text);padding:9px 12px;border-radius:10px;font-weight:700}.upload-btn:hover{border-color:var(--dx-primary)}
+.data-note{font-size:11px;color:var(--dx-muted);margin-top:8px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="map-wrap">
+    <div id="map" class="map"></div>
+    <div class="legend">
+      <div><i class="sw" style="background:#dc2626"></i>Hub (parent)</div>
+      <div><i class="sw" style="background:#1976d2"></i>Normal</div>
+      <div><i class="sw" style="background:#16a34a"></i>Medium</div>
+      <div><i class="sw" style="background:#7c3aed"></i>Large</div>
+      <div><i class="sw" style="background:#2563eb"></i>Barbari</div>
+      <div><i class="sw" style="background:#0f766e"></i>SuperMarket</div>
+    </div>
+  </div>
+  <aside class="side">
+    <h1 class="title">Hub Coverage Polygons</h1>
+    <p class="sub">Local Excel only · Capacity + FlexHubMapper + Polygons</p>
+
+    <div class="panel">
+      <div class="section-label">Data workbook</div>
+      <div class="file-drop">
+        <label class="upload-btn" for="workbookFile">Choose Excel file</label>
+        <input id="workbookFile" type="file" accept=".xlsx,.xls,.xlsm,.xlsb">
+        <span id="fileName" class="file-name">No file selected</span>
+      </div>
+      <div class="data-note">Required sheets: <b>Capacity</b>, <b>FlexHubMapper</b>, <b>Polygons</b>. Only Delivery polygons are used.</div>
+      <div id="datasetStatus" class="status">Choose an Excel workbook to load the map.</div>
+    </div>
+
+    <div class="panel">
+      <div class="section-label">Capacity report date range (Jalali)</div>
+      <div class="row">
+        <input id="reserveFrom" type="text" inputmode="numeric" maxlength="10" aria-label="From date" placeholder="YYYY/MM/DD" style="min-width:0;width:50%">
+        <input id="reserveTo" type="text" inputmode="numeric" maxlength="10" aria-label="To date" placeholder="YYYY/MM/DD" style="min-width:0;width:50%">
+      </div>
+      <div id="reserveRangeStatus" class="status"></div>
+    </div>
+
+    <div class="panel">
+      <div class="row"><input id="latlon" class="grow" type="text" placeholder="Latitude, Longitude"><button id="check" class="primary" type="button">Check</button></div>
+      <div id="pointStatus" class="status"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-label">Type</div><div id="typeFilters" class="filters"></div>
+      <div class="section-label">District</div><div id="districtFilters" class="filters"></div>
+    </div>
+
+    <div class="panel">
+      <div class="row"><input id="search" class="grow" type="text" placeholder="Search polygons..."><button id="reset" type="button">Reset</button></div>
+      <div class="row" style="justify-content:space-between;margin:9px 0 5px"><span class="count" id="count"></span></div>
+      <div id="results" class="result"></div>
+    </div>
+  </aside>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="hub-coverage.js?v=478"></script>
+<script src="../ui/theme-bridge.js?v=351"></script>
+</body>
+</html>

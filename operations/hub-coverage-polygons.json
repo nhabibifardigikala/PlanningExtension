@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Hub and DC polygon relationships from Google FlexHubMapper with DSpace capacity summaries",
+  "description": "Local Excel only. Reads Capacity, FlexHubMapper and Delivery Polygons from the workbook selected inside Hub Coverage Polygons.",
   "workflow": [],
   "successMessage": "Ready.",
   "runtimeContract": "stable-host-12",
