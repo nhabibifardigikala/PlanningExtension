@@ -19,11 +19,64 @@ function matchesPoint(lat,lon,types){const wanted=new Set(types.map(t=>TYPE_MAP[
 function drawSingle(lat,lon,result){polyLayer.clearLayers();pointLayer.clearLayers();L.marker([lat,lon]).addTo(pointLayer);currentLayers=[];for(const [type,rows] of Object.entries(result))for(const r of rows)for(const part of (r.coordinates||[])){const p=L.polygon(part,{color:polyColor(r.natureId),weight:4,fillOpacity:.25}).addTo(polyLayer);p.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId||r.stateId||'-')}<br>${esc(type)}`);currentLayers.push(p);}const b=L.featureGroup([...currentLayers,...pointLayer.getLayers()]).getBounds();if(b.isValid())map.fitBounds(b,{padding:[20,20]});else map.setView([lat,lon],14);setTimeout(()=>map.invalidateSize(),50);}
 function renderSingle(lat,lon,result){const rows=[];for(const [type,items] of Object.entries(result)){if(items.length){for(const r of items)rows.push([type,r.name,r.dcId||r.stateId||'',r.iata||'']);}else rows.push([type,'Not found','','']);}$('#results').innerHTML=`<table><thead><tr><th>Type</th><th>Parent Name</th><th>ID</th><th>IATA</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;const hits=rows.filter(r=>r[1]!=='Not found').length;$('#resultStatus').textContent=hits?`${hits} matching ${currentService} parent record(s).`:'No parent found.';$('#resultStatus').className='status '+(hits?'ok':'error');drawSingle(lat,lon,result);}
 function parseLocation(text){const value=String(text||'').trim();const labeled=value.match(/lat(?:itude)?\s*=\s*([-+]?\d+(?:\.\d+)?)\s*[,;،]?\s*(?:long|lon|lng|longitude)\s*=\s*([-+]?\d+(?:\.\d+)?)/i);const p=labeled?[Number(labeled[1]),Number(labeled[2])]:value.split(/(?:\s*,\s*|\s+)/).filter(Boolean).map(Number);if(p.length!==2||p.some(x=>!Number.isFinite(x))||p[0]<-90||p[0]>90||p[1]<-180||p[1]>180)throw new Error('Use format: latitude, longitude; latitude longitude; or Lat=34.48162, Long=47.65790');return{lat:p[0],lon:p[1]};}
-function readPointRows(file){return file.arrayBuffer().then(buf=>{const wb=XLSX.read(buf,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});if(!aoa.length)return[];let start=0;const a=Number(aoa[0]?.[0]),b=Number(aoa[0]?.[1]);if(!Number.isFinite(a)||!Number.isFinite(b))start=1;return aoa.slice(start).filter(r=>String(r?.[0]??'').trim()||String(r?.[1]??'').trim());});}
+function normalizeHeader(v){return String(v??'').trim().toLowerCase().replace(/[\s_\-]+/g,'').replace(/[^a-z0-9\u0600-\u06ff]/g,'');}
+function findCoordinateColumns(headers){
+  const aliasesLat=new Set(['lat','latitude','عرضجغرافیایی','عرض']);
+  const aliasesLon=new Set(['lon','lng','long','longitude','طولجغرافیایی','طول']);
+  let latIndex=-1,lonIndex=-1;
+  headers.forEach((h,i)=>{const n=normalizeHeader(h);if(latIndex<0&&aliasesLat.has(n))latIndex=i;if(lonIndex<0&&aliasesLon.has(n))lonIndex=i;});
+  return{latIndex,lonIndex};
+}
+function readPointRows(file){return file.arrayBuffer().then(buf=>{
+  const wb=XLSX.read(buf,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+  if(!aoa.length)return{headers:[],rows:[],latIndex:-1,lonIndex:-1};
+  let headerRow=-1,latIndex=-1,lonIndex=-1;
+  for(let i=0;i<Math.min(20,aoa.length);i++){
+    const found=findCoordinateColumns(aoa[i]||[]);
+    if(found.latIndex>=0&&found.lonIndex>=0){headerRow=i;latIndex=found.latIndex;lonIndex=found.lonIndex;break;}
+  }
+  if(headerRow<0){
+    const a=Number(aoa[0]?.[0]),b=Number(aoa[0]?.[1]);
+    if(Number.isFinite(a)&&Number.isFinite(b)){
+      const width=Math.max(...aoa.map(r=>r?.length||0),2);
+      const headers=Array.from({length:width},(_,i)=>i===0?'Latitude':i===1?'Longitude':`Column ${i+1}`);
+      return{headers,rows:aoa.filter(r=>r.some(v=>String(v??'').trim()!=='')),latIndex:0,lonIndex:1};
+    }
+    throw new Error('Latitude and Longitude columns were not found. Keep any extra columns; only coordinate columns are required.');
+  }
+  const width=Math.max(aoa[headerRow].length,...aoa.slice(headerRow+1).map(r=>r?.length||0));
+  const headers=Array.from({length:width},(_,i)=>String(aoa[headerRow]?.[i]??'').trim()||`Column ${i+1}`);
+  const rows=aoa.slice(headerRow+1).filter(r=>r.some(v=>String(v??'').trim()!=='')).map(r=>Array.from({length:width},(_,i)=>r?.[i]??''));
+  return{headers,rows,latIndex,lonIndex};
+});}
 function makeFilters(){const available=Object.keys(TYPE_MAP).filter(t=>polygons.some(r=>Number(r.natureId)===TYPE_MAP[t]));const vals=['All',...available];$('#typeFilters').innerHTML=vals.map(v=>`<label class="filter-chip"><input class="type-check" type="checkbox" value="${v}" ${v==='All'?'checked':''}><span>${v}</span></label>`).join('');const boxes=[...document.querySelectorAll('.type-check')],all=boxes[0];boxes.forEach(b=>b.onchange=()=>{if(b===all&&b.checked)boxes.slice(1).forEach(x=>x.checked=false);else if(b!==all&&b.checked)all.checked=false;if(!boxes.some(x=>x.checked))all.checked=true;});}
 async function determineSingle(){try{const {lat,lon}=parseLocation($('#location').value),types=selectedTypes(),result=matchesPoint(lat,lon,types);renderSingle(lat,lon,result);}catch(e){$('#resultStatus').textContent=e.message;$('#resultStatus').className='status error';}}
-async function processExcel(){const file=$('#locationsFile').files?.[0];if(!file){$('#resultStatus').textContent='Select an Excel file first.';$('#resultStatus').className='status error';return;}try{$('#processExcel').disabled=true;$('#resultStatus').textContent='Reading locations…';const pts=await readPointRows(file),types=selectedTypes();if(!pts.length)throw new Error('No latitude/longitude rows were found.');const headers=['Latitude','Longitude','Status'];for(const t of types)headers.push(`${t} Parent Name`,`${t} ID`);const output=[];for(let i=0;i<pts.length;i++){const lat=Number(pts[i][0]),lon=Number(pts[i][1]),row=[pts[i][0],pts[i][1]];if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<-90||lat>90||lon<-180||lon>180){row.push('Invalid coordinate');for(const t of types)row.push('','');output.push(row);continue;}const result=matchesPoint(lat,lon,types),any=types.some(t=>(result[t]||[]).length);row.push(any?'Matched':'No parent found');for(const t of types){const ms=result[t]||[];row.push(ms.length?ms.map(x=>x.name).filter(Boolean).join(' | '):'Not found',ms.length?ms.map(x=>x.dcId||x.stateId).filter(x=>x!==''&&x!=null).join(' | '):'');}output.push(row);if(i%25===0){$('#resultStatus').textContent=`Processing ${i+1} / ${pts.length}…`;await new Promise(r=>setTimeout(r,0));}}
-const ws=XLSX.utils.aoa_to_sheet([headers,...output]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Parent Determination');const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');XLSX.writeFile(wb,`${currentService}_parent_determination_${stamp}.xlsx`);$('#resultStatus').textContent=`Completed: ${output.length} location(s). Excel downloaded.`;$('#resultStatus').className='status ok';$('#results').innerHTML=`<table><thead><tr>${headers.slice(0,5).map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${output.slice(-100).map(r=>`<tr>${r.slice(0,5).map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;}catch(e){$('#resultStatus').textContent=e.message||String(e);$('#resultStatus').className='status error';}finally{$('#processExcel').disabled=false;}}
+async function processExcel(){
+  const file=$('#locationsFile').files?.[0];
+  if(!file){$('#resultStatus').textContent='Select an Excel file first.';$('#resultStatus').className='status error';return;}
+  try{
+    $('#processExcel').disabled=true;$('#resultStatus').textContent='Reading locations…';
+    const input=await readPointRows(file),types=selectedTypes();
+    if(!input.rows.length)throw new Error('No data rows were found.');
+    const resultHeaders=['Status'];for(const t of types)resultHeaders.push(`${t} Parent Name`,`${t} ID`);
+    const headers=[...input.headers,...resultHeaders],output=[];
+    for(let i=0;i<input.rows.length;i++){
+      const sourceRow=[...input.rows[i]],lat=Number(sourceRow[input.latIndex]),lon=Number(sourceRow[input.lonIndex]),resultCells=[];
+      if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<-90||lat>90||lon<-180||lon>180){
+        resultCells.push('Invalid coordinate');for(const t of types)resultCells.push('','');output.push([...sourceRow,...resultCells]);continue;
+      }
+      const result=matchesPoint(lat,lon,types),any=types.some(t=>(result[t]||[]).length);resultCells.push(any?'Matched':'No parent found');
+      for(const t of types){const ms=result[t]||[];resultCells.push(ms.length?ms.map(x=>x.name).filter(Boolean).join(' | '):'Not found',ms.length?ms.map(x=>x.dcId||x.stateId).filter(x=>x!==''&&x!=null).join(' | '):'');}
+      output.push([...sourceRow,...resultCells]);
+      if(i%25===0){$('#resultStatus').textContent=`Processing ${i+1} / ${input.rows.length}…`;await new Promise(r=>setTimeout(r,0));}
+    }
+    const ws=XLSX.utils.aoa_to_sheet([headers,...output]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Parent Determination');
+    const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');XLSX.writeFile(wb,`${currentService}_parent_determination_${stamp}.xlsx`);
+    $('#resultStatus').textContent=`Completed: ${output.length} location(s). All original Excel columns were preserved.`;$('#resultStatus').className='status ok';
+    const previewCount=Math.min(headers.length,8);$('#results').innerHTML=`<table><thead><tr>${headers.slice(0,previewCount).map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${output.slice(-100).map(r=>`<tr>${r.slice(0,previewCount).map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }catch(e){$('#resultStatus').textContent=e.message||String(e);$('#resultStatus').className='status error';}
+  finally{$('#processExcel').disabled=false;}
+}
 function normalizePickupIds(list){if(currentService!=='pickup')return list;return list.map(r=>{if((r.dcId===''||r.dcId==null)&&r.stateId!=='')r.dcId=r.stateId;return r;});}
 async function loadDataset(service){
   currentService=service;
