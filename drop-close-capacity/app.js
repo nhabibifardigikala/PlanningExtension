@@ -82,12 +82,39 @@ async function closeRow(session,rowNumber,id){
   return {ok:false,message:`تأیید CLOSED برای ${id} دیده نشد.`};
 }
 function setStatus(text,kind=''){const el=$('status');el.textContent=text;el.dataset.kind=kind}
-function renderQueuePreview(){const rows=imported; $('preview').textContent=rows.length?`${rows.length} مورد آماده:\n`+rows.slice(0,40).map((x,i)=>`${i+1}. ${x.network} | ${x.from} تا ${x.to}${x.time?' | '+x.time:' | تمام تایم‌ها'}`).join('\n')+(rows.length>40?'\n…':''):'فایلی انتخاب نشده است.'}
+function statusClass(v){return ['done','finished'].includes(v)?'done':v==='running'?'running':['paused','cancelled','failed'].includes(v)?'paused':'pending'}
+function statusText(v){return v==='done'?'تکمیل':v==='running'?'در حال اجرا':v==='paused'?'متوقف':v==='cancelled'?'لغو شده':'در انتظار'}
+function renderQueueTable(state){
+  const rows=state?.items?.length?state.items:imported;
+  const body=$('queueRows'); if(!body)return;
+  $('queueMeta').textContent=`${rows.length} مورد`;
+  if(!rows.length){body.innerHTML='<tr class="empty"><td colspan="8">هنوز موردی به صف اضافه نشده است.</td></tr>';return}
+  body.innerHTML=rows.map((x,i)=>`<tr><td>${i+1}</td><td>${x.network||'-'}</td><td>${x.from||'-'}</td><td>${x.to||'-'}</td><td>${x.time||'همه'}</td><td><span class="pill ${statusClass(x.status)}">${statusText(x.status)}</span></td><td>${Number(x.completed||0)}</td><td class="msg" title="${String(x.message||'').replace(/"/g,'&quot;')}">${x.message||'-'}</td></tr>`).join('');
+}
+function renderQueuePreview(){
+  const rows=imported;
+  const p=$('preview'); if(p)p.textContent=rows.length?`${rows.length} مورد آماده`:'فایلی انتخاب نشده است.';
+  renderQueueTable(null);
+}
 function renderState(j){
-  const total=j?.items?.length||imported.length||0;const index=Math.min(Number(j?.index||0),total);const pct=total?Math.round(index/total*100):0;$('progress').style.width=pct+'%';$('countLabel').textContent=`${index}/${total} مورد`;
+  const total=j?.items?.length||imported.length||0;
+  const index=Math.min(Number(j?.index||0),total);
+  const pct=total?Math.round(index/total*100):0;
+  $('progress').style.width=pct+'%';
+  $('countLabel').textContent=`${index}/${total}`;
   $('stateLabel').textContent=j?.state==='running'?'در حال اجرا':j?.state==='paused'?'متوقف موقت':j?.state==='finished'?'پایان یافته':j?.state==='cancelled'?'لغو شده':'آماده';
-  if(j){const x=j.items?.[j.index];setStatus(`وضعیت: ${j.state}\nبازه ${Math.min(j.index+1,j.items.length)} از ${j.items.length}\nشبکه: ${x?.network||'-'}\nبسته‌شده: ${(j.log||[]).filter(x=>x.result==='closed').length}\n${j.message||x?.message||''}`)}
+  const items=j?.items?.length?j.items:imported;
+  const success=(j?.log||[]).filter(x=>x.result==='closed').length;
+  const failed=(j?.log||[]).filter(x=>x.result==='failed').length;
+  const running=items.filter(x=>x.status==='running').length;
+  $('statTotal').textContent=String(items.length);
+  $('statSuccess').textContent=String(success);
+  $('statFail').textContent=String(failed);
+  $('statRunning').textContent=String(running);
+  $('resume').style.display=j?.state==='paused'?'inline-flex':'none';
+  if(j){const x=j.items?.[j.index];setStatus(`${j.message||x?.message||'در حال پردازش'} • شبکه ${x?.network||'-'} • ${success} بسته‌شده`)}
   else setStatus('آماده');
+  renderQueueTable(j);
 }
 function log(j,x,id,result,message){j.log.push({network:x.network,from:x.from,to:x.to,scope:x.time||'',sourceRow:x.sourceRow,id,result,time:new Date().toISOString(),message})}
 
@@ -122,8 +149,8 @@ async function processQueue(){
   }finally{processing=false}
 }
 
-$('file').onchange=async()=>{try{const f=$('file').files[0];if(!f)return;const rows=f.name.toLowerCase().endsWith('.csv')?csvRows(await f.text()):await XlsxReader.read(await f.arrayBuffer());imported=parse(rows);renderQueuePreview()}catch(e){imported=[];$('preview').textContent='خطا: '+e.message}};
-$('manualAdd').onclick=()=>{try{imported.push(makeItem($('network').value,$('from').value,$('to').value,$('time').value,'manual-'+(imported.length+1)));$('manualStatus').textContent='مورد دستی به صف افزوده شد.';renderQueuePreview()}catch(e){$('manualStatus').textContent=e.message}};
+$('file').onchange=async()=>{try{const f=$('file').files[0];if(!f)return;$('fileName').textContent=f.name;const rows=f.name.toLowerCase().endsWith('.csv')?csvRows(await f.text()):await XlsxReader.read(await f.arrayBuffer());imported=parse(rows);renderQueuePreview();renderState(null)}catch(e){imported=[];$('fileName').textContent='خطا: '+e.message;renderQueuePreview();renderState(null)}};
+$('manualAdd').onclick=()=>{try{imported.push(makeItem($('network').value,$('from').value,$('to').value,$('time').value,'manual-'+(imported.length+1)));$('manualStatus').textContent='به صف اضافه شد';renderQueuePreview();renderState(null)}catch(e){$('manualStatus').textContent=e.message}};
 $('start').onclick=async()=>{try{if(!imported.length)throw Error('ابتدا ورودی دستی یا Excel اضافه کنید.');const old=await getState();if(old&&['running','paused'].includes(old.state)&&!confirm('صف قبلی جایگزین شود؟'))return;if(!confirm(`بستن ظرفیت‌های ${imported.length} مورد شروع شود؟`))return;const j={items:structuredClone(imported),index:0,state:'running',log:[],started:new Date().toISOString(),message:'شروع صف'};await saveState(j);processQueue()}catch(e){setStatus(e.message,'error')}};
 $('pause').onclick=async()=>{pauseRequested=true;const j=await getState();if(j){j.state='paused';j.message='درخواست توقف ثبت شد؛ پس از مرحله جاری متوقف می‌شود.';await saveState(j)}};
 $('resume').onclick=async()=>{const j=await getState();if(!j||!['paused','running'].includes(j.state))return;j.state='running';j.message='در حال ادامه صف…';await saveState(j);pauseRequested=false;processQueue()};
@@ -135,3 +162,11 @@ $('report').onclick=async()=>{const j=await getState();if(!j)return alert('هن�
 function applyTheme(theme){document.documentElement.dataset.theme=theme==='dark'?'dark':'light'}
 window.addEventListener('message',e=>{if(e.data?.type==='DIGIEXPRESS_THEME')applyTheme(e.data.theme)});try{parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*')}catch(_){}
 (async()=>{const j=await getState();if(j?.items?.length){imported=j.items.map(x=>({...x}));renderQueuePreview()}renderState(j)})();
+
+
+// Compact source tabs (v481)
+document.querySelectorAll('.tab[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.tab[data-tab]').forEach(x=>x.classList.toggle('active',x===btn));
+  $('manualPane').classList.toggle('active',btn.dataset.tab==='manual');
+  $('excelPane').classList.toggle('active',btn.dataset.tab==='excel');
+}));

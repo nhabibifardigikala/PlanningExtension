@@ -5,46 +5,65 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Drop Close Capacity</title>
 <style>
-:root{--bg:#f5f7fb;--panel:#fff;--card:#fff;--text:#10214b;--muted:#68758d;--accent:#3567f1;--accent-soft:#eef4ff;--border:#dfe5ef;--danger:#d63c52;--success:#15986a;--shadow:0 12px 30px rgba(16,33,75,.07)}
-html[data-theme="dark"]{--bg:#0c1322;--panel:#111a2d;--card:#121c31;--text:#eef4ff;--muted:#9aa8bf;--accent:#6f98ff;--accent-soft:#18294d;--border:#263654;--danger:#ff6678;--success:#4bd0a2;--shadow:none;color-scheme:dark}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif}body{padding:18px}.shell{max-width:1160px;margin:0 auto}.hero{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 22px;background:linear-gradient(135deg,var(--accent-soft),var(--card));border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);margin-bottom:16px}.hero-main{display:flex;align-items:center;gap:14px}.app-icon{width:48px;height:48px;border-radius:14px;box-shadow:0 8px 20px rgba(53,103,241,.15)}h1{font-size:22px;margin:0 0 5px}.subtitle{color:var(--muted);font-size:13px}.badge{border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:8px 11px;border-radius:999px;font-size:12px}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.card.full{grid-column:1/-1}.step{display:flex;align-items:center;gap:9px;font-weight:800;margin-bottom:12px}.step i{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-style:normal;font-size:12px}label{display:block;font-size:12px;font-weight:700;margin-top:10px;color:var(--muted)}input[type=text],input[type=file]{width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--border);border-radius:11px;background:var(--panel);color:var(--text);outline:none}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}button,.button{border:1px solid transparent;border-radius:11px;padding:10px 14px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}.primary{background:var(--accent);color:white}.secondary{background:var(--panel);color:var(--text);border-color:var(--border)}.good{background:color-mix(in srgb,var(--success) 14%,var(--panel));color:var(--success);border-color:color-mix(in srgb,var(--success) 30%,var(--border))}.danger{background:color-mix(in srgb,var(--danger) 12%,var(--panel));color:var(--danger);border-color:color-mix(in srgb,var(--danger) 30%,var(--border))}button:disabled{opacity:.45;cursor:not-allowed}.help{font-size:12px;line-height:1.8;color:var(--muted)}#preview,#status{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85;border:1px dashed var(--border);background:color-mix(in srgb,var(--panel) 82%,var(--accent-soft));border-radius:12px;padding:11px;margin-top:10px;min-height:48px}#preview{max-height:170px;overflow:auto;font-size:11px}.progress-wrap{height:10px;background:var(--accent-soft);border-radius:999px;overflow:hidden;margin:14px 0 8px}.progress-bar{height:100%;width:0;background:var(--accent);transition:width .25s}.status-line{display:flex;justify-content:space-between;gap:12px;align-items:center}.status-pill{font-size:11px;border-radius:999px;padding:6px 9px;background:var(--accent-soft);color:var(--accent)}.note{margin-top:12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 7%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 18%,var(--border));font-size:12px;color:var(--muted)}@media(max-width:800px){body{padding:12px}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}.hero{align-items:flex-start}.badge{display:none}.row{grid-template-columns:1fr}}
+:root{--bg:#f5f7fb;--panel:#fff;--panel2:#f8faff;--text:#10214b;--muted:#6d7890;--accent:#3567f1;--accent2:#6f82ff;--accent-soft:#edf3ff;--border:#dfe6f1;--danger:#df4058;--success:#15966a;--warn:#e59a22;--shadow:0 8px 22px rgba(16,33,75,.06)}
+html[data-theme="dark"]{--bg:#0c1322;--panel:#111a2d;--panel2:#15213a;--text:#eef4ff;--muted:#9cabc1;--accent:#7397ff;--accent2:#8d7dff;--accent-soft:#1a2b4f;--border:#283957;--danger:#ff6f82;--success:#49cda0;--warn:#ffc05c;--shadow:none;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif}body{padding:10px}.app{height:100%;max-width:1320px;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px}.top{display:grid;grid-template-columns:minmax(320px,.95fr) minmax(400px,1.35fr) minmax(180px,.65fr);gap:10px}.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}.source,.control,.tools{padding:12px}.section-title{font-size:12px;font-weight:900;letter-spacing:.02em;margin-bottom:9px;color:var(--text)}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--panel2);border:1px solid var(--border);padding:4px;border-radius:11px;margin-bottom:9px}.tab{height:33px;border:0;background:transparent;color:var(--muted);border-radius:8px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.tab.active{background:var(--panel);color:var(--accent);box-shadow:0 2px 9px rgba(53,103,241,.10)}.pane{display:none}.pane.active{display:block}.fields{display:grid;grid-template-columns:1fr 1fr;gap:7px}.field.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;color:var(--muted);margin:0 0 4px}.field input{width:100%;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--text);padding:0 10px;font:inherit;font-size:12px;outline:none}.field input:focus{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 13%,transparent)}.mini-actions{display:flex;gap:6px;margin-top:8px}.btn{height:34px;border:1px solid transparent;border-radius:9px;padding:0 12px;font:inherit;font-size:11px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}.btn.soft{background:var(--panel2);border-color:var(--border);color:var(--text)}.btn.good{background:color-mix(in srgb,var(--success) 12%,var(--panel));border-color:color-mix(in srgb,var(--success) 26%,var(--border));color:var(--success)}.btn.warn{background:color-mix(in srgb,var(--warn) 12%,var(--panel));border-color:color-mix(in srgb,var(--warn) 25%,var(--border));color:var(--warn)}.btn.danger{background:color-mix(in srgb,var(--danger) 10%,var(--panel));border-color:color-mix(in srgb,var(--danger) 24%,var(--border));color:var(--danger)}.btn:disabled{opacity:.45;cursor:not-allowed}.filebox{display:flex;align-items:center;gap:8px;height:73px;border:1px dashed color-mix(in srgb,var(--accent) 38%,var(--border));border-radius:11px;padding:9px;background:linear-gradient(135deg,var(--panel2),var(--accent-soft));cursor:pointer}.file-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--panel);color:var(--accent);font-size:20px}.filecopy{min-width:0;flex:1}.filecopy b{display:block;font-size:11px}.filecopy span{display:block;margin-top:3px;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#file{display:none}.controls{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:6px}.controls .btn{width:100%;height:38px}.progress-head{display:flex;align-items:center;justify-content:space-between;margin:10px 0 5px;font-size:10px}.state{font-weight:900}.count{color:var(--accent);font-weight:900}.progress-track{height:7px;border-radius:99px;background:var(--accent-soft);overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}.stat{border:1px solid var(--border);background:var(--panel2);border-radius:10px;padding:7px;text-align:center}.stat span{font-size:9px;color:var(--muted);display:block}.stat strong{display:block;font-size:16px;margin-top:2px}.stat.success strong{color:var(--success)}.stat.fail strong{color:var(--danger)}.stat.running strong{color:var(--warn)}.status-box{margin-top:8px;height:38px;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);font-size:9px;line-height:1.35;overflow:hidden;white-space:pre-line;color:var(--muted)}.tool-stack{display:grid;gap:6px}.tool-stack .btn{width:100%}.tip{margin-top:8px;padding:8px;border-radius:10px;background:var(--accent-soft);color:var(--muted);font-size:9px;line-height:1.55}.workspace{min-height:0;padding:10px;display:grid;grid-template-rows:auto minmax(0,1fr)}.queue-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.queue-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900}.queue-note{font-size:9px;color:var(--muted)}.table-wrap{min-height:0;overflow:auto;border:1px solid var(--border);border-radius:11px}.queue{width:100%;border-collapse:collapse;font-size:10px;direction:rtl}.queue th,.queue td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap}.queue th{position:sticky;top:0;z-index:1;background:var(--panel2);color:var(--muted);font-weight:900}.queue td.msg{text-align:right;max-width:350px;overflow:hidden;text-overflow:ellipsis}.empty td{height:96px;color:var(--muted)}.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:99px;font-size:9px;font-weight:900}.pill.pending{background:var(--panel2);color:var(--muted)}.pill.running{background:color-mix(in srgb,var(--warn) 13%,var(--panel));color:var(--warn)}.pill.done{background:color-mix(in srgb,var(--success) 13%,var(--panel));color:var(--success)}.pill.paused,.pill.failed{background:color-mix(in srgb,var(--danger) 11%,var(--panel));color:var(--danger)}
+@media(max-width:940px){html,body{overflow:auto;height:auto}.app{height:auto}.top{grid-template-columns:1fr}.workspace{min-height:380px}.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tool-stack{grid-template-columns:1fr 1fr}.tip{margin:0}.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<div class="shell">
-  <header class="hero">
-    <div class="hero-main"><img class="app-icon" src="icon.png" alt=""><div><h1>Drop Close Capacity</h1><div class="subtitle">بستن گروهی ظرفیت‌های Drop Shipping با ورودی دستی یا Excel</div></div></div>
-    <div class="badge">Capacity automation</div>
-  </header>
-  <main class="grid">
-    <section class="card">
-      <div class="step"><i>1</i><span>ورودی دستی</span></div>
-      <div class="row"><label>Network ID<input id="network" type="text" placeholder="19884"></label><label>Time scope (اختیاری)<input id="time" type="text" placeholder="09:00-12:00"></label></div>
-      <div class="row"><label>از تاریخ<input id="from" type="text" placeholder="1405/02/21"></label><label>تا تاریخ<input id="to" type="text" placeholder="1405/02/21"></label></div>
-      <div class="actions"><button id="manualAdd" class="primary">افزودن به صف</button></div><div id="manualStatus" class="help"></div>
-    </section>
-    <section class="card">
-      <div class="step"><i>2</i><span>ورودی Excel</span></div>
-      <div class="actions"><a class="button secondary" href="template.xlsx" download="capacity-template.xlsx">دانلود Template</a></div>
-      <input id="file" type="file" accept=".xlsx,.csv">
-      <div class="help">ستون‌ها: network_id | from_date | to_date | time_scope (اختیاری)</div>
-      <div id="preview">فایلی انتخاب نشده است.</div>
-    </section>
-    <section class="card full">
-      <div class="step"><i>3</i><span>کنترل عملیات</span></div>
-      <div class="status-line"><strong id="stateLabel">آماده</strong><span id="countLabel" class="status-pill">0 مورد</span></div>
-      <div class="progress-wrap"><div id="progress" class="progress-bar"></div></div>
-      <div class="actions"><button id="start" class="primary">شروع صف</button><button id="pause" class="secondary">توقف موقت</button><button id="resume" class="good">ادامه</button><button id="cancel" class="danger">لغو صف</button></div>
-      <div id="status">آماده</div>
-      <div class="note">برای جلوگیری از بستن تکراری، بعد از هر اقدام وضعیت CLOSED دوباره بررسی می‌شود. ابتدا روی یک ردیف آزمایشی اجرا کنید.</div>
-    </section>
-    <section class="card full">
-      <div class="step"><i>4</i><span>گزارش</span></div>
-      <div class="actions"><button id="report" class="secondary">دریافت گزارش CSV</button><button id="clear" class="secondary">پاک کردن صف پایان‌یافته</button></div>
-    </section>
-  </main>
+<div class="app">
+  <section class="top">
+    <div class="card source">
+      <div class="section-title">منبع داده</div>
+      <div class="tabs"><button class="tab active" data-tab="manual">ورودی دستی</button><button class="tab" data-tab="excel">فایل Excel</button></div>
+      <div id="manualPane" class="pane active">
+        <div class="fields">
+          <div class="field full"><label>Network ID</label><input id="network" type="text" inputmode="numeric" placeholder="مثال: 183192"></div>
+          <div class="field"><label>از تاریخ</label><input id="from" type="text" placeholder="1405/08/01"></div>
+          <div class="field"><label>تا تاریخ</label><input id="to" type="text" placeholder="1405/08/15"></div>
+          <div class="field full"><label>Time Scope (اختیاری)</label><input id="time" type="text" placeholder="مثال: 09:00-12:00"></div>
+        </div>
+        <div class="mini-actions"><button id="manualAdd" class="btn primary">افزودن به صف</button><span id="manualStatus" class="queue-note"></span></div>
+      </div>
+      <div id="excelPane" class="pane">
+        <label class="filebox" for="file"><span class="file-icon">⇩</span><span class="filecopy"><b>انتخاب فایل Excel / CSV</b><span id="fileName">network_id · from_date · to_date · time_scope</span></span></label>
+        <input id="file" type="file" accept=".xlsx,.csv">
+        <div id="preview" hidden></div>
+      </div>
+    </div>
+
+    <div class="card control">
+      <div class="section-title">کنترل عملیات</div>
+      <div class="controls"><button id="start" class="btn primary">▶ شروع</button><button id="pause" class="btn warn">Ⅱ توقف</button><button id="cancel" class="btn danger">■ لغو</button></div>
+      <div class="progress-head"><span id="stateLabel" class="state">آماده</span><span id="countLabel" class="count">0/0</span></div>
+      <div class="progress-track"><div id="progress" class="progress-bar"></div></div>
+      <div class="stats">
+        <div class="stat"><span>کل</span><strong id="statTotal">0</strong></div>
+        <div class="stat success"><span>موفق</span><strong id="statSuccess">0</strong></div>
+        <div class="stat fail"><span>ناموفق</span><strong id="statFail">0</strong></div>
+        <div class="stat running"><span>در حال انجام</span><strong id="statRunning">0</strong></div>
+      </div>
+      <div id="status" class="status-box">آماده</div>
+      <button id="resume" class="btn good" style="display:none">▶ ادامه صف</button>
+    </div>
+
+    <div class="card tools">
+      <div>
+        <div class="section-title">ابزارها</div>
+        <div class="tool-stack"><a class="btn soft" href="template.xlsx" download="capacity-template.xlsx">⇩ دانلود قالب Excel</a><button id="report" class="btn soft">⇩ گزارش CSV</button><button id="clear" class="btn soft">پاک کردن صف</button></div>
+      </div>
+      <div class="tip"><b>نکته:</b><br>پس از هر Close وضعیت CLOSED دوباره بررسی می‌شود. در صورت خطا صف متوقف می‌شود تا از اجرای تکراری جلوگیری شود.</div>
+    </div>
+  </section>
+
+  <section class="card workspace">
+    <div class="queue-head"><div class="queue-title">لیست پردازش <span id="queueMeta" class="queue-note">0 مورد</span></div><div class="queue-note">آخرین وضعیت صف به‌صورت خودکار ذخیره می‌شود.</div></div>
+    <div class="table-wrap">
+      <table class="queue"><thead><tr><th>#</th><th>Network ID</th><th>از</th><th>تا</th><th>Time Scope</th><th>وضعیت</th><th>بسته‌شده</th><th>پیام</th></tr></thead><tbody id="queueRows"><tr class="empty"><td colspan="8">هنوز موردی به صف اضافه نشده است.</td></tr></tbody></table>
+    </div>
+  </section>
 </div>
-<script src="../ui/platform-client.js?v=480"></script>
-<script src="xlsx-reader.js?v=7"></script>
-<script src="app.js?v=480"></script>
+<script src="xlsx-reader.js?v=481"></script>
+<script src="app.js?v=481"></script>
 </body></html>
