@@ -1,49 +1,23 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Parent Determination</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"><link rel="stylesheet" href="app.css?v=482">  <link rel="stylesheet" href="../ui/design-system.css?v=351">
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Parent Determination</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"><link rel="stylesheet" href="../coverage-polygons/coverage.css?v=419"><link rel="stylesheet" href="app.css?v=483">  <link rel="stylesheet" href="../ui/design-system.css?v=351">
 
 <style id="dx-remote-global-font-v367">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
 </style>
 
-<style id="pd-layout-v477">
-html,body{height:100%;min-height:100%;overflow:hidden!important}
-body{margin:0!important;background:#f5f7fb!important}
-.app{width:100%!important;height:100vh!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(360px,440px)!important;grid-template-areas:"map side"!important;gap:16px!important;padding:16px!important;align-items:stretch!important;overflow:hidden!important}
-.side{grid-area:side!important;width:auto!important;min-width:0!important;max-width:none!important;height:100%!important;display:flex!important;flex-direction:column!important;gap:12px!important;overflow:auto!important;padding:0 2px 4px 0!important}
-.map-wrap{grid-area:map!important;position:relative!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important}
-.map,#map{position:relative!important;width:100%!important;height:100%!important;min-height:520px!important;border-radius:18px!important;overflow:hidden!important;background:#e8edf4!important}
-.panel{width:100%!important;max-width:none!important;margin:0!important}
-.row{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:nowrap!important}
-.row .grow{min-width:0!important;flex:1 1 auto!important}
-#determine{flex:0 0 auto!important}
-#datasetStatus,#resultStatus,#results{width:100%!important}
-#dx-excel-tools{display:none!important}
-@media(max-width:960px){
-  html,body{overflow:auto!important}
-  .app{height:auto!important;min-height:100vh!important;grid-template-columns:1fr!important;grid-template-areas:"map" "side"!important;overflow:visible!important}
-  .map-wrap{height:360px!important}
-  .map,#map{height:360px!important;min-height:360px!important}
-  .side{height:auto!important;overflow:visible!important}
-}
-@media(max-width:560px){
-  .app{padding:10px!important;gap:10px!important}
-  .mode-row{grid-template-columns:1fr!important}
-  .row{flex-direction:column!important;align-items:stretch!important}
-  #determine{width:100%!important}
-}
-</style>
+
 </head><body>
 <div class="app">
   <div class="map-wrap"><div id="map" class="map"></div></div>
   <aside class="side">
-    <div class="panel compact"><div class="section-label">Polygon service</div><div class="mode-row" id="polygonService"><label><input type="radio" name="polygonService" value="delivery" checked> Delivery</label><label><input type="radio" name="polygonService" value="pickup"> Pickup</label></div></div>
-    <div class="panel compact"><div class="mode-row"><label><input type="radio" name="mode" value="single" checked> Single location</label><label><input type="radio" name="mode" value="excel"> Excel file</label></div></div>
+    <div class="panel compact"><div class="section-label">Polygon service</div><div class="filters" id="polygonService"><label class="filter-chip"><input type="radio" name="polygonService" value="delivery" checked><span>Delivery</span></label><label class="filter-chip"><input type="radio" name="polygonService" value="pickup"><span>Pickup</span></label></div></div>
+    <div class="panel compact"><div class="section-label">Input mode</div><div class="filters"><label class="filter-chip"><input type="radio" name="mode" value="single" checked><span>Single location</span></label><label class="filter-chip"><input type="radio" name="mode" value="excel"><span>Excel file</span></label></div></div>
     <div class="panel" id="singlePanel"><label>Latitude, Longitude</label><div class="row"><input id="location" class="grow" type="text" placeholder="35.7219, 51.3347"><button id="determine" class="primary" type="button">Determine</button></div></div>
-    <div class="panel hidden" id="excelPanel"><label class="file-btn primary" for="locationsFile">Upload locations Excel</label><input id="locationsFile" class="hidden-file" type="file" accept=".xlsx,.xls"><button id="processExcel" class="primary" type="button">Process & Download</button><div class="help">Excel may contain any extra columns. Only Latitude and Longitude columns are required; all original columns are preserved in the output.</div></div>
+    <div class="panel hidden" id="excelPanel"><div class="excel-actions"><label class="file-btn" for="locationsFile">Upload Excel</label><button id="processExcel" class="primary" type="button">Process & Download</button></div><input id="locationsFile" class="hidden-file" type="file" accept=".xlsx,.xls"><div id="locationsFileName">No file selected</div><div class="help">Excel may contain any extra columns. Only Latitude and Longitude columns are required; all original columns are preserved in the output.</div></div>
     <div class="panel"><div class="section-label">Expected parents</div><div class="filters" id="typeFilters"></div></div>
     <div id="datasetStatus" class="status">Loading Delivery polygons…</div>
     <div id="resultStatus" class="status"></div>
     <div id="results" class="result"></div>
   </aside>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script><script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="../ui/platform-client.js?v=455"></script><script src="../ui/excel-datasets.js?v=474"></script><script src="../data/polygon-loader.js?v=455"></script><script src="app.js?v=482"></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script><script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="../ui/platform-client.js?v=455"></script><script src="../ui/excel-datasets.js?v=474"></script><script src="../data/polygon-loader.js?v=455"></script><script src="app.js?v=483"></script>
 <script src="../ui/theme-bridge.js?v=351"></script></body></html>

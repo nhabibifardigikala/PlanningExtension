@@ -98,6 +98,8 @@ async function loadDataset(service){
 async function init(){
   document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{$('#singlePanel').classList.toggle('hidden',r.value==='excel'&&r.checked);$('#excelPanel').classList.toggle('hidden',r.value==='single'&&r.checked);setTimeout(()=>map.invalidateSize(),50);});
   document.querySelectorAll('input[name=polygonService]').forEach(r=>r.onchange=()=>{if(r.checked)loadDataset(r.value);});
+  const locationsFile=$('#locationsFile');
+  if(locationsFile) locationsFile.addEventListener('change',()=>{const n=$('#locationsFileName');if(n)n.textContent=locationsFile.files?.[0]?.name||'No file selected';});
   $('#determine').onclick=determineSingle;$('#location').onkeydown=e=>{if(e.key==='Enter')determineSingle();};$('#processExcel').onclick=processExcel;
   await loadDataset(currentService);
 }
