@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Close Drop Shipping capacity rows in controlled batches from manual input or Excel. Includes pause, resume, cancel and CSV reporting.",
+  "runLabel": "Open Drop Close Capacity",
+  "inputs": [
+    {
+      "name": "__dropCloseCapacityEmbedded",
+      "label": "",
+      "type": "text",
+      "showWhen": {"field": "__never__", "equals": "true"}
+    }
+  ],
+  "workflow": [],
+  "successMessage": "Ready.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "remote",
+  "output": {"type": "internal"},
+  "minHostVersion": "13.0.17"
+}

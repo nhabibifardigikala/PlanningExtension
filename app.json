@@ -1,11 +1,11 @@
 {
-  "configVersion": 479,
+  "configVersion": 480,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 478",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 479
+    "configVersion": 480
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -285,6 +285,36 @@
         "type": "internal"
       },
       "minHostVersion": "13.0.10"
+    },
+    {
+      "id": "drop-close-capacity",
+      "title": "Drop Close Capacity",
+      "subtitle": "Batch close Drop Shipping capacity",
+      "accessControl": "public",
+      "accessHeaders": [
+        "Drop Close Capacity"
+      ],
+      "config": "operations/drop-close-capacity.json?v=480",
+      "iconImage": "icons/apps/drop-close-capacity.webp?v=480",
+      "iconSvgPath": "M8 8h32v32H8z M14 14h20v4H18v8h-4V14Zm15 10 3 3 3-3 3 3-3 3 3 3-3 3-3-3-3 3-3-3 3-3-3-3 3-3 3 3Z",
+      "description": "Close Drop Shipping capacity rows from manual input or Excel with pause, resume and CSV reporting.",
+      "runLabel": "Open Drop Close Capacity",
+      "uiMode": "form",
+      "category": "capacity",
+      "output": {
+        "type": "internal"
+      },
+      "inputs": [
+        {
+          "name": "__dropCloseCapacityEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "gate-management",

@@ -813,6 +813,16 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
 html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]){height:100%;overflow:hidden}
 .app-shell:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
 #operationView.active:has(#operationInputs [data-field-wrap="__ganjeNetworkEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+
+/* v480 — Drop Close Capacity embedded workspace */
+#dropCloseCapacityEmbedded.drop-close-capacity-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:560px;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--card);margin-top:6px}
+#dropCloseCapacityEmbedded.drop-close-capacity-embedded iframe{width:100%;height:100%;border:0;background:transparent}
+#operationView:has(#operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]) #dropCloseCapacityEmbedded{display:block!important;flex:1 1 auto;height:auto!important;min-height:0!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__dropCloseCapacityEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+
 </style>
 </head>
 <body>
@@ -910,6 +920,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeNetwork
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=455&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=455&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
+      <section id="dropCloseCapacityEmbedded" class="drop-close-capacity-embedded" aria-label="Drop Close Capacity"><iframe title="Drop Close Capacity" src="https://nhabibifardigikala.github.io/PlanningExtension/drop-close-capacity/index.html?v=480" loading="lazy"></iframe></section>
       <section id="hubCoveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Hub Coverage Polygons"><iframe title="Hub Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/hub-coverage-polygons/index.html?v=479" loading="lazy"></iframe></section>
       <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=455" loading="lazy"></iframe></section>
       <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=455" loading="lazy"></iframe></section>
@@ -1053,7 +1064,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 455;
+const EXPECTED_REMOTE_CONFIG_VERSION=480;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
