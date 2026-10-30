@@ -1,0 +1,5 @@
+The following files were intentionally removed from the extension in v485:
+- operations/convert-lat-long.json
+- templates/ConvertLatLongTemplate.xlsx
+- icons/apps/convert-lat-long.webp
+The Convert Lat & Long operation entry was removed from app.json.

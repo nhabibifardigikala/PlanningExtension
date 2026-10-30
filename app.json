@@ -1,11 +1,11 @@
 {
-  "configVersion": 483,
+  "configVersion": 485,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 478",
+    "subtitle": "Planning Suite · Config 485",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 483
+    "configVersion": 485
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -874,43 +874,6 @@
         "type": "internal"
       },
       "minHostVersion": "13.0.1"
-    },
-    {
-      "id": "convert-lat-long",
-      "title": "Convert Lat & Long",
-      "subtitle": "Convert coordinates to WKT CSV",
-      "accessHeaders": [
-        "Convert Lat & Long"
-      ],
-      "config": "operations/convert-lat-long.json?v=378",
-      "iconSvgPath": "M8 8h12v4H12v8H8V8Zm20 0h12v12h-4v-8h-8V8ZM8 28h4v8h8v4H8V28Zm28 0h4v12H28v-4h8v-8ZM17 22h14v4H17v-4Zm5-5 5 7-5 7v-5h-6v-4h6v-5Z",
-      "description": "Upload an Excel file containing Name and coordinates columns, convert latitude/longitude polygons to WKT, and download a quoted UTF-8 CSV.",
-      "runLabel": "Convert & Download CSV",
-      "uiMode": "form",
-      "inputs": [
-        {
-          "name": "templateDownload",
-          "label": "Input Template",
-          "type": "download",
-          "buttonLabel": "Download Template",
-          "asset": "templates/ConvertLatLongTemplate.xlsx",
-          "filename": "ConvertLatLongTemplate.xlsx",
-          "help": "Download the template and keep the Name and coordinates column headers unchanged."
-        },
-        {
-          "name": "inputFile",
-          "label": "Upload Excel",
-          "type": "file",
-          "accept": ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "required": true,
-          "help": "coordinates must contain an array of [latitude, longitude] points."
-        }
-      ],
-      "iconImage": "icons/apps/convert-lat-long.webp?v=378",
-      "category": "polygons",
-      "output": {
-        "type": "excel"
-      }
     },
     {
       "id": "process-learning",
