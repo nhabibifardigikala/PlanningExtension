@@ -1,5 +1,5 @@
 {
-  "configVersion": 485,
+  "configVersion": 486,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
@@ -108,6 +108,35 @@
       },
       "minHostVersion": "13.0.5",
       "iconImage": "icons/apps/ganje-network-management.webp?v=382"
+    },
+    {
+      "id": "ganje-follow-up",
+      "title": "GANJE Follow-up",
+      "subtitle": "D2D DC mismatch & trend report",
+      "accessControl": "public",
+      "accessHeaders": [
+        "GANJE Follow-up"
+      ],
+      "config": "operations/ganje-follow-up.json?v=486",
+      "iconSvgPath": "M8 8h32v30H8V8Zm5 6v4h22v-4H13Zm0 8v4h10v-4H13Zm0 8v4h7v-4h-7Zm13-7 4 4 7-9 3 3-10 13-7-7 3-4Z",
+      "description": "Analyze GANJE D2D DC mismatch from XLSX/CSV, compare with an optional previous report, and export a trend-aware Excel report.",
+      "runLabel": "Open GANJE Follow-up",
+      "uiMode": "form",
+      "category": "network",
+      "output": {
+        "type": "excel"
+      },
+      "inputs": [
+        {
+          "name": "__ganjeFollowUpEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "ganje-network-worker",

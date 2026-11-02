@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GANJE Follow-up</title>
+  <link rel="stylesheet" href="app.css?v=486" />
+</head>
+<body>
+  <main class="workspace">
+    <section class="top-grid">
+      <article class="panel files-panel">
+        <div class="panel-title"><div><strong>داده گزارش</strong><span>فایل جاری الزامی است؛ گزارش دوره قبل اختیاری است.</span></div></div>
+        <div class="file-grid">
+          <label class="file-zone" id="dropZone">
+            <input id="fileInput" type="file" accept=".xlsx,.csv" />
+            <span class="file-icon">↥</span><strong>داده‌های جاری</strong><span>XLSX یا CSV</span><small id="fileName">فایلی انتخاب نشده</small>
+          </label>
+          <label class="file-zone secondary-zone" id="previousDropZone">
+            <input id="previousFileInput" type="file" accept=".xlsx,.csv" />
+            <span class="file-icon">↺</span><strong>گزارش دوره قبل</strong><span>اختیاری برای Trend</span><small id="previousFileName">انتخاب نشده</small>
+          </label>
+        </div>
+      </article>
+
+      <article class="panel control-panel">
+        <div class="panel-title"><div><strong>تنظیم گزارش</strong><span>فقط مراکز بالاتر از Threshold نمایش داده می‌شوند.</span></div></div>
+        <div class="threshold-row">
+          <label for="threshold">حداقل درصد تغییر DC</label>
+          <div class="number-box"><input id="threshold" type="number" min="0" max="100" step="0.1" value="5"/><span>%</span></div>
+        </div>
+        <div class="actions">
+          <button id="analyzeBtn" class="btn primary" disabled>ایجاد گزارش</button>
+          <button id="exportBtn" class="btn secondary" disabled>دانلود Excel</button>
+        </div>
+        <div id="status" class="status">آماده دریافت فایل</div>
+      </article>
+    </section>
+
+    <section id="summarySection" class="summary hidden">
+      <article class="metric"><span>ردیف مرتبط</span><strong id="relevantCount">0</strong></article>
+      <article class="metric"><span>کل تغییر DC</span><strong id="mismatchCount">0</strong></article>
+      <article class="metric"><span>مراکز بالای حد</span><strong id="centerCount">0</strong></article>
+      <article class="metric"><span>تاریخ گزارش</span><strong id="reportDate">—</strong></article>
+    </section>
+
+    <section id="reportSection" class="panel report-panel hidden">
+      <div class="report-head"><div><strong>گزارش مراکز</strong><span id="thresholdLabel"></span></div><div class="legend"><span class="up">افزایشی</span><span class="down">کاهشی</span><span class="flat">بدون تغییر</span></div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>تاریخ</th><th>نام مرکز</th><th>تعداد کل</th><th>تعداد تغییر DC</th><th>درصد تغییر DC</th><th>درصد دوره قبل</th><th>تغییر</th><th>روند</th></tr></thead>
+          <tbody id="reportBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyState" class="empty hidden">هیچ مرکزی بالاتر از آستانه انتخاب‌شده نیست.</p>
+    </section>
+  </main>
+  <script src="xlsx-writer.js?v=486"></script>
+  <script src="app.js?v=486"></script>
+</body>
+</html>

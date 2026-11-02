@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Analyze D2D GANJE DC mismatch from XLSX/CSV, compare with an optional previous-period report, and export the result as XLSX.",
+  "runLabel": "Open GANJE Follow-up",
+  "inputs": [
+    {
+      "name": "__ganjeFollowUpEmbedded",
+      "label": "",
+      "type": "text",
+      "showWhen": {"field": "__never__", "equals": "true"}
+    }
+  ],
+  "workflow": [],
+  "successMessage": "GANJE Follow-up ready.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "client",
+  "output": {"type": "excel"}
+}
