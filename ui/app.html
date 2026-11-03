@@ -1882,12 +1882,12 @@ $('saveSettings').addEventListener('click', async () => {
     }
     if(!password) throw new Error('Username and password are invalid.');
     const response=await chrome.runtime.sendMessage({type:'VALIDATE_CREDENTIALS',username,password});
-    if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsPassword','opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); passwordEl.value=''; throw new Error('Username and password are invalid.'); }
+    if(!response?.ok||!response.valid){ await chrome.storage.local.remove(['opsValidatedUsername','opsValidationMode','opsValidatedAt']); await chrome.storage.local.set({opsCredentialsValid:false}); throw new Error(String(response?.error||'Credential validation could not confirm the signed-in session.')); }
     await chrome.storage.local.set({opsTheme:selectedTheme,opsUsername:username,opsPassword:password,opsCredentialsValid:true,opsValidatedUsername:username.toLowerCase(),opsValidationMode:'validated',opsValidatedAt:Date.now()});
     dspaceSessionCache.email=username.toLowerCase(); setSettingsStatus('Username and password are valid.','ok'); showToast('Username and password are valid.','success'); await refreshOperationVisibility(username);
   } catch(error) {
     const msg=String(error?.message||'Username and password are invalid.');
-    const safe=msg.toLowerCase().includes('database')||msg.toLowerCase().includes('exception')?msg:'Username and password are invalid.';
+    const safe=msg;
     setSettingsStatus(safe,'error'); showToast(safe,'error');
   } finally { setValidationBusy(false); }
 });
