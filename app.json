@@ -1,11 +1,11 @@
 {
-  "configVersion": 489,
+  "configVersion": 490,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 489",
+    "subtitle": "Planning Suite · Config 490",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 489
+    "configVersion": 490
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -113,7 +113,7 @@
       "id": "ganje-follow-up",
       "title": "GANJE Follow-up",
       "subtitle": "D2D DC mismatch & trend report",
-      "accessControl": "public",
+      "accessControl": "column",
       "accessHeaders": [
         "GANJE Follow-up"
       ],
@@ -319,7 +319,7 @@
       "id": "drop-close-capacity",
       "title": "Drop Close Capacity",
       "subtitle": "Batch close Drop Shipping capacity",
-      "accessControl": "public",
+      "accessControl": "column",
       "accessHeaders": [
         "Drop Close Capacity"
       ],
@@ -427,7 +427,7 @@
       "id": "fbm-request",
       "title": "FBM Request",
       "subtitle": "Open FBM request form",
-      "accessControl": "public",
+      "accessControl": "column",
       "description": "Open the FBM Request Google Apps Script form in a new browser tab.",
       "externalUrl": "https://script.google.com/macros/s/AKfycbyyqAMCb5YR61THamNczMLIpCo1IPV9TqY7gROhHrzq_EFf_7yhdu-UGOZ4MLEAqVbS/exec",
       "category": "network",

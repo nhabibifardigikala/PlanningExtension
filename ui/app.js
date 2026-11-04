@@ -355,7 +355,7 @@ async function refreshOperationVisibility(emailOverride = null) {
     const response = await chrome.runtime.sendMessage({ type:'GET_VISIBLE_OPERATIONS', email: hasValidEmail ? email : '' });
     if (!response?.ok) throw new Error(response?.error || 'Could not load operation access.');
     const allowed = new Set((response.allowedOps || []).map(String));
-    const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && op.internalOnly !== true && (String(op.accessControl||'').toLowerCase()==='public' || allowed.has(String(op.id))));
+    const operations = (remoteBundle.operations || []).filter(op => op.enabled !== false && op.internalOnly !== true && allowed.has(String(op.id)));
     visibleOperationsCache=operations.slice();
     favoriteOperationIds=await getFavorites();
     renderOperationCards();
@@ -817,7 +817,7 @@ $('clearCredentials').addEventListener('click', async () => {
 async function openOperationById(opId,subId=''){
   const catalogOp=(remoteBundle?.operations||[]).find(x=>String(x.id)===String(opId)); if(!catalogOp)throw new Error(`Operation not found: ${opId}`);
   if(catalogOp.externalUrl){
-    if(String(catalogOp.accessControl||'').toLowerCase()!=='public') await checkOperationAccess(catalogOp);
+    await checkOperationAccess(catalogOp.id);
     const target=String(catalogOp.externalUrl||'').trim();
     if(!/^https:\/\//i.test(target))throw new Error('External operation URL is invalid.');
     const opened=await chrome.runtime.sendMessage({type:'OPEN_URL',url:target});
