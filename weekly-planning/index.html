@@ -247,6 +247,7 @@ html[data-theme="dark"] .report-task-table .task-cell{color:#d7e8f8}
 <style id="dx-remote-global-font-v367">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
 </style>
+  <link rel="stylesheet" href="../ui/design-system.css?v=492">
 </head>
 <body>
 <div class="app-shell">
@@ -681,5 +682,6 @@ window.addEventListener('message',e=>{ if(e.data?.type==='DIGIEXPRESS_THEME'){ c
 try{ parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*'); } catch(_){}
 (async()=>{ settings=await storageGet(); $('planDate').value=settings.planDate||todayJalali8(); renderPlanSelectors(); if(settings.planResponsible&&configuredResponsibles().includes(settings.planResponsible)) $('planResponsible').value=settings.planResponsible; renderHierarchySelectors(); await loadTasks(); })().catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); });
 </script>
+<script src="../ui/table-component.js?v=492"></script>
 </body>
 </html>

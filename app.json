@@ -1,11 +1,11 @@
 {
-  "configVersion": 490,
+  "configVersion": 492,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 490",
+    "subtitle": "Planning Suite · Config 492",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 490
+    "configVersion": 492
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -1023,7 +1023,7 @@
       }
     }
   ],
-  "publishedAt": "2026-09-19",
+  "publishedAt": "2026-11-04",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -1078,7 +1078,7 @@
     "html": "ui/app.html?v=472",
     "css": "ui/app.css?v=408"
   },
-  "version": "476",
+  "version": 492,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
@@ -1089,13 +1089,15 @@
   "platformContract": 12,
   "hostUpdatePolicy": "rare-capability-or-security-only",
   "executionModel": "remote-first-declarative",
-  "designSystem": "ui/design-system.css?v=378",
+  "designSystem": "ui/design-system.css?v=492",
   "featureFlags": {
     "diagnostics": true,
     "structuredErrors": true,
     "urlState": true,
     "advancedSettings": true,
-    "outputContracts": true
+    "outputContracts": true,
+    "healthCheck": true
   },
-  "recommendedHostVersion": "13.0.2"
+  "recommendedHostVersion": "13.0.18",
+  "tableComponent": "ui/table-component.js?v=492"
 }

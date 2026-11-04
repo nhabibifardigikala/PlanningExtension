@@ -18,6 +18,7 @@ html[data-theme="dark"]{color-scheme:dark;--bg:#07172c;--card:#0d213d;--surface:
 .toast{position:fixed;left:18px;bottom:18px;max-width:min(420px,calc(100vw - 36px));padding:10px 13px;border-radius:12px;background:var(--navy);color:#fff;font-size:11.5px;box-shadow:0 12px 30px rgba(16,42,76,.28);opacity:0;transform:translateY(10px);pointer-events:none;transition:.18s;z-index:50}.toast.show{opacity:1;transform:none}.toast.error{background:#8b1e19}
 @media(max-width:900px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.table-wrap{max-height:none}.hero{grid-template-columns:1fr}.hero-badge{justify-self:start}}@media(max-width:560px){body{padding:12px}.paste-actions{flex-wrap:wrap}.btn{flex:1}.metrics{grid-template-columns:1fr 1fr}.metric strong{font-size:22px}}
 </style>
+  <link rel="stylesheet" href="../ui/design-system.css?v=492">
 </head>
 <body>
 <main class="page">
@@ -85,5 +86,6 @@ $('requestText').addEventListener('input',()=>scheduleAnalyze(120));
 window.addEventListener('message',e=>{if(e.data?.type==='DIGIEXPRESS_THEME'){const t=String(e.data.theme||'').toLowerCase();if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}});try{parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*')}catch(_){}
 setTimeout(()=>loadInventory().catch(()=>{}),120);
 </script>
+<script src="../ui/table-component.js?v=492"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" sizes="128x128" href="../icons/favicon.png?v=398">
 <link rel="shortcut icon" href="../icons/favicon.png?v=398">
 
-<!-- DigiExpress v352 self-contained remote shell. Shell CSS is embedded so a partial GitHub upload cannot break the UI. -->
+<!-- DigiExpress shared Design System v492. Inline tokens remain only as a fallback if the shared stylesheet cannot load. -->
 <style id="dx-design-system-inline">
 /* DigiExpress Design System v328 — remote-owned shared UI foundation */
 :root{
@@ -68,6 +68,7 @@ html[data-theme="dark"] :is(th,.subtle,.soft-panel,.info-box,.notice,.empty-stat
 #operationView:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]) > .section-heading,#operationView:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]) #capacityStats{display:none!important}
 #operationView.active:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]){display:flex;flex-direction:column;height:calc(100vh - 108px);min-height:0!important;overflow:hidden}
 </style>
+<link rel="stylesheet" href="design-system.css?v=492">
 <style id="dx-app-inline">
 /* v327 compatibility gate: intentionally visible by default. Host 12.7+ removes it after version validation. */
 .host-compatibility-gate{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:28px;background:color-mix(in srgb,var(--dx-bg,#f5f7fb) 94%,transparent);backdrop-filter:blur(10px)}.host-compatibility-gate.compatible{display:none!important}.host-compatibility-card{width:min(620px,100%);padding:28px;border:1px solid var(--dx-line,#e2e8f2);border-radius:20px;background:var(--dx-surface,#fff);box-shadow:var(--dx-shadow,0 18px 50px rgba(15,23,42,.08));color:var(--dx-text,#10213f)}.host-compatibility-card h1{margin:14px 0 8px;font-size:26px}.host-compatibility-card p{margin:0 0 18px;line-height:1.7;color:var(--dx-muted,#667085)}.host-compatibility-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#fff4e8;color:#d97706;font-size:24px;font-weight:900}.host-compatibility-help{padding:14px 16px;border:1px solid var(--dx-line,#e2e8f2);border-radius:14px;background:var(--dx-surface-soft,#f8faff)}.host-compatibility-help a{font-weight:700;color:var(--dx-primary,#2563eb)}
@@ -912,29 +913,29 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       <div class="section-heading settings-heading operation-heading-row"><div><h1 id="operationTitle">Operation</h1><p id="operationDescription"></p></div></div>
       <section class="settings-card"><div id="operationInputs" class="dynamic-form"></div><button id="runOperation" class="save-button">Run</button><div id="progressWrap" class="progress-wrap hidden"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text hidden">Preparing…</div><div class="operation-control-row"><button id="pauseOperation" class="secondary-button hidden" type="button">Pause</button><button id="cancelOperation" class="secondary-button danger hidden" type="button">Cancel operation</button></div><div id="operationStatus" class="settings-status" aria-live="polite"></div><div id="operationResult" class="operation-result hidden" aria-live="polite"></div></section>
       <section id="dailyPlannerEmbedded" class="daily-planner-embedded" aria-label="Daily Planner">
-        <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=450" loading="lazy"></iframe>
+        <iframe id="dailyPlannerFrame" title="Daily Planner" src="https://nhabibifardigikala.github.io/PlanningExtension/planner/index.html?v=492" loading="lazy"></iframe>
       </section>
-      <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=355" loading="lazy"></iframe></section>
-      <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=424" loading="lazy"></iframe></section>
-      <section id="chargingItemsEmbedded" class="charging-items-embedded" aria-label="Charging Items"><iframe id="chargingItemsFrame" title="Charging Items" src="https://nhabibifardigikala.github.io/PlanningExtension/charging-items/index.html?v=396" loading="lazy"></iframe></section>
+      <section id="followUpEmbedded" class="follow-up-embedded" aria-label="Follow-up"><iframe id="followUpFrame" title="Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/follow-up/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="gateManagementEmbedded" class="gate-management-embedded" aria-label="Gate Management"><iframe id="gateManagementFrame" title="Gate Management" src="https://nhabibifardigikala.github.io/PlanningExtension/gate-management/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="weeklyPlanningEmbedded" class="weekly-planning-embedded" aria-label="Weekly Planning"><iframe id="weeklyPlanningFrame" title="Weekly Planning" src="https://nhabibifardigikala.github.io/PlanningExtension/weekly-planning/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="chargingItemsEmbedded" class="charging-items-embedded" aria-label="Charging Items"><iframe id="chargingItemsFrame" title="Charging Items" src="https://nhabibifardigikala.github.io/PlanningExtension/charging-items/index.html?v=492" loading="lazy"></iframe></section>
       <section id="authenticatorEmbedded" class="authenticator-embedded" aria-label="Authenticator"><iframe id="authenticatorFrame" title="Authenticator" src="about:blank" loading="lazy" allow="clipboard-write"></iframe></section>
-      <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=348" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
+      <section id="pomodoroEmbedded" class="wellness-embedded" aria-label="Pomodoro"><iframe title="Pomodoro" src="https://nhabibifardigikala.github.io/PlanningExtension/pomodoro/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="workHealthyEmbedded" class="wellness-embedded" aria-label="Work Healthy"><iframe title="Work Healthy" src="https://nhabibifardigikala.github.io/PlanningExtension/work-healthy/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="noteEmbedded" class="note-embedded" aria-label="Note"><iframe id="noteFrame" title="Note" src="https://nhabibifardigikala.github.io/PlanningExtension/note/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="pasteAssistantEmbedded" class="paste-assistant-embedded" aria-label="Paste Assistant"><iframe id="pasteAssistantFrame" title="Paste Assistant" src="https://nhabibifardigikala.github.io/PlanningExtension/paste-assistant/index.html?v=492" loading="lazy" allow="clipboard-read; clipboard-write; display-capture"></iframe></section>
 
-      <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=382&theme=dark" loading="lazy"></iframe></section>
-      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=447&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=447&theme=dark" loading="lazy"></iframe></section>
-      <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=455&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=455&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
-      <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=348&theme=dark" loading="lazy"></iframe></section>
-      <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=348" loading="lazy"></iframe></section>
-      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=489&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=489&theme=dark" loading="lazy"></iframe></section>
-      <section id="dropCloseCapacityEmbedded" class="drop-close-capacity-embedded" aria-label="Drop Close Capacity"><iframe title="Drop Close Capacity" src="https://nhabibifardigikala.github.io/PlanningExtension/drop-close-capacity/index.html?v=481" loading="lazy"></iframe></section>
-      <section id="hubCoveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Hub Coverage Polygons"><iframe title="Hub Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/hub-coverage-polygons/index.html?v=479" loading="lazy"></iframe></section>
-      <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=455" loading="lazy"></iframe></section>
-      <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=455" loading="lazy"></iframe></section>
-      <section id="parentDeterminationEmbedded" class="map-operation-embedded" aria-label="Parent Determination"><iframe title="Parent Determination" src="https://nhabibifardigikala.github.io/PlanningExtension/parent-determination/index.html?v=484" loading="lazy"></iframe></section>
+      <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
+      <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
+      <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
+      <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
+      <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
+      <section id="dropCloseCapacityEmbedded" class="drop-close-capacity-embedded" aria-label="Drop Close Capacity"><iframe title="Drop Close Capacity" src="https://nhabibifardigikala.github.io/PlanningExtension/drop-close-capacity/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="hubCoveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Hub Coverage Polygons"><iframe title="Hub Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/hub-coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="pointDistributionEmbedded" class="map-operation-embedded" aria-label="Point Distribution"><iframe title="Point Distribution" src="https://nhabibifardigikala.github.io/PlanningExtension/point-distribution/index.html?v=492" loading="lazy"></iframe></section>
+      <section id="parentDeterminationEmbedded" class="map-operation-embedded" aria-label="Parent Determination"><iframe title="Parent Determination" src="https://nhabibifardigikala.github.io/PlanningExtension/parent-determination/index.html?v=492" loading="lazy"></iframe></section>
       <nav id="operationSubTabs" class="operation-subtabs hidden" aria-label="Role Assignment tools"></nav>
       <section id="capacityStats" class="stats-card hidden" aria-live="polite">
         <div class="stats-heading">Report summary</div>
@@ -953,7 +954,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
 
       <section class="settings-card dx-setting-section" data-settings-section="remote"><h2>Remote</h2><p class="settings-help">Remote configuration owns categories, UI, icons, workflows, validation, schedules and feature flags.</p><div class="dx-setting-actions"><button id="refreshRemote" class="secondary-button">Reload configuration</button><button id="rollbackRemote" class="secondary-button">Rollback configuration</button></div><div id="remoteMeta" class="settings-help remote-meta">—</div></section>
 
-      <section class="settings-card dx-setting-section" data-settings-section="diagnostics"><h2>Diagnostics</h2><p class="settings-help">Capture URLs, tab IDs, selectors, retries, step timing and a small DOM snapshot when operations fail.</p><label class="op-checkbox-label"><input id="diagnosticsEnabled" type="checkbox"><span>Enable Diagnostic Mode</span></label><div class="dx-setting-actions"><button id="testLgAccess" class="secondary-button" type="button">Test LG access</button><button id="exportDiagnostics" class="secondary-button" type="button">Export diagnostics</button><button id="clearDiagnostics" class="secondary-button danger" type="button">Clear diagnostics</button></div><div id="diagnosticsStatus" class="settings-status"></div><div id="diagnosticsPreview" class="dx-code hidden"></div></section>
+      <section class="settings-card dx-setting-section" data-settings-section="diagnostics"><h2>Diagnostics & Health Check</h2><p class="settings-help">Verify Host, Remote configuration, Google Sheet access, LG connectivity, core datasets and diagnostic storage from one place.</p><div class="dx-setting-actions"><button id="runHealthCheck" class="save-button" type="button">Run health check</button><button id="testLgAccess" class="secondary-button" type="button">Test LG only</button><button id="exportDiagnostics" class="secondary-button" type="button">Export report</button></div><div id="healthSummary" class="dx-health-summary"><span>Health check has not been run yet.</span></div><div id="healthGrid" class="dx-health-grid" aria-live="polite"></div><hr style="border:0;border-top:1px solid var(--dx-line);width:100%;margin:4px 0"><label class="op-checkbox-label"><input id="diagnosticsEnabled" type="checkbox"><span>Enable detailed Diagnostic Mode</span></label><p class="settings-help">When enabled, failed operations can store URL, tab, selector, retry and timing details locally for troubleshooting.</p><div class="dx-setting-actions"><button id="clearDiagnostics" class="secondary-button danger" type="button">Clear diagnostic log</button></div><div id="diagnosticsStatus" class="settings-status"></div><div id="diagnosticsPreview" class="dx-code hidden"></div></section>
 
       <section class="settings-card dx-setting-section" data-settings-section="data-cache"><h2>Data & Cache</h2><p class="settings-help">Clear the cached Remote bundle without deleting account credentials, favorites or operation settings.</p><div class="dx-setting-actions"><button id="clearRemoteCache" class="secondary-button danger" type="button">Clear remote cache</button></div></section>
 
@@ -1074,7 +1075,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION=490;
+const EXPECTED_REMOTE_CONFIG_VERSION=492;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1428,14 +1429,25 @@ function initOperationDiscoveryUi(){
   if(!document.body.dataset.searchShortcutBound){document.body.dataset.searchShortcutBound='1';document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==='k'){const x=document.getElementById('operationSearch');if(x){e.preventDefault();showView('home');x.focus();x.select();}}});}
 }
 
+function clearRenderedOperationAccess(){
+  visibleOperationsCache=[];
+  menu.innerHTML='';
+  const favGrid=document.getElementById('favoritesGrid');
+  if(favGrid)favGrid.innerHTML='';
+  const favSection=document.getElementById('favoritesSection');
+  if(favSection)favSection.hidden=true;
+  const count=document.getElementById('visibleToolCount');
+  if(count)count.textContent='0 tools';
+}
+
 async function refreshOperationVisibility(emailOverride = null) {
   const email = String(emailOverride ?? usernameEl.value ?? '').trim().toLowerCase();
-  menu.innerHTML = '';
+  clearRenderedOperationAccess();
   if (!remoteBundle) return;
   const hasValidEmail = !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   try {
-    // Empty/invalid email is still sent so the security layer can return
-    // operations whose access column contains the public marker "All".
+    // Empty/invalid email is intentionally sent. The Host must still return every
+    // operation whose Access-sheet column contains the public marker "All".
     const response = await chrome.runtime.sendMessage({ type:'GET_VISIBLE_OPERATIONS', email: hasValidEmail ? email : '' });
     if (!response?.ok) throw new Error(response?.error || 'Could not load operation access.');
     const allowed = new Set((response.allowedOps || []).map(String));
@@ -1445,9 +1457,15 @@ async function refreshOperationVisibility(emailOverride = null) {
     renderOperationCards();
     initOperationDiscoveryUi();
     applyOperationFilters();
-    setStatus(operations.length ? 'Ready' : (hasValidEmail ? (remoteBundle?.messages?.access?.none || 'No operations are assigned to this email.') : (remoteBundle?.messages?.access?.setEmail || 'Set your email in Settings to load assigned operations.')));
+    if(operations.length){
+      setStatus('Ready');
+    }else if(hasValidEmail){
+      setStatus(remoteBundle?.messages?.access?.none || 'No operations are assigned to this email.');
+    }else{
+      setStatus('No public operations are available. Set your email in Settings to load user-specific access.');
+    }
   } catch (error) {
-    menu.innerHTML = '';
+    clearRenderedOperationAccess();
     setStatus(error.message || 'Could not load operation access.', 'error');
   }
 }
@@ -1844,15 +1862,64 @@ $('refreshRemote').addEventListener('click', async () => { try { const r=await c
 $('rollbackRemote').addEventListener('click', async()=>{try{const r=await chrome.runtime.sendMessage({type:'ROLLBACK_REMOTE_CONFIG'});if(!r?.ok)throw new Error(r?.error||'Rollback failed.');location.reload();}catch(e){showToast(e.message,'error')}});
 $('clearActivityLog').addEventListener('click',async()=>{await chrome.storage.local.remove(['opsActivityLog']);await renderActivityLog();showToast('Activity log cleared.','success')});
 $('openAgentsSettings')?.addEventListener('click',async()=>{try{await openOperationById('data-set-update');}catch(e){showToast(e.message,'error');}});
+let lastHealthCheck=null;
+function renderHealthCards(results=[]){
+  const grid=$('healthGrid'),summary=$('healthSummary');if(!grid||!summary)return;
+  if(!results.length){grid.innerHTML='';summary.innerHTML='<span>Health check has not been run yet.</span>';return;}
+  const esc=v=>escapeHtml(String(v??''));
+  grid.innerHTML=results.map(x=>`<article class="dx-health-card ${esc(x.status||'warn')}"><div class="dx-health-card-head"><span>${esc(x.name)}</span><i class="dx-health-dot" aria-hidden="true"></i></div><div class="dx-health-detail">${esc(x.detail)}</div></article>`).join('');
+  const ok=results.filter(x=>x.status==='ok').length,warn=results.filter(x=>x.status==='warn').length,error=results.filter(x=>x.status==='error').length;
+  summary.innerHTML=`<strong>${ok}/${results.length} checks healthy</strong><span>${warn?`${warn} warning${warn===1?'':'s'}`:'No warnings'}${error?` • ${error} error${error===1?'':'s'}`:''}</span><span>${new Date().toLocaleTimeString()}</span>`;
+}
+async function runHealthCheck(){
+  const btn=$('runHealthCheck'),status=$('diagnosticsStatus');if(btn)btn.disabled=true;if(status){status.textContent='Running health checks…';status.className='settings-status';}
+  const results=[];const add=(name,status,detail,extra={})=>results.push({name,status,detail,...extra});
+  try{
+    const r=await chrome.runtime.sendMessage({type:'GET_SYSTEM_STATUS'});
+    if(r?.ok)add('Stable Host','ok',`Host ${r.engineVersion||installedHostVersion||'unknown'} connected${r.credentials?' • credentials fresh':''}`,{raw:r});
+    else add('Stable Host','error',r?.error||'Host did not return system status.',{raw:r});
+  }catch(e){add('Stable Host','error',e.message||String(e));}
+  try{
+    const cv=Number(remoteBundle?.app?.configVersion||0),stale=!!remoteBundle?.stale;
+    if(cv>=EXPECTED_REMOTE_CONFIG_VERSION&&!stale)add('Remote configuration','ok',`Config ${cv} loaded and current.`);
+    else if(cv)add('Remote configuration','warn',`Config ${cv} loaded${stale?' from cache/offline':''}; expected ${EXPECTED_REMOTE_CONFIG_VERSION}.`);
+    else add('Remote configuration','error','No remote configuration is loaded.');
+  }catch(e){add('Remote configuration','error',e.message||String(e));}
+  try{
+    const email=String(usernameEl?.value||'').trim().toLowerCase();
+    const r=await chrome.runtime.sendMessage({type:'GET_VISIBLE_OPERATIONS',email:/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?email:''});
+    if(r?.ok){const n=(r.allowedOps||[]).length;add('Access Sheet','ok',`${n} operation${n===1?'':'s'} currently allowed${email?` for ${email}`:' without user email (public All access)'}.`,{allowedOps:r.allowedOps||[]});}
+    else add('Access Sheet','error',r?.error||'Could not read operation access.',{raw:r});
+  }catch(e){add('Access Sheet','error',e.message||String(e));}
+  try{
+    const r=await chrome.runtime.sendMessage({type:'TEST_LG_ACCESS'});
+    if(r?.ok)add('LG / ProcessMaker',r.authenticated?'ok':'warn',`HTTP ${r.status} • ${r.elapsedMs} ms${r.authenticated?' • active session':' • sign-in may be required'}`,{raw:r});
+    else add('LG / ProcessMaker','error',r?.error||'LG connectivity test failed.',{raw:r});
+  }catch(e){add('LG / ProcessMaker','error',e.message||String(e));}
+  try{
+    const started=performance.now();const r=await fetch('../data/Pickup_Polygons.xlsx?v=492',{method:'HEAD',cache:'no-store'});const ms=Math.round(performance.now()-started);
+    add('Core datasets',r.ok?'ok':'error',r.ok?`Pickup polygon dataset reachable • ${ms} ms`:`Dataset request returned HTTP ${r.status}.`);
+  }catch(e){add('Core datasets','error',e.message||String(e));}
+  try{
+    const r=await chrome.runtime.sendMessage({type:'GET_DIAGNOSTICS'});
+    if(r?.ok)add('Diagnostic storage','ok',`${(r.rows||[]).length} local event${(r.rows||[]).length===1?'':'s'} • detailed mode ${r.enabled?'on':'off'}`,{raw:r});
+    else add('Diagnostic storage','error',r?.error||'Could not read diagnostic storage.',{raw:r});
+  }catch(e){add('Diagnostic storage','error',e.message||String(e));}
+  lastHealthCheck={at:new Date().toISOString(),results};renderHealthCards(results);
+  const errors=results.filter(x=>x.status==='error').length,warns=results.filter(x=>x.status==='warn').length;
+  if(status){status.textContent=errors?`${errors} health check${errors===1?'':'s'} failed.`:warns?`Health check completed with ${warns} warning${warns===1?'':'s'}.`:'All health checks passed.';status.className=`settings-status ${errors?'error':'ok'}`;}
+  if(btn)btn.disabled=false;return lastHealthCheck;
+}
 async function refreshDiagnosticsPreview(){
   const r=await chrome.runtime.sendMessage({type:'GET_DIAGNOSTICS'}); if(!r?.ok)return;
   const box=$('diagnosticsPreview'),toggle=$('diagnosticsEnabled');if(toggle)toggle.checked=!!r.enabled;
   const rows=(r.rows||[]).slice(0,15); if(box){box.classList.toggle('hidden',!rows.length);box.textContent=rows.length?rows.map(x=>`${new Date(x.at).toLocaleString()} • ${x.opId||'system'} • ${x.type||''}${x.action?` • ${x.action}`:''}${x.error?`\n${x.error}`:''}${x.url?`\n${x.url}`:''}`).join('\n\n'):'No diagnostic events yet.';}
 }
+$('runHealthCheck')?.addEventListener('click',()=>runHealthCheck().catch(e=>{const el=$('diagnosticsStatus');if(el){el.textContent=e.message||String(e);el.className='settings-status error';}$('runHealthCheck').disabled=false;}));
 $('diagnosticsEnabled')?.addEventListener('change',async e=>{const r=await chrome.runtime.sendMessage({type:'SET_DIAGNOSTICS_ENABLED',enabled:!!e.target.checked});$('diagnosticsStatus').textContent=r?.ok?(e.target.checked?'Diagnostic Mode enabled.':'Diagnostic Mode disabled.'):(r?.error||'Could not update diagnostics.');await refreshDiagnosticsPreview();});
 $('testLgAccess')?.addEventListener('click',async()=>{const el=$('diagnosticsStatus');el.textContent='Testing LG access…';const r=await chrome.runtime.sendMessage({type:'TEST_LG_ACCESS'});el.textContent=r?.ok?`LG reachable • HTTP ${r.status} • ${r.elapsedMs} ms${r.authenticated?' • session looks active':' • sign-in may be required'}`:`LG test failed: ${r?.error||'Unknown error'}`;el.className=`settings-status ${r?.ok?'ok':'error'}`;});
 $('clearDiagnostics')?.addEventListener('click',async()=>{await chrome.runtime.sendMessage({type:'CLEAR_DIAGNOSTICS'});await refreshDiagnosticsPreview();showToast('Diagnostics cleared.','success');});
-$('exportDiagnostics')?.addEventListener('click',async()=>{const r=await chrome.runtime.sendMessage({type:'GET_DIAGNOSTICS'});if(!r?.ok)return showToast(r?.error||'Could not read diagnostics.','error');const payload={exportedAt:new Date().toISOString(),engineVersion:ENGINE_VERSION,configVersion:remoteBundle?.app?.configVersion||null,diagnostics:r.rows||[]};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`digiexpress-diagnostics-${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);showToast('Diagnostics exported.','success');});
+$('exportDiagnostics')?.addEventListener('click',async()=>{const r=await chrome.runtime.sendMessage({type:'GET_DIAGNOSTICS'});if(!r?.ok)return showToast(r?.error||'Could not read diagnostics.','error');if(!lastHealthCheck)await runHealthCheck();const payload={exportedAt:new Date().toISOString(),engineVersion:ENGINE_VERSION,hostVersion:installedHostVersion||null,configVersion:remoteBundle?.app?.configVersion||null,health:lastHealthCheck,diagnostics:r.rows||[]};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`digiexpress-health-diagnostics-${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);showToast('Health & diagnostics report exported.','success');});
 $('clearRemoteCache')?.addEventListener('click',async()=>{const r=await chrome.runtime.sendMessage({type:'CLEAR_REMOTE_CACHE'});if(!r?.ok)return showToast(r?.error||'Could not clear remote cache.','error');showToast('Remote cache cleared. Reloading…','success');setTimeout(()=>location.reload(),500);});
 $('cancelOperation').addEventListener('click',async()=>{
   if(isFlexBatchOperation()&&operationRunning){flexCancelRequested=true;flexPauseRequested=false;flexPaused=false;if(flexResumeResolver){flexResumeResolver();flexResumeResolver=null;}syncFlexControls();setOperationStatus('Cancelling… preparing partial report.');await chrome.runtime.sendMessage({type:'CANCEL_OPERATION',op:currentOperation?.id});return;}
@@ -1895,8 +1962,9 @@ $('saveSettings').addEventListener('click', async () => {
 $('clearCredentials').addEventListener('click', async () => {
   if(validationInProgress) return;
   await chrome.storage.local.remove(['opsUsername','opsPassword','opsCredentialsValid','opsValidatedUsername','opsValidationMode','opsValidatedAt']);
-  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show'; menu.innerHTML='';
-  setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success'); setStatus('Set your email in Settings to load available operations.');
+  usernameEl.value=''; passwordEl.value=''; passwordEl.type='password'; $('togglePassword').textContent='Show';
+  setSettingsStatus('Username and password cleared.','ok'); showToast('Username and password cleared.','success');
+  await refreshOperationVisibility('');
 });
 
 async function openOperationById(opId,subId=''){
@@ -2620,5 +2688,6 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 
 </script>
 
+<script src="table-component.js?v=492"></script>
 </body>
 </html>

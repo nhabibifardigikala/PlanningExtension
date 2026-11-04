@@ -47,6 +47,7 @@ button,input{font:inherit}.page{max-width:1210px;margin:0 auto}.layout{display:g
 @media(max-width:900px){body{padding:12px}.layout{grid-template-columns:1fr}.status-card{position:static}.requirements{grid-template-columns:1fr}.log{height:220px}}
 @media(max-width:520px){.guide-intro{grid-template-columns:52px 1fr}.guide-intro img{width:52px;height:52px}.file-head,.options-head{align-items:flex-start;flex-direction:column}.file-actions>.button{flex:1 1 100%}.operation-row{grid-template-columns:auto 42px 1fr}.card{padding:14px}}
 </style>
+  <link rel="stylesheet" href="../ui/design-system.css?v=492">
 </head>
 <body>
 <main class="page">
@@ -208,4 +209,5 @@ stopBtn.addEventListener('click',async()=>{stopped=true;log('درخواست تو
 reportBtn.addEventListener('click',()=>{if(!lastResults.length)return;const headers=['نام مرکز','نام پرنت','کد پرنت','تاریخ شروع','تاریخ پایان','createStatus','newNetworkId','newCreatedAt','capacityStatus','deactivateStatus','oldNetworkId','oldCreatedAt','timeDistanceStatus','timeDistanceIds','message'];const esc=v=>`"${String(v??'').replaceAll('"','""')}"`;const csv='\uFEFF'+[headers.join(','),...lastResults.map(r=>headers.map(h=>esc(r[h])).join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`pudo-network-report-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
 (async()=>{try{const r=await chrome.runtime.sendMessage({type:'CHECK_OPERATION_ACCESS',op:OP});accessAllowed=r?.allowed!==false;$('accessState').textContent=accessAllowed?'Access verified':'Access denied';if(!accessAllowed)startBtn.disabled=true}catch(_){$('accessState').textContent='Access checked at run time'}})();
 </script>
+<script src="../ui/table-component.js?v=492"></script>
 </body></html>
