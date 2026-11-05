@@ -859,7 +859,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       </div>
       <nav class="sidebar-nav">
         <button class="sidebar-nav-btn active nav-all" type="button" data-category="all" title="All tools"><span class="nav-glyph"><svg viewBox="0 0 24 24"><path d="M3 10.7 12 3l9 7.7v9.1a1.2 1.2 0 0 1-1.2 1.2H15v-6H9v6H4.2A1.2 1.2 0 0 1 3 19.8v-9.1Z"/></svg></span><span>All tools</span></button>
-        <button class="sidebar-nav-btn nav-agents" type="button" data-category="agents" title="Agents"><span class="nav-glyph"><svg viewBox="0 0 24 24"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6.5-1.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20v-1.5A5.5 5.5 0 0 1 8 13h2a5.5 5.5 0 0 1 5.5 5.5V20m.5-7h.5a5 5 0 0 1 5 5V20"/></svg></span><span>Agents</span></button>
+        <button class="sidebar-nav-btn nav-agents" type="button" data-category="agents" title="Agents"><span class="nav-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="7" width="14" height="11" rx="4"/><path d="M12 7V4m-2 0h4M8.5 11.5h.01m6.99 0h.01M9 15h6M3 11v3m18-3v3"/></svg></span><span>Agents</span></button>
         <button class="sidebar-nav-btn nav-network" type="button" data-category="network" title="Network"><span class="nav-glyph"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="m7.3 11 9.3-4m-9.3 6 9.3 4"/></svg></span><span>Network</span></button>
         <button class="sidebar-nav-btn nav-capacity" type="button" data-category="capacity" title="Capacity"><span class="nav-glyph"><svg viewBox="0 0 24 24"><path d="M4 20V11m5 9V6m5 14V9m5 11V3"/></svg></span><span>Capacity</span></button>
         <button class="sidebar-nav-btn nav-role" type="button" data-category="role-management" title="Role Management"><span class="nav-glyph"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.6-2.8 8.1-7 10-4.2-1.9-7-5.4-7-10V6l7-3Z"/><path d="M9.5 12.2 11 13.7l3.8-4"/></svg></span><span>Role Management</span></button>
@@ -869,8 +869,8 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
         <button class="sidebar-nav-btn nav-utilities" type="button" data-category="utilities" title="Utilities"><span class="nav-glyph"><svg viewBox="0 0 24 24"><path d="m14.7 6.3 3-3a4.4 4.4 0 0 1-5.9 5.9L5 16a2.1 2.1 0 1 0 3 3l6.8-6.8a4.4 4.4 0 0 1 5.9-5.9l-3 3"/></svg></span><span>Utilities</span></button>
       </nav>
       <div class="sidebar-spacer"></div>
-      <button class="sidebar-settings-link nav-settings" id="sidebarSettingsBtn" type="button" title="Settings"><span class="nav-glyph"><svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a7.8 7.8 0 0 0 .1-6l2-1.5-2-3.4-2.4 1a8 8 0 0 0-5.1-2L11.7.5H8.3L8 3.1a8 8 0 0 0-5.1 2l-2.4-1-2 3.4L.5 9a7.8 7.8 0 0 0 0 6l-2 1.5 2 3.4 2.4-1A8 8 0 0 0 8 20.9l.3 2.6h3.4l.3-2.6a8 8 0 0 0 5.1-2l2.4 1 2-3.4-2.1-1.5Z"/></svg></span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill">v406</span></div>
+      <button class="sidebar-settings-link nav-settings" id="sidebarSettingsBtn" type="button" title="Settings"><span class="nav-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19 13.2a7.6 7.6 0 0 0 0-2.4l2-1.5-2-3.4-2.5 1a8.2 8.2 0 0 0-2.1-1.2L14 3h-4l-.4 2.7a8.2 8.2 0 0 0-2.1 1.2l-2.5-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 2.4l-2 1.5 2 3.4 2.5-1a8.2 8.2 0 0 0 2.1 1.2L10 21h4l.4-2.7a8.2 8.2 0 0 0 2.1-1.2l2.5 1 2-3.4-2-1.5Z"/></svg></span><span>Settings</span></button>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v498</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -894,11 +894,6 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
           <h1 id="homeHeading">Everything you need for logistics planning</h1>
           <p id="homeSubheading">Plan, automate, analyze and manage operational workflows from one focused workspace.</p>
           <div class="hero-points"><span><i></i> Remote-first</span><span><i></i> Fast operations</span><span><i></i> Secure host</span></div>
-        </div>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hero-orb hero-orb-a"></div><div class="hero-orb hero-orb-b"></div>
-          <div class="hero-metric"><strong>27</strong><span>Operational tools</span></div>
-          <div class="hero-metric secondary"><strong>100%</strong><span>Remote UI</span></div>
         </div>
       </section>
       <section class="tool-toolbar" aria-label="Tool filters">
@@ -945,7 +940,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=492" loading="lazy"></iframe></section>
-      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=497&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=497&theme=dark" loading="lazy"></iframe></section>
+      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=498&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=498&theme=dark" loading="lazy"></iframe></section>
       <section id="dropCloseCapacityEmbedded" class="drop-close-capacity-embedded" aria-label="Drop Close Capacity"><iframe title="Drop Close Capacity" src="https://nhabibifardigikala.github.io/PlanningExtension/drop-close-capacity/index.html?v=492" loading="lazy"></iframe></section>
       <section id="hubCoveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Hub Coverage Polygons"><iframe title="Hub Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/hub-coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
       <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
@@ -1090,7 +1085,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION=497;
+const EXPECTED_REMOTE_CONFIG_VERSION=498;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -2717,3 +2712,18 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 <script src="table-component.js?v=493"></script>
 </body>
 </html>
+
+<style id="v498-shell-polish">
+.hero-shell{grid-template-columns:1fr!important;min-height:178px!important;padding:30px 40px!important}
+.hero-shell:before,.hero-visual{display:none!important}
+.hero-copy{max-width:920px!important}
+.sidebar-settings-link .nav-glyph svg{overflow:visible}
+.nav-agents .nav-glyph{color:#67e8f9!important}
+</style>
+
+<script id="v498-version-pill-sync">
+(()=>{
+ const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||498);el.textContent='v'+(v||498);};
+ set(); window.addEventListener('load',()=>{set();setTimeout(set,500);setTimeout(set,1600);});
+})();
+</script>
