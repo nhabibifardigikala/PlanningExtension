@@ -204,25 +204,33 @@ function showCopyToast(){
 
 els.copyTableBtn.addEventListener('click',async()=>{
   if(!lastAnalysis)return;
-  const rows=reportRows(),headers=currentHeaders();
-  const titleRow=[reportRangeText(lastAnalysis),...Array(Math.max(0,headers.length-1)).fill('')]; const tsv=[titleRow,headers,...rows].map(row=>row.map(v=>String(v??'').replace(/\t|\r?\n/g,' ')).join('\t')).join('\n');
-  const html=buildClipboardTableHtml(rows);
+  const rows=reportRows(), html=buildClipboardTableHtml(rows);
+  let holder=null, sel=null;
+  try{
+    // Primary path: copy a real styled DOM table. Chrome preserves the HTML table,
+    // borders, fills, font, alignment and column widths when pasted into Excel/Sheets.
+    holder=document.createElement('div');
+    holder.setAttribute('aria-hidden','true');
+    holder.style.cssText='position:fixed;left:-100000px;top:0;width:max-content;background:#fff;z-index:-1;';
+    holder.innerHTML=html;
+    document.body.appendChild(holder);
+    const table=holder.querySelector('table');
+    const range=document.createRange(); range.selectNode(table);
+    sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    const ok=document.execCommand('copy');
+    sel.removeAllRanges(); holder.remove(); holder=null;
+    if(ok){showCopyToast();return;}
+  }catch(_){try{sel?.removeAllRanges()}catch{} try{holder?.remove()}catch{}}
+
+  // Secondary rich path. Never degrade silently to plain text because that loses formatting.
   try{
     if(window.ClipboardItem&&navigator.clipboard?.write){
-      const item=new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([tsv],{type:'text/plain'})});
-      await navigator.clipboard.write([item]); showCopyToast(); return;
+      const blob=new Blob([html],{type:'text/html'});
+      await navigator.clipboard.write([new ClipboardItem({'text/html':blob})]);
+      showCopyToast(); return;
     }
-    throw new Error('rich clipboard unavailable');
-  }catch{
-    try{
-      const holder=document.createElement('div'); holder.contentEditable='true'; holder.style.cssText='position:fixed;left:-9999px;top:0'; holder.innerHTML=html; document.body.appendChild(holder);
-      const range=document.createRange(); range.selectNodeContents(holder); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(range);
-      const ok=document.execCommand('copy'); sel.removeAllRanges(); holder.remove();
-      if(ok){showCopyToast();return;}
-    }catch{}
-    try{await navigator.clipboard.writeText(tsv);showCopyToast();}
-    catch{setStatus('امکان کپی جدول در Clipboard وجود ندارد.',true);}
-  }
+  }catch(_){ }
+  setStatus('کپی با فرمت جدول در این محیط پشتیبانی نشد. لطفاً دسترسی Clipboard را بررسی کنید.',true);
 });
 
 (function syncDigiExpressTheme(){
