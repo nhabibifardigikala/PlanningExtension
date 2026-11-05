@@ -99,7 +99,7 @@ async function findHeaderSharedIds(file,sharedEntry){
     const v=headerNorm(getSiText(si));
     if(v==='dc_name') ids.dc.add(idx);
     if(v==='distribution_center_cap') ids.cap.add(idx);
-    if(['dc_id','dc id','dcid'].includes(v)) ids.dcId.add(idx);
+    if(['distribution_center_id_cap','distribution center id cap'].includes(v)) ids.dcId.add(idx);
     idx++;
   });
   return ids;
@@ -115,14 +115,14 @@ async function findTargetColumns(file,sheetEntry,headerIds){
         const id=Number(c.raw);
         if(headerIds.dc.has(id)) v='dc_name';
         else if(headerIds.cap.has(id)) v='distribution_center_cap';
-        else if(headerIds.dcId.has(id)) v='dc_id';
+        else if(headerIds.dcId.has(id)) v='distribution_center_id_cap';
       } else v=headerNorm(c.type==='inlineStr'?c.inline:c.raw);
       if(v==='dc_name') dc=c.col;
       if(v==='distribution_center_cap') cap=c.col;
-      if(['dc_id','dc id','dcid'].includes(v)) dcId=c.col;
+      if(['distribution_center_id_cap','distribution center id cap'].includes(v)) dcId=c.col;
     });
     if(dc<0||cap<0||dcId<0){
-      const missing=[dc<0?'DC_Name':null,cap<0?'distribution_center_cap':null,dcId<0?'DC_ID':null].filter(Boolean).join(' و ');
+      const missing=[dc<0?'DC_Name':null,cap<0?'distribution_center_cap':null,dcId<0?'distribution_center_id_cap':null].filter(Boolean).join(' و ');
       throw new Error(`ستون ${missing} پیدا نشد.`);
     }
     result={dc,cap,dcId};
@@ -161,10 +161,10 @@ function valueFromCell(c,shared){
   return c.raw;
 }
 function cleanId(v){ return text(v).replace(/\.0$/,''); }
-function finalizeGroups(groups,relevantCount,mismatchCount,threshold){
+function finalizeGroups(groups,relevantCount,mismatchCount,threshold,minMismatchCount){
   const allCenters=[...groups.values()].map(g=>({...g,mismatchPercent:g.total?g.mismatch/g.total*100:0}))
     .sort((a,b)=>b.mismatchPercent-a.mismatchPercent||b.mismatch-a.mismatch||String(a.dcId).localeCompare(String(b.dcId),undefined,{numeric:true}));
-  return {report:allCenters.filter(g=>g.mismatchPercent>threshold),relevantCount,mismatchCount,threshold};
+  return {report:allCenters.filter(g=>g.mismatchPercent>=threshold&&g.mismatch>=minMismatchCount),relevantCount,mismatchCount,threshold,minMismatchCount};
 }
 function addRecord(groups,dcId,dc,cap,counters){
   dcId=cleanId(dcId); dc=text(dc); cap=text(cap); if(!isGanjeCap(cap)) return;
@@ -172,11 +172,12 @@ function addRecord(groups,dcId,dc,cap,counters){
   const mismatch=normalizeForCompare(dc)!==normalizeForCompare(cap);
   if(mismatch)counters.mismatchCount++;
   const key=dcId||`UNRESOLVED:${normalizeForCompare(cap)}`;
-  const g=groups.get(key)||{dcId,total:0,mismatch:0};
+  const g=groups.get(key)||{dcId,sourceCenterCap:cap,total:0,mismatch:0};
+  if(!g.sourceCenterCap&&cap)g.sourceCenterCap=cap;
   g.total++; if(mismatch)g.mismatch++; groups.set(key,g);
 }
 
-async function analyzeXlsx(file,threshold){
+async function analyzeXlsx(file,threshold,minMismatchCount){
   postMessage({type:'progress',message:'در حال خواندن ساختار XLSX...'});
   const entries=await readZipDirectory(file);
   const shared=entries.find(e=>e.name==='xl/sharedStrings.xml');
@@ -206,10 +207,10 @@ async function analyzeXlsx(file,threshold){
     addRecord(groups,dcId,dc,cap,counters);
     if(rowNo%100000===0) postMessage({type:'progress',message:`در حال محاسبه گزارش: ${rowNo.toLocaleString()} ردیف`});
   });
-  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold);
+  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold,minMismatchCount);
 }
 
-async function analyzeCsv(file,threshold){
+async function analyzeCsv(file,threshold,minMismatchCount){
   const reader=file.stream().getReader(), decoder=new TextDecoder('utf-8');
   let field='', row=[], inQuotes=false, quoteSeen=false, skipLF=false, headers=null, dcIdIdx=-1,dcIdx=-1,capIdx=-1,rowNo=0;
   const groups=new Map(), counters={relevantCount:0,mismatchCount:0};
@@ -219,9 +220,9 @@ async function analyzeCsv(file,threshold){
     rowNo++;
     if(!headers){
       headers=row.map(v=>headerNorm(v.replace(/^\uFEFF/,'')));
-      dcIdIdx=headers.findIndex(h=>['dc_id','dc id','dcid'].includes(h)); dcIdx=headers.indexOf('dc_name'); capIdx=headers.indexOf('distribution_center_cap');
+      dcIdIdx=headers.findIndex(h=>['distribution_center_id_cap','distribution center id cap'].includes(h)); dcIdx=headers.indexOf('dc_name'); capIdx=headers.indexOf('distribution_center_cap');
       if(dcIdIdx<0||dcIdx<0||capIdx<0){
-        const missing=[dcIdIdx<0?'DC_ID':null,dcIdx<0?'DC_Name':null,capIdx<0?'distribution_center_cap':null].filter(Boolean).join(' و ');
+        const missing=[dcIdIdx<0?'distribution_center_id_cap':null,dcIdx<0?'DC_Name':null,capIdx<0?'distribution_center_cap':null].filter(Boolean).join(' و ');
         throw new Error(`ستون ${missing} پیدا نشد.`);
       }
     } else addRecord(groups,row[dcIdIdx]??'',row[dcIdx]??'',row[capIdx]??'',counters);
@@ -253,7 +254,7 @@ async function analyzeCsv(file,threshold){
   if(quoteSeen){ inQuotes=false; quoteSeen=false; }
   if(field.length||row.length){ emitField(); emitRow(); }
   if(!headers) throw new Error('فایل فاقد داده است.');
-  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold);
+  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold,minMismatchCount);
 }
 
 
@@ -390,11 +391,11 @@ function applyPreviousComparison(result,previousMap){
 }
 
 onmessage=async e=>{
-  const {file,previousFile,threshold,centerLookup}=e.data||{};
+  const {file,previousFile,threshold,minMismatchCount=5,centerLookup}=e.data||{};
   try{
     if(!file) throw new Error('فایلی انتخاب نشده است.');
-    let result=/\.csv$/i.test(file.name)?await analyzeCsv(file,threshold):await analyzeXlsx(file,threshold);
-    result.report=result.report.map(r=>({...r,center:centerLookup?.[cleanId(r.dcId)]?.name||''}));
+    let result=/\.csv$/i.test(file.name)?await analyzeCsv(file,threshold,minMismatchCount):await analyzeXlsx(file,threshold,minMismatchCount);
+    result.report=result.report.map(r=>({...r,center:centerLookup?.[cleanId(r.dcId)]?.name||r.sourceCenterCap||''}));
     const previousMap=previousFile?await parsePreviousReport(previousFile):null;
     result=applyPreviousComparison(result,previousMap);
     postMessage({type:'done',result});

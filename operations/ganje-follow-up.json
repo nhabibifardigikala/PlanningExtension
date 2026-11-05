@@ -2,7 +2,7 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": false,
-  "description": "Analyze D2D GANJE DC mismatch from XLSX/CSV by DC_ID, resolve center identity from Distribution Centers (LG), compare with an optional previous-period report, and export/copy the result.",
+  "description": "Analyze D2D GANJE DC mismatch from XLSX/CSV by distribution_center_id_cap, resolve center identity from Distribution Centers (LG) with distribution_center_cap fallback, compare with an optional previous-period report, and export/copy the result.",
   "runLabel": "Open GANJE Follow-up",
   "inputs": [
     {
