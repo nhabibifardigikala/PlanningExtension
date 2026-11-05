@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>GANJE Follow-up</title>
-  <link rel="stylesheet" href="app.css?v=494" />
-  <link rel="stylesheet" href="../ui/design-system.css?v=494">
+  <link rel="stylesheet" href="app.css?v=495" />
+  <link rel="stylesheet" href="../ui/design-system.css?v=495">
 </head>
 <body>
   <main class="workspace report-layout">
@@ -46,9 +46,9 @@
 
     <section id="reportSection" class="panel report-panel">
       <div class="report-head">
-        <div><strong>گزارش مراکز</strong><span id="thresholdLabel">حداقل 50٪ و حداقل 5 تغییر</span></div>
+        <div class="report-title-block"><strong id="reportRangeTitle">گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: —</strong><span id="thresholdLabel">حداقل 50٪ و حداقل 5 تغییر</span></div>
         <div class="report-tools">
-          <div class="legend"><span class="up">افزایشی</span><span class="down">کاهشی</span><span class="flat">بدون تغییر</span></div>
+          <div class="legend hidden" id="trendLegend"><span class="up">افزایشی</span><span class="down">کاهشی</span><span class="flat">بدون تغییر</span></div>
           <button id="copyTableBtn" class="icon-btn" type="button" title="کپی جدول با فرمت" aria-label="کپی جدول با فرمت" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2Zm2 0h4a2 2 0 0 1 2 2v6h2V5h-8v2Zm4 2H6v10h8V9Z"/></svg>
           </button>
@@ -56,16 +56,17 @@
       </div>
       <div class="table-wrap" id="reportTableWrap">
         <table id="reportTable" data-dx-table="off">
-          <thead><tr><th>ردیف</th><th>تاریخ</th><th>شناسه مرکز</th><th>نام مرکز</th><th>تعداد کل</th><th>تعداد تغییر DC</th><th>درصد تغییر DC</th><th>درصد دوره قبل</th><th>تغییر</th><th>روند</th></tr></thead>
+          <thead><tr id="reportHeadRow"></tr></thead>
           <tbody id="reportBody"></tbody>
         </table>
       </div>
       <p id="emptyState" class="empty">برای ایجاد گزارش، فایل جاری را از پنل سمت راست انتخاب کنید.</p>
     </section>
+    <div id="copyToast" class="copy-toast" role="status" aria-live="polite">copied</div>
   </main>
-  <script src="../ui/platform-client.js?v=494"></script>
-  <script src="xlsx-writer.js?v=494"></script>
-  <script src="app.js?v=494"></script>
-  <script src="../ui/table-component.js?v=494"></script>
+  <script src="../ui/platform-client.js?v=495"></script>
+  <script src="xlsx-writer.js?v=495"></script>
+  <script src="app.js?v=495"></script>
+  <script src="../ui/table-component.js?v=495"></script>
 </body>
 </html>

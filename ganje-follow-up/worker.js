@@ -92,7 +92,7 @@ async function streamElements(file,entry,tag,callback){
 }
 
 async function findHeaderSharedIds(file,sharedEntry){
-  const ids={dc:new Set(),cap:new Set(),dcId:new Set()};
+  const ids={dc:new Set(),cap:new Set(),dcId:new Set(),promised:new Set()};
   if(!sharedEntry) return ids;
   let idx=0;
   await streamElements(file,sharedEntry,'si',si=>{
@@ -100,6 +100,7 @@ async function findHeaderSharedIds(file,sharedEntry){
     if(v==='dc_name') ids.dc.add(idx);
     if(v==='distribution_center_cap') ids.cap.add(idx);
     if(['distribution_center_id_cap','distribution center id cap'].includes(v)) ids.dcId.add(idx);
+    if(['persian_promised_date','persian promised date'].includes(v)) ids.promised.add(idx);
     idx++;
   });
   return ids;
@@ -108,7 +109,7 @@ async function findHeaderSharedIds(file,sharedEntry){
 async function findTargetColumns(file,sheetEntry,headerIds){
   let result=null;
   await streamElements(file,sheetEntry,'row',row=>{
-    let dc=-1,cap=-1,dcId=-1;
+    let dc=-1,cap=-1,dcId=-1,promised=-1;
     forEachCell(row,c=>{
       let v='';
       if(c.type==='s'){
@@ -116,16 +117,18 @@ async function findTargetColumns(file,sheetEntry,headerIds){
         if(headerIds.dc.has(id)) v='dc_name';
         else if(headerIds.cap.has(id)) v='distribution_center_cap';
         else if(headerIds.dcId.has(id)) v='distribution_center_id_cap';
+        else if(headerIds.promised.has(id)) v='persian_promised_date';
       } else v=headerNorm(c.type==='inlineStr'?c.inline:c.raw);
       if(v==='dc_name') dc=c.col;
       if(v==='distribution_center_cap') cap=c.col;
       if(['distribution_center_id_cap','distribution center id cap'].includes(v)) dcId=c.col;
+      if(['persian_promised_date','persian promised date'].includes(v)) promised=c.col;
     });
     if(dc<0||cap<0||dcId<0){
       const missing=[dc<0?'DC_Name':null,cap<0?'distribution_center_cap':null,dcId<0?'distribution_center_id_cap':null].filter(Boolean).join(' و ');
       throw new Error(`ستون ${missing} پیدا نشد.`);
     }
-    result={dc,cap,dcId};
+    result={dc,cap,dcId,promised};
     return false;
   });
   if(!result) throw new Error('فایل فاقد داده است.');
@@ -137,7 +140,7 @@ async function collectNeededSharedIds(file,sheetEntry,cols){
   await streamElements(file,sheetEntry,'row',row=>{
     rowNo++; if(rowNo===1) return;
     forEachCell(row,c=>{
-      if((c.col===cols.dc||c.col===cols.cap||c.col===cols.dcId) && c.type==='s' && c.raw!=='') needed.add(Number(c.raw));
+      if((c.col===cols.dc||c.col===cols.cap||c.col===cols.dcId||c.col===cols.promised) && c.type==='s' && c.raw!=='') needed.add(Number(c.raw));
     });
     if(rowNo%100000===0) postMessage({type:'progress',message:`در حال بررسی ردیف‌ها: ${rowNo.toLocaleString()} ردیف`});
   });
@@ -161,10 +164,25 @@ function valueFromCell(c,shared){
   return c.raw;
 }
 function cleanId(v){ return text(v).replace(/\.0$/,''); }
-function finalizeGroups(groups,relevantCount,mismatchCount,threshold,minMismatchCount){
+
+function promisedDateInfo(v){
+  const raw=text(v); if(!raw)return null;
+  const latin=raw.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  const parts=latin.match(/\d+/g)||[];
+  if(parts.length<3)return null;
+  const y=parts[0].padStart(4,'0'),m=parts[1].padStart(2,'0'),d=parts[2].padStart(2,'0');
+  return {key:`${y}${m}${d}`,display:`${y}/${m}/${d}`};
+}
+function updatePromisedRange(range,v){
+  const x=promisedDateInfo(v); if(!x)return;
+  if(!range.min||x.key<range.min.key)range.min=x;
+  if(!range.max||x.key>range.max.key)range.max=x;
+}
+
+function finalizeGroups(groups,relevantCount,mismatchCount,threshold,minMismatchCount,promisedRange){
   const allCenters=[...groups.values()].map(g=>({...g,mismatchPercent:g.total?g.mismatch/g.total*100:0}))
     .sort((a,b)=>b.mismatchPercent-a.mismatchPercent||b.mismatch-a.mismatch||String(a.dcId).localeCompare(String(b.dcId),undefined,{numeric:true}));
-  return {report:allCenters.filter(g=>g.mismatchPercent>=threshold&&g.mismatch>=minMismatchCount),relevantCount,mismatchCount,threshold,minMismatchCount};
+  return {report:allCenters.filter(g=>g.mismatchPercent>=threshold&&g.mismatch>=minMismatchCount),relevantCount,mismatchCount,threshold,minMismatchCount,promisedMin:promisedRange?.min?.display||'',promisedMax:promisedRange?.max?.display||''};
 }
 function addRecord(groups,dcId,dc,cap,counters){
   dcId=cleanId(dcId); dc=text(dc); cap=text(cap); if(!isGanjeCap(cap)) return;
@@ -195,37 +213,39 @@ async function analyzeXlsx(file,threshold,minMismatchCount){
   const sharedValues=await resolveSharedValues(file,shared,needed);
 
   postMessage({type:'progress',message:'در حال محاسبه گزارش بدون بارگذاری کل شیت در حافظه...'});
-  const groups=new Map(), counters={relevantCount:0,mismatchCount:0}; let rowNo=0;
+  const groups=new Map(), counters={relevantCount:0,mismatchCount:0}, promisedRange={min:null,max:null}; let rowNo=0;
   await streamElements(file,sheet,'row',row=>{
     rowNo++; if(rowNo===1) return;
-    let dcId='',dc='',cap='';
+    let dcId='',dc='',cap='',promised='';
     forEachCell(row,c=>{
       if(c.col===cols.dcId) dcId=valueFromCell(c,sharedValues);
       else if(c.col===cols.dc) dc=valueFromCell(c,sharedValues);
       else if(c.col===cols.cap) cap=valueFromCell(c,sharedValues);
+      else if(c.col===cols.promised) promised=valueFromCell(c,sharedValues);
     });
+    updatePromisedRange(promisedRange,promised);
     addRecord(groups,dcId,dc,cap,counters);
     if(rowNo%100000===0) postMessage({type:'progress',message:`در حال محاسبه گزارش: ${rowNo.toLocaleString()} ردیف`});
   });
-  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold,minMismatchCount);
+  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold,minMismatchCount,promisedRange);
 }
 
 async function analyzeCsv(file,threshold,minMismatchCount){
   const reader=file.stream().getReader(), decoder=new TextDecoder('utf-8');
-  let field='', row=[], inQuotes=false, quoteSeen=false, skipLF=false, headers=null, dcIdIdx=-1,dcIdx=-1,capIdx=-1,rowNo=0;
-  const groups=new Map(), counters={relevantCount:0,mismatchCount:0};
+  let field='', row=[], inQuotes=false, quoteSeen=false, skipLF=false, headers=null, dcIdIdx=-1,dcIdx=-1,capIdx=-1,promisedIdx=-1,rowNo=0;
+  const groups=new Map(), counters={relevantCount:0,mismatchCount:0}, promisedRange={min:null,max:null};
   function emitField(){ row.push(field); field=''; }
   function emitRow(){
     if(row.length===1 && row[0]==='' && headers) { row=[]; return; }
     rowNo++;
     if(!headers){
       headers=row.map(v=>headerNorm(v.replace(/^\uFEFF/,'')));
-      dcIdIdx=headers.findIndex(h=>['distribution_center_id_cap','distribution center id cap'].includes(h)); dcIdx=headers.indexOf('dc_name'); capIdx=headers.indexOf('distribution_center_cap');
+      dcIdIdx=headers.findIndex(h=>['distribution_center_id_cap','distribution center id cap'].includes(h)); dcIdx=headers.indexOf('dc_name'); capIdx=headers.indexOf('distribution_center_cap'); promisedIdx=headers.findIndex(h=>['persian_promised_date','persian promised date'].includes(h));
       if(dcIdIdx<0||dcIdx<0||capIdx<0){
         const missing=[dcIdIdx<0?'distribution_center_id_cap':null,dcIdx<0?'DC_Name':null,capIdx<0?'distribution_center_cap':null].filter(Boolean).join(' و ');
         throw new Error(`ستون ${missing} پیدا نشد.`);
       }
-    } else addRecord(groups,row[dcIdIdx]??'',row[dcIdx]??'',row[capIdx]??'',counters);
+    } else { updatePromisedRange(promisedRange,row[promisedIdx]??''); addRecord(groups,row[dcIdIdx]??'',row[dcIdx]??'',row[capIdx]??'',counters); }
     row=[];
     if(rowNo%100000===0) postMessage({type:'progress',message:`در حال تحلیل CSV: ${rowNo.toLocaleString()} ردیف`});
   }
@@ -254,7 +274,7 @@ async function analyzeCsv(file,threshold,minMismatchCount){
   if(quoteSeen){ inQuotes=false; quoteSeen=false; }
   if(field.length||row.length){ emitField(); emitRow(); }
   if(!headers) throw new Error('فایل فاقد داده است.');
-  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold,minMismatchCount);
+  return finalizeGroups(groups,counters.relevantCount,counters.mismatchCount,threshold,minMismatchCount,promisedRange);
 }
 
 
@@ -396,8 +416,7 @@ onmessage=async e=>{
     if(!file) throw new Error('فایلی انتخاب نشده است.');
     let result=/\.csv$/i.test(file.name)?await analyzeCsv(file,threshold,minMismatchCount):await analyzeXlsx(file,threshold,minMismatchCount);
     result.report=result.report.map(r=>({...r,center:centerLookup?.[cleanId(r.dcId)]?.name||r.sourceCenterCap||''}));
-    const previousMap=previousFile?await parsePreviousReport(previousFile):null;
-    result=applyPreviousComparison(result,previousMap);
+    if(previousFile){ const previousMap=await parsePreviousReport(previousFile); result=applyPreviousComparison(result,previousMap); result.hasPreviousComparison=true; } else result.hasPreviousComparison=false;
     postMessage({type:'done',result});
   }catch(err){ postMessage({type:'error',message:err?.message||'خطا در تحلیل فایل.'}); }
 };

@@ -19,3 +19,18 @@ body{height:100vh;overflow:hidden}
 .empty{margin:auto;padding:24px}
 @media(max-width:1100px){body{height:auto;overflow:auto}.workspace.report-layout{height:auto;min-height:100vh;grid-template-columns:1fr;grid-template-areas:"controls" "report"}.controls-stack{height:auto;overflow:visible}.report-panel{height:620px}.file-grid,.actions{grid-template-columns:1fr 1fr}.threshold-row{flex-direction:row;align-items:center}.number-box{width:auto}.number-box input{width:90px}}
 @media(max-width:620px){.file-grid,.actions{grid-template-columns:1fr}.threshold-row{flex-direction:column;align-items:stretch}.number-box{width:100%}.number-box input{width:100%}}
+
+
+/* v495 — right controls, compact no-scroll panel, report range and copy toast */
+.workspace.report-layout{direction:ltr;grid-template-columns:minmax(0,85fr) minmax(220px,15fr);grid-template-areas:"report controls"}
+.controls-stack,.report-panel{direction:rtl}
+.controls-stack{overflow:hidden;gap:8px}
+.controls-stack .panel{padding:10px}
+.controls-stack .panel-title{margin-bottom:7px}
+.controls-stack .panel-title strong{font-size:12px}.controls-stack .panel-title span{font-size:9px;line-height:1.35}
+.controls-stack .file-grid{gap:7px}.controls-stack .file-zone{min-height:72px;padding:7px;gap:2px}.controls-stack .file-icon{width:25px;height:25px;font-size:15px}.controls-stack .file-zone strong{font-size:11px}.controls-stack .file-zone span:not(.file-icon),.controls-stack .file-zone small{font-size:8.5px}
+.controls-stack .threshold-list{gap:6px}.controls-stack .threshold-row{padding:7px 8px;gap:6px}.controls-stack .threshold-row label{font-size:10px}.controls-stack .number-box input{padding:6px 7px;font-size:10px}.controls-stack .number-box span{font-size:9px}.controls-stack .actions{gap:6px;margin-top:7px}.controls-stack .btn{padding:8px 8px;font-size:10px}.controls-stack .status{padding-top:6px;font-size:9px;line-height:1.35;min-height:22px}
+.report-title-block{display:flex!important;flex-direction:column;align-items:flex-start!important;gap:2px!important}.report-title-block strong{font-family:"Yekan Bakh FaNum","Yekan Bakh",Tahoma,sans-serif;font-size:12px!important;font-weight:800!important;line-height:1.6}.report-title-block span{font-size:10px!important}
+.table-wrap th{white-space:normal!important;line-height:1.35;min-width:82px}.table-wrap th:nth-child(8),.table-wrap th:nth-child(9){min-width:112px;max-width:130px}
+.copy-toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:9999;background:rgba(15,31,61,.94);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:12px 24px;font:800 15px/1 "Yekan Bakh FaNum","Yekan Bakh",Tahoma,sans-serif;letter-spacing:.2px;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease;box-shadow:0 16px 42px rgba(10,25,55,.25)}.copy-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media(max-width:1100px){.workspace.report-layout{direction:rtl;grid-template-columns:1fr;grid-template-areas:"controls" "report"}.controls-stack{overflow:visible}.report-title-block{align-items:flex-start!important}}
