@@ -34,3 +34,7 @@ body{height:100vh;overflow:hidden}
 .table-wrap th{white-space:normal!important;line-height:1.35;min-width:82px}.table-wrap th:nth-child(8),.table-wrap th:nth-child(9){min-width:112px;max-width:130px}
 .copy-toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:9999;background:rgba(15,31,61,.94);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:12px 24px;font:800 15px/1 "Yekan Bakh FaNum","Yekan Bakh",Tahoma,sans-serif;letter-spacing:.2px;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease;box-shadow:0 16px 42px rgba(10,25,55,.25)}.copy-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 @media(max-width:1100px){.workspace.report-layout{direction:rtl;grid-template-columns:1fr;grid-template-areas:"controls" "report"}.controls-stack{overflow:visible}.report-title-block{align-items:flex-start!important}}
+
+/* v496 report title row */
+.table-wrap thead .report-title-row th{position:sticky;top:0;z-index:4;background:var(--card)!important;color:var(--text)!important;font-family:"Yekan Bakh FaNum","Yekan Bakh",Tahoma,sans-serif!important;font-size:12px!important;font-weight:800!important;text-align:center!important;white-space:normal!important;line-height:1.5!important;padding:8px 10px!important;border:1px solid var(--border)!important}
+.table-wrap thead #reportHeadRow th{top:38px!important}

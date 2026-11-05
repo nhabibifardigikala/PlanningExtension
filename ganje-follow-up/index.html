@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>GANJE Follow-up</title>
-  <link rel="stylesheet" href="app.css?v=495" />
-  <link rel="stylesheet" href="../ui/design-system.css?v=495">
+  <link rel="stylesheet" href="app.css?v=496" />
+  <link rel="stylesheet" href="../ui/design-system.css?v=496">
 </head>
 <body>
   <main class="workspace report-layout">
@@ -46,7 +46,7 @@
 
     <section id="reportSection" class="panel report-panel">
       <div class="report-head">
-        <div class="report-title-block"><strong id="reportRangeTitle">گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: —</strong><span id="thresholdLabel">حداقل 50٪ و حداقل 5 تغییر</span></div>
+        <div class="report-title-block"><span id="thresholdLabel">حداقل 50٪ و حداقل 5 تغییر</span></div>
         <div class="report-tools">
           <div class="legend hidden" id="trendLegend"><span class="up">افزایشی</span><span class="down">کاهشی</span><span class="flat">بدون تغییر</span></div>
           <button id="copyTableBtn" class="icon-btn" type="button" title="کپی جدول با فرمت" aria-label="کپی جدول با فرمت" disabled>
@@ -56,7 +56,7 @@
       </div>
       <div class="table-wrap" id="reportTableWrap">
         <table id="reportTable" data-dx-table="off">
-          <thead><tr id="reportHeadRow"></tr></thead>
+          <thead><tr class="report-title-row"><th id="reportRangeTitle" colspan="7">گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: —</th></tr><tr id="reportHeadRow"></tr></thead>
           <tbody id="reportBody"></tbody>
         </table>
       </div>
@@ -64,9 +64,9 @@
     </section>
     <div id="copyToast" class="copy-toast" role="status" aria-live="polite">copied</div>
   </main>
-  <script src="../ui/platform-client.js?v=495"></script>
-  <script src="xlsx-writer.js?v=495"></script>
-  <script src="app.js?v=495"></script>
-  <script src="../ui/table-component.js?v=495"></script>
+  <script src="../ui/platform-client.js?v=496"></script>
+  <script src="xlsx-writer.js?v=496"></script>
+  <script src="app.js?v=496"></script>
+  <script src="../ui/table-component.js?v=496"></script>
 </body>
 </html>

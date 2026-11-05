@@ -113,7 +113,7 @@ function rowValues(x,index,hasPrevious,reportDate){
 function render(r){
   const reportDate=persianReportDate(),hasPrevious=!!r.hasPreviousComparison; lastAnalysis={...r,reportDate,hasPreviousComparison:hasPrevious};
   els.reportSection.classList.remove('hidden'); els.thresholdLabel.textContent=`حداقل ${r.threshold}% و حداقل ${r.minMismatchCount} تغییر`; els.reportRangeTitle.textContent=reportRangeText(r); els.reportBody.innerHTML='';
-  const columns=reportColumns(hasPrevious); els.reportHeadRow.innerHTML=columns.map(c=>`<th>${c.html}</th>`).join(''); els.trendLegend.classList.toggle('hidden',!hasPrevious);
+  const columns=reportColumns(hasPrevious); els.reportRangeTitle.colSpan=columns.length; els.reportHeadRow.innerHTML=columns.map(c=>`<th>${c.html}</th>`).join(''); els.trendLegend.classList.toggle('hidden',!hasPrevious);
   r.report.forEach((x,index)=>{
     const tr=document.createElement('tr'), cells=rowValues(x,index,hasPrevious,reportDate);
     cells.forEach((v,i)=>{
@@ -139,7 +139,7 @@ els.analyzeBtn.addEventListener('click',async()=>{
   stopWorker(); els.analyzeBtn.disabled=true; els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
   try{
     const centerMap=await loadDistributionCenters();
-    worker=new Worker('worker.js?v=495');
+    worker=new Worker('worker.js?v=496');
     setStatus(previousFile?'در حال تحلیل داده‌ها و گزارش دوره قبل...':'در حال تحلیل کم‌حافظه فایل...');
     worker.onmessage=e=>{
       const msg=e.data||{};
@@ -174,7 +174,7 @@ function currentHeaderHtml(){return reportColumns(!!lastAnalysis?.hasPreviousCom
 
 els.exportBtn.addEventListener('click',()=>{
   if(!lastAnalysis)return;
-  const rows=[currentHeaders(),...reportRows()];
+  const headers=currentHeaders(); const rows=[[reportRangeText(lastAnalysis),...Array(Math.max(0,headers.length-1)).fill('')],headers,...reportRows()];
   const blob=window.GanjeXlsx.buildXlsx(rows),url=URL.createObjectURL(blob),a=document.createElement('a');
   const safeDate=latinDigits(lastAnalysis.reportDate).replace(/[^0-9]+/g,'-');
   a.href=url;a.download=`GANJE-Follow-up-${safeDate}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
@@ -192,9 +192,11 @@ function copyColumnWidths(rows,headers){
 function buildClipboardTableHtml(rows){
   const rich=currentHeaderHtml(), widths=copyColumnWidths(rows,rich);
   const colgroup=widths.map(w=>`<col style="width:${w}px">`).join('');
+  const title=escapeHtml(reportRangeText(lastAnalysis||{}));
+  const titleRow=`<tr><th colspan="${rich.length}" style="border:1px solid #8797ad;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center;vertical-align:middle;padding:7px 8px;white-space:normal;line-height:1.35;">${title}</th></tr>`;
   const head=`<tr>${rich.map(h=>`<th style="border:1px solid #8797ad;background:#132a52;color:#ffffff;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center;vertical-align:middle;padding:6px 8px;white-space:normal;line-height:1.35;">${h}</th>`).join('')}</tr>`;
   const body=rows.map(row=>`<tr>${row.map(v=>`<td style="border:1px solid #9aa9bf;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:400;text-align:center;vertical-align:middle;padding:6px 8px;white-space:nowrap;">${escapeHtml(v)}</td>`).join('')}</tr>`).join('');
-  return `<table dir="rtl" style="border-collapse:collapse;table-layout:fixed;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;"><colgroup>${colgroup}</colgroup><thead>${head}</thead><tbody>${body}</tbody></table>`;
+  return `<table dir="rtl" style="border-collapse:collapse;table-layout:fixed;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;"><colgroup>${colgroup}</colgroup><thead>${titleRow}${head}</thead><tbody>${body}</tbody></table>`;
 }
 function showCopyToast(){
   els.copyToast?.classList.add('show'); clearTimeout(showCopyToast.timer); showCopyToast.timer=setTimeout(()=>els.copyToast?.classList.remove('show'),1100);
@@ -203,7 +205,7 @@ function showCopyToast(){
 els.copyTableBtn.addEventListener('click',async()=>{
   if(!lastAnalysis)return;
   const rows=reportRows(),headers=currentHeaders();
-  const tsv=[headers,...rows].map(row=>row.map(v=>String(v??'').replace(/\t|\r?\n/g,' ')).join('\t')).join('\n');
+  const titleRow=[reportRangeText(lastAnalysis),...Array(Math.max(0,headers.length-1)).fill('')]; const tsv=[titleRow,headers,...rows].map(row=>row.map(v=>String(v??'').replace(/\t|\r?\n/g,' ')).join('\t')).join('\n');
   const html=buildClipboardTableHtml(rows);
   try{
     if(window.ClipboardItem&&navigator.clipboard?.write){
