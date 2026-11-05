@@ -1,11 +1,11 @@
 {
-  "configVersion": 492,
+  "configVersion": 493,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
     "subtitle": "Planning Suite · Config 492",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 492
+    "configVersion": 493
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -117,7 +117,7 @@
       "accessHeaders": [
         "GANJE Follow-up"
       ],
-      "config": "operations/ganje-follow-up.json?v=489",
+      "config": "operations/ganje-follow-up.json?v=493",
       "iconSvgPath": "M8 8h32v30H8V8Zm5 6v4h22v-4H13Zm0 8v4h10v-4H13Zm0 8v4h7v-4h-7Zm13-7 4 4 7-9 3 3-10 13-7-7 3-4Z",
       "description": "Analyze GANJE D2D DC mismatch by DC_ID, resolve center ID/name from Distribution Centers (LG), compare with an optional previous report, and export/copy the report.",
       "runLabel": "Open GANJE Follow-up",
@@ -136,7 +136,8 @@
             "equals": "true"
           }
         }
-      ]
+      ],
+      "iconImage": "icons/apps/ganje-follow-up.webp?v=493"
     },
     {
       "id": "ganje-network-worker",
@@ -1089,7 +1090,7 @@
   "platformContract": 12,
   "hostUpdatePolicy": "rare-capability-or-security-only",
   "executionModel": "remote-first-declarative",
-  "designSystem": "ui/design-system.css?v=492",
+  "designSystem": "ui/design-system.css?v=493",
   "featureFlags": {
     "diagnostics": true,
     "structuredErrors": true,
@@ -1099,5 +1100,5 @@
     "healthCheck": true
   },
   "recommendedHostVersion": "13.0.18",
-  "tableComponent": "ui/table-component.js?v=492"
+  "tableComponent": "ui/table-component.js?v=493"
 }

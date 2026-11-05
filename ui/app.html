@@ -68,7 +68,7 @@ html[data-theme="dark"] :is(th,.subtle,.soft-panel,.info-box,.notice,.empty-stat
 #operationView:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]) > .settings-card,#operationView:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]) > .section-heading,#operationView:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]) #capacityStats{display:none!important}
 #operationView.active:has(#operationInputs [data-field-wrap="__hubCoveragePolygonsEmbedded"]){display:flex;flex-direction:column;height:calc(100vh - 108px);min-height:0!important;overflow:hidden}
 </style>
-<link rel="stylesheet" href="design-system.css?v=492">
+<link rel="stylesheet" href="design-system.css?v=493">
 <style id="dx-app-inline">
 /* v327 compatibility gate: intentionally visible by default. Host 12.7+ removes it after version validation. */
 .host-compatibility-gate{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:28px;background:color-mix(in srgb,var(--dx-bg,#f5f7fb) 94%,transparent);backdrop-filter:blur(10px)}.host-compatibility-gate.compatible{display:none!important}.host-compatibility-card{width:min(620px,100%);padding:28px;border:1px solid var(--dx-line,#e2e8f2);border-radius:20px;background:var(--dx-surface,#fff);box-shadow:var(--dx-shadow,0 18px 50px rgba(15,23,42,.08));color:var(--dx-text,#10213f)}.host-compatibility-card h1{margin:14px 0 8px;font-size:26px}.host-compatibility-card p{margin:0 0 18px;line-height:1.7;color:var(--dx-muted,#667085)}.host-compatibility-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#fff4e8;color:#d97706;font-size:24px;font-weight:900}.host-compatibility-help{padding:14px 16px;border:1px solid var(--dx-line,#e2e8f2);border-radius:14px;background:var(--dx-surface-soft,#f8faff)}.host-compatibility-help a{font-weight:700;color:var(--dx-primary,#2563eb)}
@@ -930,7 +930,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=492" loading="lazy"></iframe></section>
-      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
+      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=493&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=493&theme=dark" loading="lazy"></iframe></section>
       <section id="dropCloseCapacityEmbedded" class="drop-close-capacity-embedded" aria-label="Drop Close Capacity"><iframe title="Drop Close Capacity" src="https://nhabibifardigikala.github.io/PlanningExtension/drop-close-capacity/index.html?v=492" loading="lazy"></iframe></section>
       <section id="hubCoveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Hub Coverage Polygons"><iframe title="Hub Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/hub-coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
       <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
@@ -1075,7 +1075,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION=492;
+const EXPECTED_REMOTE_CONFIG_VERSION=493;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -2688,6 +2688,6 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 
 </script>
 
-<script src="table-component.js?v=492"></script>
+<script src="table-component.js?v=493"></script>
 </body>
 </html>

@@ -103,7 +103,7 @@ function stopWorker(){if(worker){worker.terminate();worker=null;}}
 
 els.analyzeBtn.addEventListener('click',async()=>{
   if(!selectedFile)return;
-  let threshold=Number(els.threshold.value); if(!Number.isFinite(threshold))threshold=0;
+  let threshold=Number(els.threshold.value); if(!Number.isFinite(threshold))threshold=50;
   threshold=Math.max(0,Math.min(100,threshold)); els.threshold.value=threshold;
   stopWorker(); els.analyzeBtn.disabled=true; els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
   try{
