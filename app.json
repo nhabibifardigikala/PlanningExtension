@@ -1,11 +1,11 @@
 {
-  "configVersion": 499,
+  "configVersion": 500,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 496",
+    "subtitle": "Planning Suite · Config 500",
     "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 499
+    "configVersion": 500
   },
   "theme": "theme.json?v=378",
   "settings": "settings.json?v=378",
@@ -1079,7 +1079,7 @@
     "html": "ui/app.html?v=472",
     "css": "ui/app.css?v=408"
   },
-  "version": 496,
+  "version": 500,
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
