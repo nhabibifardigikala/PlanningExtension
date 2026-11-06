@@ -870,7 +870,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link nav-settings" id="sidebarSettingsBtn" type="button" title="Settings"><span class="nav-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19 13.2a7.6 7.6 0 0 0 0-2.4l2-1.5-2-3.4-2.5 1a8.2 8.2 0 0 0-2.1-1.2L14 3h-4l-.4 2.7a8.2 8.2 0 0 0-2.1 1.2l-2.5-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 2.4l-2 1.5 2 3.4 2.5-1a8.2 8.2 0 0 0 2.1 1.2L10 21h4l.4-2.7a8.2 8.2 0 0 0 2.1-1.2l2.5 1 2-3.4-2-1.5Z"/></svg></span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v501</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v502</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -1085,7 +1085,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 501;
+const EXPECTED_REMOTE_CONFIG_VERSION = 502;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -2721,7 +2721,7 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 .nav-agents .nav-glyph{color:#67e8f9!important}
 </style>
 
-<script id="v501-version-pill-sync">
+<script id="v502-version-pill-sync">
 (()=>{
  const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||500);el.textContent='v'+(v||500);};
  set(); window.addEventListener('load',()=>{set();setTimeout(set,500);setTimeout(set,1600);});

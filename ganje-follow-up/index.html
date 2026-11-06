@@ -66,7 +66,134 @@
   </main>
   <script src="../ui/platform-client.js?v=498"></script>
   <script src="xlsx-writer.js?v=498"></script>
-  <script src="app.js?v=501"></script>
+  <script src="app.js?v=502"></script>
   <script src="../ui/table-component.js?v=498"></script>
+
+<script id="v502-ganje-copy-date-fix">
+(() => {
+  const DATE_RE = /\b14\d{2}\/\d{2}\/\d{2}\b/g;
+
+  function dateSpan(value){
+    const span=document.createElement('span');
+    span.dir='ltr';
+    span.setAttribute('lang','en');
+    span.style.direction='ltr';
+    span.style.unicodeBidi='bidi-override';
+    span.style.display='inline-block';
+    span.style.whiteSpace='nowrap';
+    span.textContent=value;
+    return span;
+  }
+
+  function normalizeVisibleTitle(){
+    const th=document.getElementById('reportRangeTitle');
+    if(!th) return;
+    const raw=(th.textContent||'').trim();
+    const dates=raw.match(DATE_RE)||[];
+    if(dates.length<2 || th.dataset.v502Fixed==='1') return;
+    const prefix=raw.slice(0, raw.indexOf(dates[0]));
+    th.textContent='';
+    th.dir='rtl';
+    th.style.direction='rtl';
+    th.style.unicodeBidi='plaintext';
+    th.append(document.createTextNode(prefix));
+    th.append(dateSpan(dates[0]));
+    th.append(document.createTextNode(' تا '));
+    th.append(dateSpan(dates[1]));
+    th.dataset.v502Fixed='1';
+  }
+
+  function styleCloneForClipboard(table){
+    table.setAttribute('dir','rtl');
+    table.style.borderCollapse='collapse';
+    table.style.fontFamily='Yekan Bakh FaNum, Yekan Bakh, Tahoma, Arial, sans-serif';
+    table.style.fontSize='10pt';
+    table.style.textAlign='center';
+    table.style.direction='rtl';
+    table.querySelectorAll('th,td').forEach(cell=>{
+      cell.setAttribute('align','center');
+      cell.setAttribute('valign','middle');
+      cell.style.textAlign='center';
+      cell.style.verticalAlign='middle';
+      cell.style.border='1px solid #9aa9bf';
+      cell.style.padding='6px 8px';
+      cell.style.fontFamily='Yekan Bakh FaNum, Yekan Bakh, Tahoma, Arial, sans-serif';
+      cell.style.fontSize='10pt';
+      cell.style.whiteSpace='normal';
+    });
+    const title=table.querySelector('#reportRangeTitle');
+    if(title){
+      const raw=(title.textContent||'').trim();
+      const dates=raw.match(DATE_RE)||[];
+      if(dates.length>=2){
+        const prefix=raw.slice(0, raw.indexOf(dates[0]));
+        title.textContent='';
+        title.setAttribute('dir','rtl');
+        title.style.direction='rtl';
+        title.style.unicodeBidi='plaintext';
+        title.style.textAlign='center';
+        title.style.fontWeight='700';
+        title.append(document.createTextNode(prefix));
+        title.append(dateSpan(dates[0]));
+        title.append(document.createTextNode(' تا '));
+        title.append(dateSpan(dates[1]));
+      }
+    }
+    const headRows=table.querySelectorAll('thead tr');
+    if(headRows[1]) headRows[1].querySelectorAll('th').forEach(th=>{
+      th.style.background='#17345f';
+      th.style.color='#fff';
+      th.style.fontWeight='700';
+    });
+  }
+
+  async function richCopyCurrentTable(ev){
+    const btn=ev.target.closest && ev.target.closest('#copyTableBtn');
+    if(!btn) return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    const src=document.getElementById('reportTable');
+    if(!src) return;
+    const clone=src.cloneNode(true);
+    styleCloneForClipboard(clone);
+    const wrapper=document.createElement('div');
+    wrapper.appendChild(clone);
+    const html='<!doctype html><html><head><meta charset="utf-8"></head><body>'+wrapper.innerHTML+'</body></html>';
+    const plain=clone.innerText;
+    try{
+      if(navigator.clipboard && window.ClipboardItem){
+        const item=new ClipboardItem({
+          'text/html': new Blob([html],{type:'text/html'}),
+          'text/plain': new Blob([plain],{type:'text/plain'})
+        });
+        await navigator.clipboard.write([item]);
+      }else{
+        const temp=document.createElement('div');
+        temp.contentEditable='true';
+        temp.style.position='fixed';
+        temp.style.left='-99999px';
+        temp.innerHTML=wrapper.innerHTML;
+        document.body.appendChild(temp);
+        const range=document.createRange(); range.selectNodeContents(temp);
+        const sel=getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        if(!document.execCommand('copy')) throw new Error('Rich copy is not supported');
+        sel.removeAllRanges(); temp.remove();
+      }
+      const toast=document.getElementById('copyToast');
+      if(toast){ toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),900); }
+    }catch(err){
+      const status=document.getElementById('status');
+      if(status) status.textContent='کپی جدول با فرمت انجام نشد. لطفاً دوباره تلاش کنید.';
+    }
+  }
+
+  document.addEventListener('click', richCopyCurrentTable, true);
+  const title=document.getElementById('reportRangeTitle');
+  if(title){
+    new MutationObserver(()=>{ title.dataset.v502Fixed='0'; normalizeVisibleTitle(); }).observe(title,{childList:true,subtree:true,characterData:true});
+  }
+  normalizeVisibleTitle();
+})();
+</script>
 </body>
 </html>
