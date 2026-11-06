@@ -82,7 +82,6 @@ function enrichWithCenters(result,centerMap){
 function reportColumns(hasPrevious){
   const cols=[
     {key:'row',plain:'ردیف',html:'ردیف'},
-    {key:'date',plain:'تاریخ',html:'تاریخ'},
     {key:'centerId',plain:'شناسه مرکز',html:'شناسه مرکز'},
     {key:'centerName',plain:'نام مرکز',html:'نام مرکز'},
     {key:'total',plain:'تعداد کل',html:'تعداد کل'},
@@ -101,8 +100,8 @@ function reportRangeText(r){
   const range=min&&max?(min===max?min:`${min} تا ${max}`):(min||max||'—');
   return `گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: ${range}`;
 }
-function rowValues(x,index,hasPrevious,reportDate){
-  const values=[index+1,reportDate,x.centerId,x.centerName,x.total,x.mismatch,`${x.mismatchPercent.toFixed(2)}%`];
+function rowValues(x,index,hasPrevious){
+  const values=[index+1,x.centerId,x.centerName,x.total,x.mismatch,`${x.mismatchPercent.toFixed(2)}%`];
   if(hasPrevious){
     const prev=x.previousPercent==null?'—':`${x.previousPercent.toFixed(2)}%`;
     const delta=x.deltaPercent==null?'—':`${x.deltaPercent>0?'+':''}${x.deltaPercent.toFixed(2)}`;
@@ -115,11 +114,11 @@ function render(r){
   els.reportSection.classList.remove('hidden'); els.thresholdLabel.textContent=`حداقل ${r.threshold}% و حداقل ${r.minMismatchCount} تغییر`; els.reportRangeTitle.textContent=reportRangeText(r); els.reportBody.innerHTML='';
   const columns=reportColumns(hasPrevious); els.reportRangeTitle.colSpan=columns.length; els.reportHeadRow.innerHTML=columns.map(c=>`<th>${c.html}</th>`).join(''); els.trendLegend.classList.toggle('hidden',!hasPrevious);
   r.report.forEach((x,index)=>{
-    const tr=document.createElement('tr'), cells=rowValues(x,index,hasPrevious,reportDate);
+    const tr=document.createElement('tr'), cells=rowValues(x,index,hasPrevious);
     cells.forEach((v,i)=>{
       const td=document.createElement('td'); td.textContent=v;
-      if([0,2,4,5,6,7,8].includes(i))td.classList.add('num');
-      if(hasPrevious&&i===9&&x.trendClass)td.classList.add(x.trendClass);
+      if([0,1,3,4,5,6,7].includes(i))td.classList.add('num');
+      if(hasPrevious&&i===8&&x.trendClass)td.classList.add(x.trendClass);
       tr.appendChild(td);
     });
     els.reportBody.appendChild(tr);
@@ -139,7 +138,7 @@ els.analyzeBtn.addEventListener('click',async()=>{
   stopWorker(); els.analyzeBtn.disabled=true; els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
   try{
     const centerMap=await loadDistributionCenters();
-    worker=new Worker('worker.js?v=496');
+    worker=new Worker('worker.js?v=499');
     setStatus(previousFile?'در حال تحلیل داده‌ها و گزارش دوره قبل...':'در حال تحلیل کم‌حافظه فایل...');
     worker.onmessage=e=>{
       const msg=e.data||{};
@@ -164,7 +163,7 @@ function reportRows(){
   if(!lastAnalysis)return [];
   const hasPrevious=!!lastAnalysis.hasPreviousComparison;
   return lastAnalysis.report.map((r,i)=>{
-    const row=[i+1,lastAnalysis.reportDate,r.centerId,r.centerName,r.total,r.mismatch,Number(r.mismatchPercent.toFixed(2))];
+    const row=[i+1,r.centerId,r.centerName,r.total,r.mismatch,Number(r.mismatchPercent.toFixed(2))];
     if(hasPrevious)row.push(r.previousPercent==null?'':Number(r.previousPercent.toFixed(2)),r.deltaPercent==null?'':Number(r.deltaPercent.toFixed(2)),r.trend);
     return row;
   });
@@ -185,7 +184,7 @@ function copyColumnWidths(rows,headers){
   return headers.map((h,i)=>{
     let max=String(h).replace(/<br\s*\/?>/gi,' ').length;
     for(const row of rows)max=Math.max(max,String(row[i]??'').length);
-    const cap=i===3?240:(i>=7?130:170);
+    const cap=i===2?240:(i>=6?130:170);
     return Math.max(58,Math.min(cap,22+max*7));
   });
 }
@@ -194,8 +193,8 @@ function buildClipboardTableHtml(rows){
   const colgroup=widths.map(w=>`<col style="width:${w}px">`).join('');
   const title=escapeHtml(reportRangeText(lastAnalysis||{}));
   const titleRow=`<tr><th align="center" colspan="${rich.length}" style="border:1px solid #8797ad;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center!important;vertical-align:middle;padding:7px 8px;white-space:normal;line-height:1.35;">${title}</th></tr>`;
-  const head=`<tr>${rich.map(h=>`<th align="center" style="border:1px solid #8797ad;background:#132a52;color:#ffffff;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center!important;vertical-align:middle;padding:6px 8px;white-space:normal;line-height:1.35;">${h}</th>`).join('')}</tr>`;
-  const body=rows.map(row=>`<tr>${row.map(v=>`<td align="center" style="border:1px solid #9aa9bf;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:400;text-align:center!important;vertical-align:middle;padding:6px 8px;white-space:nowrap;">${escapeHtml(v)}</td>`).join('')}</tr>`).join('');
+  const head=`<tr>${rich.map(h=>`<th align="center" valign="middle" style="border:1px solid #8797ad;background:#132a52;color:#ffffff;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center!important;vertical-align:middle!important;padding:6px 8px;white-space:normal;line-height:1.35;"><div align="center" style="width:100%;text-align:center!important;margin:0 auto;">${h}</div></th>`).join('')}</tr>`;
+  const body=rows.map(row=>`<tr>${row.map(v=>`<td align="center" valign="middle" style="border:1px solid #9aa9bf;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:400;text-align:center!important;vertical-align:middle!important;padding:6px 8px;white-space:nowrap;"><div align="center" style="width:100%;text-align:center!important;margin:0 auto;">${escapeHtml(v)}</div></td>`).join('')}</tr>`).join('');
   return `<table dir="rtl" align="center" cellspacing="0" cellpadding="0" style="border-collapse:collapse;table-layout:fixed;text-align:center!important;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;"><colgroup>${colgroup}</colgroup><thead>${titleRow}${head}</thead><tbody>${body}</tbody></table>`;
 }
 function showCopyToast(){
