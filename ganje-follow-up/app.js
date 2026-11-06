@@ -74,7 +74,7 @@ function enrichWithCenters(result,centerMap){
   const report=result.report.map(r=>{
     const key=normId(r.dcId); const ref=centerMap.get(key);
     if(!ref)unresolved++;
-    return {...r,centerId:ref?.id||key,city:String(r.sourceCity||'').trim(),centerName:ref?.name||String(r.sourceCenterCap||'').trim()||'یافت نشد در دیتاست'};
+    return {...r,centerId:ref?.id||key,iata:String(r.sourceCenterCap||'').trim(),centerName:ref?.name||String(r.sourceCenterCap||'').trim()||'یافت نشد در دیتاست'};
   });
   return {...result,report,unresolved};
 }
@@ -83,7 +83,7 @@ function reportColumns(hasPrevious){
   const cols=[
     {key:'row',plain:'ردیف',html:'ردیف'},
     {key:'centerId',plain:'شناسه مرکز',html:'شناسه مرکز'},
-    {key:'city',plain:'شهر',html:'شهر'},
+    {key:'iata',plain:'یاتاکد',html:'یاتاکد'},
     {key:'centerName',plain:'نام مرکز',html:'نام مرکز'},
     {key:'total',plain:'تعداد کل',html:'تعداد کل'},
     {key:'mismatch',plain:'تعداد تغییر DC',html:'تعداد تغییر DC'},
@@ -107,16 +107,17 @@ function reportRangeText(r){
 }
 function reportRangeHtml(r){
   const {min,max}=reportRangeParts(r);
+  const dateSpan=v=>`<span dir="ltr" style="unicode-bidi:bidi-override;direction:ltr;display:inline-block;white-space:nowrap;">⁦${escapeHtml(v)}⁩</span>`;
   let range='—';
   if(min&&max){
-    range=min===max?`<span dir="ltr" style="unicode-bidi:isolate;display:inline-block;direction:ltr;">${escapeHtml(min)}</span>`:`<span dir="ltr" style="unicode-bidi:isolate;display:inline-block;direction:ltr;white-space:nowrap;">${escapeHtml(min)} تا ${escapeHtml(max)}</span>`;
+    range=min===max?dateSpan(min):`${dateSpan(min)} <span dir="rtl" style="unicode-bidi:isolate;direction:rtl;display:inline-block;">⁧تا⁩</span> ${dateSpan(max)}`;
   }else if(min||max){
-    const one=min||max; range=`<span dir="ltr" style="unicode-bidi:isolate;display:inline-block;direction:ltr;">${escapeHtml(one)}</span>`;
+    range=dateSpan(min||max);
   }
-  return `گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: ${range}`;
+  return `گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: <span dir="rtl" style="direction:rtl;unicode-bidi:isolate;">${range}</span>`;
 }
 function rowValues(x,index,hasPrevious){
-  const values=[index+1,x.centerId,x.city,x.centerName,x.total,x.mismatch,`${x.mismatchPercent.toFixed(2)}%`];
+  const values=[index+1,x.centerId,x.iata,x.centerName,x.total,x.mismatch,`${x.mismatchPercent.toFixed(2)}%`];
   if(hasPrevious){
     const prev=x.previousPercent==null?'—':`${x.previousPercent.toFixed(2)}%`;
     const delta=x.deltaPercent==null?'—':`${x.deltaPercent>0?'+':''}${x.deltaPercent.toFixed(2)}`;
@@ -153,7 +154,7 @@ els.analyzeBtn.addEventListener('click',async()=>{
   stopWorker(); els.analyzeBtn.disabled=true; els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
   try{
     const centerMap=await loadDistributionCenters();
-    worker=new Worker('worker.js?v=499');
+    worker=new Worker('worker.js?v=501');
     setStatus(previousFile?'در حال تحلیل داده‌ها و گزارش دوره قبل...':'در حال تحلیل کم‌حافظه فایل...');
     worker.onmessage=e=>{
       const msg=e.data||{};
@@ -178,7 +179,7 @@ function reportRows(){
   if(!lastAnalysis)return [];
   const hasPrevious=!!lastAnalysis.hasPreviousComparison;
   return lastAnalysis.report.map((r,i)=>{
-    const row=[i+1,r.centerId,r.city,r.centerName,r.total,r.mismatch,Number(r.mismatchPercent.toFixed(2))];
+    const row=[i+1,r.centerId,r.iata,r.centerName,r.total,r.mismatch,Number(r.mismatchPercent.toFixed(2))];
     if(hasPrevious)row.push(r.previousPercent==null?'':Number(r.previousPercent.toFixed(2)),r.deltaPercent==null?'':Number(r.deltaPercent.toFixed(2)),r.trend);
     return row;
   });
@@ -199,7 +200,7 @@ function copyColumnWidths(rows,headers){
   return headers.map((h,i)=>{
     let max=String(h).replace(/<br\s*\/?>/gi,' ').length;
     for(const row of rows)max=Math.max(max,String(row[i]??'').length);
-    const cap=i===3?240:(i===2?150:(i>=7?130:170));
+    const cap=i===3?240:(i===2?170:(i>=7?130:170));
     return Math.max(58,Math.min(cap,22+max*7));
   });
 }

@@ -870,7 +870,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link nav-settings" id="sidebarSettingsBtn" type="button" title="Settings"><span class="nav-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19 13.2a7.6 7.6 0 0 0 0-2.4l2-1.5-2-3.4-2.5 1a8.2 8.2 0 0 0-2.1-1.2L14 3h-4l-.4 2.7a8.2 8.2 0 0 0-2.1 1.2l-2.5-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 2.4l-2 1.5 2 3.4 2.5-1a8.2 8.2 0 0 0 2.1 1.2L10 21h4l.4-2.7a8.2 8.2 0 0 0 2.1-1.2l2.5 1 2-3.4-2-1.5Z"/></svg></span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v500</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v501</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -940,7 +940,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=492" loading="lazy"></iframe></section>
-      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=500&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=500&theme=dark" loading="lazy"></iframe></section>
+      <section id="ganjeFollowUpEmbedded" class="ganje-follow-up-embedded" aria-label="GANJE Follow-up"><iframe id="ganjeFollowUpFrameLight" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=501&theme=light" loading="lazy"></iframe><iframe id="ganjeFollowUpFrameDark" class="ganje-follow-up-theme-frame" title="GANJE Follow-up" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-follow-up/index.html?v=501&theme=dark" loading="lazy"></iframe></section>
       <section id="dropCloseCapacityEmbedded" class="drop-close-capacity-embedded" aria-label="Drop Close Capacity"><iframe title="Drop Close Capacity" src="https://nhabibifardigikala.github.io/PlanningExtension/drop-close-capacity/index.html?v=492" loading="lazy"></iframe></section>
       <section id="hubCoveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Hub Coverage Polygons"><iframe title="Hub Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/hub-coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
       <section id="coveragePolygonsEmbedded" class="map-operation-embedded" aria-label="Coverage Polygons"><iframe title="Coverage Polygons" src="https://nhabibifardigikala.github.io/PlanningExtension/coverage-polygons/index.html?v=492" loading="lazy"></iframe></section>
@@ -1085,7 +1085,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION=500;
+const EXPECTED_REMOTE_CONFIG_VERSION = 501;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -2721,7 +2721,7 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 .nav-agents .nav-glyph{color:#67e8f9!important}
 </style>
 
-<script id="v500-version-pill-sync">
+<script id="v501-version-pill-sync">
 (()=>{
  const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||500);el.textContent='v'+(v||500);};
  set(); window.addEventListener('load',()=>{set();setTimeout(set,500);setTimeout(set,1600);});
