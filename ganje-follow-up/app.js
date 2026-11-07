@@ -1,254 +1,138 @@
-let selectedFile = null;
-let previousFile = null;
-let lastAnalysis = null;
-let worker = null;
-let centersCache = null;
+(() => {
+  'use strict';
+  const DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
+  const DATASET_SHEET='Distribution Centers (LG)';
+  const $=id=>document.getElementById(id);
+  const els={
+    fileInput:$('fileInput'), dropZone:$('dropZone'), fileName:$('fileName'),
+    previousFileInput:$('previousFileInput'), previousDropZone:$('previousDropZone'), previousFileName:$('previousFileName'),
+    threshold:$('threshold'), minMismatchCount:$('minMismatchCount'), analyzeBtn:$('analyzeBtn'), exportBtn:$('exportBtn'), status:$('status'),
+    thresholdLabel:$('thresholdLabel'), trendLegend:$('trendLegend'), copyTableBtn:$('copyTableBtn'),
+    reportHeadRow:$('reportHeadRow'), reportRangeTitle:$('reportRangeTitle'), reportBody:$('reportBody'), emptyState:$('emptyState')
+  };
+  let selectedFile=null, previousFile=null, worker=null, watchdog=null, lastAnalysis=null;
 
-const DATASETS_SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
-const DISTRIBUTION_CENTERS_SHEET = 'Distribution Centers (LG)';
-const $ = id => document.getElementById(id);
-const els = {
-  fileInput:$('fileInput'), dropZone:$('dropZone'), fileName:$('fileName'),
-  previousFileInput:$('previousFileInput'), previousDropZone:$('previousDropZone'), previousFileName:$('previousFileName'),
-  threshold:$('threshold'), minMismatchCount:$('minMismatchCount'), analyzeBtn:$('analyzeBtn'), exportBtn:$('exportBtn'), copyTableBtn:$('copyTableBtn'), status:$('status'),
-  reportSection:$('reportSection'), thresholdLabel:$('thresholdLabel'), reportRangeTitle:$('reportRangeTitle'), reportHeadRow:$('reportHeadRow'), trendLegend:$('trendLegend'), copyToast:$('copyToast'), reportBody:$('reportBody'), emptyState:$('emptyState')
-};
-
-function setStatus(message, error=false){ els.status.textContent=message; els.status.classList.toggle('error',error); }
-function formatSize(file){ return `${file.name} — ${(file.size/1024/1024).toFixed(1)} MB`; }
-function validFile(file){ return file && /\.(xlsx|csv)$/i.test(file.name); }
-function chooseCurrentFile(file){
-  if(!file)return;
-  if(!validFile(file)){ selectedFile=null; els.analyzeBtn.disabled=true; setStatus('فقط فایل XLSX یا CSV پشتیبانی می‌شود.',true); return; }
-  selectedFile=file; els.fileName.textContent=formatSize(file); els.analyzeBtn.disabled=false; els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
-  setStatus('فایل داده‌های جاری آماده تحلیل است.');
-}
-function choosePreviousFile(file){
-  if(!file)return;
-  if(!validFile(file)){ previousFile=null; els.previousFileName.textContent='گزارش قبلی انتخاب نشده'; setStatus('گزارش دوره قبل باید XLSX یا CSV باشد.',true); return; }
-  previousFile=file; els.previousFileName.textContent=formatSize(file); els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
-  setStatus('گزارش دوره قبل برای مقایسه انتخاب شد.');
-}
-function wireDrop(zone,input,chooser){
-  input.addEventListener('change',e=>chooser(e.target.files[0]));
-  ['dragenter','dragover'].forEach(t=>zone.addEventListener(t,e=>{e.preventDefault();zone.classList.add('dragover');}));
-  ['dragleave','drop'].forEach(t=>zone.addEventListener(t,e=>{e.preventDefault();zone.classList.remove('dragover');}));
-  zone.addEventListener('drop',e=>chooser(e.dataTransfer.files[0]));
-}
-wireDrop(els.dropZone,els.fileInput,chooseCurrentFile);
-wireDrop(els.previousDropZone,els.previousFileInput,choosePreviousFile);
-
-function persianReportDate(){
-  try{return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
-  catch{return new Intl.DateTimeFormat('fa-IR',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
-}
-function latinDigits(s){
-  const p='۰۱۲۳۴۵۶۷۸۹',a='٠١٢٣٤٥٦٧٨٩';
-  return String(s).replace(/[۰-۹]/g,d=>p.indexOf(d)).replace(/[٠-٩]/g,d=>a.indexOf(d));
-}
-function normHeader(v){return String(v??'').trim().toLowerCase().replace(/[\u200c\u200f\u202a-\u202e]/g,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ');}
-function normId(v){return latinDigits(v??'').replace(/\.0$/,'').trim();}
-function findHeader(headers,aliases){const wanted=new Set(aliases.map(normHeader)); return headers.findIndex(h=>wanted.has(normHeader(h)));}
-
-async function loadDistributionCenters(){
-  if(centersCache)return centersCache;
-  if(!window.DigiExpressPlatform?.call)throw new Error('ارتباط با دیتاست Distribution Centers در دسترس نیست. اکستنشن را Reload کنید.');
-  setStatus('در حال دریافت دیتاست Distribution Centers...');
-  const raw=await window.DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DISTRIBUTION_CENTERS_SHEET,limit:100000});
-  const data=raw?.result??raw??{};
-  const headers=Array.isArray(data.headers)?data.headers:[], rows=Array.isArray(data.rows)?data.rows:[];
-  const ii=findHeader(headers,['id','distribution center id','distribution_center_id','dc id','dc_id']);
-  const ni=findHeader(headers,['name','distribution center name','distribution center','dc name','dc_name']);
-  if(ii<0||ni<0)throw new Error('دیتاست Distribution Centers ستون id یا name ندارد.');
-  const byId=new Map();
-  for(const row of rows){
-    const id=normId(row?.[ii]); const name=String(row?.[ni]??'').trim();
-    if(id&&!byId.has(id))byId.set(id,{id,name});
+  const latinize=v=>String(v??'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  const text=v=>String(v??'').trim();
+  const normKey=v=>latinize(v).trim().toLowerCase().replace(/[\s_-]+/g,'');
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function setStatus(msg,error=false){ if(!els.status) return; els.status.textContent=msg; els.status.classList.toggle('error',!!error); }
+  function validFile(f){return !!f&&/\.(xlsx|csv)$/i.test(f.name||'');}
+  function formatSize(f){return `${f.name} — ${(f.size/1024/1024).toFixed(1)} MB`;}
+  function wireDrop(zone,input,handler){
+    input?.addEventListener('change',e=>handler(e.target.files?.[0]));
+    ['dragenter','dragover'].forEach(t=>zone?.addEventListener(t,e=>{e.preventDefault();zone.classList.add('dragover');}));
+    ['dragleave','drop'].forEach(t=>zone?.addEventListener(t,e=>{e.preventDefault();zone.classList.remove('dragover');}));
+    zone?.addEventListener('drop',e=>handler(e.dataTransfer?.files?.[0]));
   }
-  if(!byId.size)throw new Error('دیتاست Distribution Centers خالی است.');
-  centersCache=byId; return byId;
-}
-
-function enrichWithCenters(result,centerMap){
-  let unresolved=0;
-  const report=result.report.map(r=>{
-    const key=normId(r.dcId); const ref=centerMap.get(key);
-    if(!ref)unresolved++;
-    return {...r,centerId:ref?.id||key,iata:String(r.sourceCenterCap||'').trim(),centerName:ref?.name||String(r.sourceCenterCap||'').trim()||'یافت نشد در دیتاست'};
-  });
-  return {...result,report,unresolved};
-}
-
-function reportColumns(hasPrevious){
-  const cols=[
-    {key:'row',plain:'ردیف',html:'ردیف'},
-    {key:'centerId',plain:'شناسه مرکز',html:'شناسه مرکز'},
-    {key:'iata',plain:'یاتاکد',html:'یاتاکد'},
-    {key:'centerName',plain:'نام مرکز',html:'نام مرکز'},
-    {key:'total',plain:'تعداد کل',html:'تعداد کل'},
-    {key:'mismatch',plain:'تعداد تغییر DC',html:'تعداد تغییر DC'},
-    {key:'mismatchPercent',plain:'درصد تغییر DC',html:'درصد تغییر DC'}
-  ];
-  if(hasPrevious) cols.push(
-    {key:'previousPercent',plain:'درصد تغییر DC دوره قبل',html:'درصد تغییر DC<br>دوره قبل'},
-    {key:'deltaPercent',plain:'تغییر نسبت به دوره قبل',html:'تغییر نسبت به<br>دوره قبل'},
-    {key:'trend',plain:'روند',html:'روند'}
-  );
-  return cols;
-}
-function reportRangeParts(r){
-  const min=String(r.promisedMin||'').trim(),max=String(r.promisedMax||'').trim();
-  return {min,max};
-}
-function reportRangeText(r){
-  const {min,max}=reportRangeParts(r);
-  const range=min&&max?(min===max?min:`${min} تا ${max}`):(min||max||'—');
-  return `گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: ${range}`;
-}
-function reportRangeHtml(r){
-  const {min,max}=reportRangeParts(r);
-  const dateSpan=v=>`<span dir="ltr" style="unicode-bidi:bidi-override;direction:ltr;display:inline-block;white-space:nowrap;">⁦${escapeHtml(v)}⁩</span>`;
-  let range='—';
-  if(min&&max){
-    range=min===max?dateSpan(min):`${dateSpan(min)} <span dir="rtl" style="unicode-bidi:isolate;direction:rtl;display:inline-block;">⁧تا⁩</span> ${dateSpan(max)}`;
-  }else if(min||max){
-    range=dateSpan(min||max);
+  function chooseCurrent(f){
+    if(!f)return;
+    if(!validFile(f)){selectedFile=null;els.analyzeBtn.disabled=true;setStatus('فقط فایل XLSX یا CSV پشتیبانی می‌شود.',true);return;}
+    selectedFile=f;els.fileName.textContent=formatSize(f);els.analyzeBtn.disabled=false;els.exportBtn.disabled=true;els.copyTableBtn.disabled=true;setStatus('فایل جاری آماده تحلیل است.');
   }
-  return `گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: <span dir="rtl" style="direction:rtl;unicode-bidi:isolate;">${range}</span>`;
-}
-function rowValues(x,index,hasPrevious){
-  const values=[index+1,x.centerId,x.iata,x.centerName,x.total,x.mismatch,`${x.mismatchPercent.toFixed(2)}%`];
-  if(hasPrevious){
-    const prev=x.previousPercent==null?'—':`${x.previousPercent.toFixed(2)}%`;
-    const delta=x.deltaPercent==null?'—':`${x.deltaPercent>0?'+':''}${x.deltaPercent.toFixed(2)}`;
-    values.push(prev,delta,x.trend);
+  function choosePrevious(f){
+    if(!f)return;
+    if(!validFile(f)){previousFile=null;els.previousFileName.textContent='انتخاب نشده';setStatus('گزارش دوره قبل باید XLSX یا CSV باشد.',true);return;}
+    previousFile=f;els.previousFileName.textContent=formatSize(f);els.exportBtn.disabled=true;els.copyTableBtn.disabled=true;setStatus('گزارش دوره قبل انتخاب شد.');
   }
-  return values;
-}
-function render(r){
-  const reportDate=persianReportDate(),hasPrevious=!!r.hasPreviousComparison; lastAnalysis={...r,reportDate,hasPreviousComparison:hasPrevious};
-  els.reportSection.classList.remove('hidden'); els.thresholdLabel.textContent=`حداقل ${r.threshold}% و حداقل ${r.minMismatchCount} تغییر`; els.reportRangeTitle.innerHTML=reportRangeHtml(r); els.reportBody.innerHTML='';
-  const columns=reportColumns(hasPrevious); els.reportRangeTitle.colSpan=columns.length; els.reportHeadRow.innerHTML=columns.map(c=>`<th>${c.html}</th>`).join(''); els.trendLegend.classList.toggle('hidden',!hasPrevious);
-  r.report.forEach((x,index)=>{
-    const tr=document.createElement('tr'), cells=rowValues(x,index,hasPrevious);
-    cells.forEach((v,i)=>{
-      const td=document.createElement('td'); td.textContent=v;
-      if([0,1,4,5,6,7,8].includes(i))td.classList.add('num');
-      if(hasPrevious&&i===9&&x.trendClass)td.classList.add(x.trendClass);
-      tr.appendChild(td);
-    });
-    els.reportBody.appendChild(tr);
-  });
-  els.emptyState.textContent='هیچ مرکزی با شرایط انتخاب‌شده پیدا نشد.'; els.emptyState.classList.toggle('hidden',r.report.length>0);
-  els.exportBtn.disabled=false; els.copyTableBtn.disabled=r.report.length===0;
-}
+  wireDrop(els.dropZone,els.fileInput,chooseCurrent);wireDrop(els.previousDropZone,els.previousFileInput,choosePrevious);
 
-function stopWorker(){if(worker){worker.terminate();worker=null;}}
-
-els.analyzeBtn.addEventListener('click',async()=>{
-  if(!selectedFile)return;
-  let threshold=Number(els.threshold.value); if(!Number.isFinite(threshold))threshold=50;
-  threshold=Math.max(0,Math.min(100,threshold)); els.threshold.value=threshold;
-  let minMismatchCount=Math.trunc(Number(els.minMismatchCount.value)); if(!Number.isFinite(minMismatchCount))minMismatchCount=5;
-  minMismatchCount=Math.max(0,minMismatchCount); els.minMismatchCount.value=minMismatchCount;
-  stopWorker(); els.analyzeBtn.disabled=true; els.exportBtn.disabled=true; els.copyTableBtn.disabled=true;
-  try{
-    const centerMap=await loadDistributionCenters();
-    worker=new Worker('worker.js?v=501');
-    setStatus(previousFile?'در حال تحلیل داده‌ها و گزارش دوره قبل...':'در حال تحلیل کم‌حافظه فایل...');
-    worker.onmessage=e=>{
-      const msg=e.data||{};
-      if(msg.type==='progress')setStatus(msg.message);
-      if(msg.type==='done'){
-        const enriched=enrichWithCenters(msg.result,centerMap); render(enriched);
-        const missing=enriched.unresolved?`؛ ${enriched.unresolved} شناسه در دیتاست پیدا نشد`:'';
-        setStatus(`تحلیل انجام شد: ${enriched.report.length} مرکز بالاتر از آستانه قرار دارد${previousFile?' و روند دوره‌ای محاسبه شد':''}${missing}.`,!!enriched.unresolved);
-        els.analyzeBtn.disabled=false; stopWorker();
-      }
-      if(msg.type==='error'){
-        lastAnalysis=null; els.reportSection.classList.add('hidden'); setStatus(msg.message||'خطا در تحلیل فایل.',true); els.analyzeBtn.disabled=false; stopWorker();
-      }
-    };
-    worker.onerror=e=>{lastAnalysis=null;setStatus(e.message||'خطا در پردازش فایل.',true);els.analyzeBtn.disabled=false;stopWorker();};
-    const centerLookup=Object.fromEntries([...centerMap.entries()].map(([id,v])=>[id,{id:v.id,name:v.name}]));
-    worker.postMessage({file:selectedFile,previousFile,threshold,minMismatchCount,centerLookup});
-  }catch(err){ lastAnalysis=null; els.reportBody.innerHTML=''; els.emptyState.textContent='گزارش ایجاد نشد.'; els.emptyState.classList.remove('hidden'); setStatus(err?.message||'خطا در دریافت دیتاست Distribution Centers.',true); els.analyzeBtn.disabled=false; }
-});
-
-function reportRows(){
-  if(!lastAnalysis)return [];
-  const hasPrevious=!!lastAnalysis.hasPreviousComparison;
-  return lastAnalysis.report.map((r,i)=>{
-    const row=[i+1,r.centerId,r.iata,r.centerName,r.total,r.mismatch,Number(r.mismatchPercent.toFixed(2))];
-    if(hasPrevious)row.push(r.previousPercent==null?'':Number(r.previousPercent.toFixed(2)),r.deltaPercent==null?'':Number(r.deltaPercent.toFixed(2)),r.trend);
-    return row;
-  });
-}
-function currentHeaders(){return reportColumns(!!lastAnalysis?.hasPreviousComparison).map(c=>c.plain);}
-function currentHeaderHtml(){return reportColumns(!!lastAnalysis?.hasPreviousComparison).map(c=>c.html);}
-
-els.exportBtn.addEventListener('click',()=>{
-  if(!lastAnalysis)return;
-  const headers=currentHeaders(); const rows=[[reportRangeText(lastAnalysis),...Array(Math.max(0,headers.length-1)).fill('')],headers,...reportRows()];
-  const blob=window.GanjeXlsx.buildXlsx(rows),url=URL.createObjectURL(blob),a=document.createElement('a');
-  const safeDate=latinDigits(lastAnalysis.reportDate).replace(/[^0-9]+/g,'-');
-  a.href=url;a.download=`GANJE-Follow-up-${safeDate}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
-});
-
-function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function copyColumnWidths(rows,headers){
-  return headers.map((h,i)=>{
-    let max=String(h).replace(/<br\s*\/?>/gi,' ').length;
-    for(const row of rows)max=Math.max(max,String(row[i]??'').length);
-    const cap=i===3?240:(i===2?170:(i>=7?130:170));
-    return Math.max(58,Math.min(cap,22+max*7));
-  });
-}
-function buildClipboardTableHtml(rows){
-  const rich=currentHeaderHtml(), widths=copyColumnWidths(rows,rich);
-  const colgroup=widths.map(w=>`<col style="width:${w}px">`).join('');
-  const title=reportRangeHtml(lastAnalysis||{});
-  const titleRow=`<tr><th align="center" colspan="${rich.length}" style="border:1px solid #8797ad;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center!important;vertical-align:middle;padding:7px 8px;white-space:normal;line-height:1.35;">${title}</th></tr>`;
-  const head=`<tr>${rich.map(h=>`<th align="center" valign="middle" style="border:1px solid #8797ad;background:#132a52;color:#ffffff;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:700;text-align:center!important;vertical-align:middle!important;padding:6px 8px;white-space:normal;line-height:1.35;"><div align="center" style="width:100%;text-align:center!important;margin:0 auto;">${h}</div></th>`).join('')}</tr>`;
-  const body=rows.map(row=>`<tr>${row.map(v=>`<td align="center" valign="middle" style="border:1px solid #9aa9bf;background:#ffffff;color:#12213f;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;font-weight:400;text-align:center!important;vertical-align:middle!important;padding:6px 8px;white-space:nowrap;"><div align="center" style="width:100%;text-align:center!important;margin:0 auto;">${escapeHtml(v)}</div></td>`).join('')}</tr>`).join('');
-  return `<table dir="rtl" align="center" cellspacing="0" cellpadding="0" style="border-collapse:collapse;table-layout:fixed;text-align:center!important;font-family:'Yekan Bakh FaNum','Yekan Bakh',Tahoma,Arial,sans-serif;font-size:10pt;"><colgroup>${colgroup}</colgroup><thead>${titleRow}${head}</thead><tbody>${body}</tbody></table>`;
-}
-function showCopyToast(){
-  els.copyToast?.classList.add('show'); clearTimeout(showCopyToast.timer); showCopyToast.timer=setTimeout(()=>els.copyToast?.classList.remove('show'),1100);
-}
-
-els.copyTableBtn.addEventListener('click',async()=>{
-  if(!lastAnalysis)return;
-  const rows=reportRows(), html=buildClipboardTableHtml(rows);
-  let holder=null, sel=null;
-  try{
-    // Primary path: copy a real styled DOM table. Chrome preserves the HTML table,
-    // borders, fills, font, alignment and column widths when pasted into Excel/Sheets.
-    holder=document.createElement('div');
-    holder.setAttribute('aria-hidden','true');
-    holder.style.cssText='position:fixed;left:-100000px;top:0;width:max-content;background:#fff;z-index:-1;';
-    holder.innerHTML=html;
-    document.body.appendChild(holder);
-    const table=holder.querySelector('table');
-    const range=document.createRange(); range.selectNode(table);
-    sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-    const ok=document.execCommand('copy');
-    sel.removeAllRanges(); holder.remove(); holder=null;
-    if(ok){showCopyToast();return;}
-  }catch(_){try{sel?.removeAllRanges()}catch{} try{holder?.remove()}catch{}}
-
-  // Secondary rich path. Never degrade silently to plain text because that loses formatting.
-  try{
-    if(window.ClipboardItem&&navigator.clipboard?.write){
-      const blob=new Blob([html],{type:'text/html'});
-      await navigator.clipboard.write([new ClipboardItem({'text/html':blob})]);
-      showCopyToast(); return;
+  async function loadDcLookup(){
+    if(!globalThis.DigiExpressPlatform?.call) throw new Error('ارتباط با Platform برای خواندن دیتاست Distribution Centers آماده نیست.');
+    setStatus('در حال دریافت دیتاست Distribution Centers...');
+    const raw=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName:DATASET_SHEET,limit:100000});
+    const rows=raw?.rows||raw?.data?.rows||raw?.values||raw?.data||[];
+    const headers=(raw?.headers||raw?.data?.headers||[]).map(v=>text(v));
+    if(!Array.isArray(rows)) throw new Error('پاسخ دیتاست Distribution Centers قابل خواندن نیست.');
+    let records=[];
+    if(headers.length&&Array.isArray(rows[0])) records=rows.map(r=>Object.fromEntries(headers.map((h,i)=>[h,r?.[i]])));
+    else if(rows.length&&Array.isArray(rows[0])){
+      const h=rows[0].map(v=>text(v)); records=rows.slice(1).map(r=>Object.fromEntries(h.map((k,i)=>[k,r?.[i]])));
+    } else records=rows;
+    const map=new Map();
+    for(const r of records){
+      if(!r||typeof r!=='object')continue;
+      const by={}; for(const [k,v] of Object.entries(r)) by[normKey(k)]=v;
+      const id=text(by.id??by.distributioncenterid??by.dc_id??by.dcid);
+      const name=text(by.name??by.dcname??by.distributioncentername);
+      if(id) map.set(normKey(id),{id,name});
     }
-  }catch(_){ }
-  setStatus('کپی با فرمت جدول در این محیط پشتیبانی نشد. لطفاً دسترسی Clipboard را بررسی کنید.',true);
-});
+    return map;
+  }
 
-(function syncDigiExpressTheme(){
-  const apply=()=>{const q=new URLSearchParams(location.search).get('theme');document.documentElement.dataset.theme=q==='dark'?'dark':q==='light'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');};
-  apply(); addEventListener('message',e=>{if(e?.data?.type==='DX_THEME'&&/^(light|dark)$/.test(e.data.theme))document.documentElement.dataset.theme=e.data.theme;});
+  function stopWorker(){if(watchdog){clearTimeout(watchdog);watchdog=null;}if(worker){worker.terminate();worker=null;}}
+  function armWatchdog(){
+    if(watchdog)clearTimeout(watchdog);
+    watchdog=setTimeout(()=>{
+      stopWorker(); els.analyzeBtn.disabled=false; setStatus('پردازش بیش از حد بدون پاسخ مانده و متوقف شد. لطفاً فایل را دوباره بررسی کنید.',true);
+    },180000);
+  }
+  function makeHeaders(withPrev){
+    const base=[['ردیف','row'],['شناسه مرکز','id'],['یاتاکد','iata'],['نام مرکز','name'],['تعداد کل','total'],['تعداد تغییر DC','mismatch'],['درصد تغییر DC','percent']];
+    if(withPrev) base.push(['درصد تغییر DC<br>دوره قبل','previous'],['تغییر نسبت به<br>دوره قبل','delta'],['روند','trend']);
+    return base;
+  }
+  function formatPercent(v){return Number.isFinite(v)?`${Number(v.toFixed(2))}%`:'—';}
+  function render(result,lookup){
+    const withPrev=!!previousFile;
+    const report=result.report.map(r=>{
+      const hit=lookup.get(normKey(r.id));
+      const name=hit?.name||r.fallbackName||r.iata||'';
+      return {...r,id:hit?.id||r.id,name};
+    }).sort((a,b)=>text(a.iata).localeCompare(text(b.iata),'en',{numeric:true,sensitivity:'base'})||text(a.name).localeCompare(text(b.name),'fa'));
+    lastAnalysis={...result,report,withPrev};
+    const headers=makeHeaders(withPrev);
+    els.reportHeadRow.innerHTML=headers.map(([label])=>`<th>${label}</th>`).join('');
+    els.reportRangeTitle.colSpan=headers.length;
+    const range=result.dateMin&&result.dateMax?`${result.dateMin} تا ${result.dateMax}`:'—';
+    els.reportRangeTitle.textContent=`گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: ${range}`;
+    els.reportBody.innerHTML='';
+    report.forEach((r,idx)=>{
+      const cells=[idx+1,r.id,r.iata,r.name,r.total,r.mismatch,formatPercent(r.mismatchPercent)];
+      if(withPrev) cells.push(r.previousPercent==null?'—':formatPercent(r.previousPercent),r.deltaPercent==null?'—':`${r.deltaPercent>0?'+':''}${Number(r.deltaPercent.toFixed(2))}`,r.trend||'—');
+      const tr=document.createElement('tr');
+      cells.forEach((v,i)=>{const td=document.createElement('td');td.textContent=v;td.setAttribute('align','center');td.style.textAlign='center';td.style.verticalAlign='middle';if(i===cells.length-1&&withPrev&&r.trendClass)td.classList.add(r.trendClass);tr.appendChild(td);});
+      els.reportBody.appendChild(tr);
+    });
+    els.emptyState.classList.toggle('hidden',report.length>0);
+    els.trendLegend?.classList.toggle('hidden',!withPrev);
+    els.exportBtn.disabled=report.length===0; els.copyTableBtn.disabled=report.length===0;
+    els.thresholdLabel.textContent=`حداقل ${result.threshold}% و حداقل ${result.minMismatchCount} تغییر`;
+    return report.length;
+  }
+
+  els.analyzeBtn?.addEventListener('click',async()=>{
+    if(!selectedFile)return;
+    let threshold=Number(els.threshold.value);if(!Number.isFinite(threshold))threshold=50;threshold=Math.max(0,Math.min(100,threshold));els.threshold.value=threshold;
+    let minMismatchCount=Math.floor(Number(els.minMismatchCount.value));if(!Number.isFinite(minMismatchCount)||minMismatchCount<0)minMismatchCount=5;els.minMismatchCount.value=minMismatchCount;
+    stopWorker();lastAnalysis=null;els.analyzeBtn.disabled=true;els.exportBtn.disabled=true;els.copyTableBtn.disabled=true;
+    try{
+      const lookup=await loadDcLookup();
+      setStatus(previousFile?'در حال تحلیل فایل جاری و مقایسه با دوره قبل...':'در حال تحلیل فایل جاری...');
+      worker=new Worker(`worker.js?v=504`); armWatchdog();
+      worker.onmessage=e=>{
+        armWatchdog(); const msg=e.data||{};
+        if(msg.type==='progress'){setStatus(msg.message||'در حال پردازش...');return;}
+        if(msg.type==='error'){stopWorker();els.analyzeBtn.disabled=false;setStatus(msg.message||'خطا در تحلیل فایل.',true);return;}
+        if(msg.type==='done'){
+          try{const n=render(msg.result,lookup);setStatus(`تحلیل کامل شد: ${n.toLocaleString('fa-IR')} مرکز در گزارش قرار گرفت.`);}
+          catch(err){setStatus(`تحلیل انجام شد اما نمایش گزارش خطا داد: ${err.message||err}`,true);}
+          finally{els.analyzeBtn.disabled=false;stopWorker();}
+        }
+      };
+      worker.onerror=e=>{stopWorker();els.analyzeBtn.disabled=false;setStatus(e.message||'Worker با خطا متوقف شد.',true);};
+      worker.postMessage({file:selectedFile,previousFile,threshold,minMismatchCount});
+    }catch(err){els.analyzeBtn.disabled=false;stopWorker();setStatus(err?.message||'شروع تحلیل ممکن نشد.',true);}
+  });
+
+  els.exportBtn?.addEventListener('click',()=>{
+    if(!lastAnalysis?.report?.length||!window.GanjeXlsx?.buildXlsx)return;
+    const headers=makeHeaders(lastAnalysis.withPrev).map(([label])=>label.replace(/<br>/g,' '));
+    const rows=[headers,...lastAnalysis.report.map((r,idx)=>{
+      const a=[idx+1,r.id,r.iata,r.name,r.total,r.mismatch,Number(r.mismatchPercent.toFixed(2))];
+      if(lastAnalysis.withPrev)a.push(r.previousPercent==null?'':Number(r.previousPercent.toFixed(2)),r.deltaPercent==null?'':Number(r.deltaPercent.toFixed(2)),r.trend||'');
+      return a;
+    })];
+    const blob=GanjeXlsx.buildXlsx(rows),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='GANJE-Follow-up.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  });
 })();

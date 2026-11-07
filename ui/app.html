@@ -870,7 +870,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
       </nav>
       <div class="sidebar-spacer"></div>
       <button class="sidebar-settings-link nav-settings" id="sidebarSettingsBtn" type="button" title="Settings"><span class="nav-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19 13.2a7.6 7.6 0 0 0 0-2.4l2-1.5-2-3.4-2.5 1a8.2 8.2 0 0 0-2.1-1.2L14 3h-4l-.4 2.7a8.2 8.2 0 0 0-2.1 1.2l-2.5-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 2.4l-2 1.5 2 3.4 2.5-1a8.2 8.2 0 0 0 2.1 1.2L10 21h4l.4-2.7a8.2 8.2 0 0 0 2.1-1.2l2.5 1 2-3.4-2-1.5Z"/></svg></span><span>Settings</span></button>
-      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v502</span></div>
+      <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Connected</strong><small>Remote workspace</small></div><span class="version-pill" id="sidebarVersionPill">v503</span></div>
     </aside>
     <div id="accessToast" class="toast" aria-live="polite"></div>
     <header class="topbar">
@@ -1085,7 +1085,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 502;
+const EXPECTED_REMOTE_CONFIG_VERSION = 503;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -1598,7 +1598,7 @@ function setupRemoteAutocomplete(field){
       const matches=rows.filter(x=>normalizeLookupText(x.name).includes(nq)).sort((a,b)=>autocompleteRank(a.name,q)-autocompleteRank(b.name,q)||a.name.localeCompare(b.name));
       if(!menu)return;
       if(!matches.length){menu.innerHTML='<div class="remote-autocomplete-empty">No matching result</div>';menu.classList.remove('hidden');return;}
-      const max=Number(field.maxResults||500);
+      const max=Number(field.maxResults||503);
       menu.innerHTML=matches.slice(0,max).map(x=>`<button type="button" class="remote-autocomplete-item" data-value="${escapeHtml(x.id)}" data-label="${escapeHtml(x.name)}"><span>${escapeHtml(x.name)}</span>${field.showId===false?'':`<small>ID ${escapeHtml(x.id)}</small>`}</button>`).join('');
       menu.classList.remove('hidden'); resetKeyboard();
       menu.querySelectorAll('.remote-autocomplete-item').forEach(btn=>btn.addEventListener('click',()=>selectBtn(btn)));
@@ -1618,7 +1618,7 @@ function setupRemoteMultiAutocomplete(field){
   const close=()=>menu?.classList.add('hidden');
   const selectBtn=(btn)=>{const id=btn.dataset.value||'',name=btn.dataset.label||''; if(id&&!selected.some(x=>String(x.id)===String(id)))selected.push({id,name}); input.value='';close();sync();};
   const resetKeyboard=menu?attachAutocompleteKeyboard(input,menu,selectBtn):()=>{};
-  const render=async()=>{const q=String(input.value||'').trim(); if(normalizeLookupText(q).length<Number(field.minChars||1)){close();return;} const seq=++requestSeq;loading?.classList.remove('hidden');try{const rows=await loadRemoteAutocompleteRows(field);if(seq!==requestSeq)return;const nq=normalizeLookupText(q);const matches=rows.filter(x=>!selected.some(s=>String(s.id)===String(x.id))&&normalizeLookupText(x.name).includes(nq)).sort((a,b)=>autocompleteRank(a.name,q)-autocompleteRank(b.name,q)||a.name.localeCompare(b.name));if(!menu)return;if(!matches.length){menu.innerHTML='<div class="remote-autocomplete-empty">No matching result</div>';menu.classList.remove('hidden');return;}menu.innerHTML=matches.slice(0,Number(field.maxResults||500)).map(x=>`<button type="button" class="remote-autocomplete-item" data-value="${escapeHtml(x.id)}" data-label="${escapeHtml(x.name)}"><span>${escapeHtml(x.name)}</span>${field.showId===false?'':`<small>ID ${escapeHtml(x.id)}</small>`}</button>`).join('');menu.classList.remove('hidden');resetKeyboard();menu.querySelectorAll('.remote-autocomplete-item').forEach(btn=>btn.addEventListener('click',()=>selectBtn(btn)));}catch(e){if(seq!==requestSeq)return;if(menu){menu.innerHTML=`<div class="remote-autocomplete-empty error">${escapeHtml(e.message||e)}</div>`;menu.classList.remove('hidden');}}finally{if(seq===requestSeq)loading?.classList.add('hidden');}};
+  const render=async()=>{const q=String(input.value||'').trim(); if(normalizeLookupText(q).length<Number(field.minChars||1)){close();return;} const seq=++requestSeq;loading?.classList.remove('hidden');try{const rows=await loadRemoteAutocompleteRows(field);if(seq!==requestSeq)return;const nq=normalizeLookupText(q);const matches=rows.filter(x=>!selected.some(s=>String(s.id)===String(x.id))&&normalizeLookupText(x.name).includes(nq)).sort((a,b)=>autocompleteRank(a.name,q)-autocompleteRank(b.name,q)||a.name.localeCompare(b.name));if(!menu)return;if(!matches.length){menu.innerHTML='<div class="remote-autocomplete-empty">No matching result</div>';menu.classList.remove('hidden');return;}menu.innerHTML=matches.slice(0,Number(field.maxResults||503)).map(x=>`<button type="button" class="remote-autocomplete-item" data-value="${escapeHtml(x.id)}" data-label="${escapeHtml(x.name)}"><span>${escapeHtml(x.name)}</span>${field.showId===false?'':`<small>ID ${escapeHtml(x.id)}</small>`}</button>`).join('');menu.classList.remove('hidden');resetKeyboard();menu.querySelectorAll('.remote-autocomplete-item').forEach(btn=>btn.addEventListener('click',()=>selectBtn(btn)));}catch(e){if(seq!==requestSeq)return;if(menu){menu.innerHTML=`<div class="remote-autocomplete-empty error">${escapeHtml(e.message||e)}</div>`;menu.classList.remove('hidden');}}finally{if(seq===requestSeq)loading?.classList.add('hidden');}};
   if(field.allowRawValues===true){
     input.addEventListener('keydown',e=>{
       if(e.key!=='Enter')return;
@@ -2721,9 +2721,9 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 .nav-agents .nav-glyph{color:#67e8f9!important}
 </style>
 
-<script id="v502-version-pill-sync">
+<script id="v503-version-pill-sync">
 (()=>{
- const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||500);el.textContent='v'+(v||500);};
+ const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||503);el.textContent='v'+(v||503);};
  set(); window.addEventListener('load',()=>{set();setTimeout(set,500);setTimeout(set,1600);});
 })();
 </script>
