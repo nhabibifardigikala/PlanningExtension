@@ -682,6 +682,6 @@ window.addEventListener('message',e=>{ if(e.data?.type==='DIGIEXPRESS_THEME'){ c
 try{ parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*'); } catch(_){}
 (async()=>{ settings=await storageGet(); $('planDate').value=settings.planDate||todayJalali8(); renderPlanSelectors(); if(settings.planResponsible&&configuredResponsibles().includes(settings.planResponsible)) $('planResponsible').value=settings.planResponsible; renderHierarchySelectors(); await loadTasks(); })().catch(e=>{ setStatus(e.message||String(e),'err'); showToast(e.message||String(e),'error'); });
 </script>
-<script src="../ui/table-component.js?v=492"></script>
+<script src="../ui/table-component.js?v=509"></script>
 </body>
 </html>

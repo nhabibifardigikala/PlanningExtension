@@ -86,6 +86,6 @@ $('requestText').addEventListener('input',()=>scheduleAnalyze(120));
 window.addEventListener('message',e=>{if(e.data?.type==='DIGIEXPRESS_THEME'){const t=String(e.data.theme||'').toLowerCase();if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}});try{parent.postMessage({type:'DIGIEXPRESS_THEME_REQUEST'},'*')}catch(_){}
 setTimeout(()=>loadInventory().catch(()=>{}),120);
 </script>
-<script src="../ui/table-component.js?v=492"></script>
+<script src="../ui/table-component.js?v=509"></script>
 </body>
 </html>
