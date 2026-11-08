@@ -1085,7 +1085,7 @@ let flexPaused = false;
 let flexCancelRequested = false;
 let flexResumeResolver = null;
 const ENGINE_VERSION = '13.0.0';
-const EXPECTED_REMOTE_CONFIG_VERSION = 510;
+const EXPECTED_REMOTE_CONFIG_VERSION = 511;
 let installedHostVersion = null;
 let hostVersionChecked = false;
 
@@ -2723,7 +2723,7 @@ loadRemote(false).then(()=>applyUrlState()).catch(error => { setStatus(error.mes
 
 <script id="v503-version-pill-sync">
 (()=>{
- const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||510);el.textContent='v'+(v||510);};
+ const set=()=>{const el=document.getElementById('sidebarVersionPill');if(!el)return;const v=Number(globalThis.remoteBundle?.app?.configVersion||511);el.textContent='v'+(v||511);};
  set(); window.addEventListener('load',()=>{set();setTimeout(set,500);setTimeout(set,1600);});
 })();
 </script>
