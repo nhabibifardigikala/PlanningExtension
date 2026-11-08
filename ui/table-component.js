@@ -6,6 +6,7 @@
   const norm=s=>String(s||'').trim().toLowerCase();
   const isVisible=el=>!!(el&&el.getClientRects&&el.getClientRects().length);
   const hasOwnSearch=(table)=>{
+    if(table.closest?.('[data-dx-own-search="1"]')) return true;
     let node=table;
     for(let depth=0;node&&depth<5;depth++,node=node.parentElement){
       const inputs=[...node.querySelectorAll('input')].filter(i=>i.dataset?.[SEARCH_MARK]!=='1'&&isVisible(i));
