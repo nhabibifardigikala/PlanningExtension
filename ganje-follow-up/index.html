@@ -1,4 +1,4 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GANJE Follow-up</title><link rel="stylesheet" href="app.css?v=507"><link rel="stylesheet" href="../ui/design-system.css?v=507"></head><body>
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GANJE Follow-up</title><link rel="stylesheet" href="app.css?v=514"><link rel="stylesheet" href="../ui/design-system.css?v=514"></head><body>
 <main class="workspace">
   <aside class="controls-stack">
     <article class="panel files-panel"><div class="panel-title"><div><strong>داده گزارش</strong><span>فایل جاری الزامی است؛ دوره قبل اختیاری است.</span></div></div><div class="file-grid">
@@ -6,13 +6,13 @@
       <label class="file-zone secondary-zone" id="previousDropZone"><input id="previousFileInput" type="file" accept=".xlsx,.csv"><span class="file-icon">↺</span><strong>گزارش دوره قبل</strong><span>اختیاری برای Trend</span><small id="previousFileName">انتخاب نشده</small></label>
     </div></article>
     <article class="panel control-panel"><div class="panel-title"><div><strong>تنظیم گزارش</strong><span>هر دو شرط حداقل باید برقرار باشند.</span></div></div><div class="threshold-list">
-      <div class="threshold-row"><label for="threshold">حداقل درصد تغییر DC</label><div class="number-box"><input id="threshold" type="number" min="0" max="100" step="0.1" value="50"><span>%</span></div></div>
+      <div class="threshold-row"><label for="threshold">حداقل درصد تغییر به D2D</label><div class="number-box"><input id="threshold" type="number" min="0" max="100" step="0.1" value="50"><span>%</span></div></div>
       <div class="threshold-row"><label for="minMismatchCount">حداقل تعداد تغییر</label><div class="number-box"><input id="minMismatchCount" type="number" min="0" step="1" value="5"><span>ردیف</span></div></div>
     </div><div class="actions"><button id="analyzeBtn" class="btn primary" disabled>ایجاد گزارش</button><button id="exportBtn" class="btn secondary" disabled>دانلود Excel</button></div><div id="status" class="status">آماده دریافت فایل</div></article>
   </aside>
   <section id="reportSection" class="panel report-panel"><div class="report-head"><div class="report-title-block"><span id="thresholdLabel">حداقل 50٪ و حداقل 5 تغییر</span></div><div class="report-tools"><div class="legend hidden" id="trendLegend"><span class="up">افزایشی</span><span class="down">کاهشی</span><span class="flat">بدون تغییر</span></div><button id="copyTableBtn" class="icon-btn" type="button" title="کپی جدول با فرمت" disabled><svg viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2Zm2 0h4a2 2 0 0 1 2 2v6h2V5h-8v2Zm4 2H6v10h8V9Z"/></svg></button></div></div>
-    <div class="table-wrap"><table id="reportTable" data-dx-table="off"><thead><tr class="report-title-row"><th id="reportRangeTitle" colspan="7">گزارش گنجه هایی که تغییر روش ارسال داشته اند. بازه پرامیس دیت: —</th></tr><tr id="reportHeadRow"></tr></thead><tbody id="reportBody"></tbody></table></div><p id="emptyState" class="empty">برای ایجاد گزارش، فایل جاری را از پنل سمت راست انتخاب کنید.</p>
+    <div class="table-wrap"><table id="reportTable" data-dx-table="off"><thead><tr class="report-title-row"><th id="reportRangeTitle" colspan="7">گزارش گنجه هایی که تغییر به D2D داشته اند. بازه پرامیس دیت: —</th></tr><tr id="reportHeadRow"></tr></thead><tbody id="reportBody"></tbody></table></div><p id="emptyState" class="empty">برای ایجاد گزارش، فایل جاری را از پنل سمت راست انتخاب کنید.</p>
   </section><div id="copyToast" class="copy-toast">copied</div>
 </main>
-<script src="../ui/platform-client.js?v=507"></script><script src="xlsx-writer.js?v=507"></script><script src="app.js?v=507"></script>
+<script src="../ui/platform-client.js?v=514"></script><script src="xlsx-writer.js?v=514"></script><script src="app.js?v=514"></script>
 </body></html>
