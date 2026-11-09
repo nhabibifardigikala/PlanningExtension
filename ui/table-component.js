@@ -21,6 +21,7 @@
   };
 
   const hasOwnCount=(table)=>!!table.closest?.('[data-dx-own-count="1"]');
+  const hasOwnActions=(table)=>!!table.closest?.('[data-dx-own-actions="1"]');
 
   const rowsOf=t=>[...t.tBodies].flatMap(b=>[...b.rows]);
   const textMatrix=t=>{
@@ -73,20 +74,25 @@
     const own=hasOwnSearch(t);
     let search=null;
     if(!own){search=document.createElement('input');search.type='search';search.placeholder='Search table...';search.className='dx-table-search';search.dataset[SEARCH_MARK]='1';bar.appendChild(search);}
-    const actions=document.createElement('div');actions.className='dx-table-actions';
-    const copy=document.createElement('button');copy.type='button';copy.textContent='⧉ Copy';copy.className='dx-table-action';actions.appendChild(copy);
-    const csv=document.createElement('button');csv.type='button';csv.textContent='⇩ CSV';csv.className='dx-table-action';actions.appendChild(csv);
-    bar.appendChild(actions);
+    const ownActions=hasOwnActions(t);
+    let actions=null,copy=null,csv=null;
+    if(!ownActions){
+      actions=document.createElement('div');actions.className='dx-table-actions';
+      copy=document.createElement('button');copy.type='button';copy.textContent='⧉ Copy';copy.className='dx-table-action';actions.appendChild(copy);
+      csv=document.createElement('button');csv.type='button';csv.textContent='⇩ CSV';csv.className='dx-table-action';actions.appendChild(csv);
+      bar.appendChild(actions);
+    }
     const ownCount=hasOwnCount(t);
     let count=null;
     if(!ownCount){count=document.createElement('span');count.className='dx-table-count';bar.appendChild(count);}
     if(own)bar.classList.add('dx-table-toolbar--no-search');
     if(ownCount)bar.classList.add('dx-table-toolbar--no-count');
+    if(ownActions)bar.classList.add('dx-table-toolbar--no-actions');
     const host=t.closest('.table-wrap,.table-scroll')||t.parentElement;
-    host?.parentElement?.insertBefore(bar,host);
+    if(!(own&&ownCount&&ownActions)) host?.parentElement?.insertBefore(bar,host);
     if(count)updateCount(t,count);
     search?.addEventListener('input',()=>applySearch(t,search.value,count));
-    copy.addEventListener('click',()=>copyTable(t).catch(()=>{})); csv.addEventListener('click',()=>exportCsv(t));
+    copy?.addEventListener('click',()=>copyTable(t).catch(()=>{})); csv?.addEventListener('click',()=>exportCsv(t));
   };
   const scan=root=>(root.querySelectorAll?root.querySelectorAll('table'):[]).forEach(enhance);
   const css=document.createElement('style');css.textContent=`
