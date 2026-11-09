@@ -16,7 +16,7 @@ function natureLabel(n){return Object.entries(TYPE_MAP).find(([,v])=>Number(v)==
 function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#F79009',5:'#d946ef',6:'#0891b2'})[Number(n)]||'#64748b'}
 function selectedTypes(){const checked=[...document.querySelectorAll('.type-check:checked')].map(x=>x.value);const available=Object.keys(TYPE_MAP).filter(t=>polygons.some(r=>Number(r.natureId)===TYPE_MAP[t]));if(checked.includes('All'))return available;if(!checked.length)return available.includes('Normal')?['Normal']:available.slice(0,1);return checked.filter(t=>available.includes(t));}
 function matchesPoint(lat,lon,types){const wanted=new Set(types.map(t=>TYPE_MAP[t]));const pt=turf.point([lon,lat]);const out={};for(const t of types)out[t]=[];for(const r of polygons){if(!wanted.has(Number(r.natureId)))continue;const hit=(r.coordinates||[]).some(part=>{try{return turf.booleanPointInPolygon(pt,turf.polygon([[...part.map(c=>[c[1],c[0]])]]));}catch(_){return false;}});if(hit){const t=natureLabel(r.natureId);(out[t]||(out[t]=[])).push(r);}}return out;}
-function drawSingle(lat,lon,result){polyLayer.clearLayers();pointLayer.clearLayers();L.marker([lat,lon]).addTo(pointLayer);currentLayers=[];for(const [type,rows] of Object.entries(result))for(const r of rows)for(const part of (r.coordinates||[])){const p=L.polygon(part,{color:polyColor(r.natureId),weight:4,fillOpacity:.25}).addTo(polyLayer);p.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId||r.stateId||'-')}<br>${esc(type)}`);currentLayers.push(p);}const b=L.featureGroup([...currentLayers,...pointLayer.getLayers()]).getBounds();if(b.isValid())map.fitBounds(b,{padding:[20,20]});else map.setView([lat,lon],14);setTimeout(()=>map.invalidateSize(),50);}
+function drawSingle(lat,lon,result){polyLayer.clearLayers();pointLayer.clearLayers();L.marker([lat,lon]).addTo(pointLayer);currentLayers=[];for(const [type,rows] of Object.entries(result))for(const r of rows)for(const part of (r.coordinates||[])){const p=L.polygon(part,{color:polyColor(r.natureId),weight:4,fillOpacity:.25}).addTo(polyLayer);p.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId||r.stateId||'-')}<br>${esc(type)}${currentService==='pickup'?`<br>Status: <b>${esc(globalThis.DXPickupCapacityStatus?.label(r)||'Unknown')}</b>`:''}`);currentLayers.push(p);}const b=L.featureGroup([...currentLayers,...pointLayer.getLayers()]).getBounds();if(b.isValid())map.fitBounds(b,{padding:[20,20]});else map.setView([lat,lon],14);setTimeout(()=>map.invalidateSize(),50);}
 function renderSingle(lat,lon,result){const rows=[];for(const [type,items] of Object.entries(result)){if(items.length){for(const r of items)rows.push([type,r.name,r.dcId||r.stateId||'',r.iata||'']);}else rows.push([type,'Not found','','']);}$('#results').innerHTML=`<table><thead><tr><th>Type</th><th>Parent Name</th><th>ID</th><th>IATA</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;const hits=rows.filter(r=>r[1]!=='Not found').length;$('#resultStatus').textContent=hits?`${hits} matching ${currentService} parent record(s).`:'No parent found.';$('#resultStatus').className='status '+(hits?'ok':'error');drawSingle(lat,lon,result);}
 function parseLocation(text){const value=String(text||'').trim();const labeled=value.match(/lat(?:itude)?\s*=\s*([-+]?\d+(?:\.\d+)?)\s*[,;،]?\s*(?:long|lon|lng|longitude)\s*=\s*([-+]?\d+(?:\.\d+)?)/i);const p=labeled?[Number(labeled[1]),Number(labeled[2])]:value.split(/(?:\s*,\s*|\s+)/).filter(Boolean).map(Number);if(p.length!==2||p.some(x=>!Number.isFinite(x))||p[0]<-90||p[0]>90||p[1]<-180||p[1]>180)throw new Error('Use format: latitude, longitude; latitude longitude; or Lat=34.48162, Long=47.65790');return{lat:p[0],lon:p[1]};}
 function normalizeHeader(v){return String(v??'').trim().toLowerCase().replace(/[\s_\-]+/g,'').replace(/[^a-z0-9\u0600-\u06ff]/g,'');}
@@ -86,9 +86,18 @@ async function loadDataset(service){
   $('#resultStatus').textContent='';$('#results').innerHTML='';polyLayer.clearLayers();pointLayer.clearLayers();currentLayers=[];
   try{
     const ds=await DXPolygonLoader.load(cfg.url);
-    polygons=normalizePickupIds(ds.rows||[]);
+    const loaded=normalizePickupIds(ds.rows||[]);
+    let inactiveCount=0,unknownCount=0;
+    if(service==='pickup'){
+      if(!globalThis.DXPickupCapacityStatus?.load)throw new Error('Pickup Capacity status helper is unavailable.');
+      const pickupMeta=await DXPickupCapacityStatus.load();
+      const tagged=DXPickupCapacityStatus.attach(loaded,pickupMeta);
+      inactiveCount=tagged.filter(r=>r.pickupActive===false).length;
+      unknownCount=tagged.filter(r=>r.pickupActive==null).length;
+      polygons=tagged.filter(r=>r.pickupActive!==false);
+    }else polygons=loaded;
     makeFilters();
-    $('#datasetStatus').textContent=`${cfg.label}: ${polygons.length} polygons loaded.`;
+    $('#datasetStatus').textContent=service==='pickup'?`${cfg.label}: ${polygons.length} eligible polygons • ${inactiveCount} inactive excluded${unknownCount?` • ${unknownCount} unknown`:''}.`:`${cfg.label}: ${polygons.length} polygons loaded.`;
     $('#datasetStatus').className='status ok';
     const all=L.featureGroup();for(const r of polygons.slice(0,100))for(const part of (r.coordinates||[]))L.polygon(part,{opacity:0,fillOpacity:0}).addTo(all);const b=all.getBounds();if(b.isValid())map.fitBounds(b,{padding:[12,12]});setTimeout(()=>map.invalidateSize(),50);
   }catch(e){
