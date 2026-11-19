@@ -1,15 +1,15 @@
 {
-  "configVersion": 501,
+  "configVersion": 515,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 501",
-    "logoUrl": "https://nhabibifardigikala.github.io/PlanningExtension/icons/logo.png?v=378",
-    "configVersion": 501
+    "subtitle": "Planning Suite · Config 515",
+    "logoUrl": "icons/logo.png?v=515",
+    "configVersion": 515
   },
-  "theme": "theme.json?v=378",
-  "settings": "settings.json?v=378",
-  "messages": "messages.json?v=378",
+  "theme": "theme.json?v=515",
+  "settings": "settings.json?v=515",
+  "messages": "messages.json?v=515",
   "operations": [
     {
       "id": "sync-iata",
@@ -113,13 +113,13 @@
       "id": "ganje-follow-up",
       "title": "GANJE Follow-up",
       "subtitle": "D2D DC mismatch & trend report",
-      "accessControl": "column",
+      "accessControl": "sheet",
       "accessHeaders": [
         "GANJE Follow-up"
       ],
-      "config": "operations/ganje-follow-up.json?v=496",
+      "config": "operations/ganje-follow-up.json?v=503",
       "iconSvgPath": "M8 8h32v30H8V8Zm5 6v4h22v-4H13Zm0 8v4h10v-4H13Zm0 8v4h7v-4h-7Zm13-7 4 4 7-9 3 3-10 13-7-7 3-4Z",
-      "description": "",
+      "description": "GANJE follow-up report.",
       "runLabel": "Open GANJE Follow-up",
       "uiMode": "form",
       "category": "network",
@@ -136,8 +136,7 @@
             "equals": "true"
           }
         }
-      ],
-      "iconImage": "icons/apps/ganje-follow-up.webp?v=494"
+      ]
     },
     {
       "id": "ganje-network-worker",
@@ -247,6 +246,26 @@
       "minHostVersion": "13.0.2"
     },
     {
+      "id": "shipping-network-td-extractor",
+      "title": "Shipping Network TD Extractor",
+      "subtitle": "Extract every Time Distance page → Google Sheet",
+      "description": "Extract all Shipping Network Time Distance rows using 1000 records per page, then replace the Shipping Network TD worksheet in the existing Agents Google Sheets connection.",
+      "accessHeaders": [
+        "Agents"
+      ],
+      "accessControl": "column",
+      "config": "operations/shipping-network-td-extractor.json?v=515",
+      "enabled": true,
+      "category": "agents",
+      "runLabel": "Run Extraction",
+      "uiMode": "form",
+      "minHostVersion": "13.0.20",
+      "output": {
+        "type": "sheet"
+      },
+      "iconSvgPath": "M8 9h32v30H8V9Zm4 7h24M12 23h24M12 30h24M21 12v23M30 12v23M14 4h20v4H14z"
+    },
+    {
       "id": "data-set-update",
       "title": "Agents",
       "subtitle": "Automated operations",
@@ -320,7 +339,7 @@
       "id": "drop-close-capacity",
       "title": "Drop Close Capacity",
       "subtitle": "Batch close Drop Shipping capacity",
-      "accessControl": "column",
+      "accessControl": "sheet",
       "accessHeaders": [
         "Drop Close Capacity"
       ],
@@ -428,7 +447,7 @@
       "id": "fbm-request",
       "title": "FBM Request",
       "subtitle": "Open FBM request form",
-      "accessControl": "column",
+      "accessControl": "public",
       "description": "Open the FBM Request Google Apps Script form in a new browser tab.",
       "externalUrl": "https://script.google.com/macros/s/AKfycbyyqAMCb5YR61THamNczMLIpCo1IPV9TqY7gROhHrzq_EFf_7yhdu-UGOZ4MLEAqVbS/exec",
       "category": "network",
@@ -1024,7 +1043,7 @@
       }
     }
   ],
-  "publishedAt": "2026-11-04",
+  "publishedAt": "2026-09-19",
   "rollbackPolicy": {
     "keepVersions": 3,
     "automaticFallback": true
@@ -1073,13 +1092,13 @@
     "remoteShell": true,
     "hostUpdatePolicy": "security-platform-only"
   },
-  "runtime": "runtime.json?v=378",
+  "runtime": "runtime.json?v=514",
   "runtimeVersion": "13.0.0",
   "remoteUI": {
     "html": "ui/app.html?v=472",
     "css": "ui/app.css?v=408"
   },
-  "version": 500,
+  "version": "503",
   "remoteArchitecture": "generic-data-pipeline-v1",
   "architecture": {
     "mode": "remote-application",
@@ -1090,15 +1109,13 @@
   "platformContract": 12,
   "hostUpdatePolicy": "rare-capability-or-security-only",
   "executionModel": "remote-first-declarative",
-  "designSystem": "ui/design-system.css?v=493",
+  "designSystem": "ui/design-system.css?v=514",
   "featureFlags": {
     "diagnostics": true,
     "structuredErrors": true,
     "urlState": true,
     "advancedSettings": true,
-    "outputContracts": true,
-    "healthCheck": true
+    "outputContracts": true
   },
-  "recommendedHostVersion": "13.0.18",
-  "tableComponent": "ui/table-component.js?v=493"
+  "recommendedHostVersion": "13.0.2"
 }

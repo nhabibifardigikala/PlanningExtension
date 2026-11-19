@@ -9,6 +9,10 @@
   const REJECTED_DATASETS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
   const AGENTS_ACCESS_GATE={operationId:'agents-access-gate',inputs:{}};
   const JOBS={
+    'shipping-network-td':{
+      id:'shipping-network-td',label:'Shipping Network TD Extractor',operationId:'shipping-network-td-extractor',sheetName:'Shipping Network TD',output:{type:'sheet'},enabled:false,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
+    },
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},

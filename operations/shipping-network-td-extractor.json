@@ -1,0 +1,82 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Extract all Shipping Network Time Distance pages into the Agents dataset. Publishing is owned by Stable Jobs and only occurs after successful full extraction.",
+  "navigation": {
+    "retryCount": 5,
+    "retryDelayMs": 750,
+    "completeTimeoutMs": 60000
+  },
+  "successMessage": "Shipping Network TD: {{rowCount}} rows extracted successfully.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://drop-shipping.digikala.com/shipping-network/time-distance-config/?id=&shipping_network_id=0&time_scope_id=0&active=&per_page=1000&crud_tab_id=&page=1",
+      "active": true,
+      "progress": "Opening Time Distance page 1 (1000 rows per page)…"
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking Drop Shipping login…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/shipping-network/time-distance-config/?id=&shipping_network_id=0&time_scope_id=0&active=&per_page=1000&crud_tab_id=&page=1",
+      "active": true,
+      "completeTimeoutMs": 60000,
+      "progress": "Opening Time Distance page 1 with no status filters…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 25000,
+      "intervalMs": 300,
+      "error": "Time Distance table was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 25000,
+      "intervalMs": 300,
+      "error": "Time Distance table contains no rows. Nothing will be published."
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[rel='next'],a[aria-label='Next page'],a[title*='Next'],.uk-pagination-next a",
+      "timeoutMs": 60000,
+      "stableMs": 2200,
+      "pollMs": 500,
+      "afterPageMs": 650,
+      "expectedRowsPerPage": 0,
+      "allowLastPagePartial": true,
+      "maxPages": 1000,
+      "dedupe": false,
+      "ignoreLastActionColumn": true,
+      "parser": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "svgBoolean": true
+      },
+      "pageProgress": "Extracting Shipping Network TD page {{page}}…",
+      "progress": "Extracting all Shipping Network TD pages…",
+      "error": "Time Distance page had no data. Nothing was replaced."
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing Time Distance tab…"
+    }
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 2000
+  },
+  "runtimeContract": "stable-host-12",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "sheet"
+  },
+  "closeTabOnError": true
+}
