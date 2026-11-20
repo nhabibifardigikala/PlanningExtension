@@ -1,0 +1,1225 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Shipping Networks</title>
+<script>
+  try {
+    const savedTheme = localStorage.getItem("shipping-network-theme");
+    if (savedTheme === "dark") document.documentElement.dataset.theme = "dark";
+  } catch {}
+</script>
+<style>
+@font-face {
+  font-family: "Yekan Bakh FaNum";
+  src: local("Yekan Bakh FaNum Regular"), local("YekanBakhFaNum-Regular");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Yekan Bakh FaNum";
+  src: local("Yekan Bakh FaNum SemiBold"), local("YekanBakhFaNum-SemiBold");
+  font-weight: 600;
+}
+@font-face {
+  font-family: "Yekan Bakh FaNum";
+  src: local("Yekan Bakh FaNum Bold"), local("YekanBakhFaNum-Bold");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "Gilroy Medium";
+  src: local("Gilroy-Medium"), local("Gilroy Medium");
+  font-weight: 400 700;
+}
+:root {
+  color-scheme: light;
+  --canvas: #f0f3f9;
+  --surface: #fff;
+  --field: #fafbfd;
+  --line: #d9e0eb;
+  --field-line: #aebdd1;
+  --ink: #172942;
+  --muted: #536782;
+  --accent: #284d87;
+  --hover: #edf3fc;
+  --striped: #f8fafd;
+  --header: #192f50;
+  --header-hover: #2a4770;
+  --header-line: #334d71;
+  --header-ink: #f0f5ff;
+  --selected: #e4eefb;
+  --active: #2d9b68;
+  --inactive: #c6373e;
+  --active-ink: #1d6d4b;
+  --inactive-ink: #a2242d;
+  --inactive-bg: #fff1f1;
+  --inactive-hover: #ffe4e6;
+  --error: #9e382c;
+  --shadow: #17294217;
+  --fa: "Yekan Bakh FaNum", Tahoma, sans-serif;
+  --en: "Gilroy Medium", "Segoe UI", sans-serif;
+  --row-height: 41px;
+  --header-height: 42px;
+  font-family: var(--en);
+  background: var(--canvas);
+  color: var(--ink);
+  scrollbar-gutter: stable;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0b1526;
+  --surface: #121f33;
+  --field: #0d192c;
+  --line: #30425d;
+  --field-line: #4a6280;
+  --ink: #edf3fc;
+  --muted: #acbdd4;
+  --accent: #a6c9ff;
+  --hover: #233b5a;
+  --striped: #16263c;
+  --header: #1d3556;
+  --header-hover: #304f75;
+  --header-line: #3e5676;
+  --selected: #273f60;
+  --active: #5acc92;
+  --inactive: #fa7780;
+  --active-ink: #8ae3b1;
+  --inactive-ink: #ffb2b8;
+  --inactive-bg: #382332;
+  --inactive-hover: #4b2938;
+  --error: #ffb7a8;
+  --shadow: #0005;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; min-width: 0; font-size: 14px; line-height: 1.55; }
+:lang(fa) { font-family: var(--fa); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .53; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { width: min(1320px, calc(100% - 64px)); margin-inline: auto; padding-block: 30px 36px; }
+.filter-panel, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 2px 8px var(--shadow); }
+.filter-panel { padding: 16px 18px; }
+.primary, .compact-filters { display: grid; align-items: end; gap: 12px; }
+.primary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.compact-filters { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.actions { display: flex; gap: 8px; align-items: center; }
+.button { min-height: 38px; padding: 5px 11px; border: 1px solid var(--field-line); border-radius: 7px; color: var(--ink); background: var(--surface); white-space: nowrap; }
+.button:not(:disabled):hover { background: var(--hover); border-color: var(--accent); }
+#theme-toggle .theme-icon { font-size: 16px; line-height: 1; margin-inline-end: 4px; }
+#theme-toggle { min-width: 94px; }
+.field { position: relative; min-width: 0; }
+.field-label { display: flex; align-items: baseline; gap: 7px; margin-bottom: 4px; font-weight: 700; }
+.compact-filters .field-label { font-size: 12px; }
+.control { position: relative; }
+.control input, .field select { width: 100%; height: 46px; border: 1px solid var(--field-line); border-radius: 7px; background: var(--field); color: var(--ink); }
+.control input { padding: 0 36px 0 12px; text-align: left; text-overflow: ellipsis; }
+.control input::placeholder { color: var(--muted); opacity: 1; }
+.control input[aria-expanded="true"], .control input[data-selected="true"], .field select[data-selected="true"] { border-color: var(--accent); }
+.compact-filters input, .compact-filters select { height: 35px; font-size: 13px; }
+.field select { padding-inline: 9px; }
+.clear, .hint { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 30px; height: 29px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-size: 19px; line-height: 1; }
+.clear:hover { color: var(--ink); background: var(--hover); }
+.hint { display: grid; place-items: center; pointer-events: none; font-family: sans-serif; font-size: 15px; }
+.clear:not([hidden]) ~ .hint { visibility: hidden; }
+.dropdown { position: absolute; z-index: 5; inset: calc(100% + 5px) 0 auto; min-width: min(100%, 190px); padding: 4px; border: 1px solid var(--field-line); border-radius: 8px; background: var(--surface); box-shadow: 0 12px 27px var(--shadow); }
+.choices { padding: 0; margin: 0; list-style: none; max-height: 230px; overflow-y: auto; overscroll-behavior: contain; }
+.choices li { padding: 7px 9px; border-radius: 5px; cursor: pointer; overflow-wrap: anywhere; text-align: left; }
+.choices li[aria-selected="true"], .choices li:hover { background: var(--hover); color: var(--ink); }
+.suggestion-status { padding: 6px 9px; color: var(--muted); }
+.panels { display: grid; gap: 13px; margin-top: 15px; }
+.panel { min-width: 0; overflow: hidden; }
+.section-head { min-height: 49px; display: flex; justify-content: space-between; align-items: center; gap: 8px 12px; padding: 8px 15px; }
+.section-head h2 { flex: none; margin: 0; font-size: 15px; font-weight: 700; text-align: left; }
+.count { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.table-scroll { overflow: auto; direction: ltr; }
+.table-scroll:focus-visible { outline-offset: -3px; }
+.network .table-scroll { max-height: calc(var(--header-height) + 10 * var(--row-height)); scrollbar-gutter: stable; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; direction: ltr; text-align: left; table-layout: fixed; }
+.network table { min-width: 890px; }
+.col-id { width: 7%; }
+.col-from, .col-to { width: 17%; }
+.col-polygon { width: 15%; }
+.col-service { width: 16%; }
+.col-class { width: 12%; }
+.col-active { width: 10%; }
+.col-size { width: 6%; }
+.secondary table { min-width: 490px; }
+#time-scopes-panel table { min-width: 760px; }
+thead th { height: var(--header-height); color: var(--header-ink); background: var(--header); font: 500 13px var(--en); white-space: nowrap; }
+thead th:not(:last-child) { border-right: 1px solid var(--header-line); }
+.network th { position: sticky; top: 0; z-index: 1; padding: 0; }
+.secondary thead th { padding: 0 12px; }
+.sort-button { width: 100%; min-height: var(--header-height); display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 0 10px; background: transparent; color: inherit; border: 0; text-align: left; }
+.sort-button:hover, th[aria-sort] .sort-button { background: var(--header-hover); }
+.sort-button:focus-visible { outline-color: #b8d7ff; outline-offset: -3px; }
+.sort-icon { font: 14px/1 sans-serif; opacity: .66; }
+th[aria-sort] .sort-icon { opacity: 1; }
+.reset-sort { padding: 0; border: 0; background: transparent; color: var(--accent); text-decoration: underline; font-size: 12px; }
+.table-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 3px 12px; }
+td { position: relative; height: var(--row-height); padding: 7px 10px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; overflow-wrap: anywhere; }
+td:first-child { padding-left: 13px; }
+tbody tr:nth-child(even) { background: var(--striped); }
+tbody tr:hover { background: var(--hover); }
+.network tbody tr { cursor: pointer; }
+.network tbody tr[data-selected="true"] { background: var(--selected); }
+.center-name { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.row-action { padding: 0; border: 0; background: transparent; color: inherit; }
+.row-action:focus-visible { outline-offset: 1px; border-radius: 2px; }
+tr[data-status="active"] td:first-child::before, tr[data-alert] td:first-child::before { content: ""; position: absolute; inset: 4px auto 4px 0; width: 4px; border-radius: 0 3px 3px 0; background: var(--status-color); }
+tr[data-status="active"] { --status-color: var(--active); }
+tbody tr[data-alert] { --status-color: var(--inactive); background: var(--inactive-bg); }
+tbody tr[data-alert]:hover, .network tbody tr[data-alert][data-selected="true"] { background: var(--inactive-hover); }
+tbody tr[data-alert] td, td[data-inactive] { color: var(--inactive-ink); }
+td[data-inactive], #capacity-results tr[data-alert] td:nth-last-child(-n+2) { font-weight: 700; }
+td.status { white-space: nowrap; }
+tr[data-status="active"] .status { color: var(--active-ink); }
+tr[data-status="unknown"] .status { color: var(--muted); }
+.empty { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 102px; padding: 13px; text-align: center; color: var(--muted); }
+.empty strong { color: var(--ink); }
+.empty.secondary-empty { min-height: 52px; font-size: 13px; }
+.retry { border: 0; background: transparent; color: var(--error); text-decoration: underline; padding: 3px 5px; }
+.scope-route { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 7px; min-width: 0; color: var(--muted); font-size: 13px; }
+.scope-route bdi { overflow-wrap: anywhere; }
+#scope-results td, #capacity-results td { padding-inline: 12px; }
+.capacity-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; min-width: 0; }
+.date-field { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.date-field label { margin: 0; font-size: 12px; white-space: nowrap; }
+.date-field input { display: block; width: 116px; min-width: 0; height: 35px; padding: 0 10px; border: 1px solid var(--field-line); border-radius: 7px; background: var(--field); color: var(--ink); }
+.date-field input[aria-invalid="true"] { border-color: var(--error); }
+.date-error { margin: 0; padding: 0 15px 8px; color: var(--error); font-size: 13px; }
+.date-error:empty { display: none; }
+@media (max-width: 820px) {
+  .wrap { width: calc(100% - 32px); padding-block-start: 16px; }
+  .filter-panel { padding: 12px; }
+  .primary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .actions { grid-column: 1/-1; justify-content: flex-end; }
+  .compact-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .scope-route { text-align: right; }
+}
+@media (max-width: 460px) {
+  .wrap { width: calc(100% - 20px); }
+  .primary, .compact-filters { gap: 8px; }
+  .compact-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .section-head { padding-inline: 9px; }
+  .count, .reset-sort { font-size: 11px; }
+  .table-actions { gap: 6px; }
+  #capacity-panel .section-head { gap: 8px; }
+  .capacity-dates { gap: 7px; }
+  .date-field { display: grid; gap: 3px; width: clamp(80px, 27vw, 112px); }
+  .date-field input { width: 100%; padding-inline: 5px; }
+  .date-error { padding-inline: 9px; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="filter-panel" aria-label="Shipping network filters">
+    <div class="primary">
+      <div class="field">
+        <label class="field-label" for="from">From</label>
+        <div class="control">
+          <input id="from" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="from-list" autocomplete="off" spellcheck="false" dir="auto" placeholder="Search origin">
+          <button class="clear" type="button" aria-label="Clear From" hidden>×</button>
+        </div>
+        <div class="dropdown" hidden>
+          <ul id="from-list" class="choices" role="listbox" aria-label="From suggestions"></ul>
+          <div class="suggestion-status" role="status" hidden>No suggestions found.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="to">To</label>
+        <div class="control">
+          <input id="to" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="to-list" autocomplete="off" spellcheck="false" dir="auto" placeholder="Search destination">
+          <button class="clear" type="button" aria-label="Clear To" hidden>×</button>
+        </div>
+        <div class="dropdown" hidden>
+          <ul id="to-list" class="choices" role="listbox" aria-label="To suggestions"></ul>
+          <div class="suggestion-status" role="status" hidden>No suggestions found.</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="reset" class="button" type="button" disabled>Clear filters</button>
+        <button id="theme-toggle" class="button" type="button"><span class="theme-icon" aria-hidden="true">◐</span><span id="theme-label">Dark mode</span></button>
+      </div>
+    </div>
+    <div class="compact-filters">
+      <div class="field">
+        <label class="field-label" for="polygon">Polygon</label>
+        <div class="control">
+          <input id="polygon" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="polygon-list" autocomplete="off" spellcheck="false" dir="auto" placeholder="All">
+          <button class="clear" type="button" aria-label="Clear Polygon" hidden>×</button>
+          <span class="hint" aria-hidden="true">⌄</span>
+        </div>
+        <div class="dropdown" hidden>
+          <ul id="polygon-list" class="choices" role="listbox" aria-label="Polygon suggestions"></ul>
+          <div class="suggestion-status" role="status" hidden>No suggestions found.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="size">Size</label>
+        <div class="control">
+          <input id="size" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="size-list" autocomplete="off" spellcheck="false" dir="auto" placeholder="All">
+          <button class="clear" type="button" aria-label="Clear Size" hidden>×</button>
+          <span class="hint" aria-hidden="true">⌄</span>
+        </div>
+        <div class="dropdown" hidden>
+          <ul id="size-list" class="choices" role="listbox" aria-label="Size suggestions"></ul>
+          <div class="suggestion-status" role="status" hidden>No suggestions found.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="service-class">Service Class</label>
+        <div class="control">
+          <input id="service-class" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="service-class-list" autocomplete="off" spellcheck="false" dir="auto" placeholder="All">
+          <button class="clear" type="button" aria-label="Clear Service Class" hidden>×</button>
+          <span class="hint" aria-hidden="true">⌄</span>
+        </div>
+        <div class="dropdown" hidden>
+          <ul id="service-class-list" class="choices" role="listbox" aria-label="Service Class suggestions"></ul>
+          <div class="suggestion-status" role="status" hidden>No suggestions found.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="shipping-service">Shipping Service</label>
+        <div class="control">
+          <input id="shipping-service" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="shipping-service-list" autocomplete="off" spellcheck="false" dir="auto" placeholder="All">
+          <button class="clear" type="button" aria-label="Clear Shipping Service" hidden>×</button>
+          <span class="hint" aria-hidden="true">⌄</span>
+        </div>
+        <div class="dropdown" hidden>
+          <ul id="shipping-service-list" class="choices" role="listbox" aria-label="Shipping Service suggestions"></ul>
+          <div class="suggestion-status" role="status" hidden>No suggestions found.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="status-filter">Active</label>
+        <select id="status-filter">
+          <option value="">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </div>
+    </div>
+  </section>
+  <noscript><p>Enable JavaScript to load and search shipping networks.</p></noscript>
+  <div class="panels">
+    <section class="panel network" aria-labelledby="network-title">
+      <header class="section-head">
+        <h2 id="network-title">Shipping Networks</h2>
+        <div class="table-actions">
+          <button id="reset-sort" class="reset-sort" type="button" hidden>Newest first</button>
+          <span id="count" class="count" role="status" hidden></span>
+        </div>
+      </header>
+      <div id="network-scroll" class="table-scroll" tabindex="0" role="region" aria-labelledby="network-title">
+        <table lang="en">
+          <colgroup><col class="col-id"><col class="col-from"><col class="col-to"><col class="col-polygon"><col class="col-class"><col class="col-active"><col class="col-service"><col class="col-size"></colgroup>
+          <thead>
+            <tr>
+              <th scope="col"><button class="sort-button" type="button" data-column="-1"><span>ID</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="0"><span>From</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="1"><span>To</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="2"><span>Polygon</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="3"><span>Service Class</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="4"><span>Active</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="5"><span>Shipping Service</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col"><button class="sort-button" type="button" data-column="6"><span>Size</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+            </tr>
+          </thead>
+          <tbody id="results"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="empty">
+        <strong id="empty-title" role="status">Loading routes…</strong>
+        <span id="empty-detail"></span>
+        <button type="button" id="retry" class="retry" hidden>Try again</button>
+      </div>
+    </section>
+    <section id="time-scopes-panel" class="panel secondary" aria-labelledby="time-scopes-title">
+      <header class="section-head">
+        <h2 id="time-scopes-title">Time Scopes</h2>
+        <div id="scope-route" class="scope-route" aria-label="Selected route" hidden>
+          <bdi id="scope-from"></bdi><span aria-hidden="true">→</span><bdi id="scope-to"></bdi>
+        </div>
+      </header>
+      <div class="table-scroll" tabindex="0" role="region" aria-labelledby="time-scopes-title">
+        <table>
+          <thead><tr><th scope="col">Time Scope ID</th><th scope="col">Time Distance</th><th scope="col" aria-label="Time Scope Active">Active</th><th scope="col">MidMile Time Slot</th><th scope="col" aria-label="MidMile Active">Active</th><th scope="col">Hub Time Slot</th><th scope="col" aria-label="Hub Active">Active</th></tr></thead>
+          <tbody id="scope-results"></tbody>
+        </table>
+      </div>
+      <div id="scope-empty" class="empty secondary-empty">
+        <span id="scope-message" role="status">Select a network to view its time scopes.</span>
+        <button id="scope-retry" class="retry" type="button" hidden>Try again</button>
+      </div>
+    </section>
+    <section id="capacity-panel" class="panel secondary" aria-labelledby="capacity-title">
+      <header class="section-head">
+        <h2 id="capacity-title">Capacity</h2>
+        <div class="capacity-dates" role="group" aria-label="Capacity date range">
+          <div class="date-field">
+            <label class="field-label" for="capacity-from">From date</label>
+            <input id="capacity-from" type="text" lang="fa" dir="ltr" placeholder="YYYY/MM/DD" inputmode="numeric" autocomplete="off" aria-describedby="capacity-date-error">
+          </div>
+          <div class="date-field">
+            <label class="field-label" for="capacity-to">To date</label>
+            <input id="capacity-to" type="text" lang="fa" dir="ltr" placeholder="YYYY/MM/DD" inputmode="numeric" autocomplete="off" aria-describedby="capacity-date-error">
+          </div>
+        </div>
+      </header>
+      <p id="capacity-date-error" class="date-error" role="status"></p>
+      <div class="table-scroll" tabindex="0" role="region" aria-labelledby="capacity-title">
+        <table>
+          <thead><tr><th scope="col">Time Scope</th><th scope="col">Date</th><th scope="col">Capacity</th><th scope="col">Reserved</th><th scope="col">Active</th><th scope="col">Close</th></tr></thead>
+          <tbody id="capacity-results"></tbody>
+        </table>
+      </div>
+      <div id="capacity-empty" class="empty secondary-empty">
+        <span id="capacity-message" role="status">Select a network to view its capacity.</span>
+        <button id="capacity-retry" class="retry" type="button" hidden>Try again</button>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+  "use strict";
+
+  const sheetId = "1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k";
+  const gid = "1245285167";
+  const columnIds = ["B", "C", "D", "E", "I", "M", "N", "K", "L", "A"];
+  const number = new Intl.NumberFormat("en-US");
+  const collator = new Intl.Collator("fa", { numeric: true, sensitivity: "base" });
+  const statusLabels = { active: "Active", inactive: "Inactive", unknown: "Unknown" };
+  const statusOrder = { inactive: 0, active: 1 };
+  const dayMs = 86400000;
+  const dateFormatters = Object.fromEntries(["persian", "gregory"].map(calendar => [
+    calendar, new Intl.DateTimeFormat("en-US", {
+      calendar, timeZone: "Asia/Tehran", year: "numeric", month: "numeric", day: "numeric"
+    })
+  ]));
+  const capacityDates = ["capacity-from", "capacity-to"].map(id => document.getElementById(id));
+  const dateCache = new Map();
+  const byId = id => document.getElementById(id);
+  const statusFilter = byId("status-filter");
+  const tableScroll = byId("network-scroll");
+  const resultsBody = byId("results");
+  const sortButtons = [...document.querySelectorAll(".sort-button")];
+  const fields = [
+    ["from", 0], ["to", 1], ["polygon", 2], ["size", 6],
+    ["service-class", 3], ["shipping-service", 5]
+  ].map(([id, column]) => {
+    const input = byId(id);
+    const field = input.closest(".field");
+    return {
+      input, column, compact: column > 1,
+      list: byId(id + "-list"),
+      menu: field.querySelector(".dropdown"),
+      message: field.querySelector(".suggestion-status"),
+      clear: field.querySelector(".clear"),
+      selected: null,
+      options: [],
+      active: -1,
+      locations: []
+    };
+  });
+
+  let state = "loading";
+  let rows = [];
+  let sortedRows = [];
+  let matches = [];
+  let sort = null;
+  let requestId = 0;
+  let selectedRoute = null;
+  let networkScrollBeforeSelection = 0;
+  let capacityRange = { from: null, to: null, valid: true };
+  const detailTables = [
+    {
+      prefix: "scope", label: "time distances", gid: "1506524187",
+      emptyMessage: "No time distances are listed for this network.",
+      // A: id, B: time distance, C: time scope id, D: active, E: shipping_network_id
+      columns: ["A", "B", "C", "D", "E"], condition: "E is not null",
+      record: timeScopeRecord, keys: route => route.id ? ["id:" + route.id] : []
+    },
+    {
+      prefix: "capacity", label: "capacity", gid: "831704796",
+      emptyMessage: "No capacity records are listed for this network.",
+      columns: ["A", "B", "C", "D", "G", "H", "M", "N"], condition: "B is not null",
+      record: capacityRecord, keys: route => route.id ? ["id:" + route.id] : []
+    }
+  ].map(dataSource);
+  const [timeScopeDetail, capacityDetail] = detailTables;
+  const midMileSource = dataSource({
+    label: "MidMile time slots", gid: "45715641",
+    columns: ["A", "B", "C", "D", "E"], condition: "B is not null and C is not null",
+    record: row => timeSlotRecord(row, false)
+  });
+  const hubSource = dataSource({
+    label: "Hub time slots", gid: "1715952535",
+    columns: ["A", "B", "C", "D", "G"], condition: "B is not null and C is not null",
+    record: row => timeSlotRecord(row, true)
+  });
+
+  function dataSource(source) {
+    return { ...source, records: null, loading: false, error: false };
+  }
+
+  function normalize(value) {
+    return value.normalize("NFKC").toLowerCase()
+      .replace(/[يى]/g, "ی").replace(/ك/g, "ک")
+      .replace(/[ۀة]/g, "ه").replace(/[أإآٱ]/g, "ا")
+      .replace(/[۰-۹]/g, digit => String(digit.charCodeAt(0) - 1776))
+      .replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 1632))
+      .replace(/[\p{M}\u0640]/gu, "")
+      .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  }
+
+  function compact(value) {
+    return value.replaceAll(" ", "");
+  }
+
+  function near(word, query) {
+    // One insertion, deletion, substitution or adjacent transposition.
+    if (Math.abs(word.length - query.length) > 1) return false;
+    let index = 0;
+    while (index < word.length && word[index] === query[index]) index++;
+    if (word.length > query.length) return word.slice(index + 1) === query.slice(index);
+    if (word.length < query.length) return word.slice(index) === query.slice(index + 1);
+    return word.slice(index + 1) === query.slice(index + 1) ||
+      (word[index] === query[index + 1] && word[index + 1] === query[index] &&
+        word.slice(index + 2) === query.slice(index + 2));
+  }
+
+  function score(option, query, joined, tokens) {
+    if (option.key === query) return 0;
+    if (option.key.startsWith(query)) return 1;
+    if (option.joined.startsWith(joined)) return 2;
+    if (option.words.some(word => word.startsWith(query))) return 3;
+    if (option.key.includes(query) || option.joined.includes(joined)) return 4;
+    if (tokens.length > 1 && tokens.every(token => option.key.includes(token))) return 5;
+    if (joined.length >= 4 && option.words.some(word => near(word, joined))) return 6;
+    return Infinity;
+  }
+
+  function languageFor(text) {
+    return /\p{Script=Arabic}/u.test(text) ? "fa" : "en";
+  }
+
+  function rankedOptions(field, query) {
+    if (!query) return field.locations.slice(0, 12);
+    const joined = compact(query);
+    const tokens = query.split(" ");
+    return field.locations.map(option => ({ name: option.name, rank: score(option, query, joined, tokens) }))
+      .filter(option => Number.isFinite(option.rank))
+      .sort((a, b) => a.rank - b.rank || collator.compare(a.name, b.name))
+      .slice(0, 12);
+  }
+
+  function close(field) {
+    field.menu.hidden = true;
+    field.active = -1;
+    field.input.setAttribute("aria-expanded", "false");
+    field.input.removeAttribute("aria-activedescendant");
+  }
+
+  function highlight(field, index, scroll = false) {
+    field.active = index;
+    Array.from(field.list.children).forEach((item, position) => {
+      item.setAttribute("aria-selected", String(position === index));
+    });
+    const active = field.list.children[index];
+    if (!active) {
+      field.input.removeAttribute("aria-activedescendant");
+      return;
+    }
+    field.input.setAttribute("aria-activedescendant", active.id);
+    if (scroll) {
+      const top = active.offsetTop - field.list.offsetTop;
+      const bottom = top + active.offsetHeight;
+      if (top < field.list.scrollTop) field.list.scrollTop = top;
+      else if (bottom > field.list.scrollTop + field.list.clientHeight) {
+        field.list.scrollTop = bottom - field.list.clientHeight;
+      }
+    }
+  }
+
+  function suggest(field, allowEmpty = field.compact) {
+    if (state !== "ready") return;
+    const value = field.input.value.trim();
+    if (!value && !allowEmpty) {
+      close(field);
+      return;
+    }
+    const query = normalize(value);
+    field.options = query || !value ? rankedOptions(field, query) : [];
+    const items = field.options.map((option, index) => {
+      const item = document.createElement("li");
+      item.id = field.input.id + "-option-" + index;
+      item.dataset.index = index;
+      item.setAttribute("role", "option");
+      item.dir = "auto";
+      item.lang = languageFor(option.name);
+      item.textContent = option.name;
+      return item;
+    });
+    field.list.replaceChildren(...items);
+    field.list.scrollTop = 0;
+    field.message.hidden = items.length > 0;
+    field.menu.hidden = false;
+    field.input.setAttribute("aria-expanded", "true");
+    highlight(field, query && items.length ? 0 : -1);
+  }
+
+  function syncInput(field) {
+    const value = field.input.value;
+    field.input.lang = languageFor(value);
+    field.input.dataset.selected = String(field.selected !== null);
+    field.clear.hidden = !value;
+    byId("reset").disabled = !statusFilter.value && !fields.some(item => item.input.value);
+  }
+
+  function setValue(field, value, selected = false) {
+    field.input.value = value;
+    field.selected = selected ? value : null;
+    syncInput(field);
+    close(field);
+  }
+
+  function select(field, option) {
+    setValue(field, option.name, true);
+    applyFilters();
+  }
+
+  function dateKey(year, month, day, hour, minute, second) {
+    return ((((year * 100 + month) * 100 + day) * 100 + hour) * 100 + minute) * 100 + second;
+  }
+
+  function sheetDate(value) {
+    const digits = value.replace(/[۰-۹٠-٩]/g, character => String(character.charCodeAt(0) % 16));
+    const match = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/.exec(digits);
+    if (!match) return null;
+    const [year, month, day, hour, minute, second] = match.slice(1).map(part => Number(part ?? 0));
+    if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 59) return null;
+    return { calendar: year < 1700 ? "persian" : "gregory", key: dateKey(year, month, day, hour, minute, second), year, month, day };
+  }
+
+  function calendarParts(date, calendar) {
+    const parts = dateFormatters[calendar].formatToParts(date);
+    return ["year", "month", "day"].map(type => Number(parts.find(part => part.type === type).value));
+  }
+
+  function dateAtNoon(day) {
+    return new Date(day * dayMs + dayMs / 2);
+  }
+
+  function capacityDay(raw) {
+    const text = raw.trim().replace(/[۰-۹٠-٩]/g, digit => String(digit.charCodeAt(0) % 16))
+      .replace(/^(\d{4})(\d{2})(\d{2})$/, "$1/$2/$3");
+    const date = sheetDate(text);
+    if (!date || date.year < 1000) return null;
+    const target = Math.floor(date.key / 1000000);
+    if (dateCache.has(target)) return dateCache.get(target);
+    let day = null;
+    if (date.calendar === "gregory") {
+      const candidate = Date.UTC(date.year, date.month - 1, date.day) / dayMs;
+      const actual = calendarParts(dateAtNoon(candidate), "gregory");
+      if (actual[0] === date.year && actual[1] === date.month && actual[2] === date.day) day = candidate;
+    } else {
+      let low = Date.UTC(date.year + 620, 0, 1) / dayMs;
+      let high = Date.UTC(date.year + 622, 11, 31) / dayMs;
+      // Intl projects Gregorian days into the Persian calendar. Search that calendar for the input date.
+      while (low <= high) {
+        const candidate = Math.floor((low + high) / 2);
+        const [year, month, dayOfMonth] = calendarParts(dateAtNoon(candidate), "persian");
+        const key = year * 10000 + month * 100 + dayOfMonth;
+        if (key === target) {
+          day = candidate;
+          break;
+        }
+        if (key < target) low = candidate + 1;
+        else high = candidate - 1;
+      }
+    }
+    dateCache.set(target, day);
+    return day;
+  }
+
+  function defaultCapacityRange() {
+    const [year, month, day] = calendarParts(new Date(), "gregory");
+    const today = Date.UTC(year, month - 1, day) / dayMs;
+    for (const [index, offset] of [-3, 3].entries()) {
+      capacityDates[index].value = calendarParts(dateAtNoon(today + offset), "persian")
+        .map(part => String(part).padStart(2, "0")).join("/");
+    }
+  }
+
+  function updateCapacityRange() {
+    const bounds = capacityDates.map(input => capacityDay(input.value));
+    const invalid = capacityDates.map((input, index) => Boolean(input.value.trim() && bounds[index] === null));
+    const [from, to] = bounds;
+    const reversed = from !== null && to !== null && from > to;
+    capacityDates.forEach((input, index) => input.setAttribute("aria-invalid", String(invalid[index] || reversed)));
+    const message = invalid.includes(true) ? "Enter a valid date in YYYY/MM/DD format." :
+      reversed ? "From date must be on or before To date." : "";
+    byId("capacity-date-error").textContent = message;
+    capacityRange = { from, to, valid: !message };
+    renderDetails(capacityDetail);
+  }
+
+  function tehranClocks(now) {
+    return Object.fromEntries(["persian", "gregory"].map(calendar => {
+      const format = new Intl.DateTimeFormat("en-GB", {
+        calendar, timeZone: "Asia/Tehran", hourCycle: "h23",
+        year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric"
+      });
+      const parts = Object.fromEntries(format.formatToParts(now).map(({ type, value }) => [type, Number(value)]));
+      return [calendar, dateKey(parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second)];
+    }));
+  }
+
+  function explicitActivity(explicit) {
+    const flag = compact(normalize(explicit));
+    if (["true", "yes", "1", "active", "فعال", "بله"].includes(flag)) return "active";
+    if (["false", "no", "0", "inactive", "غیرفعال", "خیر"].includes(flag)) return "inactive";
+    return null;
+  }
+
+  function activity(explicit, start, end, clocks) {
+    const status = explicitActivity(explicit);
+    if (status) return status;
+    const from = sheetDate(start);
+    const to = sheetDate(end);
+    if ((from && from.key > clocks[from.calendar]) || (to && to.key < clocks[to.calendar])) return "inactive";
+    if (from && (to || end === "∞")) return "active";
+    return "unknown";
+  }
+
+  function compareRows(a, b) {
+    if (sort === null) return b.id - a.id;
+    const { column, direction } = sort;
+    if (column === -1) {
+      if (a.id && b.id) return direction * (a.id - b.id);
+      return Number(Boolean(b.id)) - Number(Boolean(a.id));
+    }
+    const isStatus = column === 4;
+    const left = isStatus ? (statusOrder[a.status] ?? null) : (a.cells[column] || null);
+    const right = isStatus ? (statusOrder[b.status] ?? null) : (b.cells[column] || null);
+    if (left === null || right === null) {
+      if (left !== right) return left === null ? 1 : -1;
+      return b.id - a.id;
+    }
+    const compared = isStatus ? left - right : collator.compare(left, right);
+    return direction * compared || b.id - a.id;
+  }
+
+  function sortRows() {
+    for (const button of sortButtons) {
+      const heading = button.parentElement;
+      const icon = button.querySelector(".sort-icon");
+      if (sort?.column === Number(button.dataset.column)) {
+        heading.setAttribute("aria-sort", sort.direction === 1 ? "ascending" : "descending");
+        icon.textContent = sort.direction === 1 ? "↑" : "↓";
+      } else {
+        heading.removeAttribute("aria-sort");
+        icon.textContent = "↕";
+      }
+    }
+    byId("reset-sort").hidden = sort === null;
+    sortedRows = [...rows].sort(compareRows);
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const selectedFields = fields.filter(field => field.selected !== null);
+    const status = statusFilter.value;
+    matches = sortedRows.filter(row =>
+      (!status || row.status === status) &&
+      selectedFields.every(field => row.cells[field.column] === field.selected)
+    );
+    statusFilter.dataset.selected = String(Boolean(status));
+    byId("reset").disabled = !status && !fields.some(field => field.input.value);
+    networkScrollBeforeSelection = 0;
+    tableScroll.scrollTop = 0;
+    renderResults();
+  }
+
+  function visibleRoutes() {
+    return selectedRoute ? [selectedRoute] : matches;
+  }
+
+  function renderResults() {
+    const visible = visibleRoutes();
+    const ready = state === "ready";
+    const count = byId("count");
+    count.hidden = !ready;
+    count.textContent = selectedRoute ? "1 route selected" :
+      ready ? number.format(visible.length) + (visible.length === 1 ? " route" : " routes") : "";
+    byId("empty").hidden = visible.length > 0;
+    byId("retry").hidden = state !== "error";
+    if (!visible.length) {
+      resultsBody.replaceChildren();
+      const messages = {
+        loading: ["Loading routes…", "Reading Shipping Network from Google Sheets."],
+        error: ["Could not load routes", "Check your connection and Google Sheets access."],
+        noMatch: ["No matching routes", "Change or clear the filters to see more routes."],
+        noData: ["No routes to display", "The Shipping Network tab has no routes."]
+      };
+      const [title, detail] = messages[ready ? (rows.length ? "noMatch" : "noData") : state];
+      byId("empty-title").textContent = title;
+      byId("empty-detail").textContent = detail;
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    visible.forEach((result, index) => {
+      const row = document.createElement("tr");
+      row.dataset.status = result.status;
+      if (result.status === "inactive") row.dataset.alert = "inactive";
+      if (result === selectedRoute) row.dataset.selected = "true";
+      row.insertCell().textContent = result.id ? String(result.id) : "—";
+      result.cells.forEach((value, column) => {
+        const cell = row.insertCell();
+        const text = column === 4 ? statusLabels[result.status] : (value || "—");
+        if (column <= 2) {
+          const name = document.createElement(column === 0 ? "button" : "bdi");
+          name.className = "center-name";
+          name.title = text;
+          name.dir = "auto";
+          name.lang = languageFor(text);
+          name.textContent = text;
+          if (column === 0) {
+            name.classList.add("row-action");
+            name.type = "button";
+            const routeName = result.cells[0] + " → " + result.cells[1];
+            name.setAttribute("aria-label", result.id ? "ID " + result.id + " · " + routeName : routeName);
+            name.setAttribute("aria-controls", "time-scopes-panel capacity-panel");
+            name.setAttribute("aria-pressed", String(result === selectedRoute));
+            name.tabIndex = index === 0 ? 0 : -1;
+          }
+          cell.append(name);
+        } else {
+          cell.lang = languageFor(text);
+          cell.dir = "auto";
+          cell.textContent = text;
+          if (column === 4) cell.className = "status";
+        }
+      });
+      fragment.append(row);
+    });
+    resultsBody.replaceChildren(fragment);
+  }
+
+  function readSheet(sheetGid, columns, condition) {
+    return new Promise((resolve, reject) => {
+      const callback = "shippingSheetResponse" + ++requestId;
+      const script = document.createElement("script");
+      const url = new URL("https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq");
+      url.search = new URLSearchParams({
+        gid: sheetGid,
+        headers: "1",
+        tq: "select " + columns.join(",") + " where " + condition,
+        tqx: "out:json;responseHandler:" + callback
+      });
+      const finish = (handler, value) => {
+        clearTimeout(timer);
+        script.remove();
+        delete window[callback];
+        handler(value);
+      };
+      const fail = () => finish(reject, new Error("Google Sheets response unavailable"));
+      window[callback] = response => {
+        const table = response?.table;
+        if (response?.status === "ok" && Array.isArray(table?.rows) &&
+            columns.every((id, index) => table.cols?.[index]?.id === id)) {
+          finish(resolve, table.rows);
+        } else {
+          fail();
+        }
+      };
+      const timer = setTimeout(fail, 20000);
+      script.onerror = fail;
+      script.src = url.href;
+      document.head.append(script);
+    });
+  }
+
+  function cellText(row, index) {
+    const cell = row.c?.[index];
+    return String(cell?.f ?? cell?.v ?? "").trim();
+  }
+
+  function routeName(value) {
+    return value.normalize("NFKC").toLowerCase()
+      .replace(/[يى]/g, "ی").replace(/ك/g, "ک")
+      .replace(/[۰-۹٠-٩]/g, digit => String(digit.charCodeAt(0) % 16))
+      .replace(/[\u200c\u200d]/g, " ")
+      .replace(/\s*[-‐‑‒–—−]\s*/g, " - ")
+      .replace(/\s+/g, " ").trim();
+  }
+
+  function routeKey(row) {
+    // The sheet stores the full directional pair, and either location can contain dashes.
+    return row.cells.slice(0, 2).map(routeName).join(" - ");
+  }
+
+  function timeScopeRecord(row) {
+    // Join Time Distances to Shipping Networks using the numeric network ID.
+    const networkId = Number(cellText(row, 4));
+    if (!Number.isSafeInteger(networkId) || networkId <= 0) return null;
+    const flag = cellText(row, 3);
+    const status = explicitActivity(flag);
+    return {
+      key: "id:" + networkId,
+      values: [cellText(row, 2), cellText(row, 1), status ? statusLabels[status] : flag]
+    };
+  }
+
+  function capacityRecord(row) {
+    const reference = routeName(cellText(row, 1));
+    const id = Number(/\(\s*(\d+)\s*\)$/.exec(reference)?.[1]);
+    if (!Number.isSafeInteger(id) || id <= 0) return null;
+    const flag = cellText(row, 6);
+    const closed = cellText(row, 7);
+    const status = explicitActivity(flag);
+    const closeName = compact(normalize(closed));
+    const closeFlag = ["close", "closed", "بسته"].includes(closeName) ? "active" :
+      ["open", "باز"].includes(closeName) ? "inactive" : explicitActivity(closed);
+    return {
+      key: "id:" + id,
+      day: capacityDay(cellText(row, 3)),
+      values: [
+        cellText(row, 2), cellText(row, 3), cellText(row, 4), cellText(row, 5),
+        status ? statusLabels[status] : flag,
+        closeFlag === "active" ? "Closed" : closeFlag === "inactive" ? "Open" : closed
+      ]
+    };
+  }
+
+  function polygonKey(value) {
+    return routeName(value).replace(/\s*\(\d+\)$/, "");
+  }
+
+  function endpointKey(left, right) {
+    return left + "\u0000" + right;
+  }
+
+  function slotWindow(value) {
+    const raw = routeName(value);
+    const match = /^(\d{1,2})(?::(\d{1,2}))? - (\d{1,2})(?::(\d{1,2}))?$/.exec(raw);
+    if (!match) return raw;
+    const [startHour, startMinute, endHour, endMinute] = match.slice(1).map(part => Number(part ?? 0));
+    if (startHour > 24 || endHour > 24 || startMinute > 59 || endMinute > 59 ||
+        (startHour === 24 && startMinute) || (endHour === 24 && endMinute)) return raw;
+    return (startHour * 60 + startMinute) + ":" + (endHour * 60 + endMinute);
+  }
+
+  function timeSlotRecord(row, hub) {
+    const first = routeName(cellText(row, 1));
+    const second = hub ? polygonKey(cellText(row, 2)) : routeName(cellText(row, 2));
+    const value = cellText(row, 3);
+    const flag = cellText(row, 4);
+    const active = explicitActivity(flag);
+    return { key: endpointKey(first, second), values: [value, active ? statusLabels[active] : flag] };
+  }
+
+  function scopeSources(route) {
+    return [timeScopeDetail, route.cells[2] ? hubSource : midMileSource];
+  }
+
+  function joinScopeSlots(entries, route) {
+    const source = scopeSources(route)[1];
+    const hub = source === hubSource;
+    const polygon = polygonKey(route.cells[2]);
+    const [from, to] = route.cells.slice(0, 2).map(routeName);
+    const keys = hub ? [...new Set([endpointKey(from, polygon), endpointKey(to, polygon)])] : [endpointKey(from, to)];
+    const slotsByWindow = new Map();
+    for (const key of keys) {
+      for (const slot of source.records?.get(key) ?? []) {
+        const interval = slotWindow(slot.values[0]);
+        const previous = slotsByWindow.get(interval);
+        if (interval && (!previous || previous.id < slot.id)) slotsByWindow.set(interval, slot);
+      }
+    }
+
+    const matched = new Set();
+    const appendSlot = (values, slot) => hub ?
+      [...values, "", "", ...(slot?.values ?? ["", ""])] :
+      [...values, ...(slot?.values ?? ["", ""]), "", ""];
+    const rows = entries.map(entry => {
+      const interval = slotWindow(entry.values[0]);
+      matched.add(interval);
+      return appendSlot(entry.values, slotsByWindow.get(interval));
+    });
+    for (const [interval, slot] of slotsByWindow) {
+      if (!matched.has(interval)) rows.push(appendSlot(["", "", ""], slot));
+    }
+    return rows;
+  }
+
+  function panelSources(panel) {
+    return panel === timeScopeDetail && selectedRoute ? scopeSources(selectedRoute) : [panel];
+  }
+
+  async function loadDetails(source, panel) {
+    if (source.loading || source.records) return;
+    source.loading = true;
+    source.error = false;
+    renderDetails(panel);
+    try {
+      const rows = await readSheet(source.gid, source.columns, source.condition);
+      const records = new Map();
+      for (const row of rows) {
+        const id = Number(row.c?.[0]?.v);
+        if (!id) continue;
+        const record = source.record(row);
+        if (!record) continue;
+        const { key, values, day } = record;
+        if (!records.has(key)) records.set(key, []);
+        records.get(key).push({ id, values, day });
+      }
+      source.records = records;
+    } catch {
+      source.error = true;
+    } finally {
+      source.loading = false;
+      renderDetails(panel);
+    }
+  }
+
+  function updateDetails() {
+    byId("scope-route").hidden = !selectedRoute;
+    for (const [index, id] of ["scope-from", "scope-to"].entries()) {
+      const endpoint = byId(id);
+      const value = selectedRoute ? (selectedRoute.cells[index] || "—") : "";
+      endpoint.textContent = value;
+      endpoint.lang = languageFor(value);
+    }
+    for (const panel of detailTables) {
+      if (selectedRoute) {
+        for (const source of panelSources(panel)) loadDetails(source, panel);
+      }
+      renderDetails(panel);
+    }
+  }
+
+  function renderDetails(detail) {
+    const { prefix, label, records } = detail;
+    const sources = panelSources(detail);
+    const failed = sources.filter(source => source.error);
+    const pending = sources.filter(source => source.loading);
+    const entries = selectedRoute && records ?
+      detail.keys(selectedRoute).flatMap(key => records.get(key) ?? []).sort((a, b) => b.id - a.id) : [];
+    let rows = [];
+    if (selectedRoute) {
+      if (detail === timeScopeDetail) rows = joinScopeSlots(entries, selectedRoute);
+      else if (capacityRange.valid) {
+        const { from, to } = capacityRange;
+        rows = entries.filter(({ day }) => (from === null || (day !== null && day >= from)) &&
+          (to === null || (day !== null && day <= to))).map(entry => entry.values);
+      }
+    }
+
+    const fragment = document.createDocumentFragment();
+    const capacity = detail === capacityDetail;
+    const activeColumns = capacity ? [4] : [2, 4, 6];
+    for (const values of rows) {
+      const row = document.createElement("tr");
+      if (capacity && values[5] === "Closed") row.dataset.alert = "closed";
+      else if (values[activeColumns[0]] === statusLabels.inactive) row.dataset.alert = "inactive";
+      for (const [index, value] of values.entries()) {
+        const cell = row.insertCell();
+        cell.textContent = value || "—";
+        cell.lang = languageFor(value);
+        cell.dir = "auto";
+        if (activeColumns.includes(index) && value === statusLabels.inactive) cell.dataset.inactive = "";
+      }
+      fragment.append(row);
+    }
+    byId(prefix + "-results").replaceChildren(fragment);
+    byId(prefix + "-empty").hidden = rows.length > 0 && !pending.length && !failed.length;
+    byId(prefix + "-retry").hidden = !selectedRoute || !failed.length;
+    let message = "";
+    if (!selectedRoute) message = "Select a network to view its " + label + ".";
+    else if (failed.length) message = "Could not load " + failed.map(source => source.label).join(" and ") + ".";
+    else if (pending.length) message = "Loading " + pending.map(source => source.label).join(" and ") + "…";
+    else if (detail === capacityDetail && !capacityRange.valid) message = "Enter a valid date range to view capacity.";
+    else if (!rows.length) message = entries.length ? "No capacity records in this date range." : detail.emptyMessage;
+    byId(prefix + "-message").textContent = message;
+  }
+
+  async function load() {
+    state = "loading";
+    renderResults();
+    try {
+      const source = await readSheet(gid, columnIds, "B is not null or C is not null");
+      const clocks = tehranClocks(new Date());
+      rows = source.map(row => {
+        const values = columnIds.map((_, index) => cellText(row, index));
+        const id = Number(row.c?.[9]?.v) || 0;
+        return { id, cells: values.slice(0, 7), status: activity(values[4], values[7], values[8], clocks) };
+      }).filter(row => row.cells[0] || row.cells[1]);
+      for (const field of fields) {
+        const names = new Set(rows.map(row => row.cells[field.column]).filter(Boolean));
+        field.locations = [...names].sort(collator.compare).map(name => {
+          const key = normalize(name);
+          return { name, key, joined: compact(key), words: key.split(" ") };
+        });
+      }
+      state = "ready";
+      sortRows();
+      const focused = fields.find(field => field.input === document.activeElement);
+      if (focused) suggest(focused);
+    } catch {
+      state = "error";
+      renderResults();
+    }
+  }
+
+  for (const field of fields) {
+    field.input.addEventListener("input", event => {
+      const wasSelected = field.selected !== null;
+      field.selected = null;
+      syncInput(field);
+      if (wasSelected) applyFilters();
+      if (!event.isComposing) suggest(field);
+    });
+    field.input.addEventListener("compositionend", () => suggest(field));
+    field.input.addEventListener("focus", () => {
+      if (field.selected === null) suggest(field);
+    });
+    field.input.addEventListener("click", () => {
+      if (field.selected === null && field.menu.hidden) suggest(field);
+    });
+    field.input.addEventListener("blur", () => close(field));
+    field.input.addEventListener("keydown", event => {
+      if (event.isComposing || event.keyCode === 229) return;
+      const { key } = event;
+      if (key === "Escape" && !field.menu.hidden) {
+        event.preventDefault();
+        close(field);
+      } else if ((key === "ArrowDown" || key === "ArrowUp") && state === "ready") {
+        event.preventDefault();
+        const wasClosed = field.menu.hidden;
+        if (wasClosed) suggest(field, true);
+        const count = field.options.length;
+        if (count) {
+          const direction = key === "ArrowDown" ? 1 : -1;
+          const next = wasClosed || field.active < 0 ? (direction === 1 ? 0 : count - 1) :
+            (field.active + direction + count) % count;
+          highlight(field, next, true);
+        }
+      } else if (key === "Enter" && !field.menu.hidden && field.active >= 0) {
+        event.preventDefault();
+        select(field, field.options[field.active]);
+      }
+    });
+    field.list.addEventListener("pointerdown", event => {
+      if (event.target.closest("[role=option]")) event.preventDefault();
+    });
+    field.list.addEventListener("click", event => {
+      const item = event.target.closest("[role=option]");
+      if (item) select(field, field.options[Number(item.dataset.index)]);
+    });
+    field.clear.addEventListener("click", () => {
+      const wasSelected = field.selected !== null;
+      setValue(field, "");
+      field.input.focus();
+      if (wasSelected) applyFilters();
+    });
+  }
+
+  for (const button of sortButtons) {
+    button.addEventListener("click", () => {
+      const column = Number(button.dataset.column);
+      sort = { column, direction: sort?.column === column ? -sort.direction : 1 };
+      sortRows();
+    });
+  }
+
+  function focusableRow(row) {
+    const current = resultsBody.querySelector('.row-action[tabindex="0"]');
+    if (current) current.tabIndex = -1;
+    const action = row.querySelector(".row-action");
+    action.tabIndex = 0;
+    return action;
+  }
+
+  resultsBody.addEventListener("click", event => {
+    const row = event.target.closest("tr");
+    if (!row) return;
+    const clickedRoute = visibleRoutes()[row.sectionRowIndex];
+    const keepFocus = Boolean(event.target.closest(".row-action"));
+    if (selectedRoute === clickedRoute) {
+      selectedRoute = null;
+    } else {
+      networkScrollBeforeSelection = tableScroll.scrollTop;
+      selectedRoute = clickedRoute;
+    }
+    renderResults();
+    tableScroll.scrollTop = selectedRoute ? 0 : networkScrollBeforeSelection;
+    if (keepFocus) {
+      const index = selectedRoute ? 0 : Math.max(0, matches.indexOf(clickedRoute));
+      const focusRow = resultsBody.rows[index];
+      (focusRow ? focusableRow(focusRow) : tableScroll).focus({ preventScroll: true });
+    }
+    updateDetails();
+  });
+  resultsBody.addEventListener("keydown", event => {
+    const row = event.target.closest(".row-action")?.closest("tr");
+    if (!row) return;
+    const adjacent = { ArrowDown: row.nextElementSibling, ArrowUp: row.previousElementSibling,
+      Home: resultsBody.firstElementChild, End: resultsBody.lastElementChild }[event.key];
+    if (adjacent) {
+      event.preventDefault();
+      focusableRow(adjacent).focus();
+    }
+  });
+  for (const panel of detailTables) {
+    byId(panel.prefix + "-retry").addEventListener("click", () => {
+      resultsBody.querySelector(".row-action")?.focus({ preventScroll: true });
+      for (const source of panelSources(panel)) {
+        if (source.error) loadDetails(source, panel);
+      }
+    });
+  }
+  for (const input of capacityDates) input.addEventListener("input", updateCapacityRange);
+  defaultCapacityRange();
+  updateCapacityRange();
+  byId("reset-sort").addEventListener("click", () => {
+    sort = null;
+    sortRows();
+    tableScroll.focus({ preventScroll: true });
+  });
+  statusFilter.addEventListener("change", applyFilters);
+  byId("reset").addEventListener("click", () => {
+    statusFilter.value = "";
+    fields.forEach(field => setValue(field, ""));
+    fields[0].input.focus();
+    applyFilters();
+  });
+  byId("retry").addEventListener("click", () => {
+    fields[0].input.focus();
+    load();
+  });
+
+  function updateThemeLabel() {
+    const dark = document.documentElement.dataset.theme === "dark";
+    byId("theme-label").textContent = dark ? "Light mode" : "Dark mode";
+  }
+  byId("theme-toggle").addEventListener("click", () => {
+    const root = document.documentElement;
+    const theme = root.dataset.theme === "dark" ? "light" : "dark";
+    root.dataset.theme = theme;
+    try {
+      localStorage.setItem("shipping-network-theme", theme);
+    } catch {}
+    updateThemeLabel();
+  });
+  updateThemeLabel();
+  load();
+</script>
+</body>
+</html>
