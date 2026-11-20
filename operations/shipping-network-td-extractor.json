@@ -85,6 +85,7 @@
       "lookupInput": "shippingNetworkLookup",
       "sourceNameAliases": [
         "shipping network",
+        "shipping network id",
         "shipping network name",
         "network",
         "network name",

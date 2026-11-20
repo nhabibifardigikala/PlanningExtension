@@ -1,15 +1,15 @@
 {
-  "configVersion": 516,
+  "configVersion": 517,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 516",
-    "logoUrl": "icons/logo.png?v=516",
-    "configVersion": 516
+    "subtitle": "Planning Suite · Config 517",
+    "logoUrl": "icons/logo.png?v=517",
+    "configVersion": 517
   },
-  "theme": "theme.json?v=516",
-  "settings": "settings.json?v=516",
-  "messages": "messages.json?v=516",
+  "theme": "theme.json?v=517",
+  "settings": "settings.json?v=517",
+  "messages": "messages.json?v=517",
   "operations": [
     {
       "id": "sync-iata",
@@ -254,7 +254,7 @@
         "Agents"
       ],
       "accessControl": "column",
-      "config": "operations/shipping-network-td-extractor.json?v=516",
+      "config": "operations/shipping-network-td-extractor.json?v=517",
       "enabled": true,
       "category": "agents",
       "runLabel": "Run Extraction",
