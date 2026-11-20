@@ -13,7 +13,7 @@
     {
       "action": "open",
       "url": "https://drop-shipping.digikala.com/shipping-network/time-distance-config/?id=&shipping_network_id=0&time_scope_id=0&active=&per_page=1000&crud_tab_id=&page=1",
-      "active": true,
+      "active": false,
       "progress": "Opening Time Distance page 1 (1000 rows per page)…"
     },
     {
@@ -24,7 +24,7 @@
     {
       "action": "navigate",
       "url": "https://drop-shipping.digikala.com/shipping-network/time-distance-config/?id=&shipping_network_id=0&time_scope_id=0&active=&per_page=1000&crud_tab_id=&page=1",
-      "active": true,
+      "active": false,
       "completeTimeoutMs": 60000,
       "progress": "Opening Time Distance page 1 with no status filters…"
     },
@@ -52,17 +52,75 @@
       "expectedRowsPerPage": 0,
       "allowLastPagePartial": true,
       "maxPages": 1000,
+      "strictPagination": true,
+      "strictStability": true,
+      "strictPageSequence": true,
+      "pageParam": "page",
+      "requiredQueryParams": {
+        "per_page": "1000"
+      },
       "dedupe": false,
       "ignoreLastActionColumn": true,
       "parser": {
         "tableSelector": "table",
         "headerSelector": "thead th",
         "rowSelector": "tbody tr",
-        "svgBoolean": true
+        "svgBoolean": true,
+        "appendAttributes": [
+          {
+            "header": "__details_url",
+            "selector": "a[href]",
+            "attribute": "href",
+            "textIncludes": "details",
+            "attributeIncludes": "/shipping-network/"
+          }
+        ]
       },
       "pageProgress": "Extracting Shipping Network TD page {{page}}…",
       "progress": "Extracting all Shipping Network TD pages…",
       "error": "Time Distance page had no data. Nothing was replaced."
+    },
+    {
+      "action": "enrichTableFromLookupAndDetails",
+      "lookupInput": "shippingNetworkLookup",
+      "sourceNameAliases": [
+        "shipping network",
+        "shipping network name",
+        "network",
+        "network name",
+        "نام نتورک",
+        "نام شبکه"
+      ],
+      "lookupNameAliases": [
+        "shipping network",
+        "shipping network name",
+        "network",
+        "network name",
+        "name",
+        "title",
+        "نام نتورک",
+        "نام شبکه"
+      ],
+      "lookupIdAliases": [
+        "shipping network id",
+        "shipping_network_id",
+        "network id",
+        "network_id",
+        "id",
+        "شناسه نتورک",
+        "شناسه شبکه"
+      ],
+      "detailsUrlHeader": "__details_url",
+      "outputHeader": "shipping_network_id",
+      "inputSelector": "input.uk-select.es-input[disabled]",
+      "valuePattern": "\\[\\s*([0-9۰-۹٠-٩]+)\\s*\\]",
+      "concurrency": 4,
+      "required": true,
+      "detailsCompleteTimeoutMs": 60000,
+      "detailsPathIncludes": "/shipping-network/",
+      "detailsTimeoutMs": 25000,
+      "detailsPollMs": 300,
+      "resultMessage": "Network IDs resolved: {{fromLookup}} from Shipping Network, {{fromDetails}} from Details."
     },
     {
       "action": "closeTab",
@@ -73,7 +131,7 @@
     "attempts": 3,
     "delayMs": 2000
   },
-  "runtimeContract": "stable-host-12",
+  "runtimeContract": "stable-host-13.0.21",
   "businessLogicOwner": "remote",
   "output": {
     "type": "sheet"

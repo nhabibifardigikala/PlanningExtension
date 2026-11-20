@@ -1,6 +1,6 @@
 const DIGIEXPRESS_DATASETS_API_VERSION = '377-core-v1';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
-const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments']);
+const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments', 'Shipping Network TD']);
 const REJECTED_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date','extracted_at'];
 const REJECTED_FIELD_ALIASES = {
   id: ['id'],
@@ -58,6 +58,18 @@ function replaceDataset_(body){
   let rows=Array.isArray(body.rows)?body.rows.map(r=>Array.isArray(r)?r.slice():[]):[];
   if(!headers.length)throw new Error('No headers received.');
 
+  if(sheetName==='Shipping Network TD'){
+    const normalizedHeaders=headers.map(h=>String(h||'').trim().toLowerCase().replace(/[\s-]+/g,'_'));
+    const idIndexes=normalizedHeaders.map((h,i)=>h==='shipping_network_id'?i:-1).filter(i=>i>=0);
+    if(idIndexes.length!==1)throw new Error('Shipping Network TD requires exactly one shipping_network_id column. No data was written.');
+    if(!rows.length)throw new Error('Shipping Network TD requires at least one data row. No data was written.');
+    const idIndex=idIndexes[0];
+    rows.forEach((row,index)=>{
+      if(!Array.isArray(row)||row.length!==headers.length)throw new Error('Shipping Network TD row '+(index+2)+' does not match the header width. No data was written.');
+      if(!/^\d+$/.test(String(row[idIndex]??'').trim()))throw new Error('Shipping Network TD row '+(index+2)+' has an invalid shipping_network_id. No data was written.');
+    });
+  }
+
   if(sheetName==='Pick-up Polygons'){
     const result=preparePickupPolygons_(headers,rows);
     headers=result.headers;rows=result.rows;
@@ -84,10 +96,34 @@ function replaceDataset_(body){
 
   const width=headers.length;
   const normalized=rows.map(r=>Array.from({length:width},(_,i)=>r[i]??''));
-  sheet.clearContents();
-  sheet.getRange(1,1,1,width).setValues([headers]);
-  if(normalized.length)sheet.getRange(2,1,normalized.length,width).setValues(normalized);
-  SpreadsheetApp.flush();
+  const lock=LockService.getScriptLock();
+  lock.waitLock(30000);
+  try{
+    const previousRows=sheet.getLastRow(),previousColumns=sheet.getLastColumn();
+    const previousRange=previousRows>0&&previousColumns>0?sheet.getRange(1,1,previousRows,previousColumns):null;
+    const previousValues=previousRange?previousRange.getValues():[];
+    const previousFormulas=previousRange?previousRange.getFormulas():[];
+    try{
+      sheet.clearContents();
+      sheet.getRange(1,1,1,width).setValues([headers]);
+      if(normalized.length)sheet.getRange(2,1,normalized.length,width).setValues(normalized);
+      SpreadsheetApp.flush();
+    }catch(writeError){
+      try{
+        sheet.clearContents();
+        if(previousValues.length&&previousColumns>0){
+          sheet.getRange(1,1,previousValues.length,previousColumns).setValues(previousValues);
+          previousFormulas.forEach((row,rowIndex)=>row.forEach((formula,columnIndex)=>{if(formula)sheet.getRange(rowIndex+1,columnIndex+1).setFormula(formula);}));
+        }
+        SpreadsheetApp.flush();
+      }catch(rollbackError){
+        throw new Error(String(writeError&&writeError.message||writeError)+'; rollback failed: '+String(rollbackError&&rollbackError.message||rollbackError));
+      }
+      throw writeError;
+    }
+  }finally{
+    lock.releaseLock();
+  }
   return json_({ok:true,sheetName,rows:normalized.length,columns:width,updatedAt:new Date().toISOString()});
 }
 

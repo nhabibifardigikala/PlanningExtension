@@ -10,8 +10,9 @@
   const AGENTS_ACCESS_GATE={operationId:'agents-access-gate',inputs:{}};
   const JOBS={
     'shipping-network-td':{
-      id:'shipping-network-td',label:'Shipping Network TD Extractor',operationId:'shipping-network-td-extractor',sheetName:'Shipping Network TD',output:{type:'sheet'},enabled:false,
-      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
+      id:'shipping-network-td',label:'Shipping Network TD Extractor',operationId:'shipping-network-td-extractor',sheetName:'Shipping Network TD',output:{type:'sheet'},enabled:false,minHostVersion:'13.0.21',webAppUrl:REJECTED_DATASETS_WEB_APP_URL,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
+      pipeline:{beforePlatformRequest:{method:'sheets.readRows',args:{spreadsheetId:REJECTED_DATASETS_SPREADSHEET_ID,sheetName:'Shipping Network',limit:100000}},inputMappings:{shippingNetworkLookup:'state'}}
     },
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
@@ -190,7 +191,7 @@
       polygonExceptions:$('polygonExceptions').value.trim()
     };
     if(id==='rejected-shipments-sync'||id==='rejected-shipments-dspace')inputs={keepScrapeTabOpen:false};
-    return {...defs,...base,webAppUrl:$('webAppUrl').value.trim()||sharedWebAppUrl(),enabled:$('enabled').checked,schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1),intervalMinutes:Number($('intervalMinutes').value||15)},preOperations:defs.preOperations,inputs};
+    return {...defs,...base,webAppUrl:$('webAppUrl').value.trim()||sharedWebAppUrl()||defs.webAppUrl||'',enabled:$('enabled').checked,schedule:{type:$('scheduleType').value,time:$('dailyTime').value||'12:00',intervalHours:Number($('intervalHours').value||1),intervalMinutes:Number($('intervalMinutes').value||15)},preOperations:defs.preOperations,pipeline:defs.pipeline||base.pipeline||null,inputs};
   }
 
   function renderJob(id){
@@ -246,7 +247,7 @@
       const pipelineOk=JSON.stringify(cur?.pipeline||null)===JSON.stringify(defs.pipeline||null);
       const retryOk=JSON.stringify(cur?.retry||null)===JSON.stringify(defs.retry||null);
       const dspaceOk=JSON.stringify(cur?.dspace||null)===JSON.stringify(defs.dspace||null);
-      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk||!dspaceOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:id.startsWith('rejected-')?REJECTED_DATASETS_WEB_APP_URL:String(cur?.webAppUrl||sharedWebAppUrl()||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,dspace:defs.dspace||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
+      if(!cur||!preOk||!opOk||!pipelineOk||!retryOk||!dspaceOk){await request('saveJob',{job:{...defs,...(cur||{}),operationId:defs.operationId,sheetName:defs.sheetName,webAppUrl:id.startsWith('rejected-')?REJECTED_DATASETS_WEB_APP_URL:String(cur?.webAppUrl||sharedWebAppUrl()||defs.webAppUrl||''),preOperations:defs.preOperations,pipeline:defs.pipeline||null,dspace:defs.dspace||null,retry:defs.retry||cur?.retry,inputs:{...(defs.inputs||{}),...(cur?.inputs||{})},schedule:{...defs.schedule,...(cur?.schedule||{})},enabled:cur?.enabled===undefined?defs.enabled:cur.enabled}});changed=true;}
     }
     migrationDone=true;return changed?request('getState'):state;
   }
@@ -279,7 +280,7 @@
       await assertAgentsAccess();
       await assertJobHostCompatibility(JOBS[id]);
       run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=(id==='distribution-centers'||id==='distribution-centers-dspace')?'Assigning 100 DCs…':(id==='pickup-polygons'||id==='pickup-polygons-dspace'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'||id==='delivery-polygons-dspace'?'Opening Admin DC Polygons…':((id==='rejected-shipments-sync'||id==='rejected-shipments-dspace')?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
-      let url=sharedWebAppUrl();
+      let url=sharedWebAppUrl()||JOBS[id].webAppUrl||'';
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,dspace:JOBS[id].dspace||getJob(id).dspace||null,retry:JOBS[id].retry||getJob(id).retry};
       if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'||id==='rejected-shipments-dspace'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
