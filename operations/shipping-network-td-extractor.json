@@ -93,6 +93,7 @@
         "نام شبکه"
       ],
       "lookupNameAliases": [
+        "__network_lookup_name",
         "shipping network",
         "shipping network name",
         "network",

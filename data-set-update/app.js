@@ -12,7 +12,7 @@
     'shipping-network-td':{
       id:'shipping-network-td',label:'Shipping Network TD Extractor',operationId:'shipping-network-td-extractor',sheetName:'Shipping Network TD',output:{type:'sheet'},enabled:false,minHostVersion:'13.0.21',webAppUrl:REJECTED_DATASETS_WEB_APP_URL,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
-      pipeline:{beforePlatformRequest:{method:'sheets.readRows',args:{spreadsheetId:REJECTED_DATASETS_SPREADSHEET_ID,sheetName:'Shipping Network',limit:100000}},inputMappings:{shippingNetworkLookup:'state'}}
+      pipeline:{beforeRequest:{action:'readDataset',sheetName:'Shipping Network',limit:100000},inputMappings:{shippingNetworkLookup:'state'}}
     },
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,

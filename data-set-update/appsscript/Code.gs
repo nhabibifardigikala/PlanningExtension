@@ -1,6 +1,7 @@
 const DIGIEXPRESS_DATASETS_API_VERSION = '377-core-v1';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments', 'Shipping Network TD']);
+const READABLE_SHEETS = new Set([...ALLOWED_SHEETS, 'Shipping Network']);
 const REJECTED_HEADERS = ['id','reference_id','user_id','ready_date','status','created_at','service_level','shipping_size_id','destination_address','destination_shipping_point','parcel_ids','promise_date','extracted_at'];
 const REJECTED_FIELD_ALIASES = {
   id: ['id'],
@@ -35,6 +36,14 @@ function doPost(e){
 function requireSheet_(sheetName){
   const name=String(sheetName||'');
   if(!ALLOWED_SHEETS.has(name))throw new Error('Sheet is not allowed.');
+  const ss=SpreadsheetApp.openById(SPREADSHEET_ID),sheet=ss.getSheetByName(name);
+  if(!sheet)throw new Error('Target sheet not found: '+name);
+  return sheet;
+}
+
+function requireReadableSheet_(sheetName){
+  const name=String(sheetName||'');
+  if(!READABLE_SHEETS.has(name))throw new Error('Sheet is not readable.');
   const ss=SpreadsheetApp.openById(SPREADSHEET_ID),sheet=ss.getSheetByName(name);
   if(!sheet)throw new Error('Target sheet not found: '+name);
   return sheet;
@@ -129,7 +138,7 @@ function replaceDataset_(body){
 
 function readDataset_(body){
   const sheetName=String(body.sheetName||'');
-  const sheet=requireSheet_(sheetName);
+  const sheet=requireReadableSheet_(sheetName);
   const lastRow=sheet.getLastRow(),lastCol=sheet.getLastColumn();
   if(lastRow<1||lastCol<1)return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,headers:[],rows:[],totalRows:0,updatedAt:new Date().toISOString()});
   const headers=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0];
@@ -137,7 +146,14 @@ function readDataset_(body){
   const limit=Math.max(1,Math.min(50000,Number(body.limit)||20000));
   const take=Math.min(totalRows,limit);
   const startRow=take?Math.max(2,lastRow-take+1):2;
-  const rows=take?sheet.getRange(startRow,1,take,lastCol).getDisplayValues():[];
+  let rows=take?sheet.getRange(startRow,1,take,lastCol).getDisplayValues():[];
+  if(sheetName==='Shipping Network'){
+    const normalized=headers.map(h=>String(h||'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' '));
+    const fromIndex=normalized.indexOf('from shipping point'),toIndex=normalized.indexOf('to shipping point');
+    if(fromIndex<0||toIndex<0)throw new Error('Shipping Network lookup columns were not found.');
+    rows=rows.map(row=>[...row,[row[fromIndex],row[toIndex]].map(v=>String(v||'').trim()).filter(Boolean).join(' - ')]);
+    headers.push('__network_lookup_name');
+  }
   return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,headers,rows,totalRows,updatedAt:new Date().toISOString()});
 }
 
