@@ -26,12 +26,14 @@
       dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheets:[{sheetName:'Distribution Centers (LG)',operationId:'extract-dc'}]}
     },
     'pickup-polygons':{
-      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'sheet'},enabled:false,
-      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
+      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'internal'},enabled:false,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
+      pipeline:{afterRequest:{action:'replaceDataset',sheetName:'{{job.sheetName}}',headers:'{{result.headers}}',rows:'{{result.rows}}'}}
     },
     'delivery-polygons':{
-      id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'sheet'},enabled:false,
-      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE]
+      id:'delivery-polygons',label:'Delivery Polygons Extractor',operationId:'extract-delivery-polygons',sheetName:'Delivery Polygons',output:{type:'internal'},enabled:false,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
+      pipeline:{afterRequest:{action:'replaceDataset',sheetName:'{{job.sheetName}}',headers:'{{result.headers}}',rows:'{{result.rows}}'}}
     },
     'pickup-polygons-dspace':{
       id:'pickup-polygons-dspace',label:'Pickup Polygons Extractor DSPACE',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.9',
