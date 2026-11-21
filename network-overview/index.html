@@ -241,6 +241,8 @@ tr[data-status="unknown"] .status { color: var(--muted); }
         </div>
       </div>
       <div class="actions">
+        <button id="back-state" class="button" type="button" disabled aria-label="Restore previous view">← Back</button>
+        <button id="switch-route" class="button" type="button" aria-label="Switch From and To">⇄ Switch</button>
         <button id="reset" class="button" type="button" disabled>Clear filters</button>
         <button id="theme-toggle" class="button" type="button"><span class="theme-icon" aria-hidden="true">◐</span><span id="theme-label">Dark mode</span></button>
       </div>
@@ -436,6 +438,9 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   let selectedRoute = null;
   let networkScrollBeforeSelection = 0;
   let capacityRange = { from: null, to: null, valid: true };
+  const viewHistory = [];
+  const maxViewHistory = 40;
+  let restoringView = false;
   const detailTables = [
     {
       prefix: "scope", label: "time distances", gid: "1506524187",
@@ -589,8 +594,82 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   }
 
   function select(field, option) {
+    pushViewState();
     setValue(field, option.name, true);
     applyFilters();
+  }
+
+  function captureViewState() {
+    return {
+      fields: fields.map(field => ({ value: field.input.value, selected: field.selected })),
+      status: statusFilter.value,
+      sort: sort ? { ...sort } : null,
+      selectedRouteId: selectedRoute?.id || 0,
+      scrollTop: selectedRoute ? networkScrollBeforeSelection : tableScroll.scrollTop,
+      capacityDates: capacityDates.map(input => input.value)
+    };
+  }
+
+  function stateSignature(snapshot) {
+    return JSON.stringify(snapshot);
+  }
+
+  function pushViewSnapshot(snapshot) {
+    if (restoringView || state !== "ready" || !snapshot) return;
+    const previous = viewHistory[viewHistory.length - 1];
+    if (!previous || stateSignature(previous) !== stateSignature(snapshot)) {
+      viewHistory.push(snapshot);
+      if (viewHistory.length > maxViewHistory) viewHistory.shift();
+    }
+    byId("back-state").disabled = viewHistory.length === 0;
+  }
+
+  function pushViewState() {
+    pushViewSnapshot(captureViewState());
+  }
+
+  function restorePreviousView() {
+    const snapshot = viewHistory.pop();
+    byId("back-state").disabled = viewHistory.length === 0;
+    if (!snapshot) return;
+    restoringView = true;
+    try {
+      snapshot.fields.forEach((saved, index) => {
+        const field = fields[index];
+        setValue(field, saved.value || "", false);
+        field.selected = saved.selected ?? null;
+        syncInput(field);
+      });
+      statusFilter.value = snapshot.status || "";
+      sort = snapshot.sort ? { ...snapshot.sort } : null;
+      selectedRoute = snapshot.selectedRouteId ? rows.find(row => row.id === snapshot.selectedRouteId) || null : null;
+      snapshot.capacityDates.forEach((value, index) => { capacityDates[index].value = value || ""; });
+      updateCapacityRange();
+      sortRows();
+      networkScrollBeforeSelection = Number(snapshot.scrollTop) || 0;
+      updateDetails();
+      requestAnimationFrame(() => {
+        tableScroll.scrollTop = selectedRoute ? 0 : networkScrollBeforeSelection;
+      });
+    } finally {
+      restoringView = false;
+    }
+  }
+
+  function switchRouteEndpoints() {
+    pushViewState();
+    const from = fields[0], to = fields[1];
+    const fromState = { value: from.input.value, selected: from.selected };
+    const toState = { value: to.input.value, selected: to.selected };
+    setValue(from, toState.value, false);
+    from.selected = toState.selected;
+    syncInput(from);
+    setValue(to, fromState.value, false);
+    to.selected = fromState.selected;
+    syncInput(to);
+    selectedRoute = null;
+    applyFilters();
+    updateDetails();
   }
 
   function dateKey(year, month, day, hour, minute, second) {
@@ -1124,6 +1203,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       if (item) select(field, field.options[Number(item.dataset.index)]);
     });
     field.clear.addEventListener("click", () => {
+      pushViewState();
       const wasSelected = field.selected !== null;
       setValue(field, "");
       field.input.focus();
@@ -1133,6 +1213,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
 
   for (const button of sortButtons) {
     button.addEventListener("click", () => {
+      pushViewState();
       const column = Number(button.dataset.column);
       sort = { column, direction: sort?.column === column ? -sort.direction : 1 };
       sortRows();
@@ -1152,6 +1233,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     if (!row) return;
     const clickedRoute = visibleRoutes()[row.sectionRowIndex];
     const keepFocus = Boolean(event.target.closest(".row-action"));
+    pushViewState();
     if (selectedRoute === clickedRoute) {
       selectedRoute = null;
     } else {
@@ -1185,21 +1267,39 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       }
     });
   }
-  for (const input of capacityDates) input.addEventListener("input", updateCapacityRange);
+  for (const input of capacityDates) {
+    input.addEventListener("focus", () => {
+      input.dataset.previousValue = input.value;
+      input._previousViewState = captureViewState();
+    });
+    input.addEventListener("change", () => {
+      if (input.dataset.previousValue !== input.value) pushViewSnapshot(input._previousViewState);
+      input.dataset.previousValue = input.value;
+      input._previousViewState = captureViewState();
+    });
+    input.addEventListener("input", updateCapacityRange);
+  }
   defaultCapacityRange();
   updateCapacityRange();
   byId("reset-sort").addEventListener("click", () => {
+    pushViewState();
     sort = null;
     sortRows();
     tableScroll.focus({ preventScroll: true });
   });
-  statusFilter.addEventListener("change", applyFilters);
+  statusFilter.addEventListener("change", () => {
+    pushViewState();
+    applyFilters();
+  });
   byId("reset").addEventListener("click", () => {
+    pushViewState();
     statusFilter.value = "";
     fields.forEach(field => setValue(field, ""));
     fields[0].input.focus();
     applyFilters();
   });
+  byId("back-state").addEventListener("click", restorePreviousView);
+  byId("switch-route").addEventListener("click", switchRouteEndpoints);
   byId("retry").addEventListener("click", () => {
     fields[0].input.focus();
     load();
