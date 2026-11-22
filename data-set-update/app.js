@@ -12,7 +12,8 @@
     'shipping-network-td':{
       id:'shipping-network-td',label:'Shipping Network TD Extractor',operationId:'shipping-network-td-extractor',sheetName:'Shipping Network TD',output:{type:'sheet'},enabled:false,minHostVersion:'13.0.21',webAppUrl:REJECTED_DATASETS_WEB_APP_URL,
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
-      pipeline:{beforeRequest:{action:'readDataset',sheetName:'Shipping Network',limit:100000},inputMappings:{shippingNetworkLookup:'state'}}
+      inputs:{shippingNetworkLookup:{headers:['__network_lookup_name','id'],rows:[],totalRows:0}},
+      pipeline:{}
     },
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
@@ -129,6 +130,31 @@
   function closeModal(id){$(id).classList.remove('open');$(id).setAttribute('aria-hidden','true')}
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
+
+  const ARCHIVE_STORAGE_KEY='digiexpress.agents.archived.v1';
+  let agentTab='active';
+  function archivedAgentIds(){try{const raw=JSON.parse(localStorage.getItem(ARCHIVE_STORAGE_KEY)||'[]');return new Set(Array.isArray(raw)?raw.map(String):[])}catch(_){return new Set()}}
+  function saveArchivedAgentIds(set){try{localStorage.setItem(ARCHIVE_STORAGE_KEY,JSON.stringify([...set]))}catch(_){}}
+  function applyAgentArchiveView(){
+    const archived=archivedAgentIds();let activeCount=0,archiveCount=0,visible=0;
+    document.querySelectorAll('.agent-card[data-job]').forEach(card=>{
+      const id=String(card.dataset.job||''),isArchived=archived.has(id);
+      if(isArchived)archiveCount++;else activeCount++;
+      const cb=card.querySelector('[data-archive-job]');if(cb)cb.checked=isArchived;
+      const show=agentTab==='archive'?isArchived:!isArchived;card.hidden=!show;if(show)visible++;
+    });
+    const a=$('agentActiveCount'),r=$('agentArchiveCount'),empty=$('agentArchiveEmpty');if(a)a.textContent=String(activeCount);if(r)r.textContent=String(archiveCount);if(empty)empty.hidden=visible>0;
+    document.querySelectorAll('[data-agent-tab]').forEach(btn=>{const on=btn.dataset.agentTab===agentTab;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',on?'true':'false')});
+  }
+  function initAgentArchiveUi(){
+    document.querySelectorAll('.agent-card[data-job]').forEach(card=>{
+      const id=String(card.dataset.job||''),actions=card.querySelector('.agent-actions');if(!id||!actions||actions.querySelector('[data-archive-job]'))return;
+      const label=document.createElement('label');label.className='agent-archive-toggle';label.title='Move this Agent to Archive';label.innerHTML=`<input type="checkbox" data-archive-job="${esc(id)}"><span>Archive</span>`;actions.prepend(label);
+      label.querySelector('input').addEventListener('change',e=>{const set=archivedAgentIds();if(e.target.checked)set.add(id);else set.delete(id);saveArchivedAgentIds(set);applyAgentArchiveView()});
+    });
+    document.querySelectorAll('[data-agent-tab]').forEach(btn=>btn.addEventListener('click',()=>{agentTab=btn.dataset.agentTab==='archive'?'archive':'active';applyAgentArchiveView()}));
+    applyAgentArchiveView();
+  }
 
   function defaultJob(id){return JSON.parse(JSON.stringify(JOBS[id]));}
   function friendlyError(raw){
@@ -285,6 +311,7 @@
       let url=sharedWebAppUrl()||JOBS[id].webAppUrl||'';
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,dspace:JOBS[id].dspace||getJob(id).dspace||null,retry:JOBS[id].retry||getJob(id).retry};
+      if(id==='shipping-network-td')job.inputs={...(job.inputs||{}),shippingNetworkLookup:JOBS[id].inputs.shippingNetworkLookup};
       if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'||id==='rejected-shipments-dspace'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
       if(id==='rejected-shipments-sync'){
         mini.textContent='Reading latest Rejected Shipments watermark…';
@@ -297,5 +324,6 @@
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
   }));
 
+  initAgentArchiveUi();
   refresh().then(()=>syncAgentDownloadButtons()).catch(()=>{}); chrome.storage?.onChanged?.addListener?.(()=>syncAgentDownloadButtons().catch(()=>{})); setInterval(()=>syncAgentDownloadButtons().catch(()=>{}),5000);setInterval(()=>{if(document.visibilityState==='visible'&&!pollTimer)refresh({quiet:true}).catch(()=>{})},30000);
 })();

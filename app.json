@@ -1,11 +1,11 @@
 {
-  "configVersion": 528,
+  "configVersion": 529,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 528",
+    "subtitle": "Planning Suite · Config 529",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 528
+    "configVersion": 529
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -255,7 +255,7 @@
         "Agents"
       ],
       "accessControl": "column",
-      "config": "operations/shipping-network-td-extractor.json?v=528",
+      "config": "operations/shipping-network-td-extractor.json?v=529",
       "enabled": true,
       "category": "agents",
       "runLabel": "Run Extraction",
@@ -274,7 +274,7 @@
       "accessHeaders": [
         "Agents"
       ],
-      "config": "operations/data-set-update.json?v=447",
+      "config": "operations/data-set-update.json?v=529",
       "iconSvgPath": "M24 4a6 6 0 0 1 6 6v2h2a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V18a6 6 0 0 1 6-6h2v-2a6 6 0 0 1 6-6Zm0 4a2 2 0 0 0-2 2v2h4v-2a2 2 0 0 0-2-2Zm-8 10a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V20a2 2 0 0 0-2-2H16Zm4 4a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm8 0a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM19 30h10v4H19v-4ZM6 20H2v10h4V20Zm40 0h-4v10h4V20Z",
       "description": "Run and schedule operational agents from one place.",
       "runLabel": "Agents",
@@ -345,7 +345,7 @@
       "accessHeaders": [
         "Drop Close Capacity"
       ],
-      "config": "operations/drop-close-capacity.json?v=481",
+      "config": "operations/drop-close-capacity.json?v=529",
       "iconImage": "icons/apps/drop-close-capacity.webp?v=481",
       "iconSvgPath": "M8 8h32v32H8z M14 14h20v4H18v8h-4V14Zm15 10 3 3 3-3 3 3-3 3 3 3-3 3-3-3-3 3-3-3 3-3-3-3 3-3 3 3Z",
       "description": "Close Drop Shipping capacity rows from manual input or Excel with pause, resume and CSV reporting.",
@@ -517,7 +517,7 @@
         "Charging Items"
       ],
       "accessControl": "column",
-      "config": "operations/charging-items.json?v=396",
+      "config": "operations/charging-items.json?v=529",
       "description": "Paste request text from PM, extract item code/name/quantity, and compare each item with ROP + EOQ from the ChargingItems sheet.",
       "runLabel": "Open Charging Items",
       "uiMode": "form",
@@ -861,7 +861,7 @@
       "accessHeaders": [
         "Coverage Polygons"
       ],
-      "config": "operations/coverage-polygons.json?v=378",
+      "config": "operations/coverage-polygons.json?v=529",
       "iconSvgPath": "M6 10 18 4l12 6 12-6v34l-12 6-12-6-12 6V10Zm14 0v24l8 4V14l-8-4Zm12 4v24l6-3V11l-6 3ZM10 13v24l6-3V10l-6 3Z",
       "description": "Explore the built-in coverage polygon dataset, filter polygons, and check coordinates on the map.",
       "runLabel": "Coverage Polygons",
@@ -891,7 +891,7 @@
       "accessHeaders": [
         "Hub Coverage Polygons"
       ],
-      "config": "operations/hub-coverage-polygons.json?v=478",
+      "config": "operations/hub-coverage-polygons.json?v=529",
       "iconSvgPath": "M6 10 18 4l12 6 12-6v34l-12 6-12-6-12 6V10Zm14 0v24l8 4V14l-8-4Zm12 4v24l6-3V11l-6 3ZM10 13v24l6-3V10l-6 3Z",
       "description": "Hub and DC delivery polygons loaded only from a workbook uploaded inside the program (Capacity, FlexHubMapper, Polygons).",
       "runLabel": "Hub Coverage Polygons",

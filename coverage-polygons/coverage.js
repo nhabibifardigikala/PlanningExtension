@@ -2,6 +2,7 @@ const DATASETS={
   delivery:{label:'Delivery',url:'sheet:Delivery Polygons'},
   pickup:{label:'Pickup',url:'sheet:Pick-up Polygons'}
 };
+const PICKUP_STATUS_SOURCE={spreadsheetId:'1Lmi-6SgJdC2O91KDeqrobPHq_jIKvdDSlZ3_NLgFVJg',sheetName:'Pickup Capacity'};
 let currentService='delivery';
 let rows=[],shown=[],pointHits=[],searchedPoint=null,sortKey='name',sortDir=1;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -64,13 +65,32 @@ function armMapVisibilityRefresh(){
   [0,100,300,700,1400,2500].forEach(ms=>setTimeout(()=>refreshMapSize(ms>=300),ms));
 }
 
+function statusKey(v){return String(v??'').replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200d\u200e\u200f\u202a-\u202e]/g,' ').replace(/\s+/g,' ').trim().toLowerCase()}
+function headerIndex(headers,names){const h=(headers||[]).map(statusKey);for(const name of names){const key=statusKey(name),i=h.indexOf(key);if(i>=0)return i}return -1}
+async function markInactivePickupPolygons(list){
+  const legend=document.getElementById('inactivePickupLegend');if(legend)legend.style.display='none';
+  if(currentService!=='pickup'||!Array.isArray(list)||!list.length)return {count:0,error:''};
+  if(!globalThis.DigiExpressPlatform?.call)return {count:0,error:'Stable Host Sheets bridge is unavailable.'};
+  try{
+    const table=await DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:PICKUP_STATUS_SOURCE.spreadsheetId,sheetName:PICKUP_STATUS_SOURCE.sheetName,limit:100000});
+    const headers=table?.headers||[],data=table?.rows||[];
+    const activeI=headerIndex(headers,['Active']),idI=headerIndex(headers,['Coverage Polygon ID','Coverage Polygon Id','Polygon ID']),nameI=headerIndex(headers,['Coverage Polygon','Coverage Polygon Name','Polygon']),dateI=headerIndex(headers,['Creation Date','Created At','Date']);
+    if(activeI<0||(idI<0&&nameI<0))throw new Error(`Pickup Capacity status columns were not found. Headers: ${headers.join(' | ')}`);
+    const latestById=new Map(),latestByName=new Map();
+    const dateRank=v=>{const digits=String(v??'').replace(/\D/g,'');return digits?Number(digits):0};
+    const remember=(map,key,state,rank,rowIndex)=>{if(!key)return;const prev=map.get(key);if(!prev||rank>prev.rank||(rank===prev.rank&&rowIndex>prev.rowIndex))map.set(key,{inactive:state,rank,rowIndex})};
+    data.forEach((row,rowIndex)=>{const active=statusKey(row?.[activeI]),inactive=active==='0'||active==='false'||active==='no'||active==='inactive';const id=idI>=0?String(row?.[idI]??'').trim():'';const name=nameI>=0?statusKey(row?.[nameI]):'';const rank=dateI>=0?dateRank(row?.[dateI]):0;remember(latestById,id,inactive,rank,rowIndex);remember(latestByName,name,inactive,rank,rowIndex)});
+    let count=0;for(const r of list){const ids=[r?.stateId,r?.dcId].map(v=>String(v??'').trim()).filter(Boolean);let inactive=false;for(const id of ids){const status=latestById.get(id);if(status){inactive=!!status.inactive;break}}if(!ids.some(id=>latestById.has(id))){const status=latestByName.get(statusKey(r?.name));inactive=!!status?.inactive}r.inactivePickup=inactive;if(inactive)count++}
+    if(legend)legend.style.display=count?'':'none';return {count,error:''};
+  }catch(error){for(const r of list)r.inactivePickup=false;return {count:0,error:String(error?.message||error)}}
+}
 function natureLabel(n){return ({1:'Normal',2:'Medium',3:'Large',4:'Barbari',5:'Business',6:'Fast',7:'SuperMarket',8:'Post'})[Number(n)]||String(n??'-')}
 function polyColor(n){return ({1:'#1976d2',2:'#16a34a',3:'#7c3aed',4:'#2563eb',5:'#d946ef',6:'#0891b2',7:'#0f766e'})[Number(n)]||'#64748b'}
 function cleanSubmit(v){return String(v||'').replace(/^EXPRESS\s+/i,'').trim()||'-'}
 function makeFilter(host, values, cls){host.innerHTML=values.map(v=>`<label class="filter-chip"><input type="checkbox" class="${cls}" value="${esc(v)}"><span>${esc(v)}</span></label>`).join('');host.querySelectorAll('input').forEach(x=>x.addEventListener('change',applyFilters))}
 function selected(cls){return [...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
 function pass(r){const ts=selected('f-type'),ds=selected('f-district');if(!ts.includes(natureLabel(r.natureId)))return false;if(ds.length&&!ds.some(x=>String(r.district||'').startsWith(x)))return false;return true}
-function draw(list,fit=false){polygons.clearLayers();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!Array.isArray(part)||part.length<3)return;const poly=L.polygon(part,{color:polyColor(r.natureId),weight:2,fillOpacity:.22}).addTo(polygons);poly.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId||r.stateId||'-')}<br>IATA: ${esc(r.iata||'-')}`)}));if(searchedPoint)L.marker(searchedPoint).addTo(points);if(fit){const b=polygons.getBounds();if(b.isValid()){lastFitBounds=b;map.invalidateSize({pan:false,animate:false});map.fitBounds(b,{padding:[12,12],animate:false});setTimeout(()=>refreshMapSize(true),120)}}}
+function draw(list,fit=false){polygons.clearLayers();list.forEach(r=>(r.coordinates||[]).forEach(part=>{if(!Array.isArray(part)||part.length<3)return;const poly=L.polygon(part,{color:(currentService==='pickup'&&r.inactivePickup)?'#dc2626':polyColor(r.natureId),weight:(currentService==='pickup'&&r.inactivePickup)?3:2,fillOpacity:(currentService==='pickup'&&r.inactivePickup)?.28:.22}).addTo(polygons);poly.bindPopup(`<b>${esc(r.name)}</b><br>ID: ${esc(r.dcId||r.stateId||'-')}<br>IATA: ${esc(r.iata||'-')}`)}));if(searchedPoint)L.marker(searchedPoint).addTo(points);if(fit){const b=polygons.getBounds();if(b.isValid()){lastFitBounds=b;map.invalidateSize({pan:false,animate:false});map.fitBounds(b,{padding:[12,12],animate:false});setTimeout(()=>refreshMapSize(true),120)}}}
 function csvEscape(v){const s=String(v??'');return /[",\r\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
 function fmtCoord(n){const x=Number(n);if(!Number.isFinite(x))return'';return String(Number(x.toFixed(10)))}
 function ringToWkt(ring){const pts=(ring||[]).filter(p=>Array.isArray(p)&&p.length>=2&&Number.isFinite(Number(p[0]))&&Number.isFinite(Number(p[1]))).map(p=>[Number(p[0]),Number(p[1])]);if(pts.length<3)return'';const first=pts[0],last=pts[pts.length-1];if(first[0]!==last[0]||first[1]!==last[1])pts.push([...first]);return pts.map(([lat,lon])=>`${fmtCoord(lon)} ${fmtCoord(lat)}`).join(', ')}
@@ -92,6 +112,7 @@ async function loadDataset(service,{fit=true}={}){
   try{
     const dataset=await DXPolygonLoader.load(cfg.url);
     rows=normalizePickupIds(dataset.rows||[]);
+    const inactiveStatus=await markInactivePickupPolygons(rows);
     shown=[...rows];pointHits=[];searchedPoint=null;points.clearLayers();
     const district=[...new Set(rows.map(r=>String(r.district||'').split('(')[0].trim()).filter(Boolean))].sort();
     const typeValues=[...new Set(rows.map(r=>natureLabel(r.natureId)).filter(Boolean))].sort((a,b)=>Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6,SuperMarket:7,Post:8})[a]||99)-Number(({Normal:1,Medium:2,Large:3,Barbari:4,Business:5,Fast:6,SuperMarket:7,Post:8})[b]||99));
@@ -99,8 +120,8 @@ async function loadDataset(service,{fit=true}={}){
     makeFilter($('#districtFilters'),district,'f-district');
     $('#search').value='';$('#latlon').value='';$('#pointStatus').textContent='';
     shown=rows.filter(pass);draw(shown,fit);render();
-    $('#datasetStatus').textContent=`${cfg.label}: ${rows.length} polygons loaded.`;
-    $('#datasetStatus').className='status ok';
+    $('#datasetStatus').textContent=`${cfg.label}: ${rows.length} polygons loaded.${currentService==='pickup'&&inactiveStatus.count?` ${inactiveStatus.count} inactive polygon(s) marked red.`:''}${currentService==='pickup'&&inactiveStatus.error?` Inactive status unavailable: ${inactiveStatus.error}`:''}`;
+    $('#datasetStatus').className='status '+(currentService==='pickup'&&inactiveStatus.error?'error':'ok');
   }catch(e){
     rows=[];shown=[];polygons.clearLayers();render();
     $('#datasetStatus').textContent=e.message||String(e);

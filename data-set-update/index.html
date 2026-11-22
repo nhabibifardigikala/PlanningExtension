@@ -10,6 +10,10 @@
 <style id="dx-remote-global-font-v367">
 html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium","Gilroy","Yekan Bakh FaNum","Yekan Bakh",Tahoma,"Segoe UI",Arial,sans-serif!important}
 </style>
+
+<style id="agents-archive-v529">
+.agent-tabs{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:5px;border:1px solid var(--dx-line,#dfe6f0);border-radius:12px;background:var(--dx-surface,#fff);width:max-content;max-width:100%}.agent-tab{border:0;background:transparent;color:var(--dx-muted,#6b778d);padding:8px 13px;border-radius:9px;font:inherit;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:7px}.agent-tab.active{background:var(--dx-primary,#3557ff);color:#fff}.agent-tab-count{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;background:color-mix(in srgb,currentColor 12%,transparent);font-size:10px}.agent-archive-toggle{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;font-weight:800;color:var(--dx-muted,#6b778d);white-space:nowrap;margin-inline-end:2px}.agent-archive-toggle input{width:14px;height:14px;accent-color:var(--dx-primary,#3557ff);cursor:pointer}.agent-card[hidden]{display:none!important}.agent-archive-empty{padding:28px 18px;text-align:center;border:1px dashed var(--dx-line,#dfe6f0);border-radius:14px;color:var(--dx-muted,#6b778d);background:var(--dx-surface,#fff)}
+</style>
 </head>
 <body>
   <main class="page">
@@ -23,6 +27,8 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
       </button>
     </header>
 
+    <div class="agent-tabs" role="tablist" aria-label="Agent lists"><button class="agent-tab active" type="button" data-agent-tab="active" role="tab" aria-selected="true">Active <span id="agentActiveCount" class="agent-tab-count">0</span></button><button class="agent-tab" type="button" data-agent-tab="archive" role="tab" aria-selected="false">Archive <span id="agentArchiveCount" class="agent-tab-count">0</span></button></div>
+    <div id="agentArchiveEmpty" class="agent-archive-empty" hidden>No Agents in this tab.</div>
     <section class="agent-dashboard" aria-label="Agents dashboard">
       <article class="agent-card" data-job="shipping-network-td">
         <div class="agent-card-top">
@@ -256,7 +262,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
   </div>
   <script src="../ui/platform-client.js?v=447"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=528"></script>
+  <script src="app.js?v=529"></script>
 <script src="../ui/theme-bridge.js?v=447"></script><script src="../ui/table-component.js?v=509"></script>
 </body>
 </html>
