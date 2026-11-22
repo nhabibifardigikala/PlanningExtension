@@ -1,11 +1,11 @@
 {
-  "configVersion": 526,
+  "configVersion": 527,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 526",
+    "subtitle": "Planning Suite · Config 527",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 526
+    "configVersion": 527
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -466,7 +466,7 @@
       "subtitle": "Shipping network overview",
       "accessControl": "column",
       "description": "Open the Shipping Network overview dashboard with route switch and view history.",
-      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/network-overview/index.html?v=524",
+      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/network-overview/index.html?v=527",
       "category": "network",
       "output": {
         "type": "none"

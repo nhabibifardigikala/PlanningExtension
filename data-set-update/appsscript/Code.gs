@@ -149,9 +149,17 @@ function readDataset_(body){
   let rows=take?sheet.getRange(startRow,1,take,lastCol).getDisplayValues():[];
   if(sheetName==='Shipping Network'){
     const normalized=headers.map(h=>String(h||'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' '));
+    const idIndex=normalized.indexOf('id');
     const fromIndex=normalized.indexOf('from shipping point'),toIndex=normalized.indexOf('to shipping point');
-    if(fromIndex<0||toIndex<0)throw new Error('Shipping Network lookup columns were not found.');
-    rows=rows.map(row=>[...row,[row[fromIndex],row[toIndex]].map(v=>String(v||'').trim()).filter(Boolean).join(' - ')]);
+    if(idIndex<0)throw new Error('Shipping Network lookup id column was not found.');
+    if(fromIndex>=0&&toIndex>=0){
+      rows=rows.map(row=>[...row,[row[fromIndex],row[toIndex]].map(v=>String(v||'').trim()).filter(Boolean).join(' - ')]);
+    }else{
+      // New Shipping Network schema stores endpoint IDs rather than endpoint titles.
+      // Use the network id itself as the lookup key. TD rows that expose a route title
+      // will safely fall back to the read-only Details resolver in Stable Host.
+      rows=rows.map(row=>[...row,String(row[idIndex]??'').trim()]);
+    }
     headers.push('__network_lookup_name');
   }
   return json_({ok:true,spreadsheetId:SPREADSHEET_ID,sheetName,headers,rows,totalRows,updatedAt:new Date().toISOString()});
