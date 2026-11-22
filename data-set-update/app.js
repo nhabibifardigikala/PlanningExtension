@@ -6,7 +6,7 @@
   const ORIGIN=location.origin;
   const REJECTED_DATASETS_SPREADSHEET_ID='1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const REJECTED_DATASETS_SHEET='Rejected Shipments';
-  const REJECTED_DATASETS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbyEJOsDh6uIsypeg0DxQKRffFguskutZ05aP7o44jygV7ZAlCrVUkX2eA3__WYmc0WNGg/exec';
+  const REJECTED_DATASETS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbxrsZ8HRgA8Fo0nf4m0Tih6yrWCMMev1i3EAQ_7bSzdrnJ-yugYyFqQYjuTASxl2b9-qA/exec';
   const AGENTS_ACCESS_GATE={operationId:'agents-access-gate',inputs:{}};
   const JOBS={
     'shipping-network-td':{
@@ -26,7 +26,7 @@
       dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheets:[{sheetName:'Distribution Centers (LG)',operationId:'extract-dc'}]}
     },
     'pickup-polygons':{
-      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'internal'},enabled:false,
+      id:'pickup-polygons',label:'Pickup Polygons Extractor',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'internal'},enabled:false,minHostVersion:'13.0.22',
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
       pipeline:{afterRequest:{action:'replaceDataset',sheetName:'{{job.sheetName}}',headers:'{{result.headers}}',rows:'{{result.rows}}'}}
     },
@@ -36,7 +36,7 @@
       pipeline:{afterRequest:{action:'replaceDataset',sheetName:'{{job.sheetName}}',headers:'{{result.headers}}',rows:'{{result.rows}}'}}
     },
     'pickup-polygons-dspace':{
-      id:'pickup-polygons-dspace',label:'Pickup Polygons Extractor DSPACE',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.9',
+      id:'pickup-polygons-dspace',label:'Pickup Polygons Extractor DSPACE',operationId:'extract-pickup-polygons',sheetName:'Pick-up Polygons',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.22',
       schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],
       dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheets:[{sheetName:'Pick-up Polygons',operationId:'extract-pickup-polygons',transform:'pickup-polygons'}]}
     },
@@ -281,7 +281,7 @@
     try{
       await assertAgentsAccess();
       await assertJobHostCompatibility(JOBS[id]);
-      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=(id==='distribution-centers'||id==='distribution-centers-dspace')?'Assigning 100 DCs…':(id==='pickup-polygons'||id==='pickup-polygons-dspace'?'Opening Flex Coverage Polygons…':(id==='delivery-polygons'||id==='delivery-polygons-dspace'?'Opening Admin DC Polygons…':((id==='rejected-shipments-sync'||id==='rejected-shipments-dspace')?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
+      run.classList.add('running');run.classList.add('cancel-mode');setRunButtonVisual(run,true,JOBS[id].label);mini.textContent=(id==='distribution-centers'||id==='distribution-centers-dspace')?'Assigning 100 DCs…':(id==='pickup-polygons'||id==='pickup-polygons-dspace'?'Opening Drop Shipping Pickup Polygons…':(id==='delivery-polygons'||id==='delivery-polygons-dspace'?'Opening Admin DC Polygons…':((id==='rejected-shipments-sync'||id==='rejected-shipments-dspace')?'Synchronizing rejected shipments…':'Synchronizing IATA codes…')));mini.className='dataset-mini-status busy';
       let url=sharedWebAppUrl()||JOBS[id].webAppUrl||'';
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,dspace:JOBS[id].dspace||getJob(id).dspace||null,retry:JOBS[id].retry||getJob(id).retry};

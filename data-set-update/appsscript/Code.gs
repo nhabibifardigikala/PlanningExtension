@@ -1,4 +1,4 @@
-const DIGIEXPRESS_DATASETS_API_VERSION = '377-core-v1';
+const DIGIEXPRESS_DATASETS_API_VERSION = '528-shipping-network-schema-v1';
 const SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
 const ALLOWED_SHEETS = new Set(['Distribution Centers (LG)', 'Pick-up Polygons', 'Delivery Polygons', 'Rejected Shipments', 'Shipping Network TD']);
 const READABLE_SHEETS = new Set([...ALLOWED_SHEETS, 'Shipping Network']);
