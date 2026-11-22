@@ -2,13 +2,13 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract Pick-up Coverage Polygon data from Flex for Agents.",
+  "description": "Extract Pick-up Coverage Polygon data from Flex as the primary dataset, then append Drop ID by matching Drop Shipping ID to Flex Title.",
   "navigation": {
     "retryCount": 8,
     "retryDelayMs": 500,
     "completeTimeoutMs": 60000
   },
-  "successMessage": "Pick-up Polygon extraction completed. {{rowCount}} rows are ready.",
+  "successMessage": "Pick-up Polygon extraction completed. {{rowCount}} Flex rows are ready with Drop ID enrichment.",
   "workflow": [
     {
       "action": "open",
@@ -90,7 +90,157 @@
       },
       "pageProgress": "Extracting Pick-up Polygon page {{page}}…",
       "progress": "Extracting Pick-up Polygons…",
-      "error": "No Pick-up Polygon rows were found."
+      "error": "No Pick-up Polygon rows were found.",
+      "storeAs": "pickupFlex",
+      "makeCurrent": false
+    },
+    {
+      "action": "navigate",
+      "url": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/?per_page=1000",
+      "progress": "Opening Drop Shipping lookup…",
+      "completeTimeoutMs": 60000
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking Drop Shipping authentication…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "input.uk-select.es-input[placeholder=\"Shipping Size\"]",
+      "timeoutMs": 20000,
+      "intervalMs": 250,
+      "progress": "Waiting for Shipping Size filter…",
+      "error": "Shipping Size filter was not found in Drop Shipping."
+    },
+    {
+      "action": "extractSearchVariants",
+      "storeAs": "dropNormal",
+      "makeCurrent": false,
+      "values": [
+        1,
+        2,
+        3
+      ],
+      "valueColumn": "Shipping Size",
+      "resetUrl": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/?per_page=1000",
+      "afterResetMs": 1200,
+      "waitForSelector": "input.uk-select.es-input[placeholder=\"Shipping Size\"]",
+      "waitTimeoutMs": 20000,
+      "searchSelector": "input.uk-select.es-input[placeholder=\"Shipping Size\"]",
+      "searchMode": "autocomplete",
+      "searchOptions": {
+        "typingDelayMs": 120,
+        "autocompleteWaitMs": 1200,
+        "pressEnter": true,
+        "commitWaitMs": 900,
+        "outsideWaitMs": 300
+      },
+      "afterSearchInputMs": 800,
+      "searchButtonSelector": "button.uk-button.uk-button-primary[type=\"submit\"]",
+      "searchButtonText": "search",
+      "searchButtonRequired": false,
+      "afterSearchMs": 1800,
+      "resultsSelector": "#tableForm tbody tr, table tbody tr",
+      "resultsTimeoutMs": 30000,
+      "valueProgress": "Drop lookup · normal · Shipping Size {{value}}…",
+      "pageProgress": "Drop lookup · normal · Size {{value}} · page {{page}}…",
+      "pagination": {
+        "nextSelector": "a[aria-label=\"Next page\"]",
+        "timeoutMs": 30000,
+        "stableMs": 1600,
+        "pollMs": 450,
+        "afterPageMs": 900,
+        "dedupe": false,
+        "maxPages": 1000,
+        "ignoreLastActionColumn": true,
+        "parser": {
+          "tableSelector": "table"
+        }
+      },
+      "progress": "Extracting Drop lookup in normal order…"
+    },
+    {
+      "action": "extractSearchVariants",
+      "storeAs": "dropIdDesc",
+      "makeCurrent": false,
+      "values": [
+        1,
+        2,
+        3
+      ],
+      "valueColumn": "Shipping Size",
+      "resetUrl": "https://drop-shipping.digikala.com/shipping-point-coverage-polygons/?per_page=1000&order=1&order_by=id&order_type=DESC",
+      "afterResetMs": 1200,
+      "waitForSelector": "input.uk-select.es-input[placeholder=\"Shipping Size\"]",
+      "waitTimeoutMs": 20000,
+      "searchSelector": "input.uk-select.es-input[placeholder=\"Shipping Size\"]",
+      "searchMode": "autocomplete",
+      "searchOptions": {
+        "typingDelayMs": 120,
+        "autocompleteWaitMs": 1200,
+        "pressEnter": true,
+        "commitWaitMs": 900,
+        "outsideWaitMs": 300
+      },
+      "afterSearchInputMs": 800,
+      "searchButtonSelector": "button.uk-button.uk-button-primary[type=\"submit\"]",
+      "searchButtonText": "search",
+      "searchButtonRequired": false,
+      "afterSearchMs": 1800,
+      "resultsSelector": "#tableForm tbody tr, table tbody tr",
+      "resultsTimeoutMs": 30000,
+      "valueProgress": "Drop lookup · ID DESC · Shipping Size {{value}}…",
+      "pageProgress": "Drop lookup · ID DESC · Size {{value}} · page {{page}}…",
+      "pagination": {
+        "nextSelector": "a[aria-label=\"Next page\"]",
+        "timeoutMs": 30000,
+        "stableMs": 1600,
+        "pollMs": 450,
+        "afterPageMs": 900,
+        "dedupe": false,
+        "maxPages": 1000,
+        "ignoreLastActionColumn": true,
+        "parser": {
+          "tableSelector": "table"
+        }
+      },
+      "progress": "Extracting Drop lookup sorted by ID DESC…"
+    },
+    {
+      "action": "mergeDatasets",
+      "sources": [
+        "dropNormal",
+        "dropIdDesc"
+      ],
+      "storeAs": "dropLookup",
+      "makeCurrent": false,
+      "dedupeBy": [
+        "id"
+      ],
+      "fallbackDedupe": "row",
+      "progress": "Combining Drop lookup passes…",
+      "error": "Drop Shipping lookup passes could not be combined."
+    },
+    {
+      "action": "joinLookupColumn",
+      "masterDataset": "pickupFlex",
+      "lookupDataset": "dropLookup",
+      "storeAs": "pickupEnriched",
+      "makeCurrent": true,
+      "masterKeyAliases": [
+        "Title"
+      ],
+      "lookupKeyAliases": [
+        "Title"
+      ],
+      "lookupValueAliases": [
+        "id"
+      ],
+      "outputHeader": "Drop ID",
+      "conflictPolicy": "highestNumeric",
+      "progress": "Matching Drop IDs to Flex rows by Title…",
+      "resultMessage": "Drop ID matched for {{lookupMatchedCount}} of {{lookupMasterCount}} Flex rows."
     },
     {
       "action": "closeTab",
@@ -101,7 +251,7 @@
     "attempts": 3,
     "delayMs": 1500
   },
-  "runtimeContract": "stable-host-12",
+  "runtimeContract": "stable-host-13.0.23",
   "businessLogicOwner": "remote",
   "output": {
     "type": "internal"

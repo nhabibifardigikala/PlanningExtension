@@ -1,11 +1,11 @@
 {
-  "configVersion": 524,
+  "configVersion": 526,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 524",
+    "subtitle": "Planning Suite · Config 526",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 524
+    "configVersion": 526
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -193,9 +193,9 @@
         "Agents",
         "Data Set Update"
       ],
-      "config": "operations/extract-pickup-polygons.json?v=378",
+      "config": "operations/extract-pickup-polygons.json?v=526",
       "enabled": false,
-      "description": "Internal extractor used by Agents for Pickup Polygons.",
+      "description": "Extract Pickup Polygons from Flex (primary source), then append Drop ID by matching Drop Shipping ID to Title.",
       "runLabel": "Run Extraction",
       "uiMode": "form",
       "inputs": [],
@@ -203,7 +203,8 @@
       "category": "agents",
       "output": {
         "type": "internal"
-      }
+      },
+      "minHostVersion": "13.0.23"
     },
     {
       "id": "extract-delivery-polygons",
@@ -1136,5 +1137,5 @@
     "advancedSettings": true,
     "outputContracts": true
   },
-  "recommendedHostVersion": "13.0.2"
+  "recommendedHostVersion": "13.0.22"
 }
