@@ -146,6 +146,8 @@ table { width: 100%; border-collapse: separate; border-spacing: 0; direction: lt
 .col-class { width: 12%; }
 .col-active { width: 10%; }
 .col-size { width: 6%; }
+.col-lg-id { width: 86px; min-width: 86px; }
+.network td:last-child { width: 86px; min-width: 86px; white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; }
 .secondary table { min-width: 490px; }
 #time-scopes-panel table { min-width: 760px; }
 thead th { height: var(--header-height); color: var(--header-ink); background: var(--header); font: 500 13px var(--en); white-space: nowrap; }
@@ -333,7 +335,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
               <th scope="col"><button class="sort-button" type="button" data-column="4"><span>Active</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
               <th scope="col"><button class="sort-button" type="button" data-column="5"><span>Shipping Service</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
               <th scope="col"><button class="sort-button" type="button" data-column="6"><span>Size</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
-              <th scope="col">LG ID</th>
+              <th scope="col" class="col-lg-id">LG ID</th>
             </tr>
           </thead>
           <tbody id="results"></tbody>
@@ -1010,23 +1012,20 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     return capacityDay(String(value || "").replace(/\s+\d{1,2}:\d{2}(?::\d{2})?$/, ""));
   }
 
-  function buildLgLookup(pickupRows, dcRows) {
-    const dcByName = new Map();
+  function buildLgLookup(dcRows) {
+    const exact = new Map();
+    const remember = (key, id) => {
+      if (!key || !id) return;
+      if (!exact.has(key)) exact.set(key, id);
+      else if (exact.get(key) !== id) exact.set(key, null);
+    };
     for (const row of dcRows) {
       const id = Number(cellText(row, 0));
-      const name = routeName(cellText(row, 1));
-      if (!id || !name) continue;
-      if (!dcByName.has(name)) dcByName.set(name, id);
-      else if (dcByName.get(name) !== id) dcByName.set(name, null);
+      if (!id) continue;
+      remember(polygonKey(cellText(row, 1)), id); // name
+      remember(polygonKey(cellText(row, 2)), id); // iata
     }
-    const map = new Map();
-    for (const row of pickupRows) {
-      const title = polygonKey(cellText(row, 0));
-      const hubName = routeName(cellText(row, 1));
-      const lgId = dcByName.get(hubName);
-      if (title && lgId) map.set(title, lgId);
-    }
-    return map;
+    return exact;
   }
 
   function lgReserveKey(dateValue, timeScopeValue) {
@@ -1226,12 +1225,11 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     state = "loading";
     renderResults();
     try {
-      const [source, pickupRows, dcRows] = await Promise.all([
+      const [source, dcRows] = await Promise.all([
         readSheet(gid, columnIds, "B is not null or C is not null"),
-        readSheet(pickupPolygonGid, ["B", "E"], "B is not null"),
-        readSheet(distributionCentersGid, ["A", "B"], "B is not null")
+        readSheet(distributionCentersGid, ["A", "B", "D"], "B is not null or D is not null")
       ]);
-      polygonToLgId = buildLgLookup(pickupRows, dcRows);
+      polygonToLgId = buildLgLookup(dcRows);
       const clocks = tehranClocks(new Date());
       rows = source.map(row => {
         const values = columnIds.map((_, index) => cellText(row, index));
