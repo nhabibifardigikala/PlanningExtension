@@ -146,7 +146,7 @@ table { width: 100%; border-collapse: separate; border-spacing: 0; direction: lt
 .col-class { width: 12%; }
 .col-active { width: 10%; }
 .col-size { width: 6%; }
-.col-lg-id { width: 86px; min-width: 86px; }
+.col-lg-id { width: 86px; min-width: 86px; text-align: center; }
 .network td:last-child { width: 86px; min-width: 86px; white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; }
 .secondary table { min-width: 490px; }
 #time-scopes-panel table { min-width: 760px; }
@@ -476,7 +476,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   });
   const hubSource = dataSource({
     label: "Hub time slots", gid: "1715952535",
-    columns: ["A", "B", "C", "D", "G"], condition: "B is not null and C is not null",
+    columns: ["A", "B", "C", "D", "E"], condition: "B is not null and C is not null",
     record: row => timeSlotRecord(row, true)
   });
 
