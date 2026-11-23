@@ -184,6 +184,9 @@ tr[data-status="unknown"] .status { color: var(--muted); }
 .scope-route { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 7px; min-width: 0; color: var(--muted); font-size: 13px; }
 .scope-route bdi { overflow-wrap: anywhere; }
 #scope-results td, #capacity-results td { padding-inline: 12px; }
+#scope-results tr { cursor: pointer; }
+#scope-results tr[data-selected="true"] { background: var(--selected-row, rgba(30, 136, 229, .10)); }
+#scope-results tr[data-selected="true"] td:first-child { box-shadow: inset 3px 0 0 var(--accent, #1976d2); }
 .capacity-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; min-width: 0; }
 .date-field { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .date-field label { margin: 0; font-size: 12px; white-space: nowrap; }
@@ -319,7 +322,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       </header>
       <div id="network-scroll" class="table-scroll" tabindex="0" role="region" aria-labelledby="network-title">
         <table lang="en">
-          <colgroup><col class="col-id"><col class="col-from"><col class="col-to"><col class="col-polygon"><col class="col-class"><col class="col-active"><col class="col-service"><col class="col-size"></colgroup>
+          <colgroup><col class="col-id"><col class="col-from"><col class="col-to"><col class="col-polygon"><col class="col-class"><col class="col-active"><col class="col-service"><col class="col-size"><col class="col-lg-id"></colgroup>
           <thead>
             <tr>
               <th scope="col"><button class="sort-button" type="button" data-column="-1"><span>ID</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
@@ -330,6 +333,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
               <th scope="col"><button class="sort-button" type="button" data-column="4"><span>Active</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
               <th scope="col"><button class="sort-button" type="button" data-column="5"><span>Shipping Service</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
               <th scope="col"><button class="sort-button" type="button" data-column="6"><span>Size</span><span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              <th scope="col">LG ID</th>
             </tr>
           </thead>
           <tbody id="results"></tbody>
@@ -376,7 +380,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       <p id="capacity-date-error" class="date-error" role="status"></p>
       <div class="table-scroll" tabindex="0" role="region" aria-labelledby="capacity-title">
         <table>
-          <thead><tr><th scope="col">Time Scope</th><th scope="col">Date</th><th scope="col">Capacity</th><th scope="col">Reserved</th><th scope="col">Active</th><th scope="col">Close</th></tr></thead>
+          <thead><tr><th scope="col">Time Scope</th><th scope="col">Date</th><th scope="col">Capacity</th><th scope="col">Reserved</th><th scope="col">Active</th><th scope="col">Close</th><th scope="col">LG Reserve</th></tr></thead>
           <tbody id="capacity-results"></tbody>
         </table>
       </div>
@@ -393,6 +397,9 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   const sheetId = "1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k";
   const gid = "1245285167";
   const columnIds = ["B", "C", "D", "E", "M", "H", "I", "F", "G", "A"];
+  const pickupPolygonGid = "361817120";
+  const distributionCentersGid = "0";
+  const dcCapacityLgGid = "5458246";
   const number = new Intl.NumberFormat("en-US");
   const collator = new Intl.Collator("fa", { numeric: true, sensitivity: "base" });
   const statusLabels = { active: "Active", inactive: "Inactive", unknown: "Unknown" };
@@ -436,7 +443,10 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   let sort = null;
   let requestId = 0;
   let selectedRoute = null;
+  let selectedTimeScope = null;
   let networkScrollBeforeSelection = 0;
+  let polygonToLgId = new Map();
+  const lgReserveCache = new Map();
   let capacityRange = { from: null, to: null, valid: true };
   const viewHistory = [];
   const maxViewHistory = 40;
@@ -605,6 +615,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       status: statusFilter.value,
       sort: sort ? { ...sort } : null,
       selectedRouteId: selectedRoute?.id || 0,
+      selectedTimeScope,
       scrollTop: selectedRoute ? networkScrollBeforeSelection : tableScroll.scrollTop,
       capacityDates: capacityDates.map(input => input.value)
     };
@@ -643,6 +654,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       statusFilter.value = snapshot.status || "";
       sort = snapshot.sort ? { ...snapshot.sort } : null;
       selectedRoute = snapshot.selectedRouteId ? rows.find(row => row.id === snapshot.selectedRouteId) || null : null;
+      selectedTimeScope = snapshot.selectedTimeScope || null;
       snapshot.capacityDates.forEach((value, index) => { capacityDates[index].value = value || ""; });
       updateCapacityRange();
       sortRows();
@@ -668,6 +680,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     to.selected = fromState.selected;
     syncInput(to);
     selectedRoute = null;
+    selectedTimeScope = null;
     applyFilters();
     updateDetails();
   }
@@ -886,6 +899,9 @@ tr[data-status="unknown"] .status { color: var(--muted); }
           if (column === 4) cell.className = "status";
         }
       });
+      const lgCell = row.insertCell();
+      lgCell.textContent = result.lgId ? String(result.lgId) : "—";
+      lgCell.dir = "ltr";
       fragment.append(row);
     });
     resultsBody.replaceChildren(fragment);
@@ -981,6 +997,69 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     return routeName(value).replace(/\s*\(\d+\)$/, "");
   }
 
+  function timeScopeKey(value) {
+    const raw = routeName(String(value || "")).replace(/h/g, "").replace(/\s+/g, " ").trim();
+    const match = /^(\d{1,2})(?::(\d{1,2}))?\s*-\s*(\d{1,2})(?::(\d{1,2}))?$/.exec(raw);
+    if (!match) return raw;
+    const sh = Number(match[1]), sm = Number(match[2] || 0), eh = Number(match[3]), em = Number(match[4] || 0);
+    if (sh > 24 || eh > 24 || sm > 59 || em > 59) return raw;
+    return (sh * 60 + sm) + ":" + (eh * 60 + em);
+  }
+
+  function dateOnlyDay(value) {
+    return capacityDay(String(value || "").replace(/\s+\d{1,2}:\d{2}(?::\d{2})?$/, ""));
+  }
+
+  function buildLgLookup(pickupRows, dcRows) {
+    const dcByName = new Map();
+    for (const row of dcRows) {
+      const id = Number(cellText(row, 0));
+      const name = routeName(cellText(row, 1));
+      if (!id || !name) continue;
+      if (!dcByName.has(name)) dcByName.set(name, id);
+      else if (dcByName.get(name) !== id) dcByName.set(name, null);
+    }
+    const map = new Map();
+    for (const row of pickupRows) {
+      const title = polygonKey(cellText(row, 0));
+      const hubName = routeName(cellText(row, 1));
+      const lgId = dcByName.get(hubName);
+      if (title && lgId) map.set(title, lgId);
+    }
+    return map;
+  }
+
+  function lgReserveKey(dateValue, timeScopeValue) {
+    const day = dateOnlyDay(dateValue);
+    const scope = timeScopeKey(timeScopeValue);
+    return day === null || !scope ? "" : day + "|" + scope;
+  }
+
+  async function loadLgReserve(route) {
+    const lgId = Number(route?.lgId);
+    if (!lgId) return null;
+    let state = lgReserveCache.get(lgId);
+    if (state?.records || state?.loading) return state;
+    state = { records: null, loading: true, error: false };
+    lgReserveCache.set(lgId, state);
+    renderDetails(capacityDetail);
+    try {
+      const sourceRows = await readSheet(dcCapacityLgGid, ["A", "C", "D", "F"], "A = " + lgId);
+      const records = new Map();
+      for (const row of sourceRows) {
+        const key = lgReserveKey(cellText(row, 1), cellText(row, 2));
+        if (key) records.set(key, cellText(row, 3));
+      }
+      state.records = records;
+    } catch {
+      state.error = true;
+    } finally {
+      state.loading = false;
+      renderDetails(capacityDetail);
+    }
+    return state;
+  }
+
   function endpointKey(left, right) {
     return left + "\u0000" + right;
   }
@@ -1069,6 +1148,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   }
 
   function updateDetails() {
+    if (!selectedRoute) selectedTimeScope = null;
     byId("scope-route").hidden = !selectedRoute;
     for (const [index, id] of ["scope-from", "scope-to"].entries()) {
       const endpoint = byId(id);
@@ -1079,6 +1159,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     for (const panel of detailTables) {
       if (selectedRoute) {
         for (const source of panelSources(panel)) loadDetails(source, panel);
+        if (panel === capacityDetail) loadLgReserve(selectedRoute);
       }
       renderDetails(panel);
     }
@@ -1096,16 +1177,21 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       if (detail === timeScopeDetail) rows = joinScopeSlots(entries, selectedRoute);
       else if (capacityRange.valid) {
         const { from, to } = capacityRange;
-        rows = entries.filter(({ day }) => (from === null || (day !== null && day >= from)) &&
-          (to === null || (day !== null && day <= to))).map(entry => entry.values);
+        rows = entries.filter(({ day, values }) =>
+          (from === null || (day !== null && day >= from)) &&
+          (to === null || (day !== null && day <= to)) &&
+          (!selectedTimeScope || timeScopeKey(values[0]) === selectedTimeScope)
+        ).map(entry => entry.values);
       }
     }
 
     const fragment = document.createDocumentFragment();
     const capacity = detail === capacityDetail;
     const activeColumns = capacity ? [4] : [2, 4, 6];
+    const lgState = capacity && selectedRoute?.lgId ? lgReserveCache.get(Number(selectedRoute.lgId)) : null;
     for (const values of rows) {
       const row = document.createElement("tr");
+      if (!capacity && timeScopeKey(values[0]) === selectedTimeScope) row.dataset.selected = "true";
       if (capacity && values[5] === "Closed") row.dataset.alert = "closed";
       else if (values[activeColumns[0]] === statusLabels.inactive) row.dataset.alert = "inactive";
       for (const [index, value] of values.entries()) {
@@ -1114,6 +1200,12 @@ tr[data-status="unknown"] .status { color: var(--muted); }
         cell.lang = languageFor(value);
         cell.dir = "auto";
         if (activeColumns.includes(index) && value === statusLabels.inactive) cell.dataset.inactive = "";
+      }
+      if (capacity) {
+        const reserve = lgState?.records?.get(lgReserveKey(values[1], values[0])) ?? "";
+        const cell = row.insertCell();
+        cell.textContent = reserve === "" ? "—" : reserve;
+        cell.dir = "ltr";
       }
       fragment.append(row);
     }
@@ -1125,7 +1217,8 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     else if (failed.length) message = "Could not load " + failed.map(source => source.label).join(" and ") + ".";
     else if (pending.length) message = "Loading " + pending.map(source => source.label).join(" and ") + "…";
     else if (detail === capacityDetail && !capacityRange.valid) message = "Enter a valid date range to view capacity.";
-    else if (!rows.length) message = entries.length ? "No capacity records in this date range." : detail.emptyMessage;
+    else if (!rows.length) message = entries.length ? (selectedTimeScope ? "No capacity records for the selected time scope in this date range." : "No capacity records in this date range.") : detail.emptyMessage;
+    if (capacity && lgState?.error && !message) message = "LG Reserve could not be loaded; network capacity is still available.";
     byId(prefix + "-message").textContent = message;
   }
 
@@ -1133,12 +1226,19 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     state = "loading";
     renderResults();
     try {
-      const source = await readSheet(gid, columnIds, "B is not null or C is not null");
+      const [source, pickupRows, dcRows] = await Promise.all([
+        readSheet(gid, columnIds, "B is not null or C is not null"),
+        readSheet(pickupPolygonGid, ["B", "E"], "B is not null"),
+        readSheet(distributionCentersGid, ["A", "B"], "B is not null")
+      ]);
+      polygonToLgId = buildLgLookup(pickupRows, dcRows);
       const clocks = tehranClocks(new Date());
       rows = source.map(row => {
         const values = columnIds.map((_, index) => cellText(row, index));
         const id = Number(row.c?.[9]?.v) || 0;
-        return { id, cells: values.slice(0, 7), status: activity(values[4], values[7], values[8], clocks) };
+        const cells = values.slice(0, 7);
+        const lgId = polygonToLgId.get(polygonKey(cells[2])) || null;
+        return { id, cells, lgId, status: activity(values[4], values[7], values[8], clocks) };
       }).filter(row => row.cells[0] || row.cells[1]);
       for (const field of fields) {
         const names = new Set(rows.map(row => row.cells[field.column]).filter(Boolean));
@@ -1236,9 +1336,11 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     pushViewState();
     if (selectedRoute === clickedRoute) {
       selectedRoute = null;
+      selectedTimeScope = null;
     } else {
       networkScrollBeforeSelection = tableScroll.scrollTop;
       selectedRoute = clickedRoute;
+      selectedTimeScope = null;
     }
     renderResults();
     tableScroll.scrollTop = selectedRoute ? 0 : networkScrollBeforeSelection;
@@ -1249,6 +1351,17 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     }
     updateDetails();
   });
+  byId("scope-results").addEventListener("click", event => {
+    const row = event.target.closest("tr");
+    if (!row || !selectedRoute) return;
+    const raw = row.cells[0]?.textContent || "";
+    const key = timeScopeKey(raw === "—" ? "" : raw);
+    if (!key) return;
+    selectedTimeScope = selectedTimeScope === key ? null : key;
+    renderDetails(timeScopeDetail);
+    renderDetails(capacityDetail);
+  });
+
   resultsBody.addEventListener("keydown", event => {
     const row = event.target.closest(".row-action")?.closest("tr");
     if (!row) return;
@@ -1303,6 +1416,18 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   byId("retry").addEventListener("click", () => {
     fields[0].input.focus();
     load();
+  });
+
+  document.addEventListener("click", event => {
+    if (!selectedRoute && !selectedTimeScope) return;
+    if (event.target.closest("table, input, select, button, label, .dropdown, .capacity-dates, .filter-panel")) return;
+    const panel = event.target.closest(".panel");
+    if (!panel && !event.target.closest("main")) return;
+    selectedRoute = null;
+    selectedTimeScope = null;
+    renderResults();
+    updateDetails();
+    tableScroll.scrollTop = networkScrollBeforeSelection;
   });
 
   function updateThemeLabel() {
