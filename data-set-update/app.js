@@ -18,12 +18,12 @@
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
-      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:100}}]
+      preOperations:[AGENTS_ACCESS_GATE]
     },
     'distribution-centers-dspace':{
       id:'distribution-centers-dspace',label:'Distribution Centers Extractor DSPACE',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'dspace'},enabled:false,minHostVersion:'13.0.10',
       schedule:{type:'daily',time:'12:00',intervalHours:1},
-      preOperations:[AGENTS_ACCESS_GATE,{operationId:'dc-user-assignment',inputs:{useConfiguredEmail:true,dcCount:100}}],
+      preOperations:[AGENTS_ACCESS_GATE],
       dspace:{shareUrl:'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf',sheets:[{sheetName:'Distribution Centers (LG)',operationId:'extract-dc'}]}
     },
     'pickup-polygons':{
