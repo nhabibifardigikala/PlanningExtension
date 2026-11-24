@@ -605,10 +605,20 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     close(field);
   }
 
+  function clearTableSelectionFilters() {
+    const hadSelection = Boolean(selectedRoute || selectedTimeScope);
+    if (!hadSelection) return false;
+    selectedRoute = null;
+    selectedTimeScope = null;
+    return true;
+  }
+
   function select(field, option) {
     pushViewState();
+    clearTableSelectionFilters();
     setValue(field, option.name, true);
     applyFilters();
+    updateDetails();
   }
 
   function captureViewState() {
@@ -1276,9 +1286,13 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   for (const field of fields) {
     field.input.addEventListener("input", event => {
       const wasSelected = field.selected !== null;
+      const clearedTableSelection = clearTableSelectionFilters();
       field.selected = null;
       syncInput(field);
-      if (wasSelected) applyFilters();
+      if (wasSelected || clearedTableSelection) {
+        applyFilters();
+        updateDetails();
+      }
       if (!event.isComposing) suggest(field);
     });
     field.input.addEventListener("compositionend", () => suggest(field));
@@ -1321,9 +1335,13 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     field.clear.addEventListener("click", () => {
       pushViewState();
       const wasSelected = field.selected !== null;
+      const clearedTableSelection = clearTableSelectionFilters();
       setValue(field, "");
       field.input.focus();
-      if (wasSelected) applyFilters();
+      if (wasSelected || clearedTableSelection) {
+        applyFilters();
+        updateDetails();
+      }
     });
   }
 
@@ -1418,14 +1436,18 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   });
   statusFilter.addEventListener("change", () => {
     pushViewState();
+    clearTableSelectionFilters();
     applyFilters();
+    updateDetails();
   });
   byId("reset").addEventListener("click", () => {
     pushViewState();
+    clearTableSelectionFilters();
     statusFilter.value = "";
     fields.forEach(field => setValue(field, ""));
     fields[0].input.focus();
     applyFilters();
+    updateDetails();
   });
   byId("back-state").addEventListener("click", restorePreviousView);
   byId("switch-route").addEventListener("click", switchRouteEndpoints);
