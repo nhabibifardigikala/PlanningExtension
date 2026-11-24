@@ -356,7 +356,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       </header>
       <div class="table-scroll" tabindex="0" role="region" aria-labelledby="time-scopes-title">
         <table>
-          <thead><tr><th scope="col">Time Scope ID</th><th scope="col">Time Distance</th><th scope="col" aria-label="Time Scope Active">Active</th><th scope="col">MidMile Time Slot</th><th scope="col" aria-label="MidMile Active">Active</th><th scope="col">Hub Time Slot</th><th scope="col" aria-label="Hub Active">Active</th></tr></thead>
+          <thead><tr><th scope="col">Time Scope ID</th><th scope="col">Time Distance</th><th scope="col">Arrive</th><th scope="col" aria-label="Time Scope Active">Active</th><th scope="col">MidMile Time Slot</th><th scope="col" aria-label="MidMile Active">Active</th><th scope="col">Hub Time Slot</th><th scope="col" aria-label="Hub Active">Active</th></tr></thead>
           <tbody id="scope-results"></tbody>
         </table>
       </div>
@@ -962,15 +962,33 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     return row.cells.slice(0, 2).map(routeName).join(" - ");
   }
 
+  function arriveTime(timeScope, distanceMinutes) {
+    const raw = routeName(String(timeScope || "")).replace(/h/g, "").replace(/\s+/g, " ").trim();
+    const match = /(?:^|\s-\s)(\d{1,2})(?::(\d{1,2}))?\s*$/.exec(raw);
+    const distance = Number(String(distanceMinutes || "").replace(/[^\d.-]/g, ""));
+    if (!match || !Number.isFinite(distance)) return "";
+    const hour = Number(match[1]), minute = Number(match[2] || 0);
+    if (hour > 24 || minute > 59) return "";
+    let total = hour * 60 + minute + distance;
+    if (!Number.isFinite(total)) return "";
+    if (total > 1440) total %= 1440;
+    if (total < 0) total = ((total % 1440) + 1440) % 1440;
+    const h = Math.floor(total / 60);
+    const m = Math.round(total % 60);
+    return m ? h + ":" + String(m).padStart(2, "0") : String(h);
+  }
+
   function timeScopeRecord(row) {
     // Join Time Distances to Shipping Networks using the numeric network ID.
     const networkId = Number(cellText(row, 4));
     if (!Number.isSafeInteger(networkId) || networkId <= 0) return null;
+    const timeScope = cellText(row, 2);
+    const distance = cellText(row, 1);
     const flag = cellText(row, 3);
     const status = explicitActivity(flag);
     return {
       key: "id:" + networkId,
-      values: [cellText(row, 2), cellText(row, 1), status ? statusLabels[status] : flag]
+      values: [timeScope, distance, arriveTime(timeScope, distance), status ? statusLabels[status] : flag]
     };
   }
 
@@ -1111,7 +1129,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       return appendSlot(entry.values, slotsByWindow.get(interval));
     });
     for (const [interval, slot] of slotsByWindow) {
-      if (!matched.has(interval)) rows.push(appendSlot(["", "", ""], slot));
+      if (!matched.has(interval)) rows.push(appendSlot(["", "", "", ""], slot));
     }
     return rows;
   }
@@ -1186,7 +1204,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
 
     const fragment = document.createDocumentFragment();
     const capacity = detail === capacityDetail;
-    const activeColumns = capacity ? [4] : [2, 4, 6];
+    const activeColumns = capacity ? [4] : [3, 5, 7];
     const lgState = capacity && selectedRoute?.lgId ? lgReserveCache.get(Number(selectedRoute.lgId)) : null;
     for (const values of rows) {
       const row = document.createElement("tr");

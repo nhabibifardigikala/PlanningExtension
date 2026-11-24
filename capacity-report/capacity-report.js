@@ -1,8 +1,7 @@
 (() => {
-  const VERSION = 451;
+  const VERSION = 536;
     const DATASETS_SPREADSHEET_ID = '1eOeX-rXyNycXAyCYCHlH8UgW-NkyQ4IsbBOG0iQaB7k';
   const SHEET_NAME = 'Distribution Centers (LG)';
-  const DSPACE_SHARE_URL = 'https://dspace.dkservices.ir/s/PjQJZLpewe6yWLf';
   const CAPACITY_SHEET_NAME = 'DC Capacity (LG)';
   const FLEX_CAPACITY_SHEET_NAME = 'DC Capacity (Flex)';
   const CACHE_KEY = `dxCapacityReportLastV${VERSION}`;
@@ -137,11 +136,11 @@
     if (state.capacitySheets[source]) return state.capacitySheets[source];
     if (!window.DigiExpressPlatform?.call) throw new Error('Stable Host bridge is unavailable. Reload the extension.');
     const sheetName = source === 'flex' ? FLEX_CAPACITY_SHEET_NAME : CAPACITY_SHEET_NAME;
-    const r = await window.DigiExpressPlatform.call('dspace.readSheet',{shareUrl:DSPACE_SHARE_URL,sheetName,limit:250000,timeoutMs:240000});
-    if (r?.ok === false) throw new Error(r.error || `Could not read ${sheetName} from DSpace.`);
+    const r = await window.DigiExpressPlatform.call('sheets.readRows',{spreadsheetId:DATASETS_SPREADSHEET_ID,sheetName,limit:250000,timeoutMs:240000});
+    if (r?.ok === false) throw new Error(r.error || `Could not read Google Sheet → ${sheetName}.`);
     const d = r?.result ?? r ?? {};
     const data = {headers:Array.isArray(d.headers)?d.headers:[], rows:Array.isArray(d.rows)?d.rows:[]};
-    if (!data.headers.length) throw new Error(`${sheetName} in DSpace has no headers.`);
+    if (!data.headers.length) throw new Error(`Google Sheet → ${sheetName} has no headers.`);
     state.capacitySheets[source] = data;
     return data;
   }
@@ -152,9 +151,9 @@
     const sheetName = source === 'flex' ? FLEX_CAPACITY_SHEET_NAME : CAPACITY_SHEET_NAME;
     const data = await loadCapacitySheet(source);
     const di = headerIndex(data.headers, aliases.date);
-    if (di < 0) throw new Error(`Date column was not found in DSpace → ${sheetName}.`);
+    if (di < 0) throw new Error(`Date column was not found in Google Sheet → ${sheetName}.`);
     const keys = data.rows.map(r=>normalizeJalaliDateKey(r?.[di] ?? '')).filter(Boolean).sort((a,b)=>Number(a)-Number(b));
-    if(!keys.length) throw new Error(`No valid Jalali dates were found in DSpace → ${sheetName}.`);
+    if(!keys.length) throw new Error(`No valid Jalali dates were found in Google Sheet → ${sheetName}.`);
     const bounds={from:keys[0],to:keys[keys.length-1]};
     state.dateBounds[source]=bounds;
     return bounds;
@@ -173,20 +172,20 @@
     }catch(_){state.settingDates=false;}
   }
 
-  async function loadDkCapacityFromDSpace(input) {
+  async function loadDkCapacityFromGoogleSheet(input) {
     const dcId = String(input?.dcId ?? '').trim();
     if (!dcId) throw new Error('Select a Distribution Center first.');
     const from = normalizeJalaliDateKey(input?.fromDate), to = normalizeJalaliDateKey(input?.toDate);
     const data = await loadCapacitySheet('dk');
     const idIdx = headerIndex(data.headers, aliases.dcId), dateIdx = headerIndex(data.headers, aliases.date);
-    if (idIdx < 0) throw new Error(`Distribution Center ID column was not found in DSpace → ${CAPACITY_SHEET_NAME}.`);
-    if (dateIdx < 0) throw new Error(`Date column was not found in DSpace → ${CAPACITY_SHEET_NAME}.`);
+    if (idIdx < 0) throw new Error(`Distribution Center ID column was not found in Google Sheet → ${CAPACITY_SHEET_NAME}.`);
+    if (dateIdx < 0) throw new Error(`Date column was not found in Google Sheet → ${CAPACITY_SHEET_NAME}.`);
     const rows = data.rows.filter(row=>{
       const rowId=String(row?.[idIdx]??'').replace(/\.0$/,'').trim();
       const key=normalizeJalaliDateKey(row?.[dateIdx]??'');
       return rowId===dcId.replace(/\.0$/,'') && key && (!from||Number(key)>=Number(from)) && (!to||Number(key)<=Number(to));
     });
-    return {headers:data.headers,rows,source:'dspace',sheet:CAPACITY_SHEET_NAME};
+    return {headers:data.headers,rows,source:'gsheet',sheet:CAPACITY_SHEET_NAME};
   }
 
   function flexLookupMode(){
@@ -201,7 +200,7 @@
     const data=await loadCapacitySheet('flex');
     const idIdx=headerIndex(data.headers, kind==='hub'?aliases.hubId:aliases.coveragePolygonId);
     const nameIdx=headerIndex(data.headers, kind==='hub'?aliases.hub:aliases.coveragePolygon);
-    if(idIdx<0||nameIdx<0)throw new Error(`${kind==='hub'?'Hub':'Coverage Polygon'} columns were not found in DSpace → ${FLEX_CAPACITY_SHEET_NAME}.`);
+    if(idIdx<0||nameIdx<0)throw new Error(`${kind==='hub'?'Hub':'Coverage Polygon'} columns were not found in Google Sheet → ${FLEX_CAPACITY_SHEET_NAME}.`);
     const seen=new Set(), list=[];
     for(const row of data.rows){
       const id=String(row?.[idIdx]??'').replace(/\.0$/,'').trim(),name=String(row?.[nameIdx]??'').trim();
@@ -212,7 +211,7 @@
     return list;
   }
 
-  async function loadFlexCapacityFromDSpace(input) {
+  async function loadFlexCapacityFromGoogleSheet(input) {
     const target=input?.flexCenter||{};
     const id=String(target.id??'').replace(/\.0$/,'').trim(), name=String(target.name??'').trim();
     if(!id&&!name)throw new Error('Select a Flex Hub or Coverage Polygon first.');
@@ -221,8 +220,8 @@
     const idIdx=headerIndex(data.headers,byHub?aliases.hubId:aliases.coveragePolygonId);
     const nameIdx=headerIndex(data.headers,byHub?aliases.hub:aliases.coveragePolygon);
     const dateIdx=headerIndex(data.headers,aliases.date);
-    if(idIdx<0&&nameIdx<0)throw new Error(`${byHub?'Hub':'Coverage Polygon'} columns were not found in DSpace → ${FLEX_CAPACITY_SHEET_NAME}.`);
-    if(dateIdx<0)throw new Error(`Date column was not found in DSpace → ${FLEX_CAPACITY_SHEET_NAME}.`);
+    if(idIdx<0&&nameIdx<0)throw new Error(`${byHub?'Hub':'Coverage Polygon'} columns were not found in Google Sheet → ${FLEX_CAPACITY_SHEET_NAME}.`);
+    if(dateIdx<0)throw new Error(`Date column was not found in Google Sheet → ${FLEX_CAPACITY_SHEET_NAME}.`);
     const from=normalizeJalaliDateKey(input?.fromDate),to=normalizeJalaliDateKey(input?.toDate);
     const rows=data.rows.filter(row=>{
       const rowId=idIdx>=0?String(row?.[idIdx]??'').replace(/\.0$/,'').trim():'';
@@ -231,7 +230,7 @@
       const key=normalizeJalaliDateKey(row?.[dateIdx]??'');
       return matches&&key&&(!from||Number(key)>=Number(from))&&(!to||Number(key)<=Number(to));
     });
-    return {headers:data.headers,rows,source:'dspace',sheet:FLEX_CAPACITY_SHEET_NAME};
+    return {headers:data.headers,rows,source:'gsheet',sheet:FLEX_CAPACITY_SHEET_NAME};
   }
 
   function rank(item, query) {
@@ -323,7 +322,7 @@
     const label=$('flexCenterLabel'),input=$('flexCenterInput'),help=$('flexCenterHelp');
     if(label)label.textContent=mode==='hub'?'Hubs':(mode==='polygon'?'Coverage Polygons':'Distribution Centers');
     if(input)input.placeholder=mode==='hub'?'Search Hub name or enter Hub IDs separated by spaces':(mode==='polygon'?'Search Coverage Polygon or enter Polygon IDs separated by spaces':'Search by name or enter Flex IDs separated by spaces');
-    if(help)help.textContent=mode==='hub'?'Report by Hub sums all rows under each selected Hub across coverage polygons and time slots.':(mode==='polygon'?'DSpace mode reads Flex data by Coverage Polygon from DSpace → DC Capacity (Flex).':'System mode queries the Flex Capacity page for each selected item.');
+    if(help)help.textContent=mode==='hub'?'Report by Hub sums all rows under each selected Hub across coverage polygons and time slots.':(mode==='polygon'?'Google Sheets mode reads Flex data by Coverage Polygon from DataSets → DC Capacity (Flex).':'System mode queries the Flex Capacity page for each selected item.');
     if(resetSelections){renderFlexChips();$('flexMenu').classList.add('hidden');}
   }
 
@@ -454,7 +453,7 @@
       if(!polygonBuckets.size)polygonBuckets.set(input.flexCenter?.name||'Coverage Polygon',rows);
       for(const [label,rr] of polygonBuckets)partitions.push({id:'',label,rows:rr,groups:groupRows(headers,rr)});
     }
-    return {source,aggregate,reportByHub,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:input.flexCenters||(input.flexCenter?[input.flexCenter]:[]),flexCenter:input.flexCenter||null,totalRows:rows.length,dataSource:input.useGSheet?'dspace':'system'};
+    return {source,aggregate,reportByHub,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:input.flexCenters||(input.flexCenter?[input.flexCenter]:[]),flexCenter:input.flexCenter||null,totalRows:rows.length,dataSource:input.useGSheet?'gsheet':'system'};
   }
 
   function metricData(model, group) {
@@ -697,7 +696,7 @@
   function renderModel(model, dashboard=false) {
     const host=$('result'); if(!host)return;
     const rows=model.partitions.reduce((n,p)=>n+p.rows.length,0);
-    const sourceBadge=`<span class="result-source-badge ${(model.dataSource==='dspace'||model.dataSource==='excel')?'gsheet':''}">${model.dataSource==='excel'?'Excel':model.dataSource==='dspace'?'DSpace':(model.source==='flex'?'Flex System':'LG System')}</span>`;
+    const sourceBadge=`<span class="result-source-badge ${(model.dataSource==='gsheet'||model.dataSource==='excel')?'gsheet':''}">${model.dataSource==='excel'?'Excel':model.dataSource==='gsheet'?'Google Sheets':(model.source==='flex'?'Flex System':'LG System')}</span>`;
     host.innerHTML=`<div class="result-toolbar"><div><strong>${model.source==='flex'?'Flex':'DK'} Capacity Report${model.aggregate?' • Aggregated':''}${sourceBadge}</strong><small>${esc(model.fromDate)} → ${esc(model.toDate)} • ${rows} row${rows===1?'':'s'}</small></div><div class="actions"><button class="secondary" id="downloadExcel">Download Excel</button>${dashboard?'':`<button class="secondary" id="openDashboard">Open dashboard</button>`}</div></div><div id="reportCards"></div>`;
     host.classList.remove('hidden');const cards=$('reportCards');
     for(const part of model.partitions){
@@ -746,14 +745,14 @@
       if(input.aggregateCapacities){
         const agg=aggregateRows(headers,allRows);
         const partitions=[{id:'aggregate',label:'Aggregated capacities',rows:agg.rows,groups:groupRows(agg.headers,agg.rows)}];
-        return {source:'dk',aggregate:true,reportByHub:false,headers:agg.headers,rows:agg.rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:agg.rows.length,dataSource:input.useGSheet?'dspace':'system'};
+        return {source:'dk',aggregate:true,reportByHub:false,headers:agg.headers,rows:agg.rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:agg.rows.length,dataSource:input.useGSheet?'gsheet':'system'};
       }
       const partitions=models.flatMap(m=>m.partitions||[]);
-      return {source:'dk',aggregate:false,reportByHub:false,headers,rows:allRows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:allRows.length,dataSource:input.useGSheet?'dspace':'system'};
+      return {source:'dk',aggregate:false,reportByHub:false,headers,rows:allRows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:input.centers||[],flexCenters:[],totalRows:allRows.length,dataSource:input.useGSheet?'gsheet':'system'};
     }
     const headers=models[0].headers||[];
     const rows=models.flatMap(m=>m.rows||[]),partitions=models.flatMap(m=>m.partitions||[]);
-    return {source:'flex',aggregate:false,reportByHub:!!input.reportByHub,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:[],flexCenters:input.flexCenters||[],totalRows:rows.length,dataSource:input.useGSheet?'dspace':'system'};
+    return {source:'flex',aggregate:false,reportByHub:!!input.reportByHub,headers,rows,partitions,fromDate:input.fromDate,toDate:input.toDate,centers:[],flexCenters:input.flexCenters||[],totalRows:rows.length,dataSource:input.useGSheet?'gsheet':'system'};
   }
 
   async function run() {
@@ -778,7 +777,7 @@
     const selected=state.source==='dk'?state.centers:state.flexCenters;
     if(window.DXExcelDatasets?.whenReady) await window.DXExcelDatasets.whenReady;
     const excelActive = !!window.DXExcelDatasets?.enabled;
-    // Excel has priority over the Use DSpace checkbox, including when unchecked.
+    // Excel has priority over the Use Google Sheets checkbox, including when unchecked.
     const useGSheet=excelActive || (state.source==='dk'?!!$('useDkGSheet')?.checked:!!$('useFlexGSheet')?.checked);
     const reportByHub=state.source==='flex'&&!!$('reportByHub')?.checked;
     const baseInput={reportSource:state.source,fromDate:from,toDate:to,aggregateCapacities:state.source==='dk'&&!!$('aggregateCapacities').checked,useGSheet,reportByHub,centers:state.centers.map(x=>({...x})),flexCenters:state.flexCenters.map(x=>({...x}))};
@@ -786,12 +785,12 @@
     try{
       for(let i=0;i<selected.length;i++){
         const center=selected[i];
-        setStatus(`${excelActive?'Loading Excel':useGSheet?'Loading DSpace':'Running '+(state.source==='dk'?'DK':'Flex')+' report'} ${i+1}/${selected.length}: ${center.name}…`);
+        setStatus(`${excelActive?'Loading Excel':useGSheet?'Loading Google Sheets':'Running '+(state.source==='dk'?'DK':'Flex')+' report'} ${i+1}/${selected.length}: ${center.name}…`);
         const input=state.source==='dk'
           ? {...baseInput,dcId:center.id,dcName:center.name,centers:[{...center}],flexCenter:null,flexDcId:'',flexDcName:''}
           : {...baseInput,dcId:'',dcName:'',centers:[],flexCenter:{...center},flexDcId:center.id,flexDcName:center.name,flexSelectionMode:/^\d+$/.test(String(center.id))?'id':'name'};
         const result=useGSheet
-          ? (state.source==='dk'?await loadDkCapacityFromDSpace(input):await loadFlexCapacityFromDSpace(input))
+          ? (state.source==='dk'?await loadDkCapacityFromGoogleSheet(input):await loadFlexCapacityFromGoogleSheet(input))
           : await requestHostOperation(input,240000);
         models.push(buildModel(result,input));
       }
@@ -799,9 +798,9 @@
       if(excelActive)model.dataSource='excel';
       if(!model.totalRows){
         const sheetName=state.source==='dk'?CAPACITY_SHEET_NAME:FLEX_CAPACITY_SHEET_NAME;
-        throw new Error(useGSheet?`No matching capacity rows were found in ${excelActive?'Excel':'DSpace'} → ${sheetName} for the selected item/date range.`:'No capacity rows were returned for the selected item/date range.');
+        throw new Error(useGSheet?`No matching capacity rows were found in ${excelActive?'Excel':'Google Sheet'} → ${sheetName} for the selected item/date range.`:'No capacity rows were returned for the selected item/date range.');
       }
-      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed from ${model.dataSource==='excel'?'Excel':model.dataSource==='dspace'?'DSpace':'system'}. ${model.totalRows} rows processed across ${selected.length} selection${selected.length===1?'':'s'}.`,'ok');
+      localStorage.setItem(CACHE_KEY,JSON.stringify(model));renderModel(model,false);setStatus(`Completed from ${model.dataSource==='excel'?'Excel':model.dataSource==='gsheet'?'Google Sheets':'system'}. ${model.totalRows} rows processed across ${selected.length} selection${selected.length===1?'':'s'}.`,'ok');
     } catch(e){setStatus(e.message||String(e),'error')}
     finally{setBusy(false)}
   }

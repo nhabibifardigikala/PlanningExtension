@@ -1,11 +1,11 @@
 {
-  "configVersion": 535,
+  "configVersion": 536,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 533",
+    "subtitle": "Planning Suite · Config 536",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 535
+    "configVersion": 536
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -328,7 +328,7 @@
         "Capacity Report"
       ],
       "config": "operations/capacity-report.json?v=448",
-      "description": "Choose DK or Flex. DK can read capacity either from the LG system or directly from DataSets → DC Capacity (LG) with Use G-Sheet. Charts include only dates that actually exist in the returned dataset.",
+      "description": "Choose DK or Flex. Capacity can be read directly from DataSets Google Sheets tabs DC Capacity (LG) and DC Capacity (Flex), with operational-system mode still available when Google Sheets is disabled.",
       "runLabel": "Open Capacity Report",
       "iconImage": "icons/apps/capacity-report.webp?v=378",
       "category": "capacity",
@@ -465,8 +465,8 @@
       "title": "Network Overview",
       "subtitle": "Shipping network overview",
       "accessControl": "column",
-      "description": "Open the Shipping Network overview dashboard with route switch and view history.",
-      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/network-overview/index.html?v=527",
+      "description": "Open the Shipping Network overview dashboard with LG ID/LG Reserve, Arrive time, route switch and view history.",
+      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/network-overview/index.html?v=536",
       "category": "network",
       "output": {
         "type": "none"
