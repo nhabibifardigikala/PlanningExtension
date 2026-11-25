@@ -1,11 +1,11 @@
 {
-  "configVersion": 543,
+  "configVersion": 544,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 543",
+    "subtitle": "Planning Suite · Config 544",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 543
+    "configVersion": 544
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -483,7 +483,7 @@
       "title": "Page Scraper",
       "subtitle": "Paginated page to Excel",
       "accessHeaders": [
-        "All"
+        "Page Scraper"
       ],
       "accessControl": "column",
       "description": "Open an HTTPS page, extract the main table across all detected pages, export to Excel, and keep the latest 5 files in local history.",
@@ -563,7 +563,7 @@
       "title": "Follow-up",
       "subtitle": "Track pending follow-ups",
       "accessHeaders": [
-        "Daily Planner"
+        "Follow-up"
       ],
       "config": "operations/follow-up.json?v=378",
       "iconSvgPath": "M8 6h22v4H8v28h28V22h4v16a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4Zm29-2 7 7-7 7-3-3 2-2h-8a8 8 0 0 0-8 8v3h-4v-3a12 12 0 0 1 12-12h8l-2-2 3-3ZM12 18h4v4h-4v-4Zm0 8h4v4h-4v-4Zm7-8h9v4h-9v-4Zm0 8h13v4H19v-4Z",
@@ -592,7 +592,7 @@
       "title": "Authenticator",
       "subtitle": "Local OTP codes",
       "accessHeaders": [
-        "Daily Planner"
+        "Authenticator"
       ],
       "config": "operations/authenticator.json?v=378",
       "description": "Secure Host-local Authenticator embedded inside the DigiExpress operation view. Secrets and generated TOTP codes remain inside the Host origin.",
@@ -1027,7 +1027,7 @@
       "title": "Pomodoro",
       "subtitle": "Focus feature",
       "accessHeaders": [
-        "Daily Planner"
+        "Pomodoro"
       ],
       "config": "operations/pomodoro.json?v=378",
       "iconSvgPath": "M24 5a17 17 0 1 0 17 17A17 17 0 0 0 24 5Zm2 6v10.2l7 4.1-2 3.4-9-5.2V11h4Zm-8-8h12v4H18V3Z",
@@ -1056,7 +1056,7 @@
       "title": "Work Healthy",
       "subtitle": "Visual wellness reminders",
       "accessHeaders": [
-        "Daily Planner"
+        "Work Healthy"
       ],
       "config": "operations/work-healthy.json?v=378",
       "iconSvgPath": "M24 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-9 15h18l5 7-3 3-4-5v18h-5V31h-4v11h-5V24l-4 5-3-3 5-7Z",
