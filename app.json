@@ -1,11 +1,11 @@
 {
-  "configVersion": 544,
+  "configVersion": 545,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 544",
+    "subtitle": "Planning Suite · Config 545",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 544
+    "configVersion": 545
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -486,15 +486,28 @@
         "Page Scraper"
       ],
       "accessControl": "column",
-      "description": "Open an HTTPS page, extract the main table across all detected pages, export to Excel, and keep the latest 5 files in local history.",
-      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/page-scraper/index.html?v=543",
+      "description": "Open an HTTPS page inside DigiExpress, extract table data across every detected pagination page, download Excel automatically, and keep the latest 5 runs in local history.",
       "category": "utilities",
       "output": {
-        "type": "none"
+        "type": "internal"
       },
       "enabled": true,
       "minHostVersion": "13.0.24",
-      "iconSvgPath": "M7 7h34v8H7V7Zm0 13h22v21H7V20Zm27 0h7v21H34V20ZM11 24v4h14v-4H11Zm0 8v4h14v-4H11Z"
+      "iconSvgPath": "M8 6h32a3 3 0 0 1 3 3v30a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3Zm3 7v5h26v-5H11Zm0 10v4h8v-4h-8Zm12 0v4h14v-4H23Zm-12 9v4h8v-4h-8Zm12 0v4h14v-4H23Z",
+      "config": "operations/page-scraper.json?v=545",
+      "runLabel": "Open Page Scraper",
+      "uiMode": "form",
+      "inputs": [
+        {
+          "name": "__pageScraperEmbedded",
+          "label": "",
+          "type": "text",
+          "showWhen": {
+            "field": "__never__",
+            "equals": "true"
+          }
+        }
+      ]
     },
     {
       "id": "weekly-planning",
@@ -1088,7 +1101,7 @@
   },
   "engineArchitecture": "stable-host-13-remote-shell-v1",
   "ui": {
-    "html": "ui/app.html?v=378",
+    "html": "ui/app.html?v=545",
     "css": "ui/app.css?v=378",
     "contractVersion": 13,
     "dashboardCss": "ui/dashboard.css?v=378",
@@ -1133,7 +1146,7 @@
   "runtime": "runtime.json?v=514",
   "runtimeVersion": "13.0.0",
   "remoteUI": {
-    "html": "ui/app.html?v=472",
+    "html": "ui/app.html?v=545",
     "css": "ui/app.css?v=408"
   },
   "version": "503",

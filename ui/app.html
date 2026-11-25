@@ -570,6 +570,20 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__capacityRepo
 #operationView:has(#operationInputs [data-field-wrap="__capacityReportEmbedded"]) #capacityReportEmbedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden}
 @media(max-width:700px){#capacityReportEmbedded.capacity-report-embedded{height:calc(100vh - 150px);min-height:0}}
 
+/* v545 — Page Scraper embedded Remote workspace. */
+#pageScraperEmbedded.page-scraper-embedded{display:none!important;width:100%;height:calc(100vh - 185px);min-height:520px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);margin-top:6px}
+#pageScraperEmbedded.page-scraper-embedded iframe{width:100%;height:100%;border:0;background:transparent}.page-scraper-theme-frame{display:none!important}html[data-theme="light"] #pageScraperFrameLight{display:block!important;color-scheme:light!important}html[data-theme="dark"] #pageScraperFrameDark{display:block!important;color-scheme:dark!important}
+#operationView:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]) .settings-heading{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]) > .settings-card{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]) #capacityStats{display:none!important}
+#operationView:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]) #pageScraperEmbedded{display:block!important}
+html:has(#operationView.active #operationInputs [data-field-wrap="__pageScraperEmbedded"]),body:has(#operationView.active #operationInputs [data-field-wrap="__pageScraperEmbedded"]){height:100%;overflow:hidden}
+.app-shell:has(#operationView.active #operationInputs [data-field-wrap="__pageScraperEmbedded"]){height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+#operationView.active:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]){display:flex;flex:1 1 auto;min-height:0;overflow:hidden;flex-direction:column}
+#operationView:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]) #operationBackBtn{flex:0 0 auto}
+#operationView:has(#operationInputs [data-field-wrap="__pageScraperEmbedded"]) #pageScraperEmbedded{flex:1 1 auto;height:auto!important;min-height:0!important;overflow:hidden}
+@media(max-width:700px){#pageScraperEmbedded.page-scraper-embedded{height:calc(100vh - 150px);min-height:0}}
+
 /* === Config 318 · DigiExpress Professional Workspace Redesign === */
 :root{
   --dx-navy:#0b1638;--dx-blue:#2563eb;--dx-cyan:#06b6d4;--dx-violet:#7c3aed;
@@ -645,7 +659,7 @@ html[data-theme="dark"] body{background:linear-gradient(180deg,#0a1020,#0b1224);
 #operationView.active:has(#operationInputs [data-field-wrap="__timeStudyEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__pomodoroEmbedded"]),
 #operationView.active:has(#operationInputs [data-field-wrap="__workHealthyEmbedded"]){width:100%!important;max-width:none!important;margin:0!important}
-#dataSetUpdateEmbedded.data-set-update-embedded,#capacityReportEmbedded.capacity-report-embedded,#processLearningEmbedded.process-learning-embedded,
+#dataSetUpdateEmbedded.data-set-update-embedded,#capacityReportEmbedded.capacity-report-embedded,#pageScraperEmbedded.page-scraper-embedded,#processLearningEmbedded.process-learning-embedded,
 .daily-planner-embedded,.follow-up-embedded,.note-embedded,.time-study-embedded,.wellness-embedded,.map-operation-embedded{width:100%!important;max-width:none!important}
 .operation-grid{grid-template-columns:repeat(auto-fit,minmax(245px,1fr))!important;gap:16px!important}
 .op-card{min-height:188px!important;padding:18px!important;grid-template-columns:64px 1fr!important;column-gap:15px!important}
@@ -937,6 +951,7 @@ html:has(#operationView.active #operationInputs [data-field-wrap="__ganjeFollowU
 
       <section id="ganjeNetworkEmbedded" class="ganje-network-embedded" aria-label="GANJE Network Management"><iframe id="ganjeNetworkFrameLight" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="ganjeNetworkFrameDark" class="ganje-network-theme-frame" title="GANJE Network Management" src="https://nhabibifardigikala.github.io/PlanningExtension/ganje-network-management/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
       <section id="dataSetUpdateEmbedded" class="data-set-update-embedded" aria-label="Agents"><iframe id="dataSetUpdateFrameLight" class="data-set-update-theme-frame data-set-update-light" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=518&theme=light" loading="lazy"></iframe><iframe id="dataSetUpdateFrameDark" class="data-set-update-theme-frame data-set-update-dark" title="Agents" src="https://nhabibifardigikala.github.io/PlanningExtension/data-set-update/index.html?v=518&theme=dark" loading="lazy"></iframe></section>
+      <section id="pageScraperEmbedded" class="page-scraper-embedded" aria-label="Page Scraper"><iframe id="pageScraperFrameLight" class="page-scraper-theme-frame" title="Page Scraper" src="https://nhabibifardigikala.github.io/PlanningExtension/page-scraper/index.html?v=545&theme=light" loading="lazy"></iframe><iframe id="pageScraperFrameDark" class="page-scraper-theme-frame" title="Page Scraper" src="https://nhabibifardigikala.github.io/PlanningExtension/page-scraper/index.html?v=545&theme=dark" loading="lazy"></iframe></section>
       <section id="capacityReportEmbedded" class="capacity-report-embedded" aria-label="Capacity Report"><iframe id="capacityReportFrameLight" class="capacity-report-theme-frame capacity-report-light" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=light" allow="clipboard-write" loading="lazy"></iframe><iframe id="capacityReportFrameDark" class="capacity-report-theme-frame capacity-report-dark" title="Capacity Report" src="https://nhabibifardigikala.github.io/PlanningExtension/capacity-report/index.html?v=492&theme=dark" allow="clipboard-write" loading="lazy"></iframe></section>
       <section id="processLearningEmbedded" class="process-learning-embedded" aria-label="Processes"><iframe id="processLearningFrameLight" class="process-learning-theme-frame process-learning-light" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=light" loading="lazy"></iframe><iframe id="processLearningFrameDark" class="process-learning-theme-frame process-learning-dark" title="Processes" src="https://nhabibifardigikala.github.io/PlanningExtension/process-learning/index.html?v=492&theme=dark" loading="lazy"></iframe></section>
       <section id="timeStudyEmbedded" class="time-study-embedded" aria-label="Time Study"><iframe id="timeStudyFrame" title="Time Study" src="https://nhabibifardigikala.github.io/PlanningExtension/time-study/index.html?v=492" loading="lazy"></iframe></section>

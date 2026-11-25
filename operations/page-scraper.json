@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": false,
+  "description": "Remote-owned embedded Page Scraper. Uses Stable Host 13.0.24 universal browser workflow and Excel export capabilities.",
+  "workflow": [],
+  "successMessage": "Page Scraper ready.",
+  "runtimeContract": "stable-host-13",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  }
+}
