@@ -443,7 +443,8 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       selected: null,
       options: [],
       active: -1,
-      locations: []
+      locations: [],
+      directLocations: []
     };
   });
 
@@ -536,6 +537,27 @@ tr[data-status="unknown"] .status { color: var(--muted); }
 
   function languageFor(text) {
     return /\p{Script=Arabic}/u.test(text) ? "fa" : "en";
+  }
+
+  function optionRecords(names) {
+    return [...names].sort(collator.compare).map(name => {
+      const key = normalize(name);
+      return { name, key, joined: compact(key), words: key.split(" ") };
+    });
+  }
+
+  function syncEndpointLocations() {
+    const from = fields[0], to = fields[1];
+    if (indirectToggle.checked) {
+      const all = new Map();
+      [...from.directLocations, ...to.directLocations].forEach(option => all.set(option.name, option));
+      const merged = [...all.values()].sort((a, b) => collator.compare(a.name, b.name));
+      from.locations = merged;
+      to.locations = merged;
+    } else {
+      from.locations = from.directLocations;
+      to.locations = to.directLocations;
+    }
   }
 
   function rankedOptions(field, query) {
@@ -679,6 +701,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       });
       statusFilter.value = snapshot.status || "";
       indirectToggle.checked = Boolean(snapshot.indirect);
+      syncEndpointLocations();
       sort = snapshot.sort ? { ...snapshot.sort } : null;
       selectedRoute = snapshot.selectedRouteId ? rows.find(row => row.id === snapshot.selectedRouteId) || null : null;
       selectedTimeScope = snapshot.selectedTimeScope || null;
@@ -1389,11 +1412,10 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       }).filter(row => row.cells[0] || row.cells[1]);
       for (const field of fields) {
         const names = new Set(rows.map(row => row.cells[field.column]).filter(Boolean));
-        field.locations = [...names].sort(collator.compare).map(name => {
-          const key = normalize(name);
-          return { name, key, joined: compact(key), words: key.split(" ") };
-        });
+        field.directLocations = optionRecords(names);
+        field.locations = field.directLocations;
       }
+      syncEndpointLocations();
       state = "ready";
       sortRows();
       const focused = fields.find(field => field.input === document.activeElement);
@@ -1565,8 +1587,19 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     snapshot.indirect = !indirectToggle.checked;
     pushViewSnapshot(snapshot);
     clearTableSelectionFilters();
+    syncEndpointLocations();
+    // Returning to Direct must behave exactly like the original directional filters.
+    if (!indirectToggle.checked) {
+      for (const field of fields.slice(0, 2)) {
+        if (field.selected !== null && !field.directLocations.some(option => option.name === field.selected)) {
+          setValue(field, "");
+        }
+      }
+    }
     applyFilters();
     updateDetails();
+    const focused = fields.find(field => field.input === document.activeElement);
+    if (focused) suggest(focused, true);
   });
   statusFilter.addEventListener("change", () => {
     pushViewState();
