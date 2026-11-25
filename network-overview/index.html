@@ -110,6 +110,9 @@ button:disabled { cursor: default; opacity: .53; }
 .indirect-toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
 .network tbody tr.path-heading { cursor: default; background: var(--hover); }
 .network tbody tr.path-heading td { text-align: left; white-space: normal; font-weight: 700; height: auto; padding: 10px 13px; overflow-wrap: anywhere; }
+.path-meta, .path-sequence, .path-point, .path-arrow { unicode-bidi: isolate; }
+.path-sequence { direction: ltr; display: inline-flex; flex-wrap: wrap; align-items: center; }
+.path-arrow { direction: ltr; padding-inline: 4px; }
 .network tbody tr.path-leg-start td { border-top: 1px solid var(--field-line); }
 .path-note { color: var(--muted); font-size: 12px; padding: 0 15px 8px; }
 .button { min-height: 38px; padding: 5px 11px; border: 1px solid var(--field-line); border-radius: 7px; color: var(--ink); background: var(--surface); white-space: nowrap; }
@@ -976,6 +979,23 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     return selectedRoute && !groupedMode() ? [selectedRoute] : matches;
   }
 
+  function appendPathSequence(container, points) {
+    points.forEach((point, index) => {
+      if (index > 0) {
+        const arrow = document.createElement("span");
+        arrow.className = "path-arrow";
+        arrow.textContent = "→";
+        container.append(arrow);
+      }
+      const pointNode = document.createElement("bdi");
+      pointNode.className = "path-point";
+      pointNode.dir = "auto";
+      pointNode.lang = languageFor(point || "");
+      pointNode.textContent = point || "—";
+      container.append(pointNode);
+    });
+  }
+
   function renderResults() {
     const visible = visibleRoutes();
     const ready = state === "ready";
@@ -1055,7 +1075,14 @@ tr[data-status="unknown"] .status { color: var(--muted); }
         heading.className = "path-heading";
         const cell = heading.insertCell();
         cell.colSpan = 9;
-        cell.textContent = (group.legs.length === 1 ? "Direct" : "Indirect") + " path " + (index + 1) + " · " + group.legs.length + " leg(s) · Size: " + (group.size || "Unknown") + " · " + group.points.join(" → ");
+        cell.dir = "ltr";
+        const meta = document.createElement("span");
+        meta.className = "path-meta";
+        meta.textContent = (group.legs.length === 1 ? "Direct" : "Indirect") + " path " + (index + 1) + " · " + group.legs.length + " leg(s) · Size: " + (group.size || "Unknown") + " · ";
+        const sequence = document.createElement("span");
+        sequence.className = "path-sequence";
+        appendPathSequence(sequence, group.points);
+        cell.append(meta, sequence);
         fragment.append(heading);
         group.legs.forEach(networks => networks.forEach((network, i) => appendNetwork(network, i === 0)));
       });

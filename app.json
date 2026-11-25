@@ -1,11 +1,11 @@
 {
-  "configVersion": 540,
+  "configVersion": 541,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 539",
+    "subtitle": "Planning Suite · Config 541",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 536
+    "configVersion": 541
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
