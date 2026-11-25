@@ -855,12 +855,15 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     return indirectToggle.checked && Boolean(fields[0].selected && fields[1].selected);
   }
 
-  // Directed graph of eligible networks. Parallel networks are retained per leg.
+  // Build one directed graph per shipping size. Never join legs across sizes.
   function findPaths(eligible, origin, destination) {
-    const graph = new Map(), reverse = new Map();
+    const bySize = new Map();
     for (const route of eligible) {
       const [from, to] = route.cells;
       if (!from || !to) continue;
+      const size = String(route.cells[6] || "").trim();
+      if (!bySize.has(size)) bySize.set(size, {size, graph: new Map(), reverse: new Map()});
+      const {graph, reverse} = bySize.get(size);
       if (!graph.has(from)) graph.set(from, new Map());
       const neighbors = graph.get(from);
       if (!neighbors.has(to)) neighbors.set(to, []);
@@ -868,49 +871,56 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       if (!reverse.has(to)) reverse.set(to, new Set());
       reverse.get(to).add(from);
     }
-    // Reverse reachability prevents exploration of disconnected branches.
-    const distance = new Map([[destination, 0]]), queue = [destination];
-    for (let i = 0; i < queue.length; i++) {
-      for (const parent of reverse.get(queue[i]) || []) {
-        if (!distance.has(parent)) {
-          distance.set(parent, distance.get(queue[i]) + 1);
-          queue.push(parent);
+    for (const entry of bySize.values()) {
+      const distance = new Map([[destination, 0]]), queue = [destination];
+      for (let i = 0; i < queue.length; i++) {
+        for (const parent of entry.reverse.get(queue[i]) || []) {
+          if (!distance.has(parent)) {
+            distance.set(parent, distance.get(queue[i]) + 1);
+            queue.push(parent);
+          }
         }
       }
+      entry.distance = distance;
     }
     const groups = [];
     let limited = false, expansions = 0, stop = false;
-    // Enumerate shortest paths first, without repeated points within a path.
+    // Shortest paths first across all sizes, with shared search limits.
     for (let length = 1; length <= maxPathLegs && !stop; length++) {
-      const visited = new Set([origin]);
-      function walk(node, points, legs) {
-        if (stop) return;
-        if (++expansions > maxPathExpansions) { limited = true; stop = true; return; }
-        if (node === destination && legs.length) {
-          if (legs.length === length) {
-            if (groups.length >= maxPathGroups) { limited = true; stop = true; return; }
-            groups.push({ points: [...points], legs: [...legs] });
+      for (const {size, graph, distance} of bySize.values()) {
+        if (stop) break;
+        // Missing size cannot establish compatibility across multiple legs.
+        if (!size && length > 1) continue;
+        const visited = new Set([origin]);
+        function walk(node, points, legs) {
+          if (stop) return;
+          if (++expansions > maxPathExpansions) { limited = true; stop = true; return; }
+          if (node === destination && legs.length) {
+            if (legs.length === length) {
+              if (groups.length >= maxPathGroups) { limited = true; stop = true; return; }
+              groups.push({ size, points: [...points], legs: [...legs] });
+            }
+            return;
           }
-          return;
-        }
-        if (legs.length === length) return;
-        const neighbors = graph.get(node);
-        if (!neighbors) return;
-        for (const [next, networks] of neighbors) {
-          if (visited.has(next) && !(next === destination && legs.length === 0)) continue;
-          if (!distance.has(next)) continue;
-          if (legs.length + 1 + distance.get(next) > length) {
-            if (length === maxPathLegs) limited = true;
-            continue;
+          if (legs.length === length) return;
+          const neighbors = graph.get(node);
+          if (!neighbors) return;
+          for (const [next, networks] of neighbors) {
+            if (visited.has(next) && !(next === destination && legs.length === 0)) continue;
+            if (!distance.has(next)) continue;
+            if (legs.length + 1 + distance.get(next) > length) {
+              if (length === maxPathLegs) limited = true;
+              continue;
+            }
+            visited.add(next);
+            walk(next, [...points, next], [...legs, networks]);
+            visited.delete(next);
+            if (stop) break;
           }
-          visited.add(next);
-          walk(next, [...points, next], [...legs, networks]);
-          visited.delete(next);
-          if (stop) break;
         }
+        if (distance.has(origin) && distance.get(origin) <= length) walk(origin, [origin], []);
+        else if (length === maxPathLegs && distance.has(origin)) limited = true;
       }
-      if (distance.has(origin) && distance.get(origin) <= length) walk(origin, [origin], []);
-      else if (length === maxPathLegs && distance.has(origin)) limited = true;
     }
     return { groups, limited };
   }
@@ -952,7 +962,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     const note = byId("path-note");
     note.hidden = !indirectToggle.checked;
     note.textContent = !grouped ? "Select both From and To to search indirect paths." :
-      "Showing paths up to " + maxPathLegs + " legs; all matching networks per leg. Other filters apply to every leg." +
+      "Showing paths up to " + maxPathLegs + " legs; one shipping size per path; all matching networks of that size per leg. Other filters apply to every leg." +
       (pathSearchLimited ? " Search limit reached; additional paths may exist." : "");
     renderedNetworks = [];
     count.textContent = grouped && ready ? number.format(pathGroups.length) + " paths · " + number.format(matches.length) + " unique networks" + (selectedRoute ? " · 1 selected" : "") : selectedRoute ? "1 route selected" :
@@ -1022,7 +1032,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
         heading.className = "path-heading";
         const cell = heading.insertCell();
         cell.colSpan = 9;
-        cell.textContent = (group.legs.length === 1 ? "Direct" : "Indirect") + " path " + (index + 1) + " · " + group.legs.length + " leg(s) · " + group.points.join(" → ");
+        cell.textContent = (group.legs.length === 1 ? "Direct" : "Indirect") + " path " + (index + 1) + " · " + group.legs.length + " leg(s) · Size: " + (group.size || "Unknown") + " · " + group.points.join(" → ");
         fragment.append(heading);
         group.legs.forEach(networks => networks.forEach((network, i) => appendNetwork(network, i === 0)));
       });
