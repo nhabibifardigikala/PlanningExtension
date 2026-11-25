@@ -105,7 +105,13 @@ button:disabled { cursor: default; opacity: .53; }
 .primary, .compact-filters { display: grid; align-items: end; gap: 12px; }
 .primary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
 .compact-filters { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-.actions { display: flex; gap: 8px; align-items: center; }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.indirect-toggle { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 700; color: var(--ink); }
+.indirect-toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+.network tbody tr.path-heading { cursor: default; background: var(--hover); }
+.network tbody tr.path-heading td { text-align: left; white-space: normal; font-weight: 700; height: auto; padding: 10px 13px; overflow-wrap: anywhere; }
+.network tbody tr.path-leg-start td { border-top: 1px solid var(--field-line); }
+.path-note { color: var(--muted); font-size: 12px; padding: 0 15px 8px; }
 .button { min-height: 38px; padding: 5px 11px; border: 1px solid var(--field-line); border-radius: 7px; color: var(--ink); background: var(--surface); white-space: nowrap; }
 .button:not(:disabled):hover { background: var(--hover); border-color: var(--accent); }
 #theme-toggle .theme-icon { font-size: 16px; line-height: 1; margin-inline-end: 4px; }
@@ -246,6 +252,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
         </div>
       </div>
       <div class="actions">
+        <label class="indirect-toggle" title="Find direct and multi-leg routes between selected endpoints"><input id="indirect" type="checkbox"> Indirect</label>
         <button id="back-state" class="button" type="button" disabled aria-label="Restore previous view">← Back</button>
         <button id="switch-route" class="button" type="button" aria-label="Switch From and To">⇄ Switch</button>
         <button id="reset" class="button" type="button" disabled>Clear filters</button>
@@ -322,6 +329,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
           <span id="count" class="count" role="status" hidden></span>
         </div>
       </header>
+      <div id="path-note" class="path-note" role="status" hidden></div>
       <div id="network-scroll" class="table-scroll" tabindex="0" role="region" aria-labelledby="network-title">
         <table lang="en">
           <colgroup><col class="col-id"><col class="col-from"><col class="col-to"><col class="col-polygon"><col class="col-class"><col class="col-active"><col class="col-service"><col class="col-size"><col class="col-lg-id"></colgroup>
@@ -416,6 +424,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   const dateCache = new Map();
   const byId = id => document.getElementById(id);
   const statusFilter = byId("status-filter");
+  const indirectToggle = byId("indirect");
   const tableScroll = byId("network-scroll");
   const resultsBody = byId("results");
   const sortButtons = [...document.querySelectorAll(".sort-button")];
@@ -442,6 +451,10 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   let rows = [];
   let sortedRows = [];
   let matches = [];
+  let pathGroups = [];
+  let pathSearchLimited = false;
+  let renderedNetworks = [];
+  const maxPathGroups = 200, maxPathLegs = 8, maxPathExpansions = 50000;
   let sort = null;
   let requestId = 0;
   let selectedRoute = null;
@@ -625,6 +638,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     return {
       fields: fields.map(field => ({ value: field.input.value, selected: field.selected })),
       status: statusFilter.value,
+      indirect: indirectToggle.checked,
       sort: sort ? { ...sort } : null,
       selectedRouteId: selectedRoute?.id || 0,
       selectedTimeScope,
@@ -664,6 +678,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
         syncInput(field);
       });
       statusFilter.value = snapshot.status || "";
+      indirectToggle.checked = Boolean(snapshot.indirect);
       sort = snapshot.sort ? { ...snapshot.sort } : null;
       selectedRoute = snapshot.selectedRouteId ? rows.find(row => row.id === snapshot.selectedRouteId) || null : null;
       selectedTimeScope = snapshot.selectedTimeScope || null;
@@ -673,7 +688,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       networkScrollBeforeSelection = Number(snapshot.scrollTop) || 0;
       updateDetails();
       requestAnimationFrame(() => {
-        tableScroll.scrollTop = selectedRoute ? 0 : networkScrollBeforeSelection;
+        tableScroll.scrollTop = selectedRoute && !groupedMode() ? 0 : networkScrollBeforeSelection;
       });
     } finally {
       restoringView = false;
@@ -836,22 +851,96 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     applyFilters();
   }
 
+  function groupedMode() {
+    return indirectToggle.checked && Boolean(fields[0].selected && fields[1].selected);
+  }
+
+  // Directed graph of eligible networks. Parallel networks are retained per leg.
+  function findPaths(eligible, origin, destination) {
+    const graph = new Map(), reverse = new Map();
+    for (const route of eligible) {
+      const [from, to] = route.cells;
+      if (!from || !to) continue;
+      if (!graph.has(from)) graph.set(from, new Map());
+      const neighbors = graph.get(from);
+      if (!neighbors.has(to)) neighbors.set(to, []);
+      neighbors.get(to).push(route);
+      if (!reverse.has(to)) reverse.set(to, new Set());
+      reverse.get(to).add(from);
+    }
+    // Reverse reachability prevents exploration of disconnected branches.
+    const distance = new Map([[destination, 0]]), queue = [destination];
+    for (let i = 0; i < queue.length; i++) {
+      for (const parent of reverse.get(queue[i]) || []) {
+        if (!distance.has(parent)) {
+          distance.set(parent, distance.get(queue[i]) + 1);
+          queue.push(parent);
+        }
+      }
+    }
+    const groups = [];
+    let limited = false, expansions = 0, stop = false;
+    // Enumerate shortest paths first, without repeated points within a path.
+    for (let length = 1; length <= maxPathLegs && !stop; length++) {
+      const visited = new Set([origin]);
+      function walk(node, points, legs) {
+        if (stop) return;
+        if (++expansions > maxPathExpansions) { limited = true; stop = true; return; }
+        if (node === destination && legs.length) {
+          if (legs.length === length) {
+            if (groups.length >= maxPathGroups) { limited = true; stop = true; return; }
+            groups.push({ points: [...points], legs: [...legs] });
+          }
+          return;
+        }
+        if (legs.length === length) return;
+        const neighbors = graph.get(node);
+        if (!neighbors) return;
+        for (const [next, networks] of neighbors) {
+          if (visited.has(next) && !(next === destination && legs.length === 0)) continue;
+          if (!distance.has(next)) continue;
+          if (legs.length + 1 + distance.get(next) > length) {
+            if (length === maxPathLegs) limited = true;
+            continue;
+          }
+          visited.add(next);
+          walk(next, [...points, next], [...legs, networks]);
+          visited.delete(next);
+          if (stop) break;
+        }
+      }
+      if (distance.has(origin) && distance.get(origin) <= length) walk(origin, [origin], []);
+      else if (length === maxPathLegs && distance.has(origin)) limited = true;
+    }
+    return { groups, limited };
+  }
+
   function applyFilters() {
     const selectedFields = fields.filter(field => field.selected !== null);
     const status = statusFilter.value;
-    matches = sortedRows.filter(row =>
-      (!status || row.status === status) &&
-      selectedFields.every(field => row.cells[field.column] === field.selected)
-    );
+    pathGroups = [];
+    pathSearchLimited = false;
+    if (groupedMode()) {
+      const eligible = sortedRows.filter(row => (!status || row.status === status) &&
+        selectedFields.filter(field => field.column > 1).every(field => row.cells[field.column] === field.selected));
+      const found = findPaths(eligible, fields[0].selected, fields[1].selected);
+      pathGroups = found.groups;
+      pathSearchLimited = found.limited;
+      matches = [...new Set(pathGroups.flatMap(group => group.legs.flat()))];
+    } else {
+      matches = sortedRows.filter(row => (!status || row.status === status) &&
+        selectedFields.every(field => row.cells[field.column] === field.selected));
+    }
+    if (selectedRoute && !matches.includes(selectedRoute)) clearTableSelectionFilters();
     statusFilter.dataset.selected = String(Boolean(status));
-    byId("reset").disabled = !status && !fields.some(field => field.input.value);
+    byId("reset").disabled = !status && !indirectToggle.checked && !fields.some(field => field.input.value);
     networkScrollBeforeSelection = 0;
     tableScroll.scrollTop = 0;
     renderResults();
   }
 
   function visibleRoutes() {
-    return selectedRoute ? [selectedRoute] : matches;
+    return selectedRoute && !groupedMode() ? [selectedRoute] : matches;
   }
 
   function renderResults() {
@@ -859,7 +948,14 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     const ready = state === "ready";
     const count = byId("count");
     count.hidden = !ready;
-    count.textContent = selectedRoute ? "1 route selected" :
+    const grouped = groupedMode();
+    const note = byId("path-note");
+    note.hidden = !indirectToggle.checked;
+    note.textContent = !grouped ? "Select both From and To to search indirect paths." :
+      "Showing paths up to " + maxPathLegs + " legs; all matching networks per leg. Other filters apply to every leg." +
+      (pathSearchLimited ? " Search limit reached; additional paths may exist." : "");
+    renderedNetworks = [];
+    count.textContent = grouped && ready ? number.format(pathGroups.length) + " paths · " + number.format(matches.length) + " unique networks" + (selectedRoute ? " · 1 selected" : "") : selectedRoute ? "1 route selected" :
       ready ? number.format(visible.length) + (visible.length === 1 ? " route" : " routes") : "";
     byId("empty").hidden = visible.length > 0;
     byId("retry").hidden = state !== "error";
@@ -878,8 +974,12 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     }
 
     const fragment = document.createDocumentFragment();
-    visible.forEach((result, index) => {
+    function appendNetwork(result, legStart = false) {
+      const index = renderedNetworks.length;
+      renderedNetworks.push(result);
       const row = document.createElement("tr");
+      row.dataset.networkIndex = String(index);
+      if (legStart) row.classList.add("path-leg-start");
       row.dataset.status = result.status;
       if (result.status === "inactive") row.dataset.alert = "inactive";
       if (result === selectedRoute) row.dataset.selected = "true";
@@ -915,7 +1015,18 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       lgCell.textContent = result.lgId ? String(result.lgId) : "—";
       lgCell.dir = "ltr";
       fragment.append(row);
-    });
+    }
+    if (grouped) {
+      pathGroups.forEach((group, index) => {
+        const heading = document.createElement("tr");
+        heading.className = "path-heading";
+        const cell = heading.insertCell();
+        cell.colSpan = 9;
+        cell.textContent = (group.legs.length === 1 ? "Direct" : "Indirect") + " path " + (index + 1) + " · " + group.legs.length + " leg(s) · " + group.points.join(" → ");
+        fragment.append(heading);
+        group.legs.forEach(networks => networks.forEach((network, i) => appendNetwork(network, i === 0)));
+      });
+    } else visible.forEach(result => appendNetwork(result));
     resultsBody.replaceChildren(fragment);
   }
 
@@ -1364,8 +1475,11 @@ tr[data-status="unknown"] .status { color: var(--muted); }
 
   resultsBody.addEventListener("click", event => {
     const row = event.target.closest("tr");
-    if (!row) return;
-    const clickedRoute = visibleRoutes()[row.sectionRowIndex];
+    if (!row || row.dataset.networkIndex === undefined) return;
+    const clickedIndex = Number(row.dataset.networkIndex);
+    const clickedRoute = renderedNetworks[clickedIndex];
+    if (!clickedRoute) return;
+    const scrollBeforeClick = tableScroll.scrollTop;
     const keepFocus = Boolean(event.target.closest(".row-action"));
     pushViewState();
     if (selectedRoute === clickedRoute) {
@@ -1377,10 +1491,10 @@ tr[data-status="unknown"] .status { color: var(--muted); }
       selectedTimeScope = null;
     }
     renderResults();
-    tableScroll.scrollTop = selectedRoute ? 0 : networkScrollBeforeSelection;
+    tableScroll.scrollTop = groupedMode() ? scrollBeforeClick : selectedRoute ? 0 : networkScrollBeforeSelection;
     if (keepFocus) {
-      const index = selectedRoute ? 0 : Math.max(0, matches.indexOf(clickedRoute));
-      const focusRow = resultsBody.rows[index];
+      const index = groupedMode() ? clickedIndex : selectedRoute ? 0 : Math.max(0, matches.indexOf(clickedRoute));
+      const focusRow = resultsBody.querySelector(`tr[data-network-index="${index}"]`);
       (focusRow ? focusableRow(focusRow) : tableScroll).focus({ preventScroll: true });
     }
     updateDetails();
@@ -1399,8 +1513,10 @@ tr[data-status="unknown"] .status { color: var(--muted); }
   resultsBody.addEventListener("keydown", event => {
     const row = event.target.closest(".row-action")?.closest("tr");
     if (!row) return;
-    const adjacent = { ArrowDown: row.nextElementSibling, ArrowUp: row.previousElementSibling,
-      Home: resultsBody.firstElementChild, End: resultsBody.lastElementChild }[event.key];
+    const networkRows = [...resultsBody.querySelectorAll("tr[data-network-index]")];
+    const index = networkRows.indexOf(row);
+    const adjacent = { ArrowDown: networkRows[index + 1], ArrowUp: networkRows[index - 1],
+      Home: networkRows[0], End: networkRows[networkRows.length - 1] }[event.key];
     if (adjacent) {
       event.preventDefault();
       focusableRow(adjacent).focus();
@@ -1434,6 +1550,14 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     sortRows();
     tableScroll.focus({ preventScroll: true });
   });
+  indirectToggle.addEventListener("change", () => {
+    const snapshot = captureViewState();
+    snapshot.indirect = !indirectToggle.checked;
+    pushViewSnapshot(snapshot);
+    clearTableSelectionFilters();
+    applyFilters();
+    updateDetails();
+  });
   statusFilter.addEventListener("change", () => {
     pushViewState();
     clearTableSelectionFilters();
@@ -1444,6 +1568,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     pushViewState();
     clearTableSelectionFilters();
     statusFilter.value = "";
+    indirectToggle.checked = false;
     fields.forEach(field => setValue(field, ""));
     fields[0].input.focus();
     applyFilters();
@@ -1465,7 +1590,7 @@ tr[data-status="unknown"] .status { color: var(--muted); }
     selectedTimeScope = null;
     renderResults();
     updateDetails();
-    tableScroll.scrollTop = networkScrollBeforeSelection;
+    if (!groupedMode()) tableScroll.scrollTop = networkScrollBeforeSelection;
   });
 
   function updateThemeLabel() {
