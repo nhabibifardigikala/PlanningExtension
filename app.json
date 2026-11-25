@@ -1,11 +1,11 @@
 {
-  "configVersion": 545,
+  "configVersion": 546,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 545",
+    "subtitle": "Planning Suite · Config 546",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 545
+    "configVersion": 546
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -486,15 +486,14 @@
         "Page Scraper"
       ],
       "accessControl": "column",
-      "description": "Open an HTTPS page inside DigiExpress, extract table data across every detected pagination page, download Excel automatically, and keep the latest 5 runs in local history.",
+      "description": "Open an HTTPS page inside DigiExpress, click through every detected pagination page, extract table data, download Excel automatically, and keep the latest 5 runs in local history.",
       "category": "utilities",
       "output": {
         "type": "internal"
       },
       "enabled": true,
       "minHostVersion": "13.0.24",
-      "iconSvgPath": "M8 6h32a3 3 0 0 1 3 3v30a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3Zm3 7v5h26v-5H11Zm0 10v4h8v-4h-8Zm12 0v4h14v-4H23Zm-12 9v4h8v-4h-8Zm12 0v4h14v-4H23Z",
-      "config": "operations/page-scraper.json?v=545",
+      "config": "operations/page-scraper.json?v=546",
       "runLabel": "Open Page Scraper",
       "uiMode": "form",
       "inputs": [
@@ -507,7 +506,8 @@
             "equals": "true"
           }
         }
-      ]
+      ],
+      "iconImage": "icons/apps/page-scraper.webp?v=546"
     },
     {
       "id": "weekly-planning",
