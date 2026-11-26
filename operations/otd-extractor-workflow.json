@@ -1,0 +1,209 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Extract both LG sources in a single background workflow; Apps Script joins and publishes.",
+  "navigation": {
+    "retryCount": 8,
+    "retryDelayMs": 750,
+    "completeTimeoutMs": 60000
+  },
+  "successMessage": "Both LG sources extracted.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://lg.digikala.com/dk-otd/?distribution_center_id=0&active=true&per_page=1000&crud_tab_id=&page=1",
+      "active": false,
+      "progress": "Opening DK OTD page 1…"
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking LG login…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/dk-otd/?distribution_center_id=0&active=true&per_page=1000&crud_tab_id=&page=1",
+      "active": false,
+      "completeTimeoutMs": 60000,
+      "progress": "Loading DK OTD page 1…"
+    },
+    {
+      "action": "wait",
+      "ms": 12000,
+      "progress": "Waiting for DK OTD table and pagination to finish rendering…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 12000,
+      "intervalMs": 300,
+      "stepAttempts": 5,
+      "stepRetryDelayMs": 1000,
+      "error": "DK OTD table was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 18000,
+      "intervalMs": 350,
+      "stepAttempts": 5,
+      "stepRetryDelayMs": 1000,
+      "error": "DK OTD table contains no rows."
+    },
+    {
+      "action": "wait",
+      "ms": 4000,
+      "progress": "Waiting for pagination controls…"
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "timeoutMs": 120000,
+      "stableMs": 2500,
+      "pollMs": 600,
+      "afterPageMs": 2500,
+      "expectedRowsPerPage": 0,
+      "allowLastPagePartial": true,
+      "maxPages": 1000,
+      "strictPagination": true,
+      "strictStability": true,
+      "strictPageSequence": true,
+      "pageParam": "page",
+      "requiredQueryParams": {
+        "distribution_center_id": "0",
+        "active": "true",
+        "per_page": "1000",
+        "crud_tab_id": ""
+      },
+      "dedupe": false,
+      "ignoreLastActionColumn": true,
+      "parser": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "svgBoolean": true,
+        "appendAttributes": [
+          {
+            "header": "__otd_dk_source",
+            "selector": "td:not(:empty)",
+            "attribute": "textContent"
+          }
+        ]
+      },
+      "pageProgress": "Extracting DK OTD page {{page}}…",
+      "progress": "Extracting every DK OTD page…",
+      "error": "No DK OTD rows were found.",
+      "storeAs": "dk",
+      "makeCurrent": false,
+      "stepAttempts": 2
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking LG login…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/dc-time-scope/?time_scope_id=0&nature_group=&active=true&per_page=1000&crud_tab_id=&page=1",
+      "active": false,
+      "completeTimeoutMs": 60000,
+      "progress": "Loading DC Time Scope page 1…"
+    },
+    {
+      "action": "wait",
+      "ms": 12000,
+      "progress": "Waiting for DC Time Scope table and pagination to finish rendering…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 12000,
+      "intervalMs": 300,
+      "stepAttempts": 5,
+      "stepRetryDelayMs": 1000,
+      "error": "DC Time Scope table was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 18000,
+      "intervalMs": 350,
+      "stepAttempts": 5,
+      "stepRetryDelayMs": 1000,
+      "error": "DC Time Scope table contains no rows."
+    },
+    {
+      "action": "wait",
+      "ms": 4000,
+      "progress": "Waiting for pagination controls…"
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"]",
+      "timeoutMs": 120000,
+      "stableMs": 2500,
+      "pollMs": 600,
+      "afterPageMs": 2500,
+      "expectedRowsPerPage": 0,
+      "allowLastPagePartial": true,
+      "maxPages": 1000,
+      "strictPagination": true,
+      "strictStability": true,
+      "strictPageSequence": true,
+      "pageParam": "page",
+      "requiredQueryParams": {
+        "time_scope_id": "0",
+        "nature_group": "",
+        "active": "true",
+        "per_page": "1000",
+        "crud_tab_id": ""
+      },
+      "dedupe": false,
+      "ignoreLastActionColumn": true,
+      "parser": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "svgBoolean": true,
+        "appendAttributes": [
+          {
+            "header": "__otd_dc_source",
+            "selector": "td:not(:empty)",
+            "attribute": "textContent"
+          }
+        ]
+      },
+      "pageProgress": "Extracting DC Time Scope page {{page}}…",
+      "progress": "Extracting every DC Time Scope page…",
+      "error": "No DC Time Scope rows were found.",
+      "storeAs": "dc",
+      "makeCurrent": false,
+      "stepAttempts": 2
+    },
+    {
+      "action": "mergeDatasets",
+      "sources": [
+        "dk",
+        "dc"
+      ],
+      "makeCurrent": true,
+      "progress": "Combining both extracted sources…"
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing background LG tab…"
+    }
+  ],
+  "retryPolicy": {
+    "attempts": 1,
+    "delayMs": 2500
+  },
+  "runtimeContract": "stable-host-13.0.24",
+  "businessLogicOwner": "remote",
+  "keepTabActive": false,
+  "output": {
+    "type": "internal"
+  },
+  "closeTabOnError": true
+}
