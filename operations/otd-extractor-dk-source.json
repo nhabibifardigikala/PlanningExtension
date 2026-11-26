@@ -1,0 +1,89 @@
+{
+  "enabled": true,
+  "handler": "generic",
+  "requiresCredentials": true,
+  "description": "Extract all active DK OTD rows from LG using 1000 rows per page.",
+  "navigation": {
+    "retryCount": 5,
+    "retryDelayMs": 750,
+    "completeTimeoutMs": 60000
+  },
+  "successMessage": "DK OTD source: {{rowCount}} rows extracted successfully.",
+  "workflow": [
+    {
+      "action": "open",
+      "url": "https://lg.digikala.com/dk-otd/?distribution_center_id=0&active=true&per_page=1000&crud_tab_id=&page=1",
+      "active": false,
+      "progress": "Opening DK OTD page 1…"
+    },
+    {
+      "action": "ensureLogin",
+      "detectTimeoutMs": 15000,
+      "progress": "Checking LG login…"
+    },
+    {
+      "action": "navigate",
+      "url": "https://lg.digikala.com/dk-otd/?distribution_center_id=0&active=true&per_page=1000&crud_tab_id=&page=1",
+      "active": false,
+      "completeTimeoutMs": 60000,
+      "progress": "Loading active DK OTD rows…"
+    },
+    {
+      "action": "waitFor",
+      "selector": "table",
+      "timeoutMs": 25000,
+      "intervalMs": 300,
+      "error": "DK OTD table was not found."
+    },
+    {
+      "action": "waitFor",
+      "selector": "table tbody tr",
+      "timeoutMs": 25000,
+      "intervalMs": 300,
+      "error": "DK OTD table contains no rows."
+    },
+    {
+      "action": "extractPaginatedTable",
+      "nextSelector": "a[aria-label=\"Next page\"],a[rel=\"next\"],.uk-pagination-next a",
+      "timeoutMs": 90000,
+      "stableMs": 2200,
+      "pollMs": 500,
+      "afterPageMs": 700,
+      "expectedRowsPerPage": 0,
+      "allowLastPagePartial": true,
+      "maxPages": 1000,
+      "strictPagination": true,
+      "strictStability": true,
+      "strictPageSequence": true,
+      "pageParam": "page",
+      "requiredQueryParams": {
+        "per_page": "1000"
+      },
+      "dedupe": false,
+      "ignoreLastActionColumn": true,
+      "parser": {
+        "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
+        "svgBoolean": true
+      },
+      "pageProgress": "Extracting DK OTD page {{page}}…",
+      "progress": "Extracting all DK OTD pages…",
+      "error": "DK OTD extraction returned no data."
+    },
+    {
+      "action": "closeTab",
+      "progress": "Closing DK OTD tab…"
+    }
+  ],
+  "retryPolicy": {
+    "attempts": 3,
+    "delayMs": 1800
+  },
+  "runtimeContract": "stable-host-13.0.24",
+  "businessLogicOwner": "remote",
+  "output": {
+    "type": "internal"
+  },
+  "closeTabOnError": true
+}

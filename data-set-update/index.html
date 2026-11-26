@@ -158,6 +158,20 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
         </div>
         <div class="agent-message-row"><div class="dataset-mini-status" data-status-for="iata-code-synchronizer">Ready</div><button class="view-details" data-error-details="iata-code-synchronizer" type="button" hidden>View details</button></div>
       </article>
+      <article class="agent-card" data-job="otd-extractor">
+        <div class="agent-card-top">
+          <div class="agent-title-block"><h2>OTD Extractor</h2><span class="agent-status-chip ready" data-status-chip-for="otd-extractor">Ready</span></div>
+          <div class="agent-actions">
+            <button class="sync-btn" data-run-job="otd-extractor" type="button" title="Run now" aria-label="Run OTD Extractor now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.6 6.4A8.95 8.95 0 0 0 12 3a9 9 0 0 0-8.5 6H1l4 4 4-4H6.6A6 6 0 0 1 17 7.2L14.2 10H21V3.2l-2.4 2.4v.8ZM5.4 17.6A8.95 8.95 0 0 0 12 21a9 9 0 0 0 8.5-6H23l-4-4-4 4h2.4A6 6 0 0 1 7 16.8L9.8 14H3v6.8l2.4-2.4v-.8Z"/></svg></button>
+          </div>
+        </div>
+        <div class="agent-metrics">
+          <div><span>Last run</span><strong data-last-run-for="otd-extractor">—</strong></div>
+          <div><span>Next run</span><strong data-next-run-for="otd-extractor">Manual</strong></div>
+          <div><span>Duration</span><strong data-duration-for="otd-extractor">—</strong></div>
+        </div>
+        <div class="agent-message-row"><div class="dataset-mini-status" data-status-for="otd-extractor">Ready</div><button class="view-details" data-error-details="otd-extractor" type="button" hidden>View details</button></div>
+      </article>
       <article class="agent-card" data-job="rejected-shipments-sync">
         <div class="agent-card-top">
           <div class="agent-title-block"><h2>Rejected Shipments Synchronizer</h2><span class="agent-status-chip ready" data-status-chip-for="rejected-shipments-sync">Ready</span></div>
@@ -262,7 +276,7 @@ html,body,button,input,select,textarea,option,table{font-family:"Gilroy Medium",
   </div>
   <script src="../ui/platform-client.js?v=447"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=529"></script>
+  <script src="app.js?v=547"></script>
 <script src="../ui/theme-bridge.js?v=447"></script><script src="../ui/table-component.js?v=509"></script>
 </body>
 </html>

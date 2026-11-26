@@ -15,6 +15,10 @@
       inputs:{shippingNetworkLookup:{headers:['__network_lookup_name','id'],rows:[],totalRows:0}},
       pipeline:{}
     },
+    'otd-extractor':{
+      id:'otd-extractor',label:'OTD Extractor',operationId:'otd-extractor-dk-source',sheetName:'DK OTD (LG)',output:{type:'internal'},enabled:false,minHostVersion:'13.0.24',manualOnly:true,
+      schedule:{type:'daily',time:'12:00',intervalHours:1},preOperations:[AGENTS_ACCESS_GATE],pipeline:{}
+    },
     'distribution-centers':{
       id:'distribution-centers',label:'Distribution Centers Extractor',operationId:'extract-dc',sheetName:'Distribution Centers (LG)',output:{type:'sheet'},enabled:false,
       schedule:{type:'daily',time:'12:00',intervalHours:1},
@@ -83,7 +87,7 @@
   }
   async function syncAgentDownloadButtons(){
     for(const card of document.querySelectorAll('.agent-card[data-job]')){
-      const id=card.dataset.job,actions=card.querySelector('.agent-actions'); if(!actions)continue;
+      const id=card.dataset.job,actions=card.querySelector('.agent-actions'); if(!actions||JOBS[id]?.manualOnly)continue;
       let b=actions.querySelector('[data-download-job]');
       if(!b){b=document.createElement('button');b.className='agent-download icon-btn';b.type='button';b.dataset.downloadJob=id;b.innerHTML=DOWNLOAD_ICON;b.title='Download last extracted output (saved before publishing)';b.setAttribute('aria-label',`Download ${JOBS[id]?.label||id} last output`);actions.insertBefore(b,actions.querySelector('.agent-history'));b.addEventListener('click',async()=>{try{b.disabled=true;const out=await downloadAgentOutput(id);toast(`Excel downloaded${out?.rowCount?` · ${out.rowCount.toLocaleString('en-US')} rows`:''}`)}catch(e){toast(e.message)}finally{await syncAgentDownloadButtons()}})}
       const m=await window.DigiExpressPlatform.runtime.sendMessage({type:'GET_AGENT_OUTPUT_META',opId:id}).catch(()=>null); b.disabled=!m?.available; b.classList.toggle('available',!!m?.available);
@@ -120,6 +124,83 @@
     return true;
   }
 
+  const OTD_STATE_KEY='digiexpress.agents.otd-extractor.state.v1';
+  function readOtdState(){try{return JSON.parse(localStorage.getItem(OTD_STATE_KEY)||'{}')||{}}catch(_){return {}}}
+  function writeOtdState(patch){const next={...readOtdState(),...patch};try{localStorage.setItem(OTD_STATE_KEY,JSON.stringify(next))}catch(_){}renderOtdJob();return next}
+  const faDigits='۰۱۲۳۴۵۶۷۸۹',arDigits='٠١٢٣٤٥٦٧٨٩';
+  function latinDigits(value){return String(value??'').replace(/[۰-۹]/g,ch=>String(faDigits.indexOf(ch))).replace(/[٠-٩]/g,ch=>String(arDigits.indexOf(ch)))}
+  function normOtdHeader(value){return latinDigits(value).normalize('NFKC').trim().toLocaleLowerCase().replace(/[()\[\]{}:_\-]+/g,' ').replace(/\s+/g,' ')}
+  function otdHeaderIndex(headers,aliases){const hs=(headers||[]).map(normOtdHeader),as=(aliases||[]).map(normOtdHeader);for(const a of as){const i=hs.indexOf(a);if(i>=0)return i}for(const a of as){const i=hs.findIndex(h=>h.includes(a)||a.includes(h));if(i>=0)return i}return -1}
+  function otdNumber(value){const x=latinDigits(value).replace(/[,،]/g,'').replace(/[^0-9.+-]/g,'').trim();if(!x)return 0;const n=Number(x);return Number.isFinite(n)?n:0}
+  function otdNameKey(value){return latinDigits(value).normalize('NFKC').trim().toLocaleLowerCase().replace(/[\u200c\u200f\u202a-\u202e]/g,'').replace(/\s+/g,' ')}
+  function normalizeOtdTimeScope(value){
+    const raw=latinDigits(value).normalize('NFKC').trim().toLocaleLowerCase().replace(/\u200c/g,' ').replace(/\s+/g,' ');
+    const nums=[...raw.matchAll(/(\d{1,2})(?::(\d{1,2}))?/g)].map(m=>({h:Number(m[1]),m:Number(m[2]||0)}));
+    if(nums.length>=2){const a=nums[0],b=nums[1],part=x=>`${x.h}:${String(x.m).padStart(2,'0')}`,display=x=>x.m?`${x.h}:${String(x.m).padStart(2,'0')}`:`${x.h}`;return {key:`${part(a)}-${part(b)}`,display:`${display(a)} - ${display(b)}`};}
+    const clean=raw.replace(/\bh\b/g,'').replace(/h/g,'').replace(/\s*-\s*/g,'-').replace(/\s+/g,' ').trim();return {key:clean,display:clean||raw};
+  }
+  function otdCombineKey(name,time){const t=normalizeOtdTimeScope(time);return `${otdNameKey(name)}|${t.key}`}
+  function requiredOtdColumn(headers,aliases,label){const i=otdHeaderIndex(headers,aliases);if(i<0)throw new Error(`OTD Extractor could not find ${label}. Headers: ${(headers||[]).join(' | ')}`);return i}
+  function buildOtdOutput(dk,dc){
+    const h1=Array.isArray(dk?.headers)?dk.headers:[],r1=Array.isArray(dk?.rows)?dk.rows:[],h2=Array.isArray(dc?.headers)?dc.headers:[],r2=Array.isArray(dc?.rows)?dc.rows:[];
+    if(!h1.length||!r1.length)throw new Error('DK OTD extraction returned no rows.');if(!h2.length||!r2.length)throw new Error('DC Time Scope extraction returned no rows.');
+    const first={
+      distributionCenterId:requiredOtdColumn(h1,['distribution center id','distribution_center_id','dc id'],'distribution center id'),
+      dc:requiredOtdColumn(h1,['dc','distribution center','distribution center name'],'dc'),
+      timeScope:requiredOtdColumn(h1,['time scope','time_scope','time scope name'],'time scope'),
+      submitType:requiredOtdColumn(h1,['submit type','submit_type'],'submit type'),
+      nature:requiredOtdColumn(h1,['nature','shipping nature'],'nature'),
+      regionType:requiredOtdColumn(h1,['region type','region_type'],'region type'),
+      deliveryType:requiredOtdColumn(h1,['delivery type','delivery_type'],'delivery type'),
+      fcDuration:requiredOtdColumn(h1,['fc duration','fc_duration'],'FC Duration'),
+      fcDepot:requiredOtdColumn(h1,['fc depot duration'],'fc depot duration'),
+      fcLoading:requiredOtdColumn(h1,['fc loading duration'],'fc loading duration'),
+      sendSc:requiredOtdColumn(h1,['send to sc duration'],'send to sc duration'),
+      scUnloading:requiredOtdColumn(h1,['sc unloading duration'],'sc unloading duration'),
+      dispatchDepot:requiredOtdColumn(h1,['dispatch and depot duration'],'dispatch and depot duration'),
+      loading:requiredOtdColumn(h1,['loading duration'],'loading duration'),
+      midMile:requiredOtdColumn(h1,['mid mile duration','mid-mile duration'],'mid mile duration'),
+      unloading:requiredOtdColumn(h1,['unloading duration'],'unloading duration'),
+      sorting:requiredOtdColumn(h1,['sorting duration'],'sorting duration'),
+      lastMile:requiredOtdColumn(h1,['last mile duration','last-mile duration'],'last mile duration')
+    };
+    const second={
+      dc:requiredOtdColumn(h2,['distribution center','distribution center name','dc'],'DISTRIBUTION CENTER'),
+      timeScope:requiredOtdColumn(h2,['time scope','time_scope','time scope name'],'TIME SCOPE'),
+      timeDistance:requiredOtdColumn(h2,['time distance min','time distance(min)','time distance','time_distance'],'Time distance(min)')
+    };
+    const lookup=new Map(),conflicts=new Set();
+    for(const row of r2){const key=otdCombineKey(row?.[second.dc],row?.[second.timeScope]);if(!key||key.startsWith('|'))continue;const v=otdNumber(row?.[second.timeDistance]);if(!lookup.has(key))lookup.set(key,v);else if(lookup.get(key)!==v)conflicts.add(key);}
+    for(const key of conflicts)lookup.delete(key);
+    const outHeaders=['Combine ID','distribution center id','dc','time scope','submit type','nature','region type','delivery type','FC Duration','fc depot duration','fc loading duration','send to sc duration','sc unloading duration','dispatch and depot duration','loading duration','mid mile duration','unloading duration','sorting duration','last mile duration','Fc Fulfill Duration'];
+    let matched=0,unmatched=0;const outRows=[];
+    for(const row of r1){const dcName=row?.[first.dc]??'',timeRaw=row?.[first.timeScope]??'',time=normalizeOtdTimeScope(timeRaw),combine=`${String(dcName).trim()} [${time.display}]`,key=otdCombineKey(dcName,timeRaw);const td=lookup.get(key);let fulfill='';
+      if(td!==undefined){const sum=[first.fcDepot,first.fcLoading,first.sendSc,first.scUnloading,first.dispatchDepot,first.loading,first.midMile,first.unloading,first.sorting,first.lastMile].reduce((n,i)=>n+otdNumber(row?.[i]),0);fulfill=td-sum;matched++;}else unmatched++;
+      outRows.push([combine,row?.[first.distributionCenterId]??'',dcName,time.display,row?.[first.submitType]??'',row?.[first.nature]??'',row?.[first.regionType]??'',row?.[first.deliveryType]??'',row?.[first.fcDuration]??'',row?.[first.fcDepot]??'',row?.[first.fcLoading]??'',row?.[first.sendSc]??'',row?.[first.scUnloading]??'',row?.[first.dispatchDepot]??'',row?.[first.loading]??'',row?.[first.midMile]??'',row?.[first.unloading]??'',row?.[first.sorting]??'',row?.[first.lastMile]??'',fulfill]);
+    }
+    return {headers:outHeaders,rows:outRows,matched,unmatched,ambiguous:conflicts.size,sourceRows:{dk:r1.length,dc:r2.length}};
+  }
+  async function publishOtdDataset(result){
+    const url=REJECTED_DATASETS_WEB_APP_URL||sharedWebAppUrl();if(!url)throw new Error('Google Sheets publishing is not configured.');
+    const response=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'replaceDataset',dataset:'otd-extractor',sheetName:'DK OTD (LG)',headers:result.headers,rows:result.rows}),responseType:'json',timeoutMs:120000,credentials:'include'}});
+    if(!response?.ok)throw new Error(response?.error||'Could not publish DK OTD (LG).');const data=response?.data||{};if(data?.ok===false)throw new Error(data.error||'Could not publish DK OTD (LG).');return data;
+  }
+  async function runOtdExtractor(){
+    await assertAgentsAccess();await assertJobHostCompatibility(JOBS['otd-extractor']);
+    const startedAt=Date.now();writeOtdState({running:true,startedAt,lastError:'',lastStatus:'Running',phase:'Extracting DK OTD…'});
+    try{
+      const a=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:'otd-extractor-dk-source',inputs:{},awaitCompletion:true,silentDone:true});if(!a?.ok)throw new Error(a?.error||'DK OTD extraction failed.');
+      writeOtdState({phase:'Extracting DC Time Scope…'});
+      const b=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:'otd-extractor-dc-time-scope-source',inputs:{},awaitCompletion:true,silentDone:true});if(!b?.ok)throw new Error(b?.error||'DC Time Scope extraction failed.');
+      writeOtdState({phase:'Joining sources and calculating Fc Fulfill Duration…'});
+      const out=buildOtdOutput(a.result||{},b.result||{});writeOtdState({phase:'Publishing DK OTD (LG)…'});await publishOtdDataset(out);
+      const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Success',lastError:'',lastRunAt:endedAt,lastDurationMs:endedAt-startedAt,rowCount:out.rows.length,matched:out.matched,unmatched:out.unmatched,ambiguous:out.ambiguous});toast(`OTD Extractor completed · ${out.rows.length.toLocaleString('en-US')} rows`);
+    }catch(e){const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Failed',lastError:String(e?.message||e),lastRunAt:endedAt,lastDurationMs:endedAt-startedAt});toast(String(e?.message||e));}
+  }
+  function renderOtdJob(){
+    const id='otd-extractor',st=readOtdState(),run=document.querySelector(`[data-run-job="${id}"]`),mini=document.querySelector(`[data-status-for="${id}"]`),chip=document.querySelector(`[data-status-chip-for="${id}"]`),last=document.querySelector(`[data-last-run-for="${id}"]`),next=document.querySelector(`[data-next-run-for="${id}"]`),dur=document.querySelector(`[data-duration-for="${id}"]`),details=document.querySelector(`[data-error-details="${id}"]`);if(!run||!mini)return;
+    run.disabled=!!st.running;run.classList.toggle('running',!!st.running);run.classList.remove('cancel-mode');setRunButtonVisual(run,false,JOBS[id].label);if(chip){const kind=st.running?'running':st.lastStatus==='Success'?'success':st.lastError?'failed':'ready';chip.className=`agent-status-chip ${kind}`;chip.textContent=st.running?(st.phase||'Running'):(st.lastStatus||'Ready');}if(last)last.textContent=fmt(st.lastRunAt);if(next)next.textContent='Manual';if(dur)dur.textContent=fmtDuration(st.running&&st.startedAt?Date.now()-Number(st.startedAt):st.lastDurationMs);mini.className='dataset-mini-status';if(st.running){mini.textContent=st.phase||'Working…';mini.classList.add('busy')}else if(st.lastError){mini.textContent=shortError(st.lastError);mini.classList.add('error')}else if(st.lastStatus==='Success'){mini.textContent=`Completed · ${Number(st.rowCount||0).toLocaleString('en-US')} rows · ${Number(st.matched||0).toLocaleString('en-US')} joined${st.unmatched?` · ${Number(st.unmatched).toLocaleString('en-US')} unmatched`:''}`;}else mini.textContent='Ready';if(details)details.hidden=!st.lastError;
+  }
   const fmt=v=>v?new Date(v).toLocaleString():'—';
   const fmtDuration=ms=>{const n=Number(ms||0);if(!n)return '—';const sec=Math.max(0,Math.round(n/1000));if(sec<60)return `${sec}s`;const min=Math.floor(sec/60),rest=sec%60;if(min<60)return `${min}m ${rest}s`;const h=Math.floor(min/60);return `${h}h ${min%60}m`;};
   const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -223,6 +304,7 @@
   }
 
   function renderJob(id){
+    if(id==='otd-extractor'){renderOtdJob();return;}
     const st=getState(id),run=document.querySelector(`[data-run-job="${id}"]`),mini=document.querySelector(`[data-status-for="${id}"]`),chip=document.querySelector(`[data-status-chip-for="${id}"]`),last=document.querySelector(`[data-last-run-for="${id}"]`),next=document.querySelector(`[data-next-run-for="${id}"]`),dur=document.querySelector(`[data-duration-for="${id}"]`),details=document.querySelector(`[data-error-details="${id}"]`);
     if(!run||!mini)return;
     const isRunning=!!st.running;run.classList.toggle('running',isRunning);run.classList.toggle('cancel-mode',isRunning);run.disabled=false;setRunButtonVisual(run,isRunning,JOBS[id].label);
@@ -260,7 +342,7 @@
       $('historyList').innerHTML=rows.length?rows.map(row=>`<article class="history-item"><div class="history-item-head"><span class="history-status ${String(row.status||'').toLowerCase()}">${esc(row.status||'Unknown')}</span><strong>${esc(fmt(row.endedAt||row.startedAt))}</strong></div><div class="history-meta"><span>${esc(row.source==='automatic'?'Scheduled':'Manual')}</span><span>${esc(fmtDuration(row.durationMs))}</span>${row.rowCount!=null?`<span>${esc(row.rowCount)} records</span>`:''}</div>${row.error?`<div class="history-error">${esc(friendlyError(row.error))}</div>`:''}</article>`).join(''):'<div class="history-empty">No execution history yet.</div>';
     }catch(e){$('historyList').innerHTML=`<div class="history-empty error">${esc(e.message)}</div>`;}
   }
-  function openErrorDetails(id){const st=getState(id),raw=String(st.lastError||'');if(!raw)return;const friendly=friendlyError(raw);$('errorDetailsTitle').textContent=JOBS[id].label;$('errorDetailsBody').innerHTML=`<section class="error-detail-block"><span>What happened</span><strong>${esc(friendly)}</strong></section><section class="error-detail-block"><span>Technical detail</span><code>${esc(raw)}</code></section><section class="error-detail-block"><span>Recommended action</span><strong>Retry the Agent. If the issue repeats, open Diagnostics from Settings and review the failed URL, selector and tab details.</strong></section>`;openModal('errorDetailsModal');}
+  function openErrorDetails(id){const st=id==='otd-extractor'?readOtdState():getState(id),raw=String(st.lastError||'');if(!raw)return;const friendly=friendlyError(raw);$('errorDetailsTitle').textContent=JOBS[id].label;$('errorDetailsBody').innerHTML=`<section class="error-detail-block"><span>What happened</span><strong>${esc(friendly)}</strong></section><section class="error-detail-block"><span>Technical detail</span><code>${esc(raw)}</code></section><section class="error-detail-block"><span>Recommended action</span><strong>Retry the Agent. If the issue repeats, open Diagnostics from Settings and review the failed URL, selector and tab details.</strong></section>`;openModal('errorDetailsModal');}
   function startFastPoll(){if(pollTimer)return;pollTimer=setInterval(()=>refresh({quiet:true}).catch(()=>{}),1200)}
   function stopFastPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null}}
 
@@ -268,7 +350,8 @@
     if(migrationDone)return state;
     let changed=false;
     for(const id of Object.keys(JOBS)){
-      const cur=state?.jobs?.[id];const defs=JOBS[id];
+      const defs=JOBS[id];if(defs.manualOnly)continue;
+      const cur=state?.jobs?.[id];
       const pre=Array.isArray(cur?.preOperations)?cur.preOperations:[];
       const preOk=JSON.stringify(pre)===JSON.stringify(defs.preOperations||[]);
       const opOk=cur?.operationId===defs.operationId&&String(cur?.sheetName||'')===String(defs.sheetName||'');
@@ -291,7 +374,7 @@
   $('scheduleType').addEventListener('change',updateScheduleControls);$('enabled').addEventListener('change',updateScheduleControls);
 
   $('saveConnection').addEventListener('click',async()=>{
-    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||base.pipeline||null,dspace:JOBS[id].dspace||base.dspace||null,retry:JOBS[id].retry||base.retry,inputs:{...(JOBS[id].inputs||{}),...(base.inputs||{})}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
+    const btn=$('saveConnection');try{btn.disabled=true;const url=$('webAppUrl').value.trim();try{if(url)localStorage.setItem('digiexpress.dataset.webAppUrl',url);else localStorage.removeItem('digiexpress.dataset.webAppUrl')}catch(_){};for(const id of Object.keys(JOBS)){if(JOBS[id].manualOnly)continue;const base=getJob(id);await request('saveJob',{job:{...JOBS[id],...base,webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||base.pipeline||null,dspace:JOBS[id].dspace||base.dspace||null,retry:JOBS[id].retry||base.retry,inputs:{...(JOBS[id].inputs||{}),...(base.inputs||{})}}})}await refresh({quiet:true});toast('Google Sheets connection saved');closeModal('appSettingsModal')}
     catch(e){$('connectionStatus').textContent=e.message;$('connectionStatus').classList.add('error')}
     finally{btn.disabled=false}
   });
@@ -302,7 +385,7 @@
   });
 
   document.querySelectorAll('[data-run-job]').forEach(run=>run.addEventListener('click',async()=>{
-    const id=run.dataset.runJob,st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
+    const id=run.dataset.runJob;if(id==='otd-extractor'){if(readOtdState().running){toast('OTD Extractor is already running');return;}await runOtdExtractor();return;}const st=getState(id),mini=document.querySelector(`[data-status-for="${id}"]`);
     if(st.running){try{setRunButtonVisual(run,true,JOBS[id].label);mini.textContent='Stopping operation…';mini.className='dataset-mini-status busy';await request('cancel',{jobId:id});toast('Operation stopped');await refresh({quiet:true})}catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error'}return;}
     try{
       await assertAgentsAccess();
@@ -324,6 +407,6 @@
     }catch(e){mini.textContent=e.message;mini.className='dataset-mini-status error';toast(e.message);try{await refresh({quiet:true})}catch(_){}}
   }));
 
-  initAgentArchiveUi();
-  refresh().then(()=>syncAgentDownloadButtons()).catch(()=>{}); chrome.storage?.onChanged?.addListener?.(()=>syncAgentDownloadButtons().catch(()=>{})); setInterval(()=>syncAgentDownloadButtons().catch(()=>{}),5000);setInterval(()=>{if(document.visibilityState==='visible'&&!pollTimer)refresh({quiet:true}).catch(()=>{})},30000);
+  initAgentArchiveUi();renderOtdJob();
+  refresh().then(()=>{renderOtdJob();return syncAgentDownloadButtons()}).catch(()=>{}); chrome.storage?.onChanged?.addListener?.(()=>syncAgentDownloadButtons().catch(()=>{})); setInterval(()=>syncAgentDownloadButtons().catch(()=>{}),5000);setInterval(()=>{if(document.visibilityState==='visible'&&!pollTimer)refresh({quiet:true}).catch(()=>{})},30000);
 })();
