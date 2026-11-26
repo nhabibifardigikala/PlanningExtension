@@ -87,7 +87,7 @@
   }
   async function syncAgentDownloadButtons(){
     for(const card of document.querySelectorAll('.agent-card[data-job]')){
-      const id=card.dataset.job,actions=card.querySelector('.agent-actions'); if(!actions||JOBS[id]?.manualOnly||id==='otd-extractor')continue;
+      const id=card.dataset.job,actions=card.querySelector('.agent-actions'); if(!actions||JOBS[id]?.manualOnly)continue;
       let b=actions.querySelector('[data-download-job]');
       if(!b){b=document.createElement('button');b.className='agent-download icon-btn';b.type='button';b.dataset.downloadJob=id;b.innerHTML=DOWNLOAD_ICON;b.title='Download last extracted output (saved before publishing)';b.setAttribute('aria-label',`Download ${JOBS[id]?.label||id} last output`);actions.insertBefore(b,actions.querySelector('.agent-history'));b.addEventListener('click',async()=>{try{b.disabled=true;const out=await downloadAgentOutput(id);toast(`Excel downloaded${out?.rowCount?` · ${out.rowCount.toLocaleString('en-US')} rows`:''}`)}catch(e){toast(e.message)}finally{await syncAgentDownloadButtons()}})}
       const m=await window.DigiExpressPlatform.runtime.sendMessage({type:'GET_AGENT_OUTPUT_META',opId:id}).catch(()=>null); b.disabled=!m?.available; b.classList.toggle('available',!!m?.available);
@@ -233,7 +233,7 @@
     const kind=statusKind(st),statusText=isRunning?(st.phase||'Running'):String(st.lastStatus||'Ready');
     if(chip){chip.className=`agent-status-chip ${kind}`;chip.textContent=statusText;}
     if(last)last.textContent=fmt(st.lastRunAt);
-    if(next)next.textContent=id==='otd-extractor'?'Manual':fmt(st.nextRunAt);
+    if(next)next.textContent=fmt(st.nextRunAt);
     if(dur)dur.textContent=fmtDuration(isRunning&&st.startedAt?Date.now()-Number(st.startedAt):st.lastDurationMs);
     mini.className='dataset-mini-status';
     if(st.running){mini.textContent=st.phase||'Working…';mini.classList.add('busy');}
@@ -316,7 +316,7 @@
       let url=sharedWebAppUrl()||JOBS[id].webAppUrl||'';
       if(id==='rejected-shipments-sync')url=await resolveRejectedDatasetEndpoint();
       let job={...JOBS[id],...getJob(id),webAppUrl:url,preOperations:JOBS[id].preOperations,pipeline:JOBS[id].pipeline||getJob(id).pipeline||null,dspace:JOBS[id].dspace||getJob(id).dspace||null,retry:JOBS[id].retry||getJob(id).retry};
-      if(id==='otd-extractor'){job.enabled=false;job.operationId=JOBS[id].operationId;job.output=JOBS[id].output;job.sheetName=JOBS[id].sheetName;mini.textContent='Extracting DK OTD and DC Time Scope in background…';}
+      if(id==='otd-extractor'){job.operationId=JOBS[id].operationId;job.output=JOBS[id].output;job.sheetName=JOBS[id].sheetName;mini.textContent='Extracting DK OTD and DC Time Scope in background…';}
       if(id==='shipping-network-td')job.inputs={...(job.inputs||{}),shippingNetworkLookup:JOBS[id].inputs.shippingNetworkLookup};
       if(id==='iata-code-synchronizer'||id==='rejected-shipments-sync'||id==='rejected-shipments-dspace'){const saved={...(JOBS[id].inputs||{}),...(job.inputs||{})};job.inputs=saved;}
       if(id==='rejected-shipments-sync'){

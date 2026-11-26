@@ -1,11 +1,11 @@
 {
-  "configVersion": 551,
+  "configVersion": 554,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 551",
+    "subtitle": "Planning Suite · Config 554",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 551
+    "configVersion": 554
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -483,7 +483,7 @@
       "subtitle": "Shipping network overview",
       "accessControl": "column",
       "description": "Open the Shipping Network overview dashboard with LG ID/LG Reserve, Arrive time, route switch and view history.",
-      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/network-overview/index.html?v=539",
+      "externalUrl": "https://nhabibifardigikala.github.io/PlanningExtension/network-overview/index.html?v=554",
       "category": "network",
       "output": {
         "type": "none"
