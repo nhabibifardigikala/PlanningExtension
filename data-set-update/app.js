@@ -185,15 +185,24 @@
     const response=await window.DigiExpressPlatform.runtime.sendMessage({type:'REMOTE_HTTP_REQUEST',request:{url,method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'replaceDataset',dataset:'otd-extractor',sheetName:'DK OTD (LG)',headers:result.headers,rows:result.rows}),responseType:'json',timeoutMs:120000,credentials:'include'}});
     if(!response?.ok)throw new Error(response?.error||'Could not publish DK OTD (LG).');const data=response?.data||{};if(data?.ok===false)throw new Error(data.error||'Could not publish DK OTD (LG).');return data;
   }
+  async function runOtdSourceJob(jobId,label,operationId){
+    const job={id:jobId,label,operationId,enabled:false,schedule:{type:'daily',time:'12:00',intervalHours:1},retry:{attempts:1,delayMs:0,backoff:1},inputs:{},preOperations:[],output:{type:'internal'},sheetName:'',pipeline:null};
+    await request('saveJob',{job});
+    const run=await request('runNow',{jobId});
+    if(!run?.ok)throw new Error(run?.error||`${label} failed.`);
+    const result=run?.result||{};
+    if(!Array.isArray(result?.headers)||!Array.isArray(result?.rows))throw new Error(`${label} returned no table output.`);
+    return result;
+  }
   async function runOtdExtractor(){
     await assertAgentsAccess();await assertJobHostCompatibility(JOBS['otd-extractor']);
     const startedAt=Date.now();writeOtdState({running:true,startedAt,lastError:'',lastStatus:'Running',phase:'Extracting DK OTD…'});
     try{
-      const a=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:'otd-extractor-dk-source',inputs:{},awaitCompletion:true,silentDone:true});if(!a?.ok)throw new Error(a?.error||'DK OTD extraction failed.');
+      const a=await runOtdSourceJob('otd-dk-source-job','OTD Extractor · DK OTD Source','otd-extractor-dk-source');
       writeOtdState({phase:'Extracting DC Time Scope…'});
-      const b=await window.DigiExpressPlatform.runtime.sendMessage({type:'RUN_REMOTE_OPERATION',op:'otd-extractor-dc-time-scope-source',inputs:{},awaitCompletion:true,silentDone:true});if(!b?.ok)throw new Error(b?.error||'DC Time Scope extraction failed.');
+      const b=await runOtdSourceJob('otd-dc-time-scope-source-job','OTD Extractor · DC Time Scope Source','otd-extractor-dc-time-scope-source');
       writeOtdState({phase:'Joining sources and calculating Fc Fulfill Duration…'});
-      const out=buildOtdOutput(a.result||{},b.result||{});writeOtdState({phase:'Publishing DK OTD (LG)…'});await publishOtdDataset(out);
+      const out=buildOtdOutput(a,b);writeOtdState({phase:'Publishing DK OTD (LG)…'});await publishOtdDataset(out);
       const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Success',lastError:'',lastRunAt:endedAt,lastDurationMs:endedAt-startedAt,rowCount:out.rows.length,matched:out.matched,unmatched:out.unmatched,ambiguous:out.ambiguous});toast(`OTD Extractor completed · ${out.rows.length.toLocaleString('en-US')} rows`);
     }catch(e){const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Failed',lastError:String(e?.message||e),lastRunAt:endedAt,lastDurationMs:endedAt-startedAt});toast(String(e?.message||e));}
   }
