@@ -44,32 +44,22 @@
     },
     {
       "action": "extractPaginatedTable",
-      "nextSelector": "a[aria-label=\"Next page\"],a[rel=\"next\"],.uk-pagination-next a",
+      "nextSelector": "a[aria-label=\"Next page\"]",
       "timeoutMs": 90000,
-      "stableMs": 2200,
-      "pollMs": 500,
-      "afterPageMs": 700,
-      "expectedRowsPerPage": 0,
+      "expectedRowsPerPage": 1000,
       "allowLastPagePartial": true,
-      "maxPages": 1000,
-      "strictPagination": true,
-      "strictStability": true,
-      "strictPageSequence": true,
-      "pageParam": "page",
-      "requiredQueryParams": {
-        "per_page": "1000"
-      },
+      "pollMs": 2000,
+      "afterPageMs": 900,
       "dedupe": false,
+      "maxPages": 1000,
       "ignoreLastActionColumn": true,
       "parser": {
         "tableSelector": "table",
-        "headerSelector": "thead th",
-        "rowSelector": "tbody tr",
         "svgBoolean": true
       },
       "pageProgress": "Extracting DK OTD page {{page}}…",
       "progress": "Extracting all DK OTD pages…",
-      "error": "DK OTD extraction returned no data."
+      "error": "No DK OTD rows were found."
     },
     {
       "action": "closeTab",
