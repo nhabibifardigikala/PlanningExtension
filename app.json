@@ -1,11 +1,11 @@
 {
-  "configVersion": 549,
+  "configVersion": 550,
   "minEngineVersion": "13.0.0",
   "app": {
     "name": "Digiexpress",
-    "subtitle": "Planning Suite · Config 549",
+    "subtitle": "Planning Suite · Config 550",
     "logoUrl": "icons/logo.png?v=518",
-    "configVersion": 549
+    "configVersion": 550
   },
   "theme": "theme.json?v=518",
   "settings": "settings.json?v=518",
@@ -275,7 +275,7 @@
         "Agents"
       ],
       "accessControl": "column",
-      "config": "operations/otd-extractor-dk-source.json?v=548",
+      "config": "operations/otd-extractor-dk-source.json?v=550",
       "enabled": true,
       "internalOnly": true,
       "category": "agents",
@@ -292,7 +292,7 @@
         "Agents"
       ],
       "accessControl": "column",
-      "config": "operations/otd-extractor-dc-time-scope-source.json?v=548",
+      "config": "operations/otd-extractor-dc-time-scope-source.json?v=550",
       "enabled": true,
       "internalOnly": true,
       "category": "agents",

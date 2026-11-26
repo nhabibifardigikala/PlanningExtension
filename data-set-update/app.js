@@ -124,7 +124,7 @@
     return true;
   }
 
-  const OTD_STATE_KEY='digiexpress.agents.otd-extractor.state.v1';
+  const OTD_STATE_KEY='digiexpress.agents.otd-extractor.state.v2';
   function readOtdState(){try{return JSON.parse(localStorage.getItem(OTD_STATE_KEY)||'{}')||{}}catch(_){return {}}}
   function writeOtdState(patch){const next={...readOtdState(),...patch};try{localStorage.setItem(OTD_STATE_KEY,JSON.stringify(next))}catch(_){}renderOtdJob();return next}
   const faDigits='۰۱۲۳۴۵۶۷۸۹',arDigits='٠١٢٣٤٥٦٧٨٩';
@@ -196,14 +196,14 @@
   }
   async function runOtdExtractor(){
     await assertAgentsAccess();await assertJobHostCompatibility(JOBS['otd-extractor']);
-    const startedAt=Date.now();writeOtdState({running:true,startedAt,lastError:'',lastStatus:'Running',phase:'Extracting DK OTD…'});
+    const startedAt=Date.now();writeOtdState({running:true,startedAt,lastError:'',lastStatus:'Running',phase:'Extracting every DK OTD page…'});
     try{
       const a=await runOtdSourceJob('otd-dk-source-job','OTD Extractor · DK OTD Source','otd-extractor-dk-source');
-      writeOtdState({phase:'Extracting DC Time Scope…'});
+      writeOtdState({phase:'Extracting every DC Time Scope page…'});
       const b=await runOtdSourceJob('otd-dc-time-scope-source-job','OTD Extractor · DC Time Scope Source','otd-extractor-dc-time-scope-source');
       writeOtdState({phase:'Joining sources and calculating Fc Fulfill Duration…'});
       const out=buildOtdOutput(a,b);writeOtdState({phase:'Publishing DK OTD (LG)…'});await publishOtdDataset(out);
-      const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Success',lastError:'',lastRunAt:endedAt,lastDurationMs:endedAt-startedAt,rowCount:out.rows.length,matched:out.matched,unmatched:out.unmatched,ambiguous:out.ambiguous});toast(`OTD Extractor completed · ${out.rows.length.toLocaleString('en-US')} rows`);
+      const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Success',lastError:'',lastRunAt:endedAt,lastDurationMs:endedAt-startedAt,rowCount:out.rows.length,matched:out.matched,unmatched:out.unmatched,ambiguous:out.ambiguous});toast(`OTD Extractor completed · DK ${out.sourceRows.dk.toLocaleString('en-US')} · DC TS ${out.sourceRows.dc.toLocaleString('en-US')} · Output ${out.rows.length.toLocaleString('en-US')}`);
     }catch(e){const endedAt=Date.now();writeOtdState({running:false,phase:'',lastStatus:'Failed',lastError:String(e?.message||e),lastRunAt:endedAt,lastDurationMs:endedAt-startedAt});toast(String(e?.message||e));}
   }
   function renderOtdJob(){

@@ -2,18 +2,18 @@
   "enabled": true,
   "handler": "generic",
   "requiresCredentials": true,
-  "description": "Extract all active DC Time Scope rows from LG using 1000 rows per page.",
+  "description": "Extract every active DC Time Scope page from LG. Remote-only source for OTD Extractor.",
   "navigation": {
-    "retryCount": 5,
+    "retryCount": 8,
     "retryDelayMs": 750,
     "completeTimeoutMs": 60000
   },
-  "successMessage": "DC Time Scope source: {{rowCount}} rows extracted successfully.",
+  "successMessage": "DC Time Scope: {{rowCount}} rows extracted successfully.",
   "workflow": [
     {
       "action": "open",
       "url": "https://lg.digikala.com/dc-time-scope/?time_scope_id=0&nature_group=&active=true&per_page=1000&crud_tab_id=&page=1",
-      "active": false,
+      "active": true,
       "progress": "Opening DC Time Scope page 1…"
     },
     {
@@ -24,41 +24,70 @@
     {
       "action": "navigate",
       "url": "https://lg.digikala.com/dc-time-scope/?time_scope_id=0&nature_group=&active=true&per_page=1000&crud_tab_id=&page=1",
-      "active": false,
+      "active": true,
       "completeTimeoutMs": 60000,
-      "progress": "Loading active DC Time Scope rows…"
+      "progress": "Loading DC Time Scope page 1…"
+    },
+    {
+      "action": "wait",
+      "ms": 12000,
+      "progress": "Waiting for DC Time Scope table and pagination to finish rendering…"
     },
     {
       "action": "waitFor",
       "selector": "table",
-      "timeoutMs": 25000,
+      "timeoutMs": 12000,
       "intervalMs": 300,
+      "stepAttempts": 5,
+      "stepRetryDelayMs": 1000,
       "error": "DC Time Scope table was not found."
     },
     {
       "action": "waitFor",
       "selector": "table tbody tr",
-      "timeoutMs": 25000,
-      "intervalMs": 300,
+      "timeoutMs": 18000,
+      "intervalMs": 350,
+      "stepAttempts": 5,
+      "stepRetryDelayMs": 1000,
       "error": "DC Time Scope table contains no rows."
+    },
+    {
+      "action": "setPageZoom",
+      "zoom": 0.25,
+      "progress": "Preparing the LG table…"
+    },
+    {
+      "action": "wait",
+      "ms": 4000,
+      "progress": "Waiting for pagination controls…"
     },
     {
       "action": "extractPaginatedTable",
       "nextSelector": "a[aria-label=\"Next page\"]",
-      "timeoutMs": 90000,
-      "expectedRowsPerPage": 1000,
+      "timeoutMs": 120000,
+      "stableMs": 8000,
+      "pollMs": 600,
+      "afterPageMs": 2500,
+      "expectedRowsPerPage": 0,
       "allowLastPagePartial": true,
-      "pollMs": 2000,
-      "afterPageMs": 900,
-      "dedupe": false,
       "maxPages": 1000,
+      "strictPagination": true,
+      "strictStability": true,
+      "strictPageSequence": true,
+      "pageParam": "page",
+      "requiredQueryParams": {
+        "per_page": "1000"
+      },
+      "dedupe": false,
       "ignoreLastActionColumn": true,
       "parser": {
         "tableSelector": "table",
+        "headerSelector": "thead th",
+        "rowSelector": "tbody tr",
         "svgBoolean": true
       },
       "pageProgress": "Extracting DC Time Scope page {{page}}…",
-      "progress": "Extracting all DC Time Scope pages…",
+      "progress": "Extracting every DC Time Scope page…",
       "error": "No DC Time Scope rows were found."
     },
     {
@@ -67,11 +96,12 @@
     }
   ],
   "retryPolicy": {
-    "attempts": 3,
-    "delayMs": 1800
+    "attempts": 2,
+    "delayMs": 2500
   },
   "runtimeContract": "stable-host-13.0.24",
   "businessLogicOwner": "remote",
+  "keepTabActive": true,
   "output": {
     "type": "internal"
   },
