@@ -241,6 +241,12 @@ body { padding-left: 68px; }
 .point-panel table { min-width: 680px; }
 #point-view .point-panel:last-child table { min-width: 1150px; }
 @media(max-width: 460px) { body { padding-left: 52px; } .overview-rail { width: 52px; padding: 16px 5px; } .overview-rail .rail-icon, #theme-toggle { width: 38px; height: 38px; } }
+
+/* Every table scrolls independently with its column headings pinned. */
+.panel .table-scroll { max-height: calc(var(--header-height) + 10 * var(--row-height)); overflow: auto; scrollbar-gutter: stable; }
+.panel thead th { position: sticky; top: 0; z-index: 2; background: var(--header); }
+.panel th:has(.capacity-sort) { padding: 0; }
+#capacity-panel table { min-width: 720px; }
 </style>
 </head>
 <body>
@@ -396,21 +402,10 @@ body { padding-left: 68px; }
     <section id="capacity-panel" class="panel secondary" aria-labelledby="capacity-title">
       <header class="section-head">
         <h2 id="capacity-title">Capacity</h2>
-        <div class="capacity-dates" role="group" aria-label="Capacity date range">
-          <div class="date-field">
-            <label class="field-label" for="capacity-from">From date</label>
-            <input id="capacity-from" type="text" lang="fa" dir="ltr" placeholder="YYYY/MM/DD" inputmode="numeric" autocomplete="off" aria-describedby="capacity-date-error">
-          </div>
-          <div class="date-field">
-            <label class="field-label" for="capacity-to">To date</label>
-            <input id="capacity-to" type="text" lang="fa" dir="ltr" placeholder="YYYY/MM/DD" inputmode="numeric" autocomplete="off" aria-describedby="capacity-date-error">
-          </div>
-        </div>
       </header>
-      <p id="capacity-date-error" class="date-error" role="status"></p>
       <div class="table-scroll" tabindex="0" role="region" aria-labelledby="capacity-title">
         <table>
-          <thead><tr><th scope="col">Time Scope</th><th scope="col">Date</th><th scope="col">Capacity</th><th scope="col">Reserved</th><th scope="col">Active</th><th scope="col">Close</th><th scope="col">LG Reserve</th></tr></thead>
+          <thead><tr><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="0"><span>Time Scope</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="1"><span>Date</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="2"><span>Capacity</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="3"><span>Reserved</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="4"><span>Active</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="5"><span>Close</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="6"><span>LG Reserve</span><span class="sort-icon" aria-hidden="true">↕</span></button></th></tr></thead>
           <tbody id="capacity-results"></tbody>
         </table>
       </div>
@@ -430,7 +425,7 @@ body { padding-left: 68px; }
 <div class="panels">
 <section class="panel point-panel point-list"><header class="section-head"><h2>Shipping Points</h2><span class="count" id="point-count"></span></header><div class="table-scroll"><table><thead><tr><th><button type="button" data-point-sort="1">TITLE FA ↕</button></th><th><button type="button" data-point-sort="2">TYPE ↕</button></th><th><button type="button" data-point-sort="3">USER ID ↕</button></th><th><button type="button" data-point-sort="4">ACTIVE ↕</button></th><th><button type="button" data-point-sort="5">CODE ↕</button></th><th><button type="button" data-point-sort="6">HASH ID ↕</button></th><th><button type="button" data-point-sort="7">REFERENCE ID ↕</button></th></tr></thead><tbody id="point-rows"></tbody></table></div><div class="point-note" id="point-message" role="status"></div></section>
 <section class="panel secondary point-panel"><header class="section-head"><h2>Time Scopes</h2><span id="point-selected" class="count" dir="auto"></span></header><div class="table-scroll"><table><thead><tr><th>Shipping Point</th><th>Time Scope</th><th>type</th><th>active</th></tr></thead><tbody id="point-scopes"></tbody></table></div><div class="point-note" id="point-scope-message"></div></section>
-<section class="panel secondary point-panel"><header class="section-head"><h2>Capacity</h2><div class="point-dates"><div class="field"><label class="field-label" for="point-cap-type">Type</label><select id="point-cap-type"><option value="">All</option></select></div><div class="date-field"><label class="field-label" for="point-from-date">From date</label><input id="point-from-date" placeholder="YYYY/MM/DD"></div><div class="date-field"><label class="field-label" for="point-to-date">To date</label><input id="point-to-date" placeholder="YYYY/MM/DD"></div><div class="field"><label class="field-label" for="point-cap-size">Shipping Size</label><select id="point-cap-size"><option value="">All</option></select></div></div></header><div class="table-scroll"><table><thead><tr><th>Shipping Point</th><th>type</th><th>date</th><th>Time Scope</th><th>Shipping Size</th><th>capacity</th><th>reserved capacity</th><th>is active</th><th>is mid mile</th><th>created at</th><th>Created By</th></tr></thead><tbody id="point-capacity"></tbody></table></div><div class="point-note" id="point-cap-message"></div></section>
+<section class="panel secondary point-panel"><header class="section-head"><h2>Capacity</h2></header><div class="table-scroll"><table><thead><tr><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="0"><span>Shipping Point</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="1"><span>type</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="2"><span>date</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="3"><span>Time Scope</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="4"><span>Shipping Size</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="5"><span>capacity</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="6"><span>reserved capacity</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="7"><span>is active</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="8"><span>is mid mile</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="9"><span>created at</span><span class="sort-icon" aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-button capacity-sort" data-cap-column="10"><span>Created By</span><span class="sort-icon" aria-hidden="true">↕</span></button></th></tr></thead><tbody id="point-capacity"></tbody></table></div><div class="point-note" id="point-cap-message"></div></section>
 </div></div>
 </main>
 <script>
@@ -452,14 +447,13 @@ body { padding-left: 68px; }
       calendar, timeZone: "Asia/Tehran", year: "numeric", month: "numeric", day: "numeric"
     })
   ]));
-  const capacityDates = ["capacity-from", "capacity-to"].map(id => document.getElementById(id));
   const dateCache = new Map();
   const byId = id => document.getElementById(id);
   const statusFilter = byId("status-filter");
   const indirectToggle = byId("indirect");
   const tableScroll = byId("network-scroll");
   const resultsBody = byId("results");
-  const sortButtons = [...document.querySelectorAll(".sort-button")];
+  const sortButtons = [...document.querySelectorAll(".network .sort-button")];
   const fields = [
     ["from", 0], ["to", 1], ["polygon", 2], ["size", 6],
     ["service-class", 3], ["shipping-service", 5]
@@ -495,7 +489,6 @@ body { padding-left: 68px; }
   let networkScrollBeforeSelection = 0;
   let polygonToLgId = new Map();
   const lgReserveCache = new Map();
-  let capacityRange = { from: null, to: null, valid: true };
   const viewHistory = [];
   const maxViewHistory = 40;
   let restoringView = false;
@@ -696,8 +689,7 @@ body { padding-left: 68px; }
       sort: sort ? { ...sort } : null,
       selectedRouteId: selectedRoute?.id || 0,
       selectedTimeScope,
-      scrollTop: selectedRoute ? networkScrollBeforeSelection : tableScroll.scrollTop,
-      capacityDates: capacityDates.map(input => input.value)
+      scrollTop: selectedRoute ? networkScrollBeforeSelection : tableScroll.scrollTop
     };
   }
 
@@ -737,8 +729,6 @@ body { padding-left: 68px; }
       sort = snapshot.sort ? { ...snapshot.sort } : null;
       selectedRoute = snapshot.selectedRouteId ? rows.find(row => row.id === snapshot.selectedRouteId) || null : null;
       selectedTimeScope = snapshot.selectedTimeScope || null;
-      snapshot.capacityDates.forEach((value, index) => { capacityDates[index].value = value || ""; });
-      updateCapacityRange();
       sortRows();
       networkScrollBeforeSelection = Number(snapshot.scrollTop) || 0;
       updateDetails();
@@ -819,28 +809,6 @@ body { padding-left: 68px; }
     }
     dateCache.set(target, day);
     return day;
-  }
-
-  function defaultCapacityRange() {
-    const [year, month, day] = calendarParts(new Date(), "gregory");
-    const today = Date.UTC(year, month - 1, day) / dayMs;
-    for (const [index, offset] of [-3, 3].entries()) {
-      capacityDates[index].value = calendarParts(dateAtNoon(today + offset), "persian")
-        .map(part => String(part).padStart(2, "0")).join("/");
-    }
-  }
-
-  function updateCapacityRange() {
-    const bounds = capacityDates.map(input => capacityDay(input.value));
-    const invalid = capacityDates.map((input, index) => Boolean(input.value.trim() && bounds[index] === null));
-    const [from, to] = bounds;
-    const reversed = from !== null && to !== null && from > to;
-    capacityDates.forEach((input, index) => input.setAttribute("aria-invalid", String(invalid[index] || reversed)));
-    const message = invalid.includes(true) ? "Enter a valid date in YYYY/MM/DD format." :
-      reversed ? "From date must be on or before To date." : "";
-    byId("capacity-date-error").textContent = message;
-    capacityRange = { from, to, valid: !message };
-    renderDetails(capacityDetail);
   }
 
   function tehranClocks(now) {
@@ -1402,13 +1370,8 @@ body { padding-left: 68px; }
     let rows = [];
     if (selectedRoute) {
       if (detail === timeScopeDetail) rows = joinScopeSlots(entries, selectedRoute);
-      else if (capacityRange.valid) {
-        const { from, to } = capacityRange;
-        rows = entries.filter(({ day, values }) =>
-          (from === null || (day !== null && day >= from)) &&
-          (to === null || (day !== null && day <= to)) &&
-          (!selectedTimeScope || timeScopeKey(values[0]) === selectedTimeScope)
-        ).map(entry => entry.values);
+      else {
+        rows = entries.filter(({ values }) => !selectedTimeScope || timeScopeKey(values[0]) === selectedTimeScope).map(entry => entry.values);
       }
     }
 
@@ -1437,14 +1400,14 @@ body { padding-left: 68px; }
       fragment.append(row);
     }
     byId(prefix + "-results").replaceChildren(fragment);
+    if (capacity) sortCapacity("capacity-results");
     byId(prefix + "-empty").hidden = rows.length > 0 && !pending.length && !failed.length;
     byId(prefix + "-retry").hidden = !selectedRoute || !failed.length;
     let message = "";
     if (!selectedRoute) message = "Select a network to view its " + label + ".";
     else if (failed.length) message = "Could not load " + failed.map(source => source.label).join(" and ") + ".";
     else if (pending.length) message = "Loading " + pending.map(source => source.label).join(" and ") + "…";
-    else if (detail === capacityDetail && !capacityRange.valid) message = "Enter a valid date range to view capacity.";
-    else if (!rows.length) message = entries.length ? (selectedTimeScope ? "No capacity records for the selected time scope in this date range." : "No capacity records in this date range.") : detail.emptyMessage;
+    else if (!rows.length) message = entries.length ? (selectedTimeScope ? "No capacity records for the selected time scope." : "No capacity records.") : detail.emptyMessage;
     if (capacity && lgState?.error && !message) message = "LG Reserve could not be loaded; network capacity is still available.";
     byId(prefix + "-message").textContent = message;
   }
@@ -1618,20 +1581,6 @@ body { padding-left: 68px; }
       }
     });
   }
-  for (const input of capacityDates) {
-    input.addEventListener("focus", () => {
-      input.dataset.previousValue = input.value;
-      input._previousViewState = captureViewState();
-    });
-    input.addEventListener("change", () => {
-      if (input.dataset.previousValue !== input.value) pushViewSnapshot(input._previousViewState);
-      input.dataset.previousValue = input.value;
-      input._previousViewState = captureViewState();
-    });
-    input.addEventListener("input", updateCapacityRange);
-  }
-  defaultCapacityRange();
-  updateCapacityRange();
   byId("reset-sort").addEventListener("click", () => {
     pushViewState();
     sort = null;
@@ -1719,8 +1668,8 @@ body { padding-left: 68px; }
     pointField.list.replaceChildren(...pointField.options.map((o,i)=>{const li=document.createElement('li');li.id='point-name-option-'+i;li.dataset.index=i;li.setAttribute('role','option');li.dir='auto';li.textContent=o.name;return li;}));
     pointField.message.hidden=pointField.options.length>0;pointField.menu.hidden=false;pointField.list.scrollTop=0;pointInput.setAttribute('aria-expanded','true');highlight(pointField,pointField.options.length?0:-1);
   }
-  function choosePoint(o){if(!o)return;pointInput.value=o.name;pointField.selected=o.name;pointField.clear.hidden=false;pointInput.dataset.selected='true';pointState.selected=null;pointState.scope=null;byId('point-cap-type').value='';close(pointField);renderPoints();}
-  pointInput.addEventListener('input',e=>{pointField.selected=null;pointInput.dataset.selected='false';pointField.clear.hidden=!pointInput.value;pointState.selected=null;pointState.scope=null;byId('point-cap-type').value='';renderPoints();if(!e.isComposing)suggestPoint();});
+  function choosePoint(o){if(!o)return;pointInput.value=o.name;pointField.selected=o.name;pointField.clear.hidden=false;pointInput.dataset.selected='true';pointState.selected=null;pointState.scope=null;close(pointField);renderPoints();}
+  pointInput.addEventListener('input',e=>{pointField.selected=null;pointInput.dataset.selected='false';pointField.clear.hidden=!pointInput.value;pointState.selected=null;pointState.scope=null;renderPoints();if(!e.isComposing)suggestPoint();});
   pointInput.addEventListener('compositionend',suggestPoint);pointInput.addEventListener('focus',()=>{if(!pointField.selected)suggestPoint()});pointInput.addEventListener('blur',()=>close(pointField));
   pointInput.addEventListener('keydown',e=>{if(e.isComposing)return;if(e.key==='Escape'){close(pointField);return;}if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!normalize(pointInput.value))return;e.preventDefault();if(pointField.menu.hidden){suggestPoint();return;}const n=pointField.options.length;if(n)highlight(pointField,(pointField.active+(e.key==='ArrowDown'?1:-1)+n)%n,true);}else if(e.key==='Enter'&&!pointField.menu.hidden&&pointField.active>=0){e.preventDefault();choosePoint(pointField.options[pointField.active]);}});
   pointField.list.addEventListener('pointerdown',e=>e.preventDefault());pointField.list.addEventListener('click',e=>{const li=e.target.closest('[role=option]');if(li)choosePoint(pointField.options[Number(li.dataset.index)]);});pointField.clear.addEventListener('click',()=>{pointInput.value='';pointInput.dispatchEvent(new Event('input'));pointInput.focus();});
@@ -1732,11 +1681,64 @@ body { padding-left: 68px; }
   function pointIndex(records){const m=new Map();for(const r of records){const k=pointKey(r[1]);if(!k)continue;if(!m.has(k))m.set(k,[]);m.get(k).push(r)}return m;}
   function pointOptions(id,values){const el=byId(id),old=el.value;el.replaceChildren(new Option('All',''),...[...new Set(values.filter(Boolean))].sort(collator.compare).map(v=>new Option(v,v)));if([...el.options].some(o=>o.value===old))el.value=old;}
   function pointRow(body,values,click,selected){const tr=document.createElement('tr');for(const value of values){const td=document.createElement('td');td.textContent=value??'';td.dir='auto';tr.append(td)}if(click){tr.tabIndex=0;tr.setAttribute('aria-selected',String(!!selected));tr.addEventListener('click',click);tr.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();click()}})}body.append(tr);}
-  function renderPointDetails(){const p=pointState.selected,scopeBody=byId('point-scopes'),capBody=byId('point-capacity');scopeBody.replaceChildren();capBody.replaceChildren();byId('point-selected').textContent=p?.[1]||'';if(!p){byId('point-scope-message').textContent='Select a shipping point to view its time scopes.';byId('point-cap-message').textContent='Select a shipping point to view its capacity.';return;}const k=pointKey(p[1]),scopes=pointState.scopes.get(k)||[],caps=pointState.caps.get(k)||[];const types=new Map([...caps,...scopes.map(r=>[null,null,r[3]])].filter(r=>r[2]).map(r=>[pointKey(r[2]),r[2]]));byId('point-cap-type').replaceChildren(new Option('All',''),...[...types].sort((a,b)=>collator.compare(a[1],b[1])).map(([key,label])=>new Option(label,key)));byId('point-cap-type').value=pointState.scope||'';for(const r of scopes)pointRow(scopeBody,[r[1],r[2],r[3],pointActiveLabel(r[4])],()=>{const key=pointKey(r[3]);pointState.scope=pointState.scope===key?null:key;byId('point-cap-type').value=pointState.scope||'';renderPointDetails()},pointState.scope===pointKey(r[3]));byId('point-scope-message').textContent=scopes.length?`${scopes.length} time scopes · select a row to filter capacity by Type`:'No time scopes for this point.';const from=byId('point-from-date').value.trim(),to=byId('point-to-date').value.trim(),lo=from?capacityDay(from):null,hi=to?capacityDay(to):null;if((from&&lo===null)||(to&&hi===null)||(lo!==null&&hi!==null&&lo>hi)){byId('point-cap-message').textContent='Enter a valid date range (YYYY/MM/DD).';return;}const size=byId('point-cap-size').value;const filtered=caps.filter(r=>{const d=capacityDay(r[3]);return (!pointState.scope||pointKey(r[2])===pointState.scope)&&(!size||r[5]===size)&&(lo===null||(d!==null&&d>=lo))&&(hi===null||(d!==null&&d<=hi));});filtered.sort((a,b)=>(capacityDay(b[3])??0)-(capacityDay(a[3])??0));for(const r of filtered)pointRow(capBody,[r[1],r[2],r[3],r[4],r[5],r[6],r[7],pointActiveLabel(r[9]),pointActiveLabel(r[10]),r[11],r[12]]);byId('point-cap-message').textContent=filtered.length?`${filtered.length} capacity records`:'No matching capacity records.';}
-  function renderPoints(){if(!pointState.loaded)return;const q=pointKey(pointField.selected||''),code=pointKey(byId('point-code').value),type=byId('point-type').value,active=byId('point-active').value;const rows=pointState.points.filter(r=>(!q||pointKey(r[1])===q)&&(!code||pointKey(r[0]+' '+r[5]).includes(code))&&(!type||r[2]===type)&&(!active||pointActive(r[4])===active));rows.sort((a,b)=>collator.compare(a[pointState.sort],b[pointState.sort])*(pointState.ascending?1:-1));if(!rows.includes(pointState.selected)){pointState.selected=null;pointState.scope=null;}const body=byId('point-rows');body.replaceChildren();for(const r of rows)pointRow(body,[r[1],r[2],r[3],pointActiveLabel(r[4]),r[5],r[6],r[7]],()=>{pointState.selected=pointState.selected===r?null:r;pointState.scope=null;byId('point-cap-type').value='';renderPoints()},pointState.selected===r);byId('point-count').textContent=`${rows.length.toLocaleString()} / ${pointState.points.length.toLocaleString()}`;byId('point-message').textContent=rows.length?'':'No matching shipping points.';renderPointDetails();}
-  async function loadPoints(){if(pointState.loading)return;pointState.loading=true;byId('point-refresh').disabled=true;byId('point-message').textContent='Loading three Point datasets…';try{const [p,t,c]=await Promise.all([readSheet('215570449',['A','B','C','E','J','L','M','N'],'B is not null'),readSheet('829821463',['A','B','C','D','E'],'B is not null'),readSheet('1284094856',['A','B','C','D','E','F','G','H','I','J','K','L','M'],'B is not null')]);const values=(rows,n)=>rows.map(r=>Array.from({length:n},(_,i)=>cellText(r,i)));pointState.points=values(p,8);pointState.scopes=pointIndex(values(t,5));pointState.caps=pointIndex(values(c,13));pointState.selected=null;pointState.scope=null;pointState.loaded=true;pointOptions('point-type',pointState.points.map(r=>r[2]));pointOptions('point-cap-size',values(c,13).map(r=>r[5]));pointField.locations=optionRecords(new Set(pointState.points.map(r=>r[1]).filter(Boolean)));renderPoints();}catch(e){byId('point-message').textContent='Could not load Point datasets. '+e.message+' — use Refresh to retry.';}finally{pointState.loading=false;byId('point-refresh').disabled=false;}}
+  function renderPointDetails(){const p=pointState.selected,scopeBody=byId('point-scopes'),capBody=byId('point-capacity');scopeBody.replaceChildren();capBody.replaceChildren();byId('point-selected').textContent=p?.[1]||'';if(!p){byId('point-scope-message').textContent='Select a shipping point to view its time scopes.';byId('point-cap-message').textContent='Select a shipping point to view its capacity.';return;}const k=pointKey(p[1]),scopes=pointState.scopes.get(k)||[],caps=pointState.caps.get(k)||[];for(const r of scopes)pointRow(scopeBody,[r[1],r[2],r[3],pointActiveLabel(r[4])],()=>{const key=pointKey(r[3]);pointState.scope=pointState.scope===key?null:key;renderPointDetails()},pointState.scope===pointKey(r[3]));byId('point-scope-message').textContent=scopes.length?`${scopes.length} time scopes · select a row to filter capacity by Type`:'No time scopes for this point.';const filtered=caps.filter(r=>!pointState.scope||pointKey(r[2])===pointState.scope);filtered.sort((a,b)=>(capacityDay(b[3])??0)-(capacityDay(a[3])??0));for(const r of filtered)pointRow(capBody,[r[1],r[2],r[3],r[4],r[5],r[6],r[7],pointActiveLabel(r[9]),pointActiveLabel(r[10]),r[11],r[12]]);sortCapacity('point-capacity');byId('point-cap-message').textContent=filtered.length?`${filtered.length} capacity records`:'No matching capacity records.';}
+  function renderPoints(){if(!pointState.loaded)return;const q=pointKey(pointField.selected||''),code=pointKey(byId('point-code').value),type=byId('point-type').value,active=byId('point-active').value;const rows=pointState.points.filter(r=>(!q||pointKey(r[1])===q)&&(!code||pointKey(r[0]+' '+r[5]).includes(code))&&(!type||r[2]===type)&&(!active||pointActive(r[4])===active));rows.sort((a,b)=>collator.compare(a[pointState.sort],b[pointState.sort])*(pointState.ascending?1:-1));if(!rows.includes(pointState.selected)){pointState.selected=null;pointState.scope=null;}const body=byId('point-rows');body.replaceChildren();for(const r of rows)pointRow(body,[r[1],r[2],r[3],pointActiveLabel(r[4]),r[5],r[6],r[7]],()=>{pointState.selected=pointState.selected===r?null:r;pointState.scope=null;renderPoints()},pointState.selected===r);byId('point-count').textContent=`${rows.length.toLocaleString()} / ${pointState.points.length.toLocaleString()}`;byId('point-message').textContent=rows.length?'':'No matching shipping points.';renderPointDetails();}
+  async function loadPoints(){if(pointState.loading)return;pointState.loading=true;byId('point-refresh').disabled=true;byId('point-message').textContent='Loading three Point datasets…';try{const [p,t,c]=await Promise.all([readSheet('215570449',['A','B','C','E','J','L','M','N'],'B is not null'),readSheet('829821463',['A','B','C','D','E'],'B is not null'),readSheet('1284094856',['A','B','C','D','E','F','G','H','I','J','K','L','M'],'B is not null')]);const values=(rows,n)=>rows.map(r=>Array.from({length:n},(_,i)=>cellText(r,i)));pointState.points=values(p,8);pointState.scopes=pointIndex(values(t,5));pointState.caps=pointIndex(values(c,13));pointState.selected=null;pointState.scope=null;pointState.loaded=true;pointOptions('point-type',pointState.points.map(r=>r[2]));pointField.locations=optionRecords(new Set(pointState.points.map(r=>r[1]).filter(Boolean)));renderPoints();}catch(e){byId('point-message').textContent='Could not load Point datasets. '+e.message+' — use Refresh to retry.';}finally{pointState.loading=false;byId('point-refresh').disabled=false;}}
   function overviewTab(point){byId('network-view').hidden=point;byId('point-view').hidden=!point;byId('tab-network').setAttribute('aria-selected',String(!point));byId('tab-point').setAttribute('aria-selected',String(point));if(point&&!pointState.loaded)loadPoints();}
-  byId('tab-network').addEventListener('click',()=>overviewTab(false));byId('tab-point').addEventListener('click',()=>overviewTab(true));byId('point-refresh').addEventListener('click',loadPoints);for(const id of ['point-code','point-type','point-active'])byId(id).addEventListener('input',renderPoints);byId('point-cap-type').addEventListener('change',()=>{pointState.scope=byId('point-cap-type').value||null;renderPointDetails()});for(const id of ['point-from-date','point-to-date','point-cap-size'])byId(id).addEventListener('input',renderPointDetails);byId('point-reset').addEventListener('click',()=>{for(const id of ['point-name','point-code','point-type','point-active','point-from-date','point-to-date','point-cap-size','point-cap-type'])byId(id).value='';pointField.selected=null;pointField.clear.hidden=true;pointInput.dataset.selected='false';close(pointField);pointState.selected=null;pointState.scope=null;renderPoints()});document.querySelectorAll('[data-point-sort]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.pointSort);pointState.ascending=pointState.sort===i?!pointState.ascending:true;pointState.sort=i;renderPoints()}));
+  byId('tab-network').addEventListener('click',()=>overviewTab(false));byId('tab-point').addEventListener('click',()=>overviewTab(true));byId('point-refresh').addEventListener('click',loadPoints);for(const id of ['point-code','point-type','point-active'])byId(id).addEventListener('input',renderPoints);byId('point-reset').addEventListener('click',()=>{for(const id of ['point-name','point-code','point-type','point-active'])byId(id).value='';pointField.selected=null;pointField.clear.hidden=true;pointInput.dataset.selected='false';close(pointField);pointState.selected=null;pointState.scope=null;renderPoints()});document.querySelectorAll('[data-point-sort]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.pointSort);pointState.ascending=pointState.sort===i?!pointState.ascending:true;pointState.sort=i;renderPoints()}));
+
+
+  const capacitySortState = { "capacity-results": null, "point-capacity": null };
+  function capSortValue(value, kind) {
+    const text = String(value ?? "").trim().replace(/[۰-۹٠-٩]/g, d => String(d.charCodeAt(0) % 16));
+    if (!text || text === "—") return null;
+    if (kind === "number") {
+      const n = Number(text.replace(/[,٬\s]/g, ""));
+      return Number.isFinite(n) ? n : null;
+    }
+    if (kind === "date") {
+      const day = capacityDay(text);
+      if (day === null) return null;
+      const clock = /\s(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(text);
+      return day * 86400 + (clock ? +clock[1]*3600 + +clock[2]*60 + +(clock[3]||0) : 0);
+    }
+    if (kind === "scope") {
+      const parts = timeScopeKey(text).split(":");
+      if (parts.length === 2 && parts.every(x => /^\d+$/.test(x))) return Number(parts[0])*1441 + Number(parts[1]);
+      return null;
+    }
+    return text;
+  }
+  function sortCapacity(id) {
+    const state = capacitySortState[id];
+    if (!state) return;
+    const body = byId(id);
+    const kinds = id === "capacity-results" ? ["scope","date","number","number","text","text","number"] : ["text","text","date","scope","text","number","number","text","text","date","text"];
+    const entries = [...body.rows].map((row,i) => ({row,i,value:capSortValue(row.cells[state.column]?.textContent,kinds[state.column])}));
+    entries.sort((a,b) => {
+      if (a.value === null || b.value === null) return a.value === b.value ? a.i-b.i : a.value === null ? 1 : -1;
+      const c = typeof a.value === "number" && typeof b.value === "number" ? a.value-b.value : collator.compare(String(a.value),String(b.value));
+      return c*state.direction || a.i-b.i;
+    });
+    const fragment = document.createDocumentFragment();
+    for (const entry of entries) fragment.append(entry.row);
+    body.append(fragment);
+  }
+  for (const id of Object.keys(capacitySortState)) {
+    const buttons = [...byId(id).closest("table").querySelectorAll(".capacity-sort")];
+    for (const button of buttons) button.addEventListener("click", () => {
+      const column = Number(button.dataset.capColumn), previous = capacitySortState[id];
+      const direction = previous?.column === column ? -previous.direction : 1;
+      capacitySortState[id] = {column,direction};
+      for (const b of buttons) {
+        const th = b.closest("th"), active = b === button;
+        if (active) th.setAttribute("aria-sort",direction === 1 ? "ascending" : "descending");
+        else th.removeAttribute("aria-sort");
+        b.querySelector(".sort-icon").textContent = active ? (direction === 1 ? "↑" : "↓") : "↕";
+      }
+      sortCapacity(id);
+    });
+  }
 
   updateThemeLabel();
   load();
